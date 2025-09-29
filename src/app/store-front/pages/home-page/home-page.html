@@ -1,0 +1,47 @@
+<section class="mx-auto py-8 space-y-8">
+
+  <!-- Sección Más vendidos con layout VERTICAL (CARRUSEL) -->
+  <div>
+    <h2 class="text-xl font-bold text-base-content mb-4 px-6">Más vendidos</h2>
+
+    <!-- Contenedor con scroll horizontal -->
+    <div class="overflow-x-auto scrollbar-hide">
+      <div class="flex gap-16">
+        @for (product of products(); track product.id) {
+          <div class="flex-shrink-0 w-80">
+            <app-product-card
+              [image]="product.image"
+              [title]="product.name"
+              [description]="product.description"
+              [price]="product.price"
+              layout="vertical">
+              <button class="btn btn-primary btn-sm">
+                Agregar
+              </button>
+            </app-product-card>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección Menú con layout HORIZONTAL (sin cambios) -->
+  <div>
+    <h2 class="text-xl font-bold text-base-content mb-4 px-6">Menú</h2>
+    <div class="space-y-4">
+      @for (product of products(); track product.id) {
+        <app-product-card
+          [image]="product.image"
+          [title]="product.name"
+          [description]="product.description"
+          [price]="product.price"
+          layout="horizontal">
+          <button class="btn btn-primary btn-sm">
+            +
+          </button>
+        </app-product-card>
+      }
+    </div>
+  </div>
+
+</section>
