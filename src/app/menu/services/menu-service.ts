@@ -1,13 +1,9 @@
-import { Component, signal } from '@angular/core';
-import { Recommendations } from '../../components/recommendations/recommendations';
-import { Menu } from '../../components/menu/menu';
+import { Injectable, signal } from '@angular/core';
 
-@Component({
-  selector: 'app-home-page',
-  imports: [Recommendations, Menu],
-  templateUrl: './home-page.html'
+@Injectable({
+  providedIn: 'root'
 })
-export class HomePage {
+export class MenuService {
 
   menu = signal([
     {
@@ -116,4 +112,12 @@ export class HomePage {
       price: 18.99
     }
   ]);
+
+  getMenu() {
+    return this.menu();
+  }
+
+  getMenuItem(id: number) {
+    return this.menu().find(item => item.id === id);
+  }
 }

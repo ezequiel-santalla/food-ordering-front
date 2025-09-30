@@ -10,7 +10,7 @@
       </a>
 
       <!-- Menú -->
-      <a routerLink="/menu" routerLinkActive="bg-base-200/90" class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group">
+      <a routerLink="/menu" routerLinkActive="bg-base-200/90" [routerLinkActiveOptions]="{ exact: true }" class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group">
         <div class="p-2 rounded-lg bg-success/10 hover:bg-success/20 transition-colors">
           <lucide-icon [img]="Menu" class="w-5 h-5 text-success"></lucide-icon>
         </div>

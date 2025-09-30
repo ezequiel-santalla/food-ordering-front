@@ -3,7 +3,6 @@ import { StoreFrontLayoutComponent } from './layouts/store-front-layout/store-fr
 import { NotificationsPage } from './pages/notifications-page/notifications-page';
 import { ProfilePage } from './pages/profile-page/profile-page';
 import { HomePage } from './pages/home-page/home-page';
-import { MenuPage } from './pages/menu-page/menu-page';
 import { OrdersPage } from './pages/orders-page/orders-page';
 import { PaymentPage } from './pages/payment-page/payment-page';
 import { NotFoundPage } from './pages/not-found-page/not-found-page';
@@ -27,7 +26,7 @@ export const storeFrontRoutes: Routes = [
       },
       {
         path: 'menu',
-        component: MenuPage,
+        loadChildren: () => import('../menu/menu.routes').then(m => m.Menu),
       },
       {
         path: 'orders',

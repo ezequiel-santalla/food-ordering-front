@@ -1,0 +1,21 @@
+<section>
+  <h2 class="text-xl font-bold text-base-content mb-4 px-6">Recomendaciones</h2>
+
+  <!-- Contenedor con scroll horizontal -->
+  <div class="overflow-x-auto scrollbar-hide mb-8">
+    <div class="flex gap-10">
+      @for (menuItem of menu(); track menuItem.id) {
+      <div class="flex-shrink-0">
+        <app-menu-item-card
+          [image]="menuItem.image"
+          [title]="menuItem.name"
+          [description]="menuItem.description"
+          [price]="menuItem.price"
+          [menuItemid]="menuItem.id"
+          layout="vertical">
+        </app-menu-item-card>
+      </div>
+      }
+    </div>
+  </div>
+</section>

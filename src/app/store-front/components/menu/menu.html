@@ -1,0 +1,16 @@
+<section>
+  <h2 class="text-xl font-bold text-base-content mb-4 px-6">Menú</h2>
+
+  <div class="space-y-4">
+    @for (menuItem of menu(); track menuItem.id) {
+    <app-menu-item-card
+      [image]="menuItem.image"
+      [title]="menuItem.name"
+      [description]="menuItem.description"
+      [price]="menuItem.price"
+      [menuItemid]="menuItem.id"
+      layout="horizontal">
+    </app-menu-item-card>
+    }
+  </div>
+</section>

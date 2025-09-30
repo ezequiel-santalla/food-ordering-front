@@ -1,9 +1,10 @@
-<div
+<a
   class="card bg-base-100 shadow-sm rounded-xl overflow-hidden"
   [ngClass]="{
-    'w-96': layout() === 'vertical',
-    'w-full': layout() === 'horizontal'
-  }">
+    'w-96 pt-2': layout() === 'vertical',
+    'w-full my-8': layout() === 'horizontal'
+  }"
+  [routerLink]="['/menu', menuItemid()]">
 
   <!-- Layout VERTICAL (imagen arriba) -->
   @if (layout() === 'vertical') {
@@ -50,4 +51,4 @@
       </figure>
     </div>
   }
-</div>
+</a>
