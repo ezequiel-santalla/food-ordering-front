@@ -1,5 +1,7 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MenuItemCard } from '../menu-item-card/menu-item-card';
+import { MenuService } from '../../services/menu-service';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-recommendations',
@@ -8,5 +10,16 @@ import { MenuItemCard } from '../menu-item-card/menu-item-card';
 })
 export class Recommendations {
 
-  menu = input.required<any[]>();
+  menuService = inject(MenuService);
+
+  recommendationsResource = rxResource({
+    params: () => ({}),
+    stream: () => {
+      return this.menuService.getRecommendations();
+    }
+  });
+
+  recommendations = computed(() => {
+    return this.recommendationsResource.value() || [];
+  });
 }

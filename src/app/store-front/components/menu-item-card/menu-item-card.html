@@ -4,20 +4,20 @@
     'w-96 pt-2': layout() === 'vertical',
     'w-full my-8': layout() === 'horizontal'
   }"
-  [routerLink]="['/menu', menuItemid()]">
+  [routerLink]="['/menu', name()]">
 
   <!-- Layout VERTICAL (imagen arriba) -->
   @if (layout() === 'vertical') {
     <figure class="p-4">
       <img
         [src]="image()"
-        [alt]="title()"
+        [alt]="name()"
         class="w-full h-48 object-cover rounded-xl"
       />
     </figure>
 
     <div class="card-body">
-      <h2 class="card-title">{{ title() }}</h2>
+      <h2 class="card-title">{{ name() }}</h2>
       <p class="text-sm text-base-content/70">{{ description() }}</p>
 
       <div class="card-actions justify-between items-center mt-2">
@@ -32,7 +32,7 @@
     <div class="flex flex-row mb-4">
       <!-- Contenido a la izquierda -->
       <div class="card-body flex-1">
-        <h2 class="card-title">{{ title() }}</h2>
+        <h2 class="card-title">{{ name() }}</h2>
         <p class="text-sm text-base-content/70">{{ description() }}</p>
 
         <div class="card-actions justify-between items-center mt-2">
@@ -45,7 +45,7 @@
       <figure class="w-32 flex-shrink-0 pr-4 py-4">
         <img
           [src]="image()"
-          [alt]="title()"
+          [alt]="name()"
           class="w-full h-full object-cover rounded-xl"
         />
       </figure>

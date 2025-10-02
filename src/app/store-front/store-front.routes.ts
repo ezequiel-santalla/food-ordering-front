@@ -3,8 +3,6 @@ import { StoreFrontLayoutComponent } from './layouts/store-front-layout/store-fr
 import { NotificationsPage } from './pages/notifications-page/notifications-page';
 import { ProfilePage } from './pages/profile-page/profile-page';
 import { HomePage } from './pages/home-page/home-page';
-import { OrdersPage } from './pages/orders-page/orders-page';
-import { PaymentPage } from './pages/payment-page/payment-page';
 import { NotFoundPage } from './pages/not-found-page/not-found-page';
 
 export const storeFrontRoutes: Routes = [
@@ -26,15 +24,15 @@ export const storeFrontRoutes: Routes = [
       },
       {
         path: 'menu',
-        loadChildren: () => import('../menu/menu.routes').then(m => m.Menu),
+        loadChildren: () => import('./routes/menu.routes').then(m => m.Menu),
       },
       {
         path: 'orders',
-        component: OrdersPage,
+        loadChildren: () => import('./routes/orders.routes').then(m => m.Orders),
       },
       {
-        path: 'payment',
-        component: PaymentPage,
+        path: 'payments',
+        loadChildren: () => import('./routes/payments.routes').then(m => m.Payments),
       },
       {
         path: '**',

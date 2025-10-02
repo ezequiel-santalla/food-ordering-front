@@ -1,6 +1,6 @@
 import { Routes } from "@angular/router";
-import { MenuPage } from "./pages/menu-page/menu-page";
-import { MenuItemPage } from "./pages/menu-item-page/menu-item-page";
+import { MenuPage } from "../pages/menu-page/menu-page";
+import { MenuItemPage } from "../pages/menu-item-page/menu-item-page";
 
 export const Menu: Routes = [
   {
@@ -8,7 +8,7 @@ export const Menu: Routes = [
     component: MenuPage
   },
   {
-    path: ':id',
+    path: ':name',
     component: MenuItemPage
   }
 ];

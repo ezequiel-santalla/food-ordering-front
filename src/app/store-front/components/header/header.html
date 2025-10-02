@@ -3,10 +3,10 @@
 
     <!-- Fila 1: Logo + acciones -->
     <div class="flex items-center justify-between">
-      <!-- Logo y título -->
+      <!-- Logo y título dinámico -->
       <a routerLink="/" class="flex items-center gap-3">
-        <img src="#" alt="Burger House" class="h-8 w-8 object-contain" />
-        <h1 class="text-xl font-bold text-base-content">Burger House</h1>
+        <img src="#" alt="{{venueName()}}" class="h-8 w-8 object-contain" />
+        <h1 class="text-xl font-bold text-base-content">{{venueName()}}</h1>
       </a>
 
       <!-- Botones de acción -->
@@ -31,42 +31,46 @@
 
     <!-- Fila 2: Info QR + mesa -->
     <div class="flex items-center justify-between rounded-2xl border border-base-300 px-4 py-2 bg-base-100 shadow-sm">
-      <!-- QR + mesa info -->
       <div class="flex items-center gap-4">
-        <!-- Fondo circular para el ícono -->
         <div class="w-10 h-10 flex items-center justify-center rounded-full bg-primary/10">
           <lucide-icon [img]="QrCode" class="w-6 h-6"></lucide-icon>
         </div>
-
-        <!-- Texto -->
         <div class="flex flex-col leading-tight">
           <p class="text-sm font-semibold text-base-content">Mesa #5</p>
           <p class="text-xs text-base-content/70">Sesión Activa</p>
         </div>
       </div>
-
-      <!-- Personas -->
       <div>
         <p class="text-sm font-medium text-base-content">3 personas</p>
       </div>
     </div>
 
-    <!-- Fila 3: Categorías compactas -->
-    <div class="overflow-x-auto scrollbar-hide -mx-6 px-6">
+    <!-- Fila 3: Categorías dinámicas -->
+    @if (menuResource.isLoading()) {
       <div class="flex gap-2">
-        @for (category of categories(); track category.id) {
-        <button (click)="selectCategory(category.id)"
-          class="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 cursor-pointer"
-          [class.bg-primary]="selectedCategory() === category.id"
-          [class.text-primary-content]="selectedCategory() === category.id"
-          [class.shadow-sm]="selectedCategory() === category.id"
-          [class.bg-base-200]="selectedCategory() !== category.id"
-          [class.text-base-content]="selectedCategory() !== category.id">
-          {{ category.name }}
-        </button>
-        }
+        <div class="skeleton h-8 w-20 rounded-full"></div>
+        <div class="skeleton h-8 w-28 rounded-full"></div>
+        <div class="skeleton h-8 w-24 rounded-full"></div>
       </div>
-    </div>
+    }
+
+    @if (categories().length > 0) {
+      <div class="overflow-x-auto scrollbar-hide -mx-6 px-6">
+        <div class="flex gap-2">
+          @for (category of categories(); track category.id) {
+            <button (click)="selectCategory(category.id)"
+              class="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 cursor-pointer"
+              [class.bg-primary]="selectedCategory() === category.id"
+              [class.text-primary-content]="selectedCategory() === category.id"
+              [class.shadow-sm]="selectedCategory() === category.id"
+              [class.bg-base-200]="selectedCategory() !== category.id"
+              [class.text-base-content]="selectedCategory() !== category.id">
+              {{ category.name }}
+            </button>
+          }
+        </div>
+      </div>
+    }
 
   </div>
 </header>

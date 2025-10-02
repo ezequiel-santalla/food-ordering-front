@@ -1,16 +1,51 @@
-<section>
-  <h2 class="text-xl font-bold text-base-content mb-4 px-6">Menú</h2>
+<section class="max-w-6xl mx-auto p-6">
+  <!-- Loading State -->
+  @if (menuResource.isLoading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <p class="ml-4 text-lg">Cargando menú...</p>
+    </div>
+  }
 
-  <div class="space-y-4">
-    @for (menuItem of menu(); track menuItem.id) {
-    <app-menu-item-card
-      [image]="menuItem.image"
-      [title]="menuItem.name"
-      [description]="menuItem.description"
-      [price]="menuItem.price"
-      [menuItemid]="menuItem.id"
-      layout="horizontal">
-    </app-menu-item-card>
+  <!-- Error State -->
+  @if (menuResource.error()) {
+    <div class="alert alert-error">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>Error al cargar el menú. Por favor intenta nuevamente.</span>
+    </div>
+  }
+
+  <!-- Menu Content -->
+  @if (menuResource.value(); as menuData) {
+    <!-- Header del restaurante -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold mb-2">{{menuData.foodVenueName}}</h1>
+      <div class="divider"></div>
+    </div>
+
+    <!-- Iterar por cada categoría encontrada dinámicamente -->
+    @for (category of filteredCategories(); track category) {
+      <div class="mb-12">
+        <!-- Título de categoría -->
+        <h2 class="text-xl font-bold mb-6">{{category}}</h2>
+
+        <!-- Productos de esta categoría -->
+        <div class="space-y-4">
+          @for (product of getProductsByCategory(category); track product.id) {
+            <app-menu-item-card
+              [image]="product.image || 'https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp'"
+              [name]="product.name"
+              [description]="product.description"
+              [price]="product.price"
+              layout="horizontal">
+            </app-menu-item-card>
+          }
+        </div>
+
+        <div class="divider"></div>
+      </div>
     }
-  </div>
+  }
 </section>

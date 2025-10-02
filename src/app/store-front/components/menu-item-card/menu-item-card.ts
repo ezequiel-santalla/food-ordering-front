@@ -10,10 +10,9 @@ import { RouterLink } from '@angular/router';
 export class MenuItemCard {
 
   image = input.required<string>();
-  title = input.required<string>();
+  name = input.required<string>();
   description = input.required<string>();
-  price = input.required<number>();
-  menuItemid = input.required<number>();
+  price = input<number>();
 
   layout = input<'vertical' | 'horizontal'>('vertical');
 }

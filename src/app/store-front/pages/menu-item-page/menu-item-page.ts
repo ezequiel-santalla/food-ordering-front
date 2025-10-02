@@ -16,15 +16,15 @@ export class MenuItemPage {
   private route = inject(ActivatedRoute);
   private menuService = inject(MenuService);
 
-  private menuItemId = toSignal(
+  private menuItemName = toSignal(
     this.route.paramMap.pipe(
-      map(params => Number(params.get('id')))
+      map(params => params.get('name'))
     )
   );
 
-  menuItem = computed(() => {
-    const id = this.menuItemId();
+  // menuItem = computed(() => {
+  //   const id = this.menuItemId();
 
-    return id ? this.menuService.getMenuItem(id) : null;
-  });
+  //   return id ? this.menuService.getMenuItem(id) : null;
+  // });
 }
