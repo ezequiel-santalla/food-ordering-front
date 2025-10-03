@@ -26,7 +26,7 @@
     </div>
 
     <!-- Iterar por cada categoría encontrada dinámicamente -->
-    @for (category of filteredCategories(); track category) {
+    @for (category of filteredCategories(); track $index) {
       <div class="mb-12">
         <!-- Título de categoría -->
         <h2 class="text-xl font-bold mb-6">{{category}}</h2>

@@ -62,7 +62,7 @@ export class Menu {
     const grouped = new Map<string, Product[]>();
 
     products.forEach(product => {
-      const categoryName = product.category.name;
+      const categoryName = product.category;
       if (!grouped.has(categoryName)) {
         grouped.set(categoryName, []);
       }

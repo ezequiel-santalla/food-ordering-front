@@ -27,14 +27,8 @@ export interface Product {
   description: string;
   image:       string | null;
   price:       number;
-  category:    CategoryInfo;
+  category:    string;
   tags:        Tag[];
-}
-
-export interface CategoryInfo {
-  id:                 number;
-  name:               string;
-  childrenCategories: any[];
 }
 
 export interface Tag {

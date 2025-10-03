@@ -27,39 +27,30 @@ export class Header {
   });
 
   // Extraer categorías únicas del menú
+  // Extraer categorías únicas del menú
   categories = computed(() => {
     const menuData = this.menuResource.value();
     if (!menuData) return [{ id: 'all', name: 'Todos' }];
 
     const allProducts: any[] = [];
 
-    // Extraer todos los productos
-    menuData.menu.forEach(category => {
+    // Extraer todos los productos de manera recursiva
+    const extractProducts = (category: any) => {
       if (category.products) {
         allProducts.push(...category.products);
       }
-
       if (category.subcategory) {
-        category.subcategory.forEach(sub => {
-          if (sub.products) {
-            allProducts.push(...sub.products);
-          }
-
-          if (sub.subcategory) {
-            sub.subcategory.forEach(subSub => {
-              if (subSub.products) {
-                allProducts.push(...subSub.products);
-              }
-            });
-          }
-        });
+        category.subcategory.forEach((sub: any) => extractProducts(sub));
       }
-    });
+    };
+
+    menuData.menu.forEach((cat: any) => extractProducts(cat));
 
     // Obtener categorías únicas
     const uniqueCategories = new Map<string, string>();
     allProducts.forEach(product => {
-      uniqueCategories.set(product.category.name, product.category.name);
+      // Ahora category es un string, no un objeto
+      uniqueCategories.set(product.category, product.category);
     });
 
     // Crear array de categorías con "Todos" al inicio
@@ -73,6 +64,10 @@ export class Header {
 
   // Categoría seleccionada del servicio compartido
   selectedCategory = this.categoryService.selectedCategory;
+
+  venueImageUrl = computed(() => {
+    return this.menuResource.value()?.foodVenueImageUrl;
+  });
 
   // Nombre del restaurante
   venueName = computed(() => {
