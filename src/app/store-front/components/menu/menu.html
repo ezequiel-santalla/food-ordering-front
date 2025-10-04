@@ -35,7 +35,7 @@
         <div class="space-y-4">
           @for (product of getProductsByCategory(category); track product.id) {
             <app-menu-item-card
-              [image]="product.image || 'https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp'"
+              [image]="product.imageUrl || 'https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp'"
               [name]="product.name"
               [description]="product.description"
               [price]="product.price"

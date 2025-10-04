@@ -25,7 +25,7 @@ export interface Product {
   id:          number;
   name:        string;
   description: string;
-  image:       string | null;
+  imageUrl:    string | null;
   price:       number;
   category:    string;
   tags:        Tag[];
