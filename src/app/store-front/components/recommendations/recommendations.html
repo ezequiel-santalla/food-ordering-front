@@ -17,10 +17,10 @@
   @if (recommendations().length > 0) {
     <div class="overflow-x-auto scrollbar-hide mb-8">
       <div class="flex gap-10">
-        @for (menuItem of recommendations(); track menuItem.id) {
+        @for (menuItem of recommendations(); track menuItem.publicId) {
           <div class="flex-shrink-0">
             <app-menu-item-card
-              [image]="menuItem.imageUrl || 'https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp'"
+              [image]="menuItem.imageUrl"
               [name]="menuItem.name"
               [description]="menuItem.description"
               [price]="menuItem.price"

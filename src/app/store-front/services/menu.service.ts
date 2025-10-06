@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Menu, Product } from '../models/menu';
-import { map, Observable, tap } from 'rxjs';
+import { Menu, Product } from '../models/menu.interface';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
 @Injectable({
@@ -13,7 +13,7 @@ export class MenuService {
 
   getMenu(): Observable<Menu> {
     return this.http
-      .get<Menu>(`${environment.apiUrl}/public/food-venues/46b63071-f6fb-48bf-a2e0-4f7144e5a09b/menu/categories`)
+      .get<Menu>(`${environment.baseUrl}/public/food-venues/c74ec4db-d5f2-4a57-9194-311155f8d112/menu/categories`)
   }
 
   getRecommendations(): Observable<Product[]> {
@@ -48,7 +48,7 @@ export class MenuService {
         // Por ejemplo, los primeros 5 productos aleatorios:
         return allProducts
           .sort(() => Math.random() - 0.5)
-          .slice(0, 5);
+          .slice(0, 20);
       })
     );
   }

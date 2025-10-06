@@ -12,7 +12,7 @@ export class MenuItemCard {
   image = input.required<string>();
   name = input.required<string>();
   description = input.required<string>();
-  price = input<number>();
+  price = input.required<number>();
 
   layout = input<'vertical' | 'horizontal'>('vertical');
 }

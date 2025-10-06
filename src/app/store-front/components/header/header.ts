@@ -1,8 +1,10 @@
+// store-front/components/header/header.ts
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Bell, User, QrCode } from 'lucide-angular';
-import { MenuService } from '../../services/menu-service';
-import { CategoryService } from '../../services/category-service';
+import { MenuService } from '../../services/menu.service';
+import { CategoryService } from '../../services/category.service';
+import { TableSessionService } from '../../services/table-session.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -11,14 +13,19 @@ import { rxResource } from '@angular/core/rxjs-interop';
   templateUrl: './header.html'
 })
 export class Header {
+
   readonly Bell = Bell;
   readonly User = User;
   readonly QrCode = QrCode;
 
   menuService = inject(MenuService);
   categoryService = inject(CategoryService);
+  tableSessionService = inject(TableSessionService);
 
-  // Cargar el menú
+  // Info de la sesión de mesa
+  tableSession = this.tableSessionService.tableSessionInfo;
+  hasActiveSession = this.tableSessionService.hasActiveSession;
+
   menuResource = rxResource({
     params: () => ({}),
     stream: () => {
@@ -26,15 +33,12 @@ export class Header {
     }
   });
 
-  // Extraer categorías únicas del menú
-  // Extraer categorías únicas del menú
   categories = computed(() => {
     const menuData = this.menuResource.value();
     if (!menuData) return [{ id: 'all', name: 'Todos' }];
 
     const allProducts: any[] = [];
 
-    // Extraer todos los productos de manera recursiva
     const extractProducts = (category: any) => {
       if (category.products) {
         allProducts.push(...category.products);
@@ -46,14 +50,11 @@ export class Header {
 
     menuData.menu.forEach((cat: any) => extractProducts(cat));
 
-    // Obtener categorías únicas
     const uniqueCategories = new Map<string, string>();
     allProducts.forEach(product => {
-      // Ahora category es un string, no un objeto
       uniqueCategories.set(product.category, product.category);
     });
 
-    // Crear array de categorías con "Todos" al inicio
     const categoryList = [{ id: 'all', name: 'Todos' }];
     uniqueCategories.forEach((name) => {
       categoryList.push({ id: name.toLowerCase(), name: name });
@@ -62,19 +63,16 @@ export class Header {
     return categoryList;
   });
 
-  // Categoría seleccionada del servicio compartido
   selectedCategory = this.categoryService.selectedCategory;
 
   venueImageUrl = computed(() => {
     return this.menuResource.value()?.foodVenueImageUrl;
   });
 
-  // Nombre del restaurante
   venueName = computed(() => {
     return this.menuResource.value()?.foodVenueName;
   });
 
-  // Método para cambiar categoría
   selectCategory(categoryId: string) {
     this.categoryService.setCategory(categoryId);
   }

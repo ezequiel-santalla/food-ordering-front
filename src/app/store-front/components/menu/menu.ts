@@ -1,9 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { MenuItemCard } from '../menu-item-card/menu-item-card';
-import { MenuService } from '../../services/menu-service';
+import { MenuService } from '../../services/menu.service';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { Product } from '../../models/menu';
-import { CategoryService } from '../../services/category-service';
+import { Product } from '../../models/menu.interface';
+import { CategoryService } from '../../services/category.service';
 
 @Component({
   selector: 'app-menu',

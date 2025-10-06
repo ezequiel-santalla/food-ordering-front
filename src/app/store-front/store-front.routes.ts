@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { StoreFrontLayoutComponent } from './layouts/store-front-layout/store-front-layout';
+import { StoreFrontLayoutComponent } from './layout/store-front-layout/store-front-layout';
 import { NotificationsPage } from './pages/notifications-page/notifications-page';
 import { ProfilePage } from './pages/profile-page/profile-page';
 import { HomePage } from './pages/home-page/home-page';

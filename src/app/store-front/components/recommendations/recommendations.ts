@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { MenuItemCard } from '../menu-item-card/menu-item-card';
-import { MenuService } from '../../services/menu-service';
+import { MenuService } from '../../services/menu.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({

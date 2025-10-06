@@ -21,7 +21,7 @@
   @if (menuResource.value(); as menuData) {
     <!-- Header del restaurante -->
     <div class="mb-8">
-      <h1 class="text-2xl font-bold mb-2">{{menuData.foodVenueName}}</h1>
+      <h1 class="text-xl font-bold mb-2">{{menuData.foodVenueName}}</h1>
       <div class="divider"></div>
     </div>
 
@@ -33,9 +33,9 @@
 
         <!-- Productos de esta categoría -->
         <div class="space-y-4">
-          @for (product of getProductsByCategory(category); track product.id) {
+          @for (product of getProductsByCategory(category); track $index) {
             <app-menu-item-card
-              [image]="product.imageUrl || 'https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp'"
+              [image]="product.imageUrl"
               [name]="product.name"
               [description]="product.description"
               [price]="product.price"

@@ -6,8 +6,8 @@ export interface Menu {
 
 export interface MenuElement {
   category:     string;
-  subcategory?: Subcategory[];  // Para estructura anidada
-  products?:    Product[];       // Para estructura plana
+  subcategory?: Subcategory[];
+  products?:    Product[];
 }
 
 export interface Subcategory {
@@ -22,10 +22,10 @@ export interface SubcategoryNested {
 }
 
 export interface Product {
-  id:          number;
+  publicId:          string;
   name:        string;
   description: string;
-  imageUrl:    string | null;
+  imageUrl:    string;
   price:       number;
   category:    string;
   tags:        Tag[];

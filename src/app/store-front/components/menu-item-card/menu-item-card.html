@@ -1,5 +1,5 @@
 <a class="card bg-base-100 shadow-sm rounded-xl overflow-hidden" [ngClass]="{
-    'w-96 pt-2': layout() === 'vertical',
+    'w-80 pt-2': layout() === 'vertical',
     'w-full my-8': layout() === 'horizontal'
   }" [routerLink]="['/menu', name()]">
 
@@ -12,11 +12,14 @@
   </figure>
 
   <div class="card-body">
-    <h2 class="card-title">{{ name() }}</h2>
-    <p class="text-sm text-base-content/70">{{ description() }}</p>
+    <div class="flex justify-between items-start mb-2">
+      <h2 class="card-title text-lg">{{ name() }}</h2>
+      <span class="text-xl font-bold text-primary ml-2 flex-shrink-0">${{ price() }}</span>
+    </div>
 
-    <div class="card-actions justify-between items-center mt-2">
-      <span class="text-xl font-bold text-primary">${{ price() }}</span>
+    <p class="text-base text-base-content/70">{{ description() }}</p>
+
+    <div class="card-actions justify-end items-center mt-2">
       <ng-content></ng-content>
     </div>
   </div>
@@ -28,7 +31,7 @@
     <!-- Contenido a la izquierda -->
     <div class="card-body flex-1">
       <h2 class="card-title">{{ name() }}</h2>
-      <p class="text-sm text-base-content/70">{{ description() }}</p>
+      <p class="text-md text-base-content/70">{{ description() }}</p>
 
       <div class="card-actions justify-between items-center mt-2">
         <span class="text-xl font-bold text-primary">${{ price() }}</span>
@@ -38,7 +41,9 @@
 
     <!-- Imagen a la derecha -->
     <figure class="w-32 flex-shrink-0 pr-4 py-4">
-      <img [src]="image()" [alt]="name()" class="w-full h-full object-cover rounded-xl" />
+      <div class="aspect-square w-full bg-white rounded-xl flex items-center justify-center overflow-hidden">
+        <img [src]="image()" [alt]="name()" class="w-full h-full object-cover" />
+      </div>
     </figure>
   </div>
   }
