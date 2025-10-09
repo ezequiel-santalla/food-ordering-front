@@ -1,18 +1,27 @@
 import { inject } from '@angular/core';
-import { CanMatchFn, Router } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { firstValueFrom } from 'rxjs';
 
-export const AuthenticatedGuard: CanMatchFn = async () => {
+export const AuthenticatedGuard: CanActivateFn = async () => {
+
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  const isAuthenticated = await firstValueFrom(authService.checkAuthStatus());
+  try {
+    const isAuthenticated = await firstValueFrom(authService.checkAuthStatus());
 
-  if (!isAuthenticated) {
+    if (!isAuthenticated) {
+      console.log('❌ No autenticado, redirigiendo a login');
+      router.navigate(['/auth/login']);
+      return false;
+    }
+
+    console.log('✅ Usuario autenticado');
+    return true;
+  } catch (error) {
+    console.error('Error verificando autenticación:', error);
     router.navigate(['/auth/login']);
     return false;
   }
-
-  return true;
 };

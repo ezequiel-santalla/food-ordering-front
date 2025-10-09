@@ -1,48 +1,29 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../../auth/services/auth.service';
+import { TableSessionInfo } from '../models/table-session.interface';
 
-export interface TableSessionInfo {
-  tableNumber: number;
-  participantCount: number;
-  sessionId: string | null;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class TableSessionService {
-
   private authService = inject(AuthService);
 
-  private _tableSessionInfo = signal<TableSessionInfo>({
-    tableNumber: 0,
-    participantCount: 0,
-    sessionId: null
-  });
+  private _tableNumber = signal<number>(0);
+  private _participantCount = signal<number>(0);
 
-  tableSessionInfo = computed(() => this._tableSessionInfo());
+  tableSessionInfo = computed<TableSessionInfo>(() => ({
+    tableNumber: this._tableNumber(),
+    participantCount: this._participantCount(),
+    sessionId: this.authService.tableSessionId()
+  }));
 
-  // Método para actualizar la info desde el scan QR
+  hasActiveSession = computed(() => this.authService.tableSessionId() !== null);
+
   setTableSessionInfo(tableNumber: number, participantCount: number) {
-    const sessionId = this.authService.tableSessionId();
-    this._tableSessionInfo.set({
-      tableNumber,
-      participantCount,
-      sessionId
-    });
+    this._tableNumber.set(tableNumber);
+    this._participantCount.set(participantCount);
   }
 
-  // Limpiar sesión
   clearSession() {
-    this._tableSessionInfo.set({
-      tableNumber: 0,
-      participantCount: 0,
-      sessionId: null
-    });
+    this._tableNumber.set(0);
+    this._participantCount.set(0);
   }
-
-  // Verificar si hay sesión activa
-  hasActiveSession = computed(() => {
-    return this._tableSessionInfo().sessionId !== null;
-  });
 }

@@ -1,5 +1,4 @@
-// auth/pages/scan-qr-page/scan-qr-page.component.ts
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { LucideAngularModule, QrCode, Scan } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
@@ -21,10 +20,48 @@ export class ScanQrPageComponent {
   private tableSessionService = inject(TableSessionService);
 
   isSubmitting = signal(false);
+  readonly TEST_TABLE_ID = '9fa8654a-2d0b-4e3b-8939-cd08c7b1e094';
 
-  readonly TEST_TABLE_ID = 'edb7eb59-9991-4972-a519-6fb57d5bcddb';
+  constructor() {
+    // Verificar si ya tiene sesión al entrar
+    const currentSession = this.authService.tableSessionId();
+    if (currentSession && currentSession !== 'undefined' && currentSession !== 'null') {
+      console.log('✅ Ya tiene sesión activa, redirigiendo...');
+      this.router.navigate(['/'], { replaceUrl: true });
+    }
+
+    // Effect para reaccionar a cambios en tableSessionId
+    effect(() => {
+      const tableSessionId = this.authService.tableSessionId();
+
+      if (tableSessionId &&
+          tableSessionId !== 'undefined' &&
+          tableSessionId !== 'null' &&
+          !this.isSubmitting()) {
+        console.log('✅ Sesión detectada, redirigiendo al menú...');
+
+        setTimeout(() => {
+          this.router.navigate(['/'], { replaceUrl: true });
+        }, 100);
+      }
+    });
+  }
 
   simulateScan() {
+    const currentSession = this.authService.tableSessionId();
+
+    // Verificar sesión activa válida
+    if (currentSession && currentSession !== 'undefined' && currentSession !== 'null') {
+      console.log('⚠️ Ya tienes una sesión activa:', currentSession);
+      this.sweetAlertService.showInfo(
+        'Sesión activa',
+        'Ya tienes una sesión de mesa activa'
+      );
+      this.router.navigate(['/']);
+      return;
+    }
+
+    console.log('🔍 Iniciando escaneo de QR, sesión actual:', currentSession);
     this.isSubmitting.set(true);
 
     this.sweetAlertService.showLoading(
@@ -34,23 +71,35 @@ export class ScanQrPageComponent {
 
     this.authService.scanQR(this.TEST_TABLE_ID).subscribe({
       next: (response) => {
-        this.isSubmitting.set(false);
+        console.log('✅ QR escaneado exitosamente:', response);
 
-        // Guardar info de la sesión
+        // Validar que la respuesta tenga los datos necesarios
+        if (!response || !response.tableNumber || !response.participants) {
+          console.error('❌ Respuesta inválida del servidor');
+          this.isSubmitting.set(false);
+          this.sweetAlertService.showError(
+            'Error',
+            'La respuesta del servidor no es válida'
+          );
+          return;
+        }
+
         this.tableSessionService.setTableSessionInfo(
           response.tableNumber,
           response.participants.length
         );
 
         this.sweetAlertService.showSuccess(
-          '¡Conexión exitosa!',
+          '¡Bienvenido!',
           `Te has unido a la mesa ${response.tableNumber}`
         );
 
-        this.router.navigate(['/']);
+        this.isSubmitting.set(false);
+
+        // El effect manejará la navegación cuando se actualice tableSessionId
       },
       error: (error) => {
-        console.error('Error en scan QR:', error);
+        console.error('❌ Error escaneando QR:', error);
         this.isSubmitting.set(false);
 
         const { title, message } = this.getErrorMessage(error);
@@ -61,20 +110,20 @@ export class ScanQrPageComponent {
 
   private getErrorMessage(error: any): { title: string, message: string } {
     switch (error.status) {
+      case 400:
+        return {
+          title: 'QR inválido',
+          message: 'El código QR no es válido o ya tienes una sesión activa.'
+        };
       case 404:
         return {
           title: 'Mesa no encontrada',
-          message: 'No existe una mesa con ese ID.'
+          message: 'No existe una mesa con ese código.'
         };
       case 409:
         return {
-          title: 'Mesa ocupada',
-          message: 'La mesa ya tiene una sesión activa.'
-        };
-      case 401:
-        return {
-          title: 'No autorizado',
-          message: 'Debes iniciar sesión primero.'
+          title: 'Sesión existente',
+          message: 'Ya tienes una sesión activa en otra mesa.'
         };
       default:
         return {

@@ -75,8 +75,10 @@ export class LoginPageComponent {
     );
 
     this.authService.login(formValue).subscribe({
-      next: () => {
+      next: (response) => {
         this.isSubmitting = false;
+
+        console.log('🎯 Login completado, verificando tableSessionId...');
 
         this.sweetAlertService.showSuccess(
           '¡Bienvenido!',
@@ -84,7 +86,24 @@ export class LoginPageComponent {
         );
 
         this.resetForm();
-        this.router.navigate(['/scan-qr']);
+
+        // ⚠️ CRÍTICO: Esperar un tick para asegurar que los signals se actualicen
+        setTimeout(() => {
+          const hasTableSession = this.authService.tableSessionId();
+
+          console.log('🔍 Estado después del login:', {
+            tableSessionId: hasTableSession,
+            foodVenueId: this.authService.foodVenueId()
+          });
+
+          if (hasTableSession) {
+            console.log('✅ Tiene sesión de mesa, navegando a home');
+            this.router.navigate(['/'], { replaceUrl: true });
+          } else {
+            console.log('⚠️ Sin sesión de mesa, navegando a scan-qr');
+            this.router.navigate(['/scan-qr'], { replaceUrl: true });
+          }
+        }, 50);
       },
       error: (error) => {
         console.error('Error en login:', error);

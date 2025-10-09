@@ -6,8 +6,9 @@ import { AuthService } from "../services/auth.service";
 export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
   // Rutas públicas que NO necesitan token
   const publicRoutes = [
-    '/auth/',
-    '/table-sessions/scan-qr',
+    '/auth/login',
+    '/auth/register',
+    '/auth/forgot-password',
     '/public/'
   ];
 
@@ -16,16 +17,20 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
 
   // Si es ruta pública, no agregar token
   if (isPublicRoute) {
+    console.log('🌐 Ruta pública detectada, sin token:', req.url);
     return next(req);
   }
 
   // Para rutas protegidas, agregar token si existe
-  const token = inject(AuthService).accessToken();
+  const authService = inject(AuthService);
+  const token = authService.accessToken();
 
   if (!token) {
+    console.warn('⚠️ No hay token disponible para:', req.url);
     return next(req);
   }
 
+  console.log('🔐 Agregando token a la petición:', req.url);
   const newReq = req.clone({
     headers: req.headers.append('Authorization', `Bearer ${token}`),
   });
