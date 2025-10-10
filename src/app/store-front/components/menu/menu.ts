@@ -11,17 +11,16 @@ import { CategoryService } from '../../services/category.service';
   templateUrl: './menu.html'
 })
 export class Menu {
+
   menuService = inject(MenuService);
   categoryService = inject(CategoryService);
 
   menuResource = rxResource({
-    params: () => ({}),
     stream: () => {
       return this.menuService.getMenu();
     }
   });
 
-  // Extraer TODOS los productos de cualquier estructura (plana o anidada)
   allProducts = computed(() => {
     const menuData = this.menuResource.value();
     if (!menuData) return [];
@@ -78,15 +77,15 @@ export class Menu {
   });
 
   filteredCategories = computed(() => {
-  const selected = this.categoryService.selectedCategory();
-  const allCategories = this.categories();
+    const selected = this.categoryService.selectedCategory();
+    const allCategories = this.categories();
 
-  if (selected === 'all') {
-    return allCategories;
-  }
+    if (selected === 'all') {
+      return allCategories;
+    }
 
-  return allCategories.filter(cat => cat.toLowerCase() === selected);
-});
+    return allCategories.filter(cat => cat.toLowerCase() === selected);
+  });
 
   // Helper para obtener productos de una categoría
   getProductsByCategory(category: string): Product[] {

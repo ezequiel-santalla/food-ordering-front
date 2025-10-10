@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideAngularModule, House, Menu, ShoppingCart, CreditCard } from 'lucide-angular';
+import { LucideAngularModule, House, Menu, ShoppingCart, CreditCard, HandPlatter } from 'lucide-angular';
 
 @Component({
   selector: 'app-footer',
@@ -11,5 +11,6 @@ export class Footer {
   readonly House = House;
   readonly Menu = Menu;
   readonly ShoppingCart = ShoppingCart;
+  readonly HandPlatter = HandPlatter;
   readonly CreditCard = CreditCard;
 }

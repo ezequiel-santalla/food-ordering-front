@@ -15,4 +15,10 @@ export class MenuItemCard {
   price = input.required<number>();
 
   layout = input<'vertical' | 'horizontal'>('vertical');
+
+  getProductRoute() {
+    // trim + toLowerCase para que coincida con el backend
+    const normalizedName = this.name().trim().toLowerCase();
+    return ['/menu', normalizedName];
+  }
 }

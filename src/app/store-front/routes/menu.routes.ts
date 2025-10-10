@@ -8,7 +8,7 @@ export const Menu: Routes = [
     component: MenuPage
   },
   {
-    path: ':id',
+    path: ':name',
     component: MenuItemPage
   }
 ];

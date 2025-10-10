@@ -16,7 +16,8 @@
   <!-- Contenedor con scroll horizontal -->
   @if (recommendations().length > 0) {
     <div class="overflow-x-auto scrollbar-hide mb-8">
-      <div class="flex gap-10">
+      <!-- items-stretch asegura que todas las cards tengan la misma altura -->
+      <div class="flex gap-4 items-stretch">
         @for (menuItem of recommendations(); track menuItem.publicId) {
           <div class="flex-shrink-0">
             <app-menu-item-card

@@ -5,12 +5,7 @@ import { AuthService } from "../services/auth.service";
 
 export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
   // Rutas públicas que NO necesitan token
-  const publicRoutes = [
-    '/auth/login',
-    '/auth/register',
-    '/auth/forgot-password',
-    '/public/'
-  ];
+  const publicRoutes = ['/auth/', '/public/'];
 
   // Verificar si la URL coincide con alguna ruta pública
   const isPublicRoute = publicRoutes.some(route => req.url.includes(route));

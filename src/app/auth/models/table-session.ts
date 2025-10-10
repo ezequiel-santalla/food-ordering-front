@@ -1,5 +1,3 @@
-import { AuthResponse } from "./auth.interface";
-
 export interface TableSessionRequest {
   tableId: string;
 }
@@ -7,10 +5,12 @@ export interface TableSessionRequest {
 export interface TableSessionResponse {
   tableNumber: number;
   startTime: string;
-  endTime: string | null;
-  hostClient: Participant;
+  endTime?: string | null;
+  hostClient?: Participant;
   participants: Participant[];
-  authResponse: AuthResponse;
+  accessToken: string;
+  refreshToken: string;
+  expirationDate: string;
 }
 
 export interface Participant {

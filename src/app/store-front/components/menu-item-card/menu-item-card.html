@@ -1,7 +1,9 @@
-<a class="card bg-base-100 shadow-sm rounded-xl overflow-hidden" [ngClass]="{
+<a class="card bg-base-100 shadow-sm rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+   [ngClass]="{
     'w-80 pt-2': layout() === 'vertical',
     'w-full my-8': layout() === 'horizontal'
-  }" [routerLink]="['/menu', name()]">
+  }"
+   [routerLink]="getProductRoute()">
 
   <!-- Layout VERTICAL (imagen arriba) -->
   @if (layout() === 'vertical') {
@@ -13,11 +15,21 @@
 
   <div class="card-body">
     <div class="flex justify-between items-start mb-2">
-      <h2 class="card-title text-lg">{{ name() }}</h2>
+      <h2 class="card-title text-lg flex-1 line-clamp-1">{{ name() }}</h2>
       <span class="text-xl font-bold text-primary ml-2 flex-shrink-0">${{ price() }}</span>
     </div>
 
-    <p class="text-base text-base-content/70">{{ description() }}</p>
+    <p class="text-sm text-base-content/70 line-clamp-1 mb-3">{{ description() }}</p>
+
+    <!-- Botón de agregar -->
+    <button
+      (click)="$event.preventDefault(); $event.stopPropagation()"
+      class="btn btn-primary btn-sm btn-block gap-2 shadow-sm active:scale-95 transition-transform">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Agregar
+    </button>
 
     <div class="card-actions justify-end items-center mt-2">
       <ng-content></ng-content>
@@ -27,20 +39,35 @@
 
   <!-- Layout HORIZONTAL (imagen a la derecha) -->
   @if (layout() === 'horizontal') {
-  <div class="flex flex-row mb-4">
+  <div class="flex flex-row">
     <!-- Contenido a la izquierda -->
-    <div class="card-body flex-1">
-      <h2 class="card-title">{{ name() }}</h2>
-      <p class="text-md text-base-content/70">{{ description() }}</p>
+    <div class="card-body flex-1 py-4">
+      <div class="flex justify-between items-start mb-2">
+        <h2 class="card-title text-base">{{ name() }}</h2>
+      </div>
 
-      <div class="card-actions justify-between items-center mt-2">
-        <span class="text-xl font-bold text-primary">${{ price() }}</span>
+      <p class="text-sm text-base-content/70 line-clamp-2 mb-3">{{ description() }}</p>
+
+      <div class="flex items-center justify-between gap-3">
+        <span class="text-xl font-bold text-primary whitespace-nowrap">${{ price() }}</span>
+
+        <!-- Botón circular compacto -->
+        <button
+          (click)="$event.preventDefault(); $event.stopPropagation()"
+          class="btn btn-primary btn-circle btn-xs shadow-sm active:scale-95 transition-transform flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="card-actions justify-end items-center mt-2">
         <ng-content></ng-content>
       </div>
     </div>
 
     <!-- Imagen a la derecha -->
-    <figure class="w-32 flex-shrink-0 pr-4 py-4">
+    <figure class="w-28 flex-shrink-0 pr-4 py-4">
       <div class="aspect-square w-full bg-white rounded-xl flex items-center justify-center overflow-hidden">
         <img [src]="image()" [alt]="name()" class="w-full h-full object-cover" />
       </div>

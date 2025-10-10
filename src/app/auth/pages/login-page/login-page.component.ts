@@ -1,10 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { KeyRound, LucideAngularModule, Mail, RotateCcwIcon, User } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
+import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
+import { NavigationService } from '../../../shared/services/navigation.service';
+import { TableSessionService } from '../../../store-front/services/table-session.service';
 
 @Component({
   selector: 'app-login-page',
@@ -20,8 +23,10 @@ export class LoginPageComponent {
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private router = inject(Router);
   private sweetAlertService = inject(SweetAlertService);
+  private tableSessionService = inject(TableSessionService);
+  private errorHandler = inject(ErrorHandlerService);
+  private navigation = inject(NavigationService);
 
   get pageTitle(): string {
     return 'Iniciar Sesión';
@@ -32,10 +37,7 @@ export class LoginPageComponent {
   }
 
   get submitButtonText(): string {
-    if (this.isSubmitting) {
-      return 'Iniciando sesión...';
-    }
-    return 'Iniciar Sesión';
+    return this.isSubmitting ? 'Iniciando sesión...' : 'Iniciar Sesión';
   }
 
   get cancelButtonText(): string {
@@ -43,7 +45,6 @@ export class LoginPageComponent {
   }
 
   formUtils = FormUtils;
-
   isSubmitting = false;
 
   myForm: FormGroup = this.fb.group({
@@ -53,7 +54,6 @@ export class LoginPageComponent {
 
   private resetForm() {
     this.myForm.reset();
-
     this.myForm.patchValue({
       email: '',
       password: ''
@@ -78,37 +78,28 @@ export class LoginPageComponent {
       next: (response) => {
         this.isSubmitting = false;
 
-        console.log('🎯 Login completado, verificando tableSessionId...');
-
         this.sweetAlertService.showSuccess(
           '¡Bienvenido!',
           'Has iniciado sesión correctamente.'
         );
 
+        if (this.tableSessionService.hasActiveSession()) {
+          this.tableSessionService.setTableSessionInfo(
+            response.tableNumber,
+            response.participants.length
+          );
+        }
+
         this.resetForm();
 
-        // ⚠️ CRÍTICO: Esperar un tick para asegurar que los signals se actualicen
-        setTimeout(() => {
-          const hasTableSession = this.authService.tableSessionId();
-
-          console.log('🔍 Estado después del login:', {
-            tableSessionId: hasTableSession,
-            foodVenueId: this.authService.foodVenueId()
-          });
-
-          if (hasTableSession) {
-            console.log('✅ Tiene sesión de mesa, navegando a home');
-            this.router.navigate(['/'], { replaceUrl: true });
-          } else {
-            console.log('⚠️ Sin sesión de mesa, navegando a scan-qr');
-            this.router.navigate(['/scan-qr'], { replaceUrl: true });
-          }
-        }, 50);
+        // Navegar según estado de sesión
+        this.navigation.navigateBySessionState();
       },
       error: (error) => {
         console.error('Error en login:', error);
         this.isSubmitting = false;
-        const { title, message } = this.getErrorMessage(error);
+
+        const { title, message } = this.errorHandler.getAuthError(error);
         this.sweetAlertService.showError(title, message);
       }
     });
@@ -116,41 +107,5 @@ export class LoginPageComponent {
 
   onCancel() {
     this.resetForm();
-  }
-
-  private getErrorMessage(error: any): { title: string, message: string } {
-    switch (error.status) {
-      case 401:
-        return {
-          title: 'Credenciales inválidas',
-          message: 'Email o contraseña incorrectos. Por favor, verifica tus datos.'
-        };
-      case 404:
-        return {
-          title: 'Usuario no encontrado',
-          message: 'No existe una cuenta asociada a este email.'
-        };
-      case 403:
-        return {
-          title: 'Acceso denegado',
-          message: 'Tu cuenta podría estar bloqueada o inactiva.'
-        };
-      case 0:
-        return {
-          title: 'Sin conexión',
-          message: 'No se puede conectar al servidor. Verifica tu conexión a internet.'
-        };
-      default:
-        if (error.status >= 500) {
-          return {
-            title: 'Error del servidor',
-            message: 'Error interno del servidor. Intenta más tarde.'
-          };
-        }
-        return {
-          title: 'Error al iniciar sesión',
-          message: 'No se pudo iniciar sesión. Verifica tus credenciales.'
-        };
-    }
   }
 }

@@ -13,8 +13,8 @@ export class Recommendations {
   menuService = inject(MenuService);
 
   recommendationsResource = rxResource({
-    params: () => ({}),
     stream: () => {
+      console.log('🎲 Cargando recomendaciones...');
       return this.menuService.getRecommendations();
     }
   });
