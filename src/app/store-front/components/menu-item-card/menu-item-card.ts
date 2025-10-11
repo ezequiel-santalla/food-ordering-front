@@ -1,6 +1,7 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { SessionRoutesService } from '../../services/session-routes.service';
 
 @Component({
   selector: 'app-menu-item-card',
@@ -16,9 +17,5 @@ export class MenuItemCard {
 
   layout = input<'vertical' | 'horizontal'>('vertical');
 
-  getProductRoute() {
-    // trim + toLowerCase para que coincida con el backend
-    const normalizedName = this.name().trim().toLowerCase();
-    return ['/session/menu', normalizedName];
-  }
+  sessionRoutesService = inject(SessionRoutesService);
 }

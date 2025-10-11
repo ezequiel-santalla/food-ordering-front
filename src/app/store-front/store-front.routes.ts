@@ -39,10 +39,6 @@ export const storeFrontRoutes: Routes = [
         component: NotFoundPage,
       }
     ],
-  },
-  {
-    path: '**',
-    redirectTo: '',
   }
 ];
 

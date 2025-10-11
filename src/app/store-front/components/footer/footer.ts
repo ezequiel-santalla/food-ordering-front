@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule, House, Menu, ShoppingCart, CreditCard, HandPlatter } from 'lucide-angular';
+import { NavigationService } from '../../../shared/services/navigation.service';
+import { SessionRoutesService } from '../../services/session-routes.service';
 
 @Component({
   selector: 'app-footer',
@@ -13,4 +15,6 @@ export class Footer {
   readonly ShoppingCart = ShoppingCart;
   readonly HandPlatter = HandPlatter;
   readonly CreditCard = CreditCard;
+
+  sessionRoutesService = inject(SessionRoutesService);
 }

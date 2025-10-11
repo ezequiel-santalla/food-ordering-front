@@ -4,6 +4,13 @@ import { UnauthenticatedGuard } from './auth/guards/unauthenticated.guard';
 import { HasTableSessionGuard } from './auth/guards/has-table-session.guard';
 
 export const routes: Routes = [
+  // 🔄 Redirección inicial a food-venues
+  {
+    path: '',
+    redirectTo: 'food-venues',
+    pathMatch: 'full'
+  },
+
   // 🔐 Rutas de autenticación (solo para usuarios NO autenticados)
   {
     path: 'auth',
@@ -22,7 +29,7 @@ export const routes: Routes = [
 
   // 🏠 Store Front - Menú, carrito, etc. (requiere autenticación + tableSessionId)
   {
-    path: 'session',
+    path: 'session/:tableSessionId',
     canActivate: [AuthenticatedGuard, HasTableSessionGuard],
     loadChildren: () => import('./store-front/store-front.routes')
   },
@@ -33,9 +40,9 @@ export const routes: Routes = [
     loadChildren: () => import('./food-venues/food-venues.routes')
   },
 
-  // 🔄 Cualquier ruta no encontrada redirige a la raíz
+  // 🔄 Cualquier ruta no encontrada redirige a food-venues
   {
     path: '**',
-    redirectTo: ''
+    redirectTo: 'food-venues'
   }
 ];

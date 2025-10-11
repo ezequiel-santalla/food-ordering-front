@@ -36,6 +36,7 @@ export class Header {
   categories = computed(() => {
     const menuData = this.menuResource.value();
     if (!menuData) return [{ id: 'all', name: 'Todos' }];
+    console.log('🔍 Header - Sesión de mesa:', this.tableSession());
 
     const allProducts: any[] = [];
 

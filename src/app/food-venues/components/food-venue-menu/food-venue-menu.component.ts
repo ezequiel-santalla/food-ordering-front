@@ -1,8 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { Menu } from '../../../store-front/models/menu.interface';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-food-venue-menu',
-  imports: [],
+  imports: [DecimalPipe],
   templateUrl: './food-venue-menu.component.html',
 })
-export class FoodVenueMenuComponent { }
+export class FoodVenueMenuComponent {
+
+  menu = input.required<Menu>();
+}

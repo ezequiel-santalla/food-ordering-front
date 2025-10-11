@@ -1,4 +1,18 @@
-<section class="mx-auto py-8 space-y-8">
-  <h1 class="text-3xl font-bold">Menú del Restaurante</h1>
-</section>
+@if (foodVenueResource.error()) {
+  <app-not-found-page />
+}
 
+@if (foodVenueResource.isLoading()) {
+  <div class="flex flex-col items-center mt-10 gap-2">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
+    <p class="text-primary text-lg font-medium">Loading Tournament data...</p>
+  </div>
+}
+
+@if (foodVenueResource.hasValue() && foodVenueResource.value()) {
+  @if (isRootRoute()) {
+    <app-food-venue-menu [menu]="foodVenueResource.value()!" />
+  } @else {
+    <router-outlet />
+  }
+}
