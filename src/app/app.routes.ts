@@ -22,9 +22,15 @@ export const routes: Routes = [
 
   // 🏠 Store Front - Menú, carrito, etc. (requiere autenticación + tableSessionId)
   {
-    path: '',
+    path: 'session',
     canActivate: [AuthenticatedGuard, HasTableSessionGuard],
     loadChildren: () => import('./store-front/store-front.routes')
+  },
+
+  // 🍽️ Restaurantes (público)
+  {
+    path: 'food-venues',
+    loadChildren: () => import('./food-venues/food-venues.routes')
   },
 
   // 🔄 Cualquier ruta no encontrada redirige a la raíz

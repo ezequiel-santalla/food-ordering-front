@@ -4,7 +4,7 @@
     <!-- Fila 1: Logo + acciones -->
     <div class="flex items-center justify-between">
       <!-- Logo y título dinámico -->
-      <a routerLink="/" class="flex items-center gap-3">
+      <a routerLink="/session" class="flex items-center gap-3">
         <img src="{{venueImageUrl()}}" alt="{{venueName()}}" class="h-8 w-8 object-contain rounded-full" />
         <h1 class="text-xl font-bold text-base-content">{{venueName()}}</h1>
       </a>
@@ -12,7 +12,7 @@
       <!-- Botones de acción -->
       <div class="flex items-center gap-1">
         <!-- Notificaciones -->
-        <a routerLink="/notifications"
+        <a routerLink="/session/notifications"
           class="relative p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer">
           <lucide-icon [img]="Bell" class="w-6 h-6 text-base-content/70"></lucide-icon>
           <div
@@ -22,7 +22,7 @@
         </a>
 
         <!-- Perfil -->
-        <a routerLink="/profile"
+        <a routerLink="/session/profile"
           class="p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer">
           <lucide-icon [img]="User" class="w-6 h-6 text-base-content/70"></lucide-icon>
         </a>

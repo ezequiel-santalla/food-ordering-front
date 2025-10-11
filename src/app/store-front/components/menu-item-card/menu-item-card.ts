@@ -19,6 +19,6 @@ export class MenuItemCard {
   getProductRoute() {
     // trim + toLowerCase para que coincida con el backend
     const normalizedName = this.name().trim().toLowerCase();
-    return ['/menu', normalizedName];
+    return ['/session/menu', normalizedName];
   }
 }

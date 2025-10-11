@@ -54,7 +54,7 @@ export class NavigationService {
    * Navega al home
    */
   navigateToHome(): void {
-    this.router.navigate(['/'], { replaceUrl: true });
+    this.router.navigate(['/session'], { replaceUrl: true });
   }
 
   /**
