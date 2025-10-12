@@ -1,4 +1,4 @@
-import { TableSessionResponse } from './table-session';
+import { TableSessionResponse } from '../../shared/models/table-session';
 
 export interface AuthResponse {
   accessToken: string;
@@ -10,10 +10,11 @@ export interface AuthResponse {
 export interface Employment {
   publicId: string;
   role: string;
-  restaurant: {
+  restaurant?: {
     publicId: string;
     name: string;
   };
+  foodVenueName?: string;
 }
 
 export type LoginResponse = AuthResponse | TableSessionResponse;
@@ -24,7 +25,8 @@ export function isTableSessionResponse(
   return (
     'tableNumber' in response &&
     'participants' in response &&
-    'tableSessionId' in response
+    'startTime' in response &&
+    Array.isArray((response as any).participants)
   );
 }
 
@@ -32,5 +34,6 @@ export type {
   Participant,
   User,
   Address,
-  TableSessionRequest
-} from './table-session';
+  TableSessionRequest,
+  TableSessionInfo
+} from '../../shared/models/table-session';

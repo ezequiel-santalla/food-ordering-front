@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthenticatedGuard } from './auth/guards/authenticated.guard';
 import { UnauthenticatedGuard } from './auth/guards/unauthenticated.guard';
 import { HasTableSessionGuard } from './auth/guards/has-table-session.guard';
+import { ScanQrGuard } from './auth/guards/scan-qr-guard.guard';
 
 export const routes: Routes = [
   // 🔄 Redirección inicial a food-venues
@@ -18,10 +19,10 @@ export const routes: Routes = [
     loadChildren: () => import('./auth/auth.routes')
   },
 
-  // 📱 Escaneo de QR (requiere estar autenticado, pero NO necesita tableSessionId)
+  // 📱 Escaneo de QR (NO requiere estar autenticado)
   {
     path: 'scan-qr',
-    canActivate: [AuthenticatedGuard],
+    canActivate: [ScanQrGuard],
     loadComponent: () =>
       import('./auth/pages/scan-qr-page/scan-qr-page.component')
         .then(m => m.ScanQrPageComponent)

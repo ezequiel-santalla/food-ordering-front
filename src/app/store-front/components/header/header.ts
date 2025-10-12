@@ -79,7 +79,9 @@ export class Header {
   });
 
   participantNickname = computed(() => {
-    return this.tableSessionService.tableSessionInfo().participantNickname;
+    const nickname = this.tableSessionService.tableSessionInfo().participantNickname;
+    
+    return nickname.toLowerCase().startsWith('guest') ? 'Invitado' : nickname;
   });
 
   selectCategory(categoryId: string) {

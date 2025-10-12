@@ -2,10 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { AuthResponse } from '../models/auth';
-import { TableSessionRequest, TableSessionResponse } from '../models/table-session';
+import { TableSessionRequest, TableSessionResponse } from '../../shared/models/table-session';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { environment } from '../../../environments/environment.development';
 import { SessionUtils } from '../../utils/session-utils';
+import { JwtUtils } from '../../utils/jwt-utils';
+import { TokenManager } from '../../utils/token-manager';
 
 type AuthStatus = 'checking' | 'authenticated' | 'unauthenticated';
 type LoginResponse = AuthResponse | TableSessionResponse;
@@ -14,13 +16,17 @@ type LoginResponse = AuthResponse | TableSessionResponse;
 export class AuthService {
 
   private _authStatus = signal<AuthStatus>('checking');
-  private _accessToken = signal<string | null>(SessionUtils.getCleanStorageValue('accessToken'));
-  private _refreshToken = signal<string | null>(SessionUtils.getCleanStorageValue('refreshToken'));
-  private _expirationDate = signal<string | null>(SessionUtils.getCleanStorageValue('expirationDate'));
-  private _tableSessionId = signal<string | null>(SessionUtils.getCleanStorageValue('tableSessionId'));
-  private _foodVenueId = signal<string | null>(SessionUtils.getCleanStorageValue('foodVenueId'));
+  private _accessToken = signal<string | null>(null);
+  private _refreshToken = signal<string | null>(null);
+  private _expirationDate = signal<string | null>(null);
+  private _tableSessionId = signal<string | null>(null);
+  private _foodVenueId = signal<string | null>(null);
 
   private http = inject(HttpClient);
+
+  constructor() {
+    this.loadStoredAuthData();
+  }
 
   checkStatusResource = rxResource({
     stream: () => this.checkAuthStatus(),
@@ -43,9 +49,7 @@ export class AuthService {
   participantId = computed<string | null>(() => {
     const token = this._accessToken();
     if (!token) return null;
-
-    const decoded = this.decodeJWT(token);
-    return decoded?.participantId || null;
+    return JwtUtils.getClaimValue(token, 'participantId') || null;
   });
 
   login(credentials: { email: string, password: string }): Observable<LoginResponse> {
@@ -56,7 +60,7 @@ export class AuthService {
       tap(response => {
         console.log('✅ Login exitoso', response);
 
-        if (this.isTableSessionResponse(response)) {
+        if (SessionUtils.isTableSessionResponse(response)) {
           console.log('🪑 Login con sesión de mesa activa');
           this.handleTableSessionResponse(response as TableSessionResponse);
         } else {
@@ -69,6 +73,28 @@ export class AuthService {
         throw error;
       })
     );
+  }
+
+  getSessionInfoFromResponse(response: LoginResponse): {
+    tableNumber?: number;
+    participants?: any[]
+  } | null {
+    if (SessionUtils.isTableSessionResponse(response)) {
+      return {
+        tableNumber: (response as TableSessionResponse).tableNumber,
+        participants: (response as TableSessionResponse).participants
+      };
+    }
+
+    const decoded = JwtUtils.decodeJWT((response as AuthResponse).accessToken);
+    if (decoded?.tableSessionId) {
+      return {
+        tableNumber: decoded.tableNumber || null,
+        participants: decoded.participants || []
+      };
+    }
+
+    return null;
   }
 
   scanQR(tableId: string, forceChange = false): Observable<TableSessionResponse> {
@@ -101,31 +127,14 @@ export class AuthService {
       return of(false);
     }
 
-    const decoded = this.decodeJWT(token);
-
-    if (!decoded || this.isTokenExpired(decoded)) {
+    if (!JwtUtils.isValidToken(token)) {
       this.logout();
       return of(false);
     }
 
-    this._accessToken.set(token);
+    // Recargar todos los datos desde localStorage
+    this.loadStoredAuthData();
     this._authStatus.set('authenticated');
-
-    const refreshToken = SessionUtils.getCleanStorageValue('refreshToken');
-    if (refreshToken) {
-      this._refreshToken.set(refreshToken);
-    }
-
-    // Cargar valores limpios
-    const tableSessionId = SessionUtils.getCleanStorageValue('tableSessionId');
-    const foodVenueId = SessionUtils.getCleanStorageValue('foodVenueId');
-
-    this._tableSessionId.set(tableSessionId);
-    this._foodVenueId.set(foodVenueId);
-
-    // Limpiar localStorage si los valores eran inválidos
-    if (!tableSessionId) localStorage.removeItem('tableSessionId');
-    if (!foodVenueId) localStorage.removeItem('foodVenueId');
 
     return of(true);
   }
@@ -137,15 +146,26 @@ export class AuthService {
     this._foodVenueId.set(null);
     this._authStatus.set('unauthenticated');
 
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('tableSessionId');
-    localStorage.removeItem('foodVenueId');
-    localStorage.removeItem('tableNumber');
-    localStorage.removeItem('participantCount');
+    SessionUtils.clearAllAuthData();
   }
 
-  // ==================== MÉTODOS PRIVADOS ====================
+  private loadStoredAuthData(): void {
+    const data = TokenManager.loadAuthData();
+
+    this._accessToken.set(data.accessToken);
+    this._refreshToken.set(data.refreshToken);
+    this._tableSessionId.set(data.tableSessionId);
+    this._foodVenueId.set(data.foodVenueId);
+    this._expirationDate.set(data.expirationDate);
+
+    console.log('📂 Datos cargados desde localStorage:', {
+      hasAccessToken: !!data.accessToken,
+      hasRefreshToken: !!data.refreshToken,
+      refreshToken: data.refreshToken,
+      tableSessionId: data.tableSessionId,
+      isAuthenticated: !!data.accessToken && !!data.refreshToken
+    });
+  }
 
   private closeCurrentSession(): Observable<void> {
     const sessionId = this._tableSessionId();
@@ -158,10 +178,7 @@ export class AuthService {
 
     this._tableSessionId.set(null);
     this._foodVenueId.set(null);
-    localStorage.removeItem('tableSessionId');
-    localStorage.removeItem('foodVenueId');
-    localStorage.removeItem('tableNumber');
-    localStorage.removeItem('participantCount');
+    SessionUtils.clearAllSessionData();
 
     return of(void 0);
   }
@@ -169,7 +186,12 @@ export class AuthService {
   private performScanQR(tableId: string): Observable<TableSessionResponse> {
     const body: TableSessionRequest = { tableId };
 
-    console.log('📱 Escaneando QR:', tableId);
+    console.log('📱 Escaneando QR con estado actual:', {
+      tableId,
+      isAuthenticated: this.isAuthenticated(),
+      hasRefreshToken: !!this._refreshToken(),
+      refreshToken: this._refreshToken()
+    });
 
     return this.http.post<TableSessionResponse>(
       `${environment.baseUrl}/table-sessions/scan-qr`,
@@ -177,7 +199,10 @@ export class AuthService {
     ).pipe(
       tap(response => {
         console.log('✅ QR escaneado exitosamente', response);
-        this.handleTableSessionResponse(response);
+        console.log('🔍 RefreshToken en respuesta:', response.refreshToken);
+
+        // IMPORTANTE: Pasar el refreshToken actual al procesador
+        this.handleTableSessionResponse(response, this._refreshToken());
       }),
       catchError(error => {
         console.error('❌ Error escaneando QR:', error);
@@ -186,88 +211,65 @@ export class AuthService {
     );
   }
 
-  private isTableSessionResponse(response: any): response is TableSessionResponse {
-    return 'tableNumber' in response && 'participants' in response;
-  }
-
   private handleAuthResponse(authResponse: AuthResponse): void {
-    console.log('🔑 Procesando AuthResponse simple');
-
-    this.updateTokens(authResponse.accessToken, authResponse.refreshToken);
-
-    const decoded = this.decodeJWT(authResponse.accessToken);
-    console.log('🔍 Token decodificado:', decoded);
-
-    if (decoded) {
-      this.updateSessionData(
-        SessionUtils.cleanSessionValue(decoded.tableSessionId),
-        SessionUtils.cleanSessionValue(decoded.foodVenueId)
-      );
-    }
+    const processed = TokenManager.processAuthResponse(authResponse);
+    this.applyAuthData(processed);
   }
 
-  private handleTableSessionResponse(response: TableSessionResponse): void {
-    console.log('🪑 Procesando TableSessionResponse');
+  private handleTableSessionResponse(
+    response: TableSessionResponse,
+    currentRefreshToken: string | null = null
+  ): void {
+    // Usar el refreshToken actual del estado si existe
+    const fallbackRefreshToken = currentRefreshToken || this._refreshToken();
 
-    this.updateTokens(response.accessToken, response.refreshToken);
+    console.log('🔄 Procesando TableSessionResponse con fallback:', {
+      responseHasRefreshToken: !!response.refreshToken,
+      currentRefreshToken: fallbackRefreshToken,
+      willBeGuest: !response.refreshToken && !fallbackRefreshToken
+    });
 
-    const decoded = this.decodeJWT(response.accessToken);
-    console.log('🔍 Token decodificado:', decoded);
+    const processed = TokenManager.processTableSessionResponse(
+      response,
+      fallbackRefreshToken
+    );
 
-    if (decoded) {
-      this.updateSessionData(decoded.tableSessionId, decoded.foodVenueId);
-    } else {
-      console.error('❌ No se pudo decodificar el token');
-    }
+    this.applyAuthData(processed);
   }
 
-  private updateTokens(accessToken: string, refreshToken: string): void {
-    this._accessToken.set(accessToken);
-    this._refreshToken.set(refreshToken);
+  private applyAuthData(data: {
+    accessToken: string;
+    refreshToken: string;
+    tableSessionId: string | null;
+    foodVenueId: string | null;
+    tableNumber: number | null;
+    participantCount: number | null;
+  }): void {
+    console.log('💾 Aplicando datos de autenticación:', {
+      hasAccessToken: !!data.accessToken,
+      refreshToken: data.refreshToken,
+      isGuest: data.refreshToken === 'guest',
+      tableSessionId: data.tableSessionId
+    });
+
+    // Guardar tokens
+    TokenManager.saveTokens(data.accessToken, data.refreshToken);
+
+    // Guardar datos de sesión
+    TokenManager.saveSessionData({
+      tableSessionId: data.tableSessionId,
+      foodVenueId: data.foodVenueId,
+      tableNumber: data.tableNumber,
+      participantCount: data.participantCount
+    });
+
+    // Actualizar signals
+    this._accessToken.set(data.accessToken);
+    this._refreshToken.set(data.refreshToken);
+    this._tableSessionId.set(data.tableSessionId);
+    this._foodVenueId.set(data.foodVenueId);
     this._authStatus.set('authenticated');
 
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-  }
-
-  private updateSessionData(tableSessionId: string | null, foodVenueId: string | null): void {
-    this._tableSessionId.set(tableSessionId);
-    this._foodVenueId.set(foodVenueId); // Asumiendo que tableSessionId es el número de mesa
-
-    if (tableSessionId) {
-      localStorage.setItem('tableSessionId', tableSessionId);
-      console.log('✅ TableSessionId guardado:', tableSessionId);
-    } else {
-      localStorage.removeItem('tableSessionId');
-      console.log('⚠️ No hay tableSessionId');
-    }
-
-    if (foodVenueId) {
-      localStorage.setItem('foodVenueId', foodVenueId);
-      console.log('✅ FoodVenueId guardado:', foodVenueId);
-    } else {
-      localStorage.removeItem('foodVenueId');
-    }
-  }
-
-  private decodeJWT(token: string): any {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(window.atob(base64));
-    } catch {
-      return null;
-    }
-  }
-
-  private isTokenExpired(decodedToken: any): boolean {
-    if (!decodedToken.exp) {
-      return false;
-    }
-
-    const expirationDate = new Date(decodedToken.exp * 1000);
-    const now = new Date();
-
-    return expirationDate <= now;
+    console.log('✅ Datos de autenticación aplicados correctamente');
   }
 }

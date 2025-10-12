@@ -14,7 +14,7 @@ export class NavigationService {
    * Si tiene tableSessionId válido -> home (/session/:tableSessionId)
    * Si no tiene -> scan-qr
    */
-  navigateBySessionState(delay: number = 50): void {
+  navigateBySessionState(delay: number = 100): void {
     setTimeout(() => {
       const tableSessionId = this.authService.tableSessionId();
 

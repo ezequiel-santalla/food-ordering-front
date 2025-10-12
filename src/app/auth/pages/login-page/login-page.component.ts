@@ -9,6 +9,7 @@ import { ErrorHandlerService } from '../../../shared/services/error-handler.serv
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { TableSessionService } from '../../../store-front/services/table-session.service';
 import { isTableSessionResponse } from '../../models/auth';
+import { JwtUtils } from '../../../utils/jwt-utils';
 
 @Component({
   selector: 'app-login-page',
@@ -84,26 +85,60 @@ export class LoginPageComponent {
           'Has iniciado sesión correctamente.'
         );
 
-        // Verificar si es una respuesta con sesión de mesa usando type guard
+        // Verificar si es una respuesta con sesión de mesa
         if (isTableSessionResponse(response)) {
-          const participantId = this.authService.participantId();
+          console.log('🪑 TableSessionResponse detectado en login');
 
-          // Buscar el nickname del participante actual en la lista
+          // Decodificar el token para obtener el participantId
+          const decodedToken = JwtUtils.decodeJWT(response.accessToken);
+          const participantIdFromToken = decodedToken?.participantId;
+
+          console.log('🔍 ParticipantId del token:', participantIdFromToken);
+
+          // Buscar el participante actual
           const currentParticipant = response.participants.find(
-            p => p.publicId === participantId
+            p => p.publicId === participantIdFromToken
           );
 
-          const nickname = currentParticipant?.nickname || 'Invitado';
+          // Determinar el nickname
+          let nickname: string;
 
-          // Guardar la info de la sesión con el nickname
+          if (currentParticipant) {
+            if (currentParticipant.nickname) {
+              nickname = currentParticipant.nickname;
+              console.log('✅ Usando nickname del participante:', nickname);
+            } else if (currentParticipant.user?.name) {
+              nickname = currentParticipant.user.name;
+              console.log('✅ Usando nombre del usuario:', nickname);
+            } else {
+              nickname = 'Usuario';
+              console.log('⚠️ Participante sin nickname ni nombre');
+            }
+          } else {
+            nickname = 'Usuario';
+            console.log('⚠️ Participante no encontrado en la lista');
+          }
+
+          console.log('👤 Nickname final:', nickname);
+
+          // Guardar en TableSessionService (actualiza signals y localStorage)
           this.tableSessionService.setTableSessionInfo(
             response.tableNumber,
             nickname,
             response.participants.length
           );
+
+          console.log('✅ Datos de mesa guardados correctamente');
+        } else {
+          // AuthResponse sin mesa activa
+          console.log('👤 AuthResponse - Sin sesión de mesa activa');
+          // No guardar nickname porque no hay sesión
+          localStorage.removeItem('participantNickname');
         }
 
         this.resetForm();
+
+        // Navegar según el estado de autenticación
         this.navigation.navigateBySessionState();
       },
       error: (error) => {

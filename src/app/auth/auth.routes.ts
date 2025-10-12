@@ -13,7 +13,6 @@ export const authRoutes: Routes = [
         component: LoginPageComponent,
       },
       
-      // Redirección por defecto dentro de /auth
       {
         path: '**',
         redirectTo: 'login',

@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../../auth/services/auth.service';
-import { TableSessionInfo } from '../models/table-session.interface';
+import { TableSessionInfo } from '../../shared/models/table-session';
 import { SessionUtils } from '../../utils/session-utils';
 
 @Injectable({ providedIn: 'root' })
@@ -17,6 +17,7 @@ export class TableSessionService {
     tableNumber: this._tableNumber(),
     participantNickname: this._participantNickname(),
     participantCount: this._participantCount(),
+    // Usar tableSessionId de AuthService que ya está sincronizado con localStorage
     sessionId: this.authService.tableSessionId()
   }));
 
@@ -25,45 +26,73 @@ export class TableSessionService {
     return SessionUtils.isValidSession(sessionId);
   });
 
-  setTableSessionInfo(tableNumber: number, participantNickname: string, participantCount: number) {
-    // Validar que los valores sean válidos
+  setTableSessionInfo(
+    tableNumber: number,
+    participantNickname: string,
+    participantCount: number
+  ): void {
+    console.log('📝 Guardando info de mesa:', {
+      tableNumber,
+      participantNickname,
+      participantCount
+    });
+
+    // Validar y guardar tableNumber
     if (tableNumber > 0) {
       this._tableNumber.set(tableNumber);
       localStorage.setItem('tableNumber', tableNumber.toString());
+      console.log('✅ TableNumber guardado:', tableNumber);
+    } else {
+      this._tableNumber.set(0);
+      localStorage.removeItem('tableNumber');
     }
 
-    if (participantNickname) {
+    // Validar y guardar participantNickname
+    if (participantNickname && participantNickname.trim()) {
       this._participantNickname.set(participantNickname);
       localStorage.setItem('participantNickname', participantNickname);
+      console.log('✅ ParticipantNickname guardado:', participantNickname);
+    } else {
+      this._participantNickname.set('');
+      localStorage.removeItem('participantNickname');
     }
 
+    // Validar y guardar participantCount
     if (participantCount >= 0) {
       this._participantCount.set(participantCount);
       localStorage.setItem('participantCount', participantCount.toString());
+      console.log('✅ ParticipantCount guardado:', participantCount);
+    } else {
+      this._participantCount.set(0);
+      localStorage.removeItem('participantCount');
     }
 
-    console.log('✅ Info de mesa guardada:', { tableNumber, participantCount });
+    console.log('💾 Estado actual de tableSessionInfo:', this.tableSessionInfo());
   }
 
-  clearSession() {
+  clearSession(): void {
+    console.log('🧹 Limpiando sesión de mesa');
+
     this._tableNumber.set(0);
+    this._participantNickname.set('');
     this._participantCount.set(0);
 
     localStorage.removeItem('tableNumber');
     localStorage.removeItem('participantNickname');
     localStorage.removeItem('participantCount');
-
-    console.log('🧹 Info de mesa limpiada');
   }
 
   private getStoredNumber(key: string): number {
     try {
       const stored = localStorage.getItem(key);
-      if (!stored) return 0;
+      if (!stored) {
+        return 0;
+      }
 
       const parsed = parseInt(stored, 10);
       return isNaN(parsed) ? 0 : parsed;
-    } catch {
+    } catch (error) {
+      console.error(`Error leyendo número de localStorage para ${key}:`, error);
       return 0;
     }
   }
@@ -71,8 +100,9 @@ export class TableSessionService {
   private getStoredString(key: string): string {
     try {
       const stored = localStorage.getItem(key);
-      return stored ? stored : '';
-    } catch {
+      return stored && stored.trim() ? stored : '';
+    } catch (error) {
+      console.error(`Error leyendo string de localStorage para ${key}:`, error);
       return '';
     }
   }

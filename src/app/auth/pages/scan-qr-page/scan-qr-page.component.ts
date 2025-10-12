@@ -80,15 +80,39 @@ export class ScanQrPageComponent {
 
         // Obtener participantId del token decodificado
         const participantId = this.authService.participantId();
+        console.log('🔍 ParticipantId del token:', participantId);
 
-        // Buscar el nickname del participante actual
+        // Buscar el participante actual en la lista
         const currentParticipant = response.participants.find(
           p => p.publicId === participantId
         );
 
-        const nickname = currentParticipant?.nickname || 'Usuario';
+        console.log('👤 Participante encontrado:', currentParticipant);
 
-        // Guardar info de la sesión con el nickname
+        // Determinar el nickname según el tipo de usuario
+        let nickname: string;
+
+        if (currentParticipant) {
+          // Si encontramos el participante, usar su nickname o el nombre del usuario
+          if (currentParticipant.nickname) {
+            nickname = currentParticipant.nickname;
+            console.log('✅ Usando nickname del participante:', nickname);
+          } else if (currentParticipant.user?.name) {
+            nickname = currentParticipant.user.name;
+            console.log('✅ Usando nombre del usuario:', nickname);
+          } else {
+            nickname = 'Usuario';
+            console.log('⚠️ Participante sin nickname ni nombre, usando "Usuario"');
+          }
+        } else {
+          // Si no encontramos el participante, es un invitado
+          nickname = 'Guest';
+          console.log('👻 Participante no encontrado, es invitado (Guest)');
+        }
+
+        console.log('📝 Nickname final:', nickname);
+
+        // Guardar info de la sesión con el nickname correcto
         this.tableSessionService.setTableSessionInfo(
           response.tableNumber,
           nickname,
