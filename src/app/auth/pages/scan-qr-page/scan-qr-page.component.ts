@@ -78,8 +78,20 @@ export class ScanQrPageComponent {
           return;
         }
 
+        // Obtener participantId del token decodificado
+        const participantId = this.authService.participantId();
+
+        // Buscar el nickname del participante actual
+        const currentParticipant = response.participants.find(
+          p => p.publicId === participantId
+        );
+
+        const nickname = currentParticipant?.nickname || 'Usuario';
+
+        // Guardar info de la sesión con el nickname
         this.tableSessionService.setTableSessionInfo(
           response.tableNumber,
+          nickname,
           response.participants.length
         );
 

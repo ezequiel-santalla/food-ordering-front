@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-public-header',
@@ -8,9 +9,14 @@ import { RouterLink } from '@angular/router';
 })
 export class PublicHeaderComponent {
 
-  tableSessionId = localStorage.getItem('tableSessionId');
+  authService = inject(AuthService);
+  private router = inject(Router);
 
-  isLoggedIn(): boolean {
-    return !!this.tableSessionId;
+  isLoggedIn = this.authService.isAuthenticated;
+  tableSessionId = this.authService.tableSessionId;
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
   }
 }

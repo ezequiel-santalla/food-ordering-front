@@ -1,18 +1,3 @@
-export interface TableSessionRequest {
-  tableId: string;
-}
-
-export interface TableSessionResponse {
-  tableNumber: number;
-  startTime: string;
-  endTime?: string | null;
-  hostClient?: Participant;
-  participants: Participant[];
-  accessToken: string;
-  refreshToken: string;
-  expirationDate: string;
-}
-
 export interface Participant {
   publicId: string;
   user: User;
@@ -39,4 +24,20 @@ export interface Address {
   province: string;
   country: string;
   postalCode: string;
+}
+
+export interface TableSessionRequest {
+  tableId: string;
+}
+
+export interface TableSessionResponse {
+  accessToken: string;
+  refreshToken: string;
+  expirationDate: string;
+  tableNumber: number;
+  tableSessionId: string;
+  startTime: string;
+  endTime?: string | null;
+  hostClient?: Participant;
+  participants: Participant[];
 }

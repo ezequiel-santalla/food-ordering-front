@@ -8,6 +8,7 @@ import { SweetAlertService } from '../../../shared/services/sweet-alert.service'
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { TableSessionService } from '../../../store-front/services/table-session.service';
+import { isTableSessionResponse } from '../../models/auth';
 
 @Component({
   selector: 'app-login-page',
@@ -83,16 +84,26 @@ export class LoginPageComponent {
           'Has iniciado sesión correctamente.'
         );
 
-        if (this.tableSessionService.hasActiveSession()) {
+        // Verificar si es una respuesta con sesión de mesa usando type guard
+        if (isTableSessionResponse(response)) {
+          const participantId = this.authService.participantId();
+
+          // Buscar el nickname del participante actual en la lista
+          const currentParticipant = response.participants.find(
+            p => p.publicId === participantId
+          );
+
+          const nickname = currentParticipant?.nickname || 'Invitado';
+
+          // Guardar la info de la sesión con el nickname
           this.tableSessionService.setTableSessionInfo(
             response.tableNumber,
+            nickname,
             response.participants.length
           );
         }
 
         this.resetForm();
-
-        // Navegar según estado de sesión
         this.navigation.navigateBySessionState();
       },
       error: (error) => {

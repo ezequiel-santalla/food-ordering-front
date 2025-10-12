@@ -1,11 +1,12 @@
 // store-front/components/header/header.ts
 import { Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { LucideAngularModule, Bell, User, QrCode } from 'lucide-angular';
+import { Router, RouterLink } from '@angular/router';
+import { LucideAngularModule, Bell, User, LogOut, QrCode } from 'lucide-angular';
 import { MenuService } from '../../services/menu.service';
 import { CategoryService } from '../../services/category.service';
 import { TableSessionService } from '../../services/table-session.service';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -16,11 +17,14 @@ export class Header {
 
   readonly Bell = Bell;
   readonly User = User;
+  readonly Logout = LogOut;
   readonly QrCode = QrCode;
 
   menuService = inject(MenuService);
   categoryService = inject(CategoryService);
   tableSessionService = inject(TableSessionService);
+  authService = inject(AuthService);
+  private router = inject(Router);
 
   // Info de la sesión de mesa
   tableSession = this.tableSessionService.tableSessionInfo;
@@ -74,7 +78,16 @@ export class Header {
     return this.menuResource.value()?.foodVenueName;
   });
 
+  participantNickname = computed(() => {
+    return this.tableSessionService.tableSessionInfo().participantNickname;
+  });
+
   selectCategory(categoryId: string) {
     this.categoryService.setCategory(categoryId);
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/food-venues']);
   }
 }

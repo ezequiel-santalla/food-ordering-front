@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
-import { AuthResponse } from '../models/auth.interface';
+import { AuthResponse } from '../models/auth';
 import { TableSessionRequest, TableSessionResponse } from '../models/table-session';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { environment } from '../../../environments/environment.development';
@@ -39,6 +39,14 @@ export class AuthService {
   tableSessionId = computed<string | null>(() => this._tableSessionId());
   foodVenueId = computed<string | null>(() => this._foodVenueId());
   isAuthenticated = computed(() => this._authStatus() === 'authenticated');
+
+  participantId = computed<string | null>(() => {
+    const token = this._accessToken();
+    if (!token) return null;
+
+    const decoded = this.decodeJWT(token);
+    return decoded?.participantId || null;
+  });
 
   login(credentials: { email: string, password: string }): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
