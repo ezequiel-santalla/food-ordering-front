@@ -1,4 +1,4 @@
-import { AuthResponse } from '../auth/models/auth';
+import { AuthResponse, LoginResponse } from '../auth/models/auth';
 import { TableSessionResponse } from '../shared/models/table-session';
 import { JwtUtils } from './jwt-utils';
 import { SessionUtils } from './session-utils';
@@ -14,26 +14,14 @@ export class TokenManager {
   static processAuthResponse(authResponse: AuthResponse): ProcessedAuthData {
     console.log('🔑 Procesando AuthResponse simple');
 
-    const decoded = JwtUtils.decodeJWT(authResponse.accessToken);
-
-    if (!decoded) {
-      console.error('❌ No se pudo decodificar el token en AuthResponse');
-      throw new Error('Token inválido en AuthResponse');
-    }
-
-    const tableSessionId = SessionUtils.cleanSessionValue(decoded.tableSessionId);
-    const foodVenueId = SessionUtils.cleanSessionValue(decoded.foodVenueId);
-
-    console.log('💾 Datos extraídos del AuthResponse:', {
-      tableSessionId,
-      foodVenueId,
-    });
+    const { accessToken, refreshToken, expirationDate } = authResponse;
+    const sessionData = this.extractSessionDataFromToken(accessToken);
 
     return {
-      accessToken: authResponse.accessToken,
-      refreshToken: authResponse.refreshToken,
-      tableSessionId,
-      foodVenueId,
+      accessToken,
+      refreshToken,
+      expirationDate,
+      ...sessionData,
       tableNumber: null,
       participantCount: null
     };
@@ -48,44 +36,20 @@ export class TokenManager {
   ): ProcessedAuthData {
     console.log('🪑 Procesando TableSessionResponse');
 
-    // Prioridad: refreshToken de la respuesta, luego fallback, luego 'guest'
-    let finalRefreshToken: string;
+    const finalRefreshToken = this.resolveRefreshToken(
+      response.refreshToken,
+      fallbackRefreshToken
+    );
 
-    if (response.refreshToken) {
-      finalRefreshToken = response.refreshToken;
-      console.log('✅ Usando refreshToken de la respuesta');
-    } else if (fallbackRefreshToken && fallbackRefreshToken !== 'null' && fallbackRefreshToken !== 'undefined') {
-      finalRefreshToken = fallbackRefreshToken;
-      console.log('✅ Usando refreshToken del fallback (usuario ya logueado)');
-    } else {
-      finalRefreshToken = 'guest';
-      console.log('👻 Sin refreshToken, usando "guest" (invitado)');
-    }
-
-    console.log('🔍 RefreshToken final:', {
-      fromResponse: response.refreshToken || null,
-      fromFallback: fallbackRefreshToken || null,
-      final: finalRefreshToken,
-      isGuest: finalRefreshToken === 'guest'
-    });
-
-    const decoded = JwtUtils.decodeJWT(response.accessToken);
-
-    if (!decoded) {
-      console.error('❌ No se pudo decodificar el token en TableSessionResponse');
-      throw new Error('Token inválido en TableSessionResponse');
-    }
-
-    const tableSessionId = SessionUtils.cleanSessionValue(decoded.tableSessionId);
-    const foodVenueId = SessionUtils.cleanSessionValue(decoded.foodVenueId);
+    const sessionData = this.extractSessionDataFromToken(response.accessToken);
 
     return {
       accessToken: response.accessToken,
       refreshToken: finalRefreshToken,
-      tableSessionId,
-      foodVenueId,
-      tableNumber: response.tableNumber || null,
-      participantCount: response.participants?.length || null
+      expirationDate: response.expirationDate,
+      ...sessionData,
+      tableNumber: response.tableNumber ?? null,
+      participantCount: response.participants?.length ?? null
     };
   }
 
@@ -94,19 +58,16 @@ export class TokenManager {
    */
   static validateTokens(accessToken: string, refreshToken: string): void {
     if (!accessToken) {
-      console.error('❌ AccessToken inválido');
       throw new Error('AccessToken inválido recibido del servidor');
     }
 
     // Para invitados (refreshToken = 'guest'), solo validar accessToken
     if (refreshToken !== 'guest' && !refreshToken) {
-      console.error('❌ RefreshToken inválido');
       throw new Error('RefreshToken inválido recibido del servidor');
     }
 
     if (!JwtUtils.isValidToken(accessToken)) {
-      console.error('❌ AccessToken inválido o expirado');
-      throw new Error('AccessToken inválido');
+      throw new Error('AccessToken inválido o expirado');
     }
 
     console.log('✅ Tokens validados correctamente', {
@@ -117,13 +78,14 @@ export class TokenManager {
   /**
    * Guarda tokens en localStorage
    */
-  static saveTokens(accessToken: string, refreshToken: string): void {
+  static saveTokens(accessToken: string, refreshToken: string, expirationDate: string): void {
     this.validateTokens(accessToken, refreshToken);
 
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    SessionUtils.setStorageValue('accessToken', accessToken);
+    SessionUtils.setStorageValue('refreshToken', refreshToken);
+    SessionUtils.setStorageValue('expirationDate', expirationDate);
 
-    console.log('✅ Tokens guardados en localStorage correctamente', {
+    console.log('✅ Tokens guardados en localStorage', {
       isGuest: refreshToken === 'guest'
     });
   }
@@ -131,43 +93,13 @@ export class TokenManager {
   /**
    * Guarda datos de sesión en localStorage
    */
-  static saveSessionData(data: {
-    tableSessionId: string | null;
-    foodVenueId: string | null;
-    tableNumber?: number | null;
-    participantCount?: number | null;
-  }): void {
+  static saveSessionData(data: SessionData): void {
     const { tableSessionId, foodVenueId, tableNumber, participantCount } = data;
 
-    // Guardar tableSessionId
-    if (tableSessionId && tableSessionId.trim()) {
-      localStorage.setItem('tableSessionId', tableSessionId);
-      console.log('✅ TableSessionId guardado:', tableSessionId);
-    } else {
-      localStorage.removeItem('tableSessionId');
-      console.log('⚠️ No hay tableSessionId válido para guardar');
-    }
-
-    // Guardar foodVenueId
-    if (foodVenueId && foodVenueId.trim()) {
-      localStorage.setItem('foodVenueId', foodVenueId);
-      console.log('✅ FoodVenueId guardado:', foodVenueId);
-    } else {
-      localStorage.removeItem('foodVenueId');
-      console.log('⚠️ No hay foodVenueId válido para guardar');
-    }
-
-    // Guardar tableNumber (opcional)
-    if (tableNumber !== null && tableNumber !== undefined && tableNumber > 0) {
-      localStorage.setItem('tableNumber', tableNumber.toString());
-      console.log('✅ TableNumber guardado:', tableNumber);
-    }
-
-    // Guardar participantCount (opcional)
-    if (participantCount !== null && participantCount !== undefined && participantCount >= 0) {
-      localStorage.setItem('participantCount', participantCount.toString());
-      console.log('✅ ParticipantCount guardado:', participantCount);
-    }
+    SessionUtils.setStorageValue('tableSessionId', tableSessionId);
+    SessionUtils.setStorageValue('foodVenueId', foodVenueId);
+    SessionUtils.setStorageValue('tableNumber', tableNumber);
+    SessionUtils.setStorageValue('participantCount', participantCount);
   }
 
   /**
@@ -177,19 +109,104 @@ export class TokenManager {
     return {
       accessToken: SessionUtils.getCleanStorageValue('accessToken'),
       refreshToken: SessionUtils.getCleanStorageValue('refreshToken'),
+      expirationDate: SessionUtils.getCleanStorageValue('expirationDate'),
       tableSessionId: SessionUtils.getCleanStorageValue('tableSessionId'),
       foodVenueId: SessionUtils.getCleanStorageValue('foodVenueId'),
-      expirationDate: SessionUtils.getCleanStorageValue('expirationDate')
     };
+  }
+
+  /**
+   * Extrae información de sesión desde una respuesta de login
+   */
+  static getSessionInfoFromResponse(
+    response: LoginResponse
+  ): { tableNumber?: number; participants?: any[] } | null {
+    // Si es TableSessionResponse, extraer directamente
+    if (SessionUtils.isTableSessionResponse(response)) {
+      const tsResponse = response as TableSessionResponse;
+      return {
+        tableNumber: tsResponse.tableNumber,
+        participants: tsResponse.participants
+      };
+    }
+
+    // Si es AuthResponse, intentar extraer del token
+    const authResponse = response as AuthResponse;
+    const decoded = JwtUtils.decodeJWT(authResponse.accessToken);
+
+    if (decoded?.tableSessionId) {
+      return {
+        tableNumber: decoded.tableNumber ?? null,
+        participants: decoded.participants ?? []
+      };
+    }
+
+    return null;
+  }
+
+  // ==================== MÉTODOS PRIVADOS ====================
+
+  /**
+   * Extrae tableSessionId y foodVenueId del token
+   */
+  private static extractSessionDataFromToken(accessToken: string): {
+    tableSessionId: string | null;
+    foodVenueId: string | null;
+  } {
+    const decoded = JwtUtils.decodeJWT(accessToken);
+
+    if (!decoded) {
+      console.error('❌ No se pudo decodificar el token');
+      throw new Error('Token inválido');
+    }
+
+    const tableSessionId = SessionUtils.cleanSessionValue(decoded.tableSessionId);
+    const foodVenueId = SessionUtils.cleanSessionValue(decoded.foodVenueId);
+
+    console.log('💾 Datos extraídos del token:', {
+      tableSessionId,
+      foodVenueId,
+    });
+
+    return { tableSessionId, foodVenueId };
+  }
+
+  /**
+   * Resuelve el refreshToken con lógica de fallback
+   */
+  private static resolveRefreshToken(
+    responseToken: string | undefined | null,
+    fallbackToken: string | null
+  ): string {
+    // 1. Token de la respuesta (tiene prioridad)
+    if (responseToken) {
+      console.log('✅ Usando refreshToken de la respuesta');
+      return responseToken;
+    }
+
+    // 2. Token del fallback (usuario ya logueado)
+    const cleanFallback = SessionUtils.cleanSessionValue(fallbackToken);
+    if (cleanFallback) {
+      console.log('✅ Usando refreshToken del fallback (usuario ya logueado)');
+      return cleanFallback;
+    }
+
+    // 3. Guest (invitado)
+    console.log('👻 Sin refreshToken, usando "guest" (invitado)');
+    return 'guest';
   }
 }
 
+// ==================== INTERFACES ====================
+
 /**
- * Datos procesados de autenticación listos para ser guardados
+ * Datos extraídos y procesados desde cualquier respuesta de auth
+ * Listo para guardar en localStorage
  */
 export interface ProcessedAuthData {
   accessToken: string;
   refreshToken: string;
+  expirationDate: string;
   tableSessionId: string | null;
   foodVenueId: string | null;
   tableNumber: number | null;
@@ -197,12 +214,22 @@ export interface ProcessedAuthData {
 }
 
 /**
- * Datos de autenticación cargados desde localStorage
+ * Datos de auth cargados desde localStorage
  */
 export interface LoadedAuthData {
   accessToken: string | null;
   refreshToken: string | null;
+  expirationDate: string | null;
   tableSessionId: string | null;
   foodVenueId: string | null;
-  expirationDate: string | null;
+}
+
+/**
+ * Datos de sesión para guardar en localStorage
+ */
+export interface SessionData {
+  tableSessionId: string | null;
+  foodVenueId: string | null;
+  tableNumber?: number | null;
+  participantCount?: number | null;
 }

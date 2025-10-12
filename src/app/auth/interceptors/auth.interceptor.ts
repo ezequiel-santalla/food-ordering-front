@@ -1,47 +1,49 @@
 import { HttpHandlerFn, HttpRequest } from "@angular/common/http";
 import { inject } from "@angular/core";
-import { AuthService } from "../services/auth.service";
+import { AuthStateManager } from "../services/auth-state-manager.service";
 
 export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
-  // Rutas públicas que NO necesitan token NUNCA
-  const alwaysPublicRoutes = ['/auth/login', '/auth/register', '/public/'];
+  const authState = inject(AuthStateManager);
 
-  // Verificar si la URL coincide con rutas siempre públicas
-  const isAlwaysPublic = alwaysPublicRoutes.some(route => req.url.includes(route));
-
-  if (isAlwaysPublic) {
-    console.log('🌐 Ruta pública (siempre), sin token:', req.url);
+  // 1. Verificar si es una ruta pública (no requiere autenticación)
+  if (isPublicRoute(req.url)) {
     return next(req);
   }
 
-  // Para scan-qr: agregar token SOLO si está autenticado
-  const isScanQr = req.url.includes('/scan-qr');
+  // 2. Obtener el token de acceso desde el estado
+  const token = authState.accessToken();
 
-  const authService = inject(AuthService);
-  const token = authService.accessToken();
-  const refreshToken = authService.refreshToken();
-
-  // Si es scan-qr y NO está autenticado (no tiene refreshToken válido)
-  if (isScanQr && (!refreshToken || refreshToken === 'guest')) {
-    console.log('📱 Scan QR sin autenticación (invitado), sin token');
-    return next(req);
-  }
-
-  // Si es scan-qr y SÍ está autenticado
-  if (isScanQr && refreshToken && refreshToken !== 'guest') {
-    console.log('📱 Scan QR con autenticación (usuario logueado), agregando token');
-  }
-
-  // Para todas las demás rutas protegidas
+  // 3. Si no hay token disponible, continuar sin autorización
+  //    Esto permite peticiones a endpoints que no requieren auth
   if (!token) {
-    console.warn('⚠️ No hay token disponible para:', req.url);
     return next(req);
   }
 
-  console.log('🔐 Agregando token a la petición:', req.url);
-  const newReq = req.clone({
-    headers: req.headers.append('Authorization', `Bearer ${token}`),
+  // 4. Caso especial: Scan QR como invitado
+  //    Si es un invitado escaneando QR, NO enviar token para crear nueva sesión
+  //    Si es un usuario autenticado, SÍ enviar token para preservar su identidad
+  if (isScanQrRoute(req.url) && authState.isGuest()) {
+    return next(req);
+  }
+
+  // 5. Clonar la petición y agregar el header de autorización
+  const authReq = req.clone({
+    headers: req.headers.set('Authorization', `Bearer ${token}`)
   });
 
-  return next(newReq);
+  return next(authReq);
+}
+
+function isPublicRoute(url: string): boolean {
+  const publicRoutes = [
+    '/auth/login',      // Login de usuarios
+    '/auth/register',   // Registro de nuevos usuarios
+    '/public/'          // Cualquier endpoint bajo /public/
+  ];
+
+  return publicRoutes.some(route => url.includes(route));
+}
+
+function isScanQrRoute(url: string): boolean {
+  return url.includes('/scan-qr');
 }

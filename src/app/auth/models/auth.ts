@@ -1,24 +1,29 @@
-import { TableSessionResponse } from '../../shared/models/table-session';
+import { Employment } from "../../shared/models/common";
+import { TableSessionResponse } from "../../shared/models/table-session";
 
-export interface AuthResponse {
+/**
+ * Base para cualquier respuesta de autenticación
+ * Contiene los tokens y datos comunes
+ */
+export interface BaseAuthResponse {
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
   expirationDate: string;
-  employments?: Employment[];
 }
 
-export interface Employment {
-  publicId: string;
-  role: string;
-  restaurant?: {
-    publicId: string;
-    name: string;
-  };
-  foodVenueName?: string;
+/**
+ * Respuesta de login simple (sin sesión de mesa)
+ */
+export interface AuthResponse extends BaseAuthResponse {
+  refreshToken: string;
+  employments?: Employment[];
 }
 
 export type LoginResponse = AuthResponse | TableSessionResponse;
 
+/**
+ * Type guard para diferencia entre AuthResponse y TableSessionResponse
+ */
 export function isTableSessionResponse(
   response: LoginResponse
 ): response is TableSessionResponse {
@@ -29,11 +34,3 @@ export function isTableSessionResponse(
     Array.isArray((response as any).participants)
   );
 }
-
-export type {
-  Participant,
-  User,
-  Address,
-  TableSessionRequest,
-  TableSessionInfo
-} from '../../shared/models/table-session';

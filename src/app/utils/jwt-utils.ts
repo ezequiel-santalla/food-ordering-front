@@ -1,5 +1,8 @@
 export class JwtUtils {
 
+  /**
+   * Decodifica un JWT y retorna su payload
+   */
   static decodeJWT(token: string): any {
     if (!token) {
       console.warn('⚠️ Token vacío o undefined');
@@ -31,9 +34,13 @@ export class JwtUtils {
     }
   }
 
+  /**
+   * Verifica si un token decodificado está expirado
+   */
   static isTokenExpired(decodedToken: any): boolean {
+    // Si no hay token o no tiene exp, considerarlo expirado
     if (!decodedToken || !decodedToken.exp) {
-      return false;
+      return true; // ← FIX: Cambiar false por true
     }
 
     try {
@@ -46,12 +53,17 @@ export class JwtUtils {
     }
   }
 
+  /**
+   * Obtiene un claim específico del token
+   */
   static getClaimValue(token: string, claimName: string): any {
     const decoded = this.decodeJWT(token);
-    if (!decoded) return null;
-    return decoded[claimName] || null;
+    return decoded?.[claimName] ?? null; // Usar optional chaining y nullish coalescing
   }
 
+  /**
+   * Valida si un token es válido (bien formado y no expirado)
+   */
   static isValidToken(token: string): boolean {
     if (!token || typeof token !== 'string') {
       return false;
@@ -62,25 +74,23 @@ export class JwtUtils {
       return false;
     }
 
-    if (this.isTokenExpired(decoded)) {
-      return false;
-    }
-
-    return true;
+    return !this.isTokenExpired(decoded); // Más legible con negación
   }
 
+  /**
+   * Extrae múltiples claims de un token
+   */
   static extractClaims(token: string, claimNames: string[]): Record<string, any> {
     const decoded = this.decodeJWT(token);
-    const result: Record<string, any> = {};
 
     if (!decoded) {
-      return result;
+      return {};
     }
 
-    claimNames.forEach(claim => {
-      result[claim] = decoded[claim] || null;
-    });
-
-    return result;
+    // Usar reduce para ser más funcional
+    return claimNames.reduce((acc, claim) => {
+      acc[claim] = decoded[claim] ?? null;
+      return acc;
+    }, {} as Record<string, any>);
   }
 }

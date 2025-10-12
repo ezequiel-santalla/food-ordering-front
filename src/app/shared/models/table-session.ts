@@ -1,39 +1,15 @@
-export interface Address {
-  street: string;
-  number: string;
-  city: string;
-  province: string;
-  country: string;
-  postalCode: string;
-}
-
-export interface User {
-  publicId: string;
-  name: string;
-  lastName: string;
-  address?: Address;
-  email: string;
-  birthDate?: string;
-  phone?: string;
-  createdAt: string | null;
-  removedAt: string | null;
-  role: string | null;
-}
-
-export interface Participant {
-  publicId: string;
-  user: User;
-  nickname: string;
-}
+import { BaseAuthResponse } from "../../auth/models/auth";
+import { Participant } from "./common";
 
 export interface TableSessionRequest {
   tableId: string;
 }
 
-export interface TableSessionResponse {
-  accessToken: string;
-  refreshToken?: string;
-  expirationDate?: string;
+/**
+ * Respuesta de sesión de mesa
+ * Extiende BaseAuthResponse para reutilizar la estructura de tokens
+ */
+export interface TableSessionResponse extends BaseAuthResponse {
   tableNumber: number;
   numberOfParticipants?: number;
   tableSessionId?: string;
@@ -43,6 +19,9 @@ export interface TableSessionResponse {
   participants: Participant[];
 }
 
+/**
+ * Info de sesión de mesa para componentes
+ */
 export interface TableSessionInfo {
   tableNumber: number;
   participantNickname: string;
