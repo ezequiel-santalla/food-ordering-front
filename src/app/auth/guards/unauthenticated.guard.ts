@@ -3,7 +3,6 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 export const UnauthenticatedGuard: CanActivateFn = () => {
-
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -11,6 +10,13 @@ export const UnauthenticatedGuard: CanActivateFn = () => {
 
   if (!isAuthenticated) {
     console.log('✅ No autenticado, puede acceder a login');
+    return true;
+  }
+
+  const isGuest = authService.isGuest();
+  
+  if (isGuest) {
+    console.log('👻 Guest detectado, permitiendo acceso a login');
     return true;
   }
 
