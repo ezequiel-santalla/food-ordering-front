@@ -1,0 +1,254 @@
+<section class="min-h-screen flex items-center justify-center px-4 py-4">
+  <div class="w-full max-w-2xl">
+    <!-- Header -->
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-accent to-success rounded-full mb-4">
+        <lucide-icon [img]="User" class="w-12 h-12 text-white"></lucide-icon>
+      </div>
+      <h1 class="text-3xl font-bold text-base-content mb-2">Crear Cuenta</h1>
+      <p class="text-base-content/70">Únete a nosotros</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card bg-base-100 shadow-2xl">
+      <div class="card-body">
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+          <!-- Sección: Datos Requeridos -->
+          <div>
+            <h3 class="text-lg font-semibold text-base-content mb-4 border-b border-base-300 pb-2">
+              Información Personal
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Nombre -->
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold">Nombre <span class="text-error">*</span></span>
+                </label>
+                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                  <lucide-icon [img]="User" class="w-4 h-4 text-base-content/70"></lucide-icon>
+                  <input type="text" placeholder="Ej: Juan" formControlName="name"
+                    class="grow placeholder-gray-400 placeholder:italic" required />
+                </label>
+
+                @if (formUtils.isValidField(registerForm, 'name')) {
+                <span class="form-text text-warning">
+                  {{ formUtils.getTextError(registerForm, 'name') }}
+                </span>
+                }
+              </div>
+
+              <!-- Apellido -->
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold">Apellido <span class="text-error">*</span></span>
+                </label>
+                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                  <lucide-icon [img]="User" class="w-4 h-4 text-base-content/70"></lucide-icon>
+                  <input type="text" placeholder="Ej: Pérez" formControlName="lastName"
+                    class="grow placeholder-gray-400 placeholder:italic" required />
+                </label>
+
+                @if (formUtils.isValidField(registerForm, 'lastName')) {
+                <span class="form-text text-warning">
+                  {{ formUtils.getTextError(registerForm, 'lastName') }}
+                </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección: Credenciales -->
+          <div>
+            <h3 class="text-lg font-semibold text-base-content mb-4 border-b border-base-300 pb-2">
+              Credenciales
+            </h3>
+
+            <div class="space-y-4">
+              <!-- Email -->
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold">Email <span class="text-error">*</span></span>
+                </label>
+                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                  <lucide-icon [img]="Mail" class="w-4 h-4 text-base-content/70"></lucide-icon>
+                  <input type="email" placeholder="Ej: juan.perez@example.com" formControlName="email"
+                    class="grow placeholder-gray-400 placeholder:italic" required />
+                </label>
+
+                @if (formUtils.isValidField(registerForm, 'email')) {
+                <span class="form-text text-warning">
+                  {{ formUtils.getTextError(registerForm, 'email') }}
+                </span>
+                }
+              </div>
+
+              <!-- Contraseña -->
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold">Contraseña <span class="text-error">*</span></span>
+                </label>
+                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                  <lucide-icon [img]="KeyRound" class="w-4 h-4 text-base-content/70"></lucide-icon>
+                  <input type="password" placeholder="Mínimo 6 caracteres" formControlName="password"
+                    class="grow placeholder-gray-400 placeholder:italic" required />
+                </label>
+
+                @if (formUtils.isValidField(registerForm, 'password')) {
+                <span class="form-text text-warning">
+                  {{ formUtils.getTextError(registerForm, 'password') }}
+                </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección: Datos Opcionales (Toggle) -->
+          <div class="divider my-2"></div>
+
+          <button type="button" (click)="toggleOptionalFields()" class="btn btn-sm btn-ghost gap-2 justify-start">
+            <span>{{ showOptionalFields ? '▼' : '▶' }} Agregar información adicional (opcional)</span>
+          </button>
+
+          @if (showOptionalFields) {
+          <div class="space-y-6 p-4 bg-base-200 rounded-lg">
+
+            <!-- Teléfono y Fecha de Nacimiento -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Teléfono -->
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold">Teléfono</span>
+                </label>
+                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                  <lucide-icon [img]="Phone" class="w-4 h-4 text-base-content/70"></lucide-icon>
+                  <input type="tel" placeholder="+54 9 223 555-1234" formControlName="phone"
+                    class="grow placeholder-gray-400 placeholder:italic" />
+                </label>
+
+                @if (formUtils.isValidField(registerForm, 'phone')) {
+                <span class="form-text text-warning">
+                  {{ formUtils.getTextError(registerForm, 'phone') }}
+                </span>
+                }
+              </div>
+
+              <!-- Fecha de Nacimiento -->
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold">Fecha de Nacimiento</span>
+                </label>
+                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                  <input type="date" formControlName="birthDate"
+                    class="grow" />
+                </label>
+
+                @if (formUtils.isValidField(registerForm, 'birthDate')) {
+                <span class="form-text text-warning">
+                  {{ formUtils.getTextError(registerForm, 'birthDate') }}
+                </span>
+                }
+              </div>
+            </div>
+
+            <!-- Dirección -->
+            <div>
+              <h4 class="font-semibold text-base-content mb-3 flex items-center gap-2">
+                <lucide-icon [img]="MapPin" class="w-4 h-4"></lucide-icon>
+                Dirección
+              </h4>
+
+              <div class="space-y-4">
+                <!-- Calle y Número -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="form-control md:col-span-2">
+                    <label class="label">
+                      <span class="label-text text-sm">Calle</span>
+                    </label>
+                    <input type="text" placeholder="Ej: Evergreen Terrace" formControlName="street"
+                      class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
+                  </div>
+
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text text-sm">Número</span>
+                    </label>
+                    <input type="text" placeholder="Ej: 742" formControlName="number"
+                      class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
+                  </div>
+                </div>
+
+                <!-- Ciudad, Provincia, País -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text text-sm">Ciudad</span>
+                    </label>
+                    <input type="text" placeholder="Ej: Springfield" formControlName="city"
+                      class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
+                  </div>
+
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text text-sm">Provincia</span>
+                    </label>
+                    <input type="text" placeholder="Ej: Illinois" formControlName="province"
+                      class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
+                  </div>
+
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text text-sm">País</span>
+                    </label>
+                    <input type="text" placeholder="Ej: USA" formControlName="country"
+                      class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
+                  </div>
+                </div>
+
+                <!-- Código Postal -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text text-sm">Código Postal</span>
+                  </label>
+                  <input type="text" placeholder="Ej: 62704" formControlName="postalCode"
+                    class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
+                </div>
+              </div>
+            </div>
+
+          </div>
+          }
+
+          <!-- Botones -->
+          <div class="space-y-3 sm:space-y-0 sm:flex sm:gap-4 pt-6">
+            <button type="submit" [disabled]="isSubmitting"
+              class="btn btn-primary bg-gradient-to-r border-none text-white w-full sm:flex-1 hover:scale-105 transition-all duration-300 shadow-lg h-12">
+              @if (isSubmitting) {
+              <span class="loading loading-spinner"></span>
+              }
+              <lucide-icon [img]="User" class="w-5 h-5" />
+              Registrarse
+            </button>
+            <button type="button" (click)="onCancel()"
+              class="btn btn-outline btn-secondary w-full sm:flex-1 hover:scale-105 transition-all duration-300 h-12">
+              <lucide-icon [img]="RotateCcwIcon" class="w-5 h-5"></lucide-icon>
+              Limpiar
+            </button>
+          </div>
+        </form>
+
+        <!-- Login Link -->
+        <div class="divider">O</div>
+        <div class="text-center">
+          <p class="text-base-content/70">
+            ¿Ya tienes una cuenta?
+            <a routerLink="/auth/login" class="text-accent hover:text-accent-focus font-semibold transition-colors duration-300">
+              Inicia sesión aquí
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

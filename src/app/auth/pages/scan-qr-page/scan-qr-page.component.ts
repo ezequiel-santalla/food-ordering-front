@@ -23,7 +23,7 @@ export class ScanQrPageComponent {
   private navigation = inject(NavigationService);
 
   isSubmitting = signal(false);
-  readonly TEST_TABLE_ID = '187ee312-24b2-4f54-a27b-c18a5b5e8bf0';
+  readonly TEST_TABLE_ID = '705d8c9c-5549-4d8b-90e0-d2a1fd113816';
 
   constructor() {
     // Verificar si ya tiene sesión al entrar
@@ -119,8 +119,12 @@ export class ScanQrPageComponent {
           response.participants.length
         );
 
+        if (nickname.toLocaleLowerCase().startsWith('guest')) {
+          nickname = 'Invitado';
+        }
+
         this.sweetAlertService.showSuccess(
-          '¡Bienvenido!',
+          `¡Bienvenido ${nickname}!`,
           `Te has unido a la mesa ${response.tableNumber}`
         );
 

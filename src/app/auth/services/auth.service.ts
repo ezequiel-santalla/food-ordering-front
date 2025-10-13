@@ -1,15 +1,13 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { AuthResponse } from '../models/auth';
+import { AuthResponse, LoginResponse } from '../models/auth';
 import { TableSessionResponse } from '../../shared/models/table-session';
 import { SessionUtils } from '../../utils/session-utils';
 import { JwtUtils } from '../../utils/jwt-utils';
 import { TokenManager } from '../../utils/token-manager';
 import { AuthStateManager } from './auth-state-manager.service';
 import { AuthApiService } from './auth-api.service';
-
-type LoginResponse = AuthResponse | TableSessionResponse;
 
 /**
  * Servicio principal de autenticación
@@ -63,6 +61,25 @@ export class AuthService {
       }),
       catchError(error => {
         console.error('❌ Error en login:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Registro de usuario
+   */
+  register(data: any): Observable<LoginResponse> {
+    return this.authApi.register(data).pipe(
+      tap(response => {
+        const processed = SessionUtils.isTableSessionResponse(response)
+          ? TokenManager.processTableSessionResponse(response as TableSessionResponse, null)
+          : TokenManager.processAuthResponse(response as AuthResponse);
+
+        this.authState.applyAuthData(processed);
+      }),
+      catchError(error => {
+        console.error('❌ Error en registro:', error);
         return throwError(() => error);
       })
     );
