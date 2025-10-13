@@ -16,7 +16,16 @@ export class PublicHeaderComponent {
   tableSessionId = this.authService.tableSessionId;
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/auth/login']);
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('✅ Logout completado');
+        this.router.navigate(['/food-venues']);
+      },
+      error: (error) => {
+        console.error('❌ Error en logout:', error);
+        // Incluso si hay error, ir a food-venues
+        this.router.navigate(['/food-venues']);
+      }
+    });
   }
 }
