@@ -23,7 +23,7 @@ export class ScanQrPageComponent {
   private navigation = inject(NavigationService);
 
   isSubmitting = signal(false);
-  readonly TEST_TABLE_ID = '705d8c9c-5549-4d8b-90e0-d2a1fd113816';
+  readonly TEST_TABLE_ID = '94f38036-e389-4d57-9ece-3cf1956a999c';
 
   constructor() {
     // Verificar si ya tiene sesión al entrar

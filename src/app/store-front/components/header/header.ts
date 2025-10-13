@@ -1,4 +1,3 @@
-// store-front/components/header/header.ts
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Bell, User, LogOut, QrCode } from 'lucide-angular';
@@ -80,7 +79,6 @@ export class Header {
 
   participantNickname = computed(() => {
     const nickname = this.tableSessionService.tableSessionInfo().participantNickname;
-    
     return nickname.toLowerCase().startsWith('guest') ? 'Invitado' : nickname;
   });
 
@@ -89,7 +87,16 @@ export class Header {
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/food-venues']);
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('✅ Logout completado, redirigiendo...');
+        this.router.navigate(['/food-venues']);
+      },
+      error: (error) => {
+        console.error('❌ Error durante logout:', error);
+        // Incluso con error, se limpia localmente y se redirige
+        this.router.navigate(['/food-venues']);
+      }
+    });
   }
 }

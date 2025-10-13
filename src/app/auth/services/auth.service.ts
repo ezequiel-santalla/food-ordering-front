@@ -126,11 +126,33 @@ export class AuthService {
   }
 
   /**
-   * Cerrar sesión
+   * Cerrar sesión - Llamada al backend + limpieza local
    */
-  logout(): void {
+  logout(): Observable<void> {
+    const refreshToken = this.authState.refreshToken();
+
+    return this.authApi.logout(refreshToken).pipe(
+      tap(() => {
+        console.log('✅ Logout exitoso en el backend');
+        this.performLocalLogout();
+      }),
+      catchError(error => {
+        console.error('⚠️ Error en logout del backend, realizando logout local:', error);
+        // Incluso si falla el backend, limpiamos localmente
+        this.performLocalLogout();
+        return of(void 0);
+      })
+    );
+  }
+
+  /**
+   * Limpieza local del logout (sin llamada al backend)
+   * Usado internamente cuando la comunicación con backend falla
+   */
+  private performLocalLogout(): void {
     this.authState.clearState();
     SessionUtils.clearAllAuthData();
+    console.log('🗑️ Estado local limpiado');
   }
 
   /**

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { LoginResponse } from '../models/auth';
 import { TableSessionRequest, TableSessionResponse } from '../../shared/models/table-session';
@@ -31,7 +31,12 @@ export class AuthApiService {
     return this.http.post<TableSessionResponse>(`${this.baseUrl}/table-sessions/scan-qr`, body);
   }
 
-  logout(): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/auth/logout`, {});
+  logout(refreshToken: string | null): Observable<void> {
+    if (!refreshToken) {
+      return of(void 0);
+    }
+
+    const body: any = { refreshToken };
+    return this.http.post<void>(`${this.baseUrl}/auth/logout`, body);
   }
 }
