@@ -21,7 +21,7 @@ export const routes: Routes = [
 
   // 📱 Escaneo de QR (NO requiere estar autenticado)
   {
-    path: 'scan-qr',
+    path: 'scan-qr/:tableId',
     canActivate: [ScanQrGuard],
     loadComponent: () =>
       import('./auth/pages/scan-qr-page/scan-qr-page.component')

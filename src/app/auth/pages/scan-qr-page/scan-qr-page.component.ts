@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { LucideAngularModule, QrCode, Scan } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
@@ -6,13 +6,14 @@ import { TableSessionService } from '../../../store-front/services/table-session
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { SessionUtils } from '../../../utils/session-utils';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-scan-qr-page',
   imports: [LucideAngularModule],
   templateUrl: './scan-qr-page.component.html',
 })
-export class ScanQrPageComponent {
+export class ScanQrPageComponent implements OnInit {
   readonly QrCode = QrCode;
   readonly Scan = Scan;
 
@@ -21,9 +22,9 @@ export class ScanQrPageComponent {
   private tableSessionService = inject(TableSessionService);
   private errorHandler = inject(ErrorHandlerService);
   private navigation = inject(NavigationService);
+  private route = inject(ActivatedRoute);
 
   isSubmitting = signal(false);
-  readonly TEST_TABLE_ID = '94f38036-e389-4d57-9ece-3cf1956a999c';
 
   constructor() {
     // Verificar si ya tiene sesión al entrar
@@ -42,7 +43,22 @@ export class ScanQrPageComponent {
     });
   }
 
-  simulateScan() {
+  ngOnInit(): void {
+    const tableIdFromUrl = this.route.snapshot.paramMap.get('tableId');
+
+    if (tableIdFromUrl) {
+      console.log('ID de la mesa capturado desde la URL:', tableIdFromUrl);
+      this.processScan(tableIdFromUrl);
+    } else {
+      console.error('No se encontró un ID de mesa en la URL.');
+      this.sweetAlertService.showError(
+        'URL Inválida',
+        'El código QR no proporcionó un ID de mesa válido.'
+      );
+    }
+  }
+
+  processScan(tableId: string): void {
     const currentSession = this.authService.tableSessionId();
 
     // Verificar sesión activa válida
@@ -64,7 +80,7 @@ export class ScanQrPageComponent {
       'Conectando con la mesa'
     );
 
-    this.authService.scanQR(this.TEST_TABLE_ID).subscribe({
+    this.authService.scanQR(tableId).subscribe({
       next: (response) => {
         console.log('✅ QR escaneado exitosamente:', response);
 
