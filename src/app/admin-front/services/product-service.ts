@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-
+import {  map } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import ProductRequest from '../models/request/product-request';
 import { environment } from '../../../environments/environment.development';
@@ -21,7 +21,8 @@ export class ProductService {
   }
 
   getProducts(){
-    return this.http.get<Content[]>(this.API_URL);
+    return this.http.get<ProductResponse>(this.API_URL)
+    .pipe(map(response => response.content));
   }
 
   getProductById(id: string){
