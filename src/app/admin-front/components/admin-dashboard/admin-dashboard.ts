@@ -7,5 +7,5 @@ import { RouterLink } from '@angular/router';
   templateUrl: './admin-dashboard.html'
 })
 export class AdminDashboard {
-
+   
 }
