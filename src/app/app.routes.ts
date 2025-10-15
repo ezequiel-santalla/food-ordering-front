@@ -41,9 +41,19 @@ export const routes: Routes = [
     loadChildren: () => import('./food-venues/food-venues.routes')
   },
 
+  // ADMIN DASHBOARD
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin-front/admin-front.routes')
+  },
+
+
+
   // 🔄 Cualquier ruta no encontrada redirige a food-venues
   {
     path: '**',
     redirectTo: 'food-venues'
   }
+
+
 ];
