@@ -95,21 +95,27 @@ export class LoginPageComponent {
           'Has iniciado sesión correctamente.'
         );
 
-
-
+        // PRIORIDAD #1: ¿La respuesta trae una lista de roles con contenido?
+        // Esta es la primera y única pregunta que hacemos al principio.
         if (
-          !isTableSessionResponse(response) &&
+          'employments' in response &&
           response.employments &&
           response.employments.length > 0
         ) {
+                 this.sweetAlertService.showSuccess(
+          '¡Bienvenido!',
+          'Hay roles disponibles.'
+        );
           console.log(
             'PRIORIDAD 1: Roles detectados. Redirigiendo a selección...'
           );
           this.navigation.navigateToRoleSelection();
           this.resetForm();
-          return; // <-- IMPORTANTE: Salimos aquí para no ejecutar otra navegación.
+          return; 
         }
 
+        // PRIORIDAD #2: Si NO hay roles, ¿hay una sesión de mesa activa?
+        // Solo llegamos aquí si la condición anterior fue falsa.
 
         // Verificar si es una respuesta con sesión de mesa
         if (isTableSessionResponse(response)) {

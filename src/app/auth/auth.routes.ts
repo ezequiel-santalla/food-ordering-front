@@ -20,11 +20,7 @@ export const authRoutes: Routes = [
       {
         path: '**',
         redirectTo: 'login',
-      },
-      {
-        path: 'select-role',
-        component: RoleSelectionComponent,
-      },
+      }
     ],
   },
 ];

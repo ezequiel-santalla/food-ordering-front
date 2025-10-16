@@ -189,6 +189,7 @@ export class AuthService {
    * Obtener los roles disponibles desde la respuesta de login
    */
   getAvailableEmployments(response: AuthResponse): Employment[] {
+    console.log("Buscando empleos disponibles");
     return TokenManager.getEmploymentsFromResponse(response);
   }
 

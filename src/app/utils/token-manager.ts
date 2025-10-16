@@ -194,6 +194,9 @@ export class TokenManager {
     response: AuthResponse
   ): Employment[] {
     // Lee directamente la propiedad 'employments' del objeto de respuesta.
+    console.log("Roles disponibles por empleo: ",
+      response?.employments
+    );
     return response?.employments || [];
   }
 

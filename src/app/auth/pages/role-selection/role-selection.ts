@@ -1,12 +1,14 @@
-import { Component, computed, inject, OnInit, Signal } from '@angular/core';
+import { Component, computed, inject, effect, Signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Employment } from '../../../shared/models/common';
 import { Briefcase, LucideAngularModule, User } from 'lucide-angular';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-role-selection',
-  imports: [LucideAngularModule],
+  standalone: true,
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './role-selection.html',
 })
 export class RoleSelectionComponent {
@@ -17,8 +19,8 @@ export class RoleSelectionComponent {
   public Briefcase = Briefcase;
 
   public employments: Signal<Employment[]> = this.authService.employments;
-
   public hasEmployments = computed(() => this.employments().length > 0);
+  public authStatus = this.authService.authStatus;
 
   // Mapeo para mostrar nombres más amigables
   public roleDisplayNames: { [key: string]: string } = {
@@ -29,9 +31,20 @@ export class RoleSelectionComponent {
   };
 
   constructor() {
-    if (!this.hasEmployments()) {
-      this.router.navigate(['/auth/login']);
-    }
+console.log('Cargando selector de roles');
+
+    // 👇 LÓGICA MOVIDA AQUÍ DENTRO 👇
+    effect(() => {
+      // Este código se ejecutará cuando el estado de autenticación sea estable
+      // y cada vez que 'hasEmployments' cambie.
+      const status = this.authStatus();
+      
+      // Nos aseguramos de no redirigir si el estado todavía se está verificando
+      if (status === 'authenticated' && !this.hasEmployments()) {
+        console.warn('Usuario autenticado sin roles. Redirigiendo al login.');
+        this.router.navigate(['/auth/login']);
+      }
+    });
   }
 
   /**
