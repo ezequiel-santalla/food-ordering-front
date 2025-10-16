@@ -6,9 +6,8 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-product-list-page',
   imports: [RouterLink, CommonModule],
-  templateUrl: './product-list-page.html',
-  styleUrl: './product-list-page.css'
-})
+  templateUrl: './product-list-page.html'})
+
 export class ProductListPage {
   openMenuIndex: number | null = null;
 
@@ -50,7 +49,7 @@ deleteProduct(id: string): void {
 }
 
 navigateToDetail(id:string): void {
-  this.router.navigate([`/products/product-detail/${id}`]);
+  this.router.navigate([`/products/${id}`]);
 }
 navigateToEdit(id:string): void{
   this.router.navigate([`/products/add/${id}`]);

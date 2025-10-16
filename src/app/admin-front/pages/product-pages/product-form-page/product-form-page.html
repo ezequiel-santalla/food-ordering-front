@@ -1,0 +1,424 @@
+@if (!isEditingMode) {
+<div class="p-8 bg-gray-50 min-h-screen">
+  <header class="mb-8">
+    <a routerLink="/products" class="text-gray-500 hover:text-gray-700 mb-2 inline-block">
+      <svg
+        class="w-6 h-6 inline-block mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        ></path>
+      </svg>
+    </a>
+    <h1 class="text-3xl font-semibold text-gray-900">Nuevo Producto</h1>
+    <p class="text-gray-500">Agrega un nuevo producto al menú</p>
+  </header>
+
+  <form [formGroup]="productForm" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-8">
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Información Básica</h2>
+
+        <div class="mb-4">
+          <label for="nombre" class="block text-sm font-medium text-gray-700"
+            >Nombre del Producto <span class="text-red-500">*</span></label
+          >
+          <input
+            id="nombre"
+            type="text"
+            formControlName="name"
+            placeholder="Ej: Hamburguesa Clásica"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+          />
+          <p class="text-xs text-gray-500 mt-1">0/100 caracteres</p>
+        </div>
+
+        <div class="mb-6">
+          <label for="descripcion" class="block text-sm font-medium text-gray-700"
+            >Descripción</label
+          >
+          <textarea
+            id="descripcion"
+            formControlName="description"
+            placeholder="Describe el producto, ingredientes, preparación..."
+            rows="4"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-1">0/255 caracteres</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label for="precio" class="block text-sm font-medium text-gray-700"
+              >Precio <span class="text-red-500">*</span></label
+            >
+            <input
+              id="precio"
+              type="number"
+              formControlName="price"
+              value="850.00"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+            />
+          </div>
+          <div>
+            <label for="stock" class="block text-sm font-medium text-gray-700">Stock</label>
+            <input
+              id="stock"
+              type="number"
+              formControlName="stock"
+              value="45"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Categorización</h2>
+
+        <div class="mb-6">
+          <label for="categoria" class="block text-sm font-medium text-gray-700">Categoría</label>
+          <select
+            id="categoria"
+            formControlName="categoryId"
+            class="mt-1 block w-full border border-gray-300 bg-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+          >
+            <option value="" disabled selected>Selecciona una categoría</option>
+          </select>
+          <p class="text-xs text-gray-500 mt-1">
+            Selecciona la categoría más específica para tu producto
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+          <div class="flex flex-wrap gap-2">
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 font-medium cursor-pointer"
+              >Popular</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-300 cursor-pointer"
+              >Sin TACC</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 font-medium cursor-pointer"
+              >Vegetariano</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 font-medium cursor-pointer"
+              >Vegano</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-300 cursor-pointer"
+              >Picante</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-300 cursor-pointer"
+              >Light</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-300 cursor-pointer"
+              >Artesanal</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-300 cursor-pointer"
+              >Nuevo</span
+            >
+          </div>
+          <p class="text-xs text-gray-500 mt-2">
+            Selecciona uno o más tags para clasificar tu producto
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-1 space-y-8">
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Imagen del Producto</h2>
+
+        <div
+          class="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center cursor-pointer hover:border-gray-400 transition duration-150"
+        >
+          <svg
+            class="w-12 h-12 text-gray-400 mx-auto"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+            ></path>
+          </svg>
+          <p class="mt-2 text-sm text-gray-600">Subir imagen</p>
+        </div>
+
+        <p class="mt-4 text-xs text-gray-500">Formatos: JPG, PNG. Tamaño recomendado: 800x800px</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 sticky top-4">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Disponibilidad</h2>
+
+        <div class="flex items-center justify-between mb-6">
+          <div class="text-sm">
+            <p class="font-medium text-gray-700">Producto disponible</p>
+            <p class="text-xs text-gray-500">
+              Los productos no disponibles no se mostrarán en el menú del cliente
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" formControlName="available" class="sr-only peer" />
+            <div
+              class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 transition-colors duration-200"
+            ></div>
+            <div
+              class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-5"
+            ></div>
+          </label>
+        </div>
+
+        <div class="flex justify-end space-x-3 border-t pt-4 mt-4">
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 transition duration-150"
+          >
+            Cancelar
+          </button>
+          <button
+          (click)="onSubmit()"
+            type="submit"
+            [disabled]="productForm.invalid"
+            class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md shadow-md hover:bg-gray-700 disabled:opacity-50 transition duration-150"
+          >
+            Crear Producto
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+} @else {
+<div class="p-8 bg-gray-50 min-h-screen">
+  <header class="mb-8">
+    <a routerLink="/products" class="text-gray-500 hover:text-gray-700 mb-2 inline-block">
+      <svg
+        class="w-6 h-6 inline-block mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        ></path>
+      </svg>
+    </a>
+    <h1 class="text-3xl font-semibold text-gray-900">Editar Producto</h1>
+    <p class="text-gray-500">Editar producto del menú</p>
+  </header>
+
+  <form [formGroup]="productForm" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-8">
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Información Básica</h2>
+
+        <div class="mb-4">
+          <label for="nombre" class="block text-sm font-medium text-gray-700"
+            >Nombre del Producto <span class="text-red-500">*</span></label
+          >
+          <input
+            id="nombre"
+            type="text"
+            formControlName="name"
+            placeholder="Ej: Hamburguesa Clásica"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+          />
+          <p class="text-xs text-gray-500 mt-1">0/100 caracteres</p>
+        </div>
+
+        <div class="mb-6">
+          <label for="descripcion" class="block text-sm font-medium text-gray-700"
+            >Descripción</label
+          >
+          <textarea
+            id="descripcion"
+            formControlName="description"
+            placeholder="Describe el producto, ingredientes, preparación..."
+            rows="4"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-1">0/255 caracteres</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label for="precio" class="block text-sm font-medium text-gray-700"
+              >Precio <span class="text-red-500">*</span></label
+            >
+            <input
+              id="precio"
+              type="number"
+              formControlName="price"
+              value="850.00"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+            />
+          </div>
+          <div>
+            <label for="stock" class="block text-sm font-medium text-gray-700">Stock</label>
+            <input
+              id="stock"
+              type="number"
+              formControlName="stock"
+              value="45"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Categorización</h2>
+
+        <div class="mb-6">
+          <label for="categoria" class="block text-sm font-medium text-gray-700">Categoría</label>
+          <select
+            id="categoria"
+            formControlName="categoryId"
+            class="mt-1 block w-full border border-gray-300 bg-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+          >
+            <option value="" disabled selected>Selecciona una categoría</option>
+          </select>
+          <p class="text-xs text-gray-500 mt-1">
+            Selecciona la categoría más específica para tu producto
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+          <div class="flex flex-wrap gap-2">
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 font-medium cursor-pointer"
+              >Popular</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-300 cursor-pointer"
+              >Sin TACC</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 font-medium cursor-pointer"
+              >Vegetariano</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 font-medium cursor-pointer"
+              >Vegano</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-300 cursor-pointer"
+              >Picante</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-300 cursor-pointer"
+              >Light</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-300 cursor-pointer"
+              >Artesanal</span
+            >
+            <span
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-300 cursor-pointer"
+              >Nuevo</span
+            >
+          </div>
+          <p class="text-xs text-gray-500 mt-2">
+            Selecciona uno o más tags para clasificar tu producto
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-1 space-y-8">
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Imagen del Producto</h2>
+
+        <div
+          class="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center cursor-pointer hover:border-gray-400 transition duration-150"
+        >
+          <svg
+            class="w-12 h-12 text-gray-400 mx-auto"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+            ></path>
+          </svg>
+          <p class="mt-2 text-sm text-gray-600">Subir imagen</p>
+        </div>
+
+        <p class="mt-4 text-xs text-gray-500">Formatos: JPG, PNG. Tamaño recomendado: 800x800px</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 sticky top-4">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Disponibilidad</h2>
+
+        <div class="flex items-center justify-between mb-6">
+          <div class="text-sm">
+            <p class="font-medium text-gray-700">Producto disponible</p>
+            <p class="text-xs text-gray-500">
+              Los productos no disponibles no se mostrarán en el menú del cliente
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" formControlName="available" class="sr-only peer" />
+            <div
+              class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 transition-colors duration-200"
+            ></div>
+            <div
+              class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-5"
+            ></div>
+          </label>
+        </div>
+
+        <div class="flex justify-end space-x-3 border-t pt-4 mt-4">
+          <button routerLink="/products"
+            type="button"
+            class="px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 transition duration-150"
+          >
+            Cancelar
+          </button>
+          <button
+          (click)="onSubmit()"
+            type="submit"
+            [disabled]="productForm.invalid"
+            class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md shadow-md hover:bg-gray-700 disabled:opacity-50 transition duration-150"
+          >
+            Actualizar Producto
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+}
+
