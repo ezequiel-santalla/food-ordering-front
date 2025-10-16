@@ -39,4 +39,10 @@ export class AuthApiService {
     const body: any = { refreshToken };
     return this.http.post<void>(`${this.baseUrl}/auth/logout`, body);
   }
+
+  
+  selectRole(employmentId: string): Observable<LoginResponse> {
+    const body = { employmentId };
+    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/switch-roles/select`, body);
+  }
 }

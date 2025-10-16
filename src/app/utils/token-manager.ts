@@ -1,4 +1,5 @@
 import { AuthResponse, LoginResponse } from '../auth/models/auth';
+import { Employment } from '../shared/models/common';
 import { TableSessionResponse } from '../shared/models/table-session';
 import { JwtUtils } from './jwt-utils';
 import { SessionUtils } from './session-utils';
@@ -7,14 +8,14 @@ import { SessionUtils } from './session-utils';
  * Maneja toda la lógica relacionada con tokens y datos de sesión
  */
 export class TokenManager {
-
   /**
    * Procesa una respuesta de autenticación simple (login sin sesión de mesa)
    */
   static processAuthResponse(authResponse: AuthResponse): ProcessedAuthData {
     console.log('🔑 Procesando AuthResponse simple');
 
-    const { accessToken, refreshToken, expirationDate } = authResponse;
+    const { accessToken, refreshToken, expirationDate, employments } =
+      authResponse;
     const sessionData = this.extractSessionDataFromToken(accessToken);
 
     return {
@@ -23,7 +24,8 @@ export class TokenManager {
       expirationDate,
       ...sessionData,
       tableNumber: null,
-      participantCount: null
+      participantCount: null,
+      employments: employments || [],
     };
   }
 
@@ -49,7 +51,8 @@ export class TokenManager {
       expirationDate: response.expirationDate,
       ...sessionData,
       tableNumber: response.tableNumber ?? null,
-      participantCount: response.participants?.length ?? null
+      participantCount: response.participants?.length ?? null,
+      employments: [],
     };
   }
 
@@ -71,14 +74,18 @@ export class TokenManager {
     }
 
     console.log('✅ Tokens validados correctamente', {
-      isGuest: refreshToken === 'guest'
+      isGuest: refreshToken === 'guest',
     });
   }
 
   /**
    * Guarda tokens en localStorage
    */
-  static saveTokens(accessToken: string, refreshToken: string, expirationDate: string): void {
+  static saveTokens(
+    accessToken: string,
+    refreshToken: string,
+    expirationDate: string
+  ): void {
     this.validateTokens(accessToken, refreshToken);
 
     SessionUtils.setStorageValue('accessToken', accessToken);
@@ -86,7 +93,7 @@ export class TokenManager {
     SessionUtils.setStorageValue('expirationDate', expirationDate);
 
     console.log('✅ Tokens guardados en localStorage', {
-      isGuest: refreshToken === 'guest'
+      isGuest: refreshToken === 'guest',
     });
   }
 
@@ -94,24 +101,34 @@ export class TokenManager {
    * Guarda datos de sesión en localStorage
    */
   static saveSessionData(data: SessionData): void {
-    const { tableSessionId, foodVenueId, tableNumber, participantCount } = data;
+    const {
+      tableSessionId,
+      foodVenueId,
+      tableNumber,
+      participantCount,
+      employments,
+    } = data;
 
     SessionUtils.setStorageValue('tableSessionId', tableSessionId);
     SessionUtils.setStorageValue('foodVenueId', foodVenueId);
     SessionUtils.setStorageValue('tableNumber', tableNumber);
     SessionUtils.setStorageValue('participantCount', participantCount);
+    SessionUtils.setStorageValue('employments', JSON.stringify(employments));
   }
 
   /**
    * Carga todos los datos de autenticación desde localStorage
    */
   static loadAuthData(): LoadedAuthData {
+    const employmentString = SessionUtils.getCleanStorageValue('employments');
+
     return {
       accessToken: SessionUtils.getCleanStorageValue('accessToken'),
       refreshToken: SessionUtils.getCleanStorageValue('refreshToken'),
       expirationDate: SessionUtils.getCleanStorageValue('expirationDate'),
       tableSessionId: SessionUtils.getCleanStorageValue('tableSessionId'),
       foodVenueId: SessionUtils.getCleanStorageValue('foodVenueId'),
+      employments: employmentString ? JSON.parse(employmentString) : null,
     };
   }
 
@@ -126,7 +143,7 @@ export class TokenManager {
       const tsResponse = response as TableSessionResponse;
       return {
         tableNumber: tsResponse.tableNumber,
-        participants: tsResponse.participants
+        participants: tsResponse.participants,
       };
     }
 
@@ -137,7 +154,7 @@ export class TokenManager {
     if (decoded?.tableSessionId) {
       return {
         tableNumber: decoded.tableNumber ?? null,
-        participants: decoded.participants ?? []
+        participants: decoded.participants ?? [],
       };
     }
 
@@ -160,7 +177,9 @@ export class TokenManager {
       throw new Error('Token inválido');
     }
 
-    const tableSessionId = SessionUtils.cleanSessionValue(decoded.tableSessionId);
+    const tableSessionId = SessionUtils.cleanSessionValue(
+      decoded.tableSessionId
+    );
     const foodVenueId = SessionUtils.cleanSessionValue(decoded.foodVenueId);
 
     console.log('💾 Datos extraídos del token:', {
@@ -169,6 +188,13 @@ export class TokenManager {
     });
 
     return { tableSessionId, foodVenueId };
+  }
+
+  public static getEmploymentsFromResponse(
+    response: AuthResponse
+  ): Employment[] {
+    // Lee directamente la propiedad 'employments' del objeto de respuesta.
+    return response?.employments || [];
   }
 
   /**
@@ -211,6 +237,7 @@ export interface ProcessedAuthData {
   foodVenueId: string | null;
   tableNumber: number | null;
   participantCount: number | null;
+  employments: Employment[];
 }
 
 /**
@@ -222,6 +249,7 @@ export interface LoadedAuthData {
   expirationDate: string | null;
   tableSessionId: string | null;
   foodVenueId: string | null;
+  employments: Employment[] | null;
 }
 
 /**
@@ -232,4 +260,5 @@ export interface SessionData {
   foodVenueId: string | null;
   tableNumber?: number | null;
   participantCount?: number | null;
+  employments?: Employment[] | null;
 }

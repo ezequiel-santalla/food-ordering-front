@@ -3,6 +3,7 @@ import { JwtUtils } from '../../utils/jwt-utils';
 import { TokenManager } from '../../utils/token-manager';
 import { LoadedAuthData, ProcessedAuthData } from '../../utils/token-manager';
 import { SessionUtils } from '../../utils/session-utils';
+import { Employment } from '../../shared/models/common';
 
 type AuthStatus = 'checking' | 'authenticated' | 'unauthenticated';
 
@@ -16,6 +17,7 @@ export class AuthStateManager {
   private _expirationDate = signal<string | null>(null);
   private _tableSessionId = signal<string | null>(null);
   private _foodVenueId = signal<string | null>(null);
+  private _employments = signal<Employment[]>([]);
 
   // Computed públicos
   authStatus = computed(() => this._authStatus());
@@ -26,6 +28,7 @@ export class AuthStateManager {
   foodVenueId = computed(() => this._foodVenueId());
   isAuthenticated = computed(() => this._authStatus() === 'authenticated');
   isGuest = computed(() => this._refreshToken() === 'guest');
+  employments = computed(() => this._employments());
 
   participantId = computed<string | null>(() => {
     const token = this._accessToken();
@@ -51,7 +54,7 @@ export class AuthStateManager {
       tableSessionId: data.tableSessionId,
       foodVenueId: data.foodVenueId,
       tableNumber: data.tableNumber,
-      participantCount: data.participantCount
+      participantCount: data.participantCount,
     });
 
     // Actualizar estado
@@ -61,6 +64,7 @@ export class AuthStateManager {
     this._tableSessionId.set(data.tableSessionId);
     this._foodVenueId.set(data.foodVenueId);
     this._authStatus.set('authenticated');
+    this._employments.set(data.employments || []);
   }
 
   /**
@@ -75,6 +79,7 @@ export class AuthStateManager {
     this._tableSessionId.set(null);
     this._foodVenueId.set(null);
     this._authStatus.set('unauthenticated');
+    this._employments.set([]);
 
     // Limpiar localStorage
     SessionUtils.clearAllAuthData();
@@ -102,6 +107,7 @@ export class AuthStateManager {
     this._expirationDate.set(data.expirationDate);
     this._tableSessionId.set(data.tableSessionId);
     this._foodVenueId.set(data.foodVenueId);
+    this._employments.set(data.employments || []);
 
     // Determinar estado de autenticación
     if (data.accessToken && data.refreshToken) {

@@ -1,7 +1,18 @@
 import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { KeyRound, LucideAngularModule, Mail, RotateCcwIcon, User } from 'lucide-angular';
+import {
+  KeyRound,
+  LucideAngularModule,
+  Mail,
+  RotateCcwIcon,
+  User,
+} from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
@@ -17,7 +28,6 @@ import { JwtUtils } from '../../../utils/jwt-utils';
   templateUrl: './login-page.component.html',
 })
 export class LoginPageComponent {
-
   readonly User = User;
   readonly Mail = Mail;
   readonly KeyRound = KeyRound;
@@ -58,7 +68,7 @@ export class LoginPageComponent {
     this.myForm.reset();
     this.myForm.patchValue({
       email: '',
-      password: ''
+      password: '',
     });
   }
 
@@ -85,6 +95,22 @@ export class LoginPageComponent {
           'Has iniciado sesión correctamente.'
         );
 
+
+
+        if (
+          !isTableSessionResponse(response) &&
+          response.employments &&
+          response.employments.length > 0
+        ) {
+          console.log(
+            'PRIORIDAD 1: Roles detectados. Redirigiendo a selección...'
+          );
+          this.navigation.navigateToRoleSelection();
+          this.resetForm();
+          return; // <-- IMPORTANTE: Salimos aquí para no ejecutar otra navegación.
+        }
+
+
         // Verificar si es una respuesta con sesión de mesa
         if (isTableSessionResponse(response)) {
           console.log('🪑 TableSessionResponse detectado en login');
@@ -97,7 +123,7 @@ export class LoginPageComponent {
 
           // Buscar el participante actual
           const currentParticipant = response.participants.find(
-            p => p.publicId === participantIdFromToken
+            (p) => p.publicId === participantIdFromToken
           );
 
           // Determinar el nickname
@@ -147,7 +173,7 @@ export class LoginPageComponent {
 
         const { title, message } = this.errorHandler.getAuthError(error);
         this.sweetAlertService.showError(title, message);
-      }
+      },
     });
   }
 

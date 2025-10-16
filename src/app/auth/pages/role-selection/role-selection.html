@@ -1,0 +1,38 @@
+<section class="min-h-screen flex items-center justify-center px-4 py-8 bg-base-200">
+  <div class="w-full max-w-lg text-center">
+
+    <h1 class="text-4xl font-bold text-base-content mb-2">Seleccionar Rol</h1>
+    <p class="text-base-content/70 mb-8">Elige cómo quieres acceder a la aplicación.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <div (click)="continueAsClient()"
+        class="card bg-base-100 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+        <div class="card-body items-center text-center">
+          <lucide-icon [img]="User" class="w-10 h-10 text-primary mb-2"></lucide-icon>
+          <h2 class="card-title text-primary">Continuar como Cliente</h2>
+          <p>Accede para ver locales y realizar pedidos.</p>
+        </div>
+      </div>
+
+      @for (employment of employments(); track employment.publicId) {
+      <div (click)="selectEmployment(employment)"
+        class="card bg-base-100 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+        <div class="card-body items-center text-center">
+          <lucide-icon [img]="Briefcase" class="w-10 h-10 text-accent mb-2"></lucide-icon>
+          <h2 class="card-title text-accent">
+            {{ roleDisplayNames[employment.role] || employment.role }}
+          </h2>
+
+          @if (employment.role !== 'ROLE_ROOT') {
+          <p class="font-semibold">{{ employment.foodVenueName }}</p>
+          } @else {
+          <p class="font-semibold">Acceso Total</p>
+          }
+        </div>
+      </div>
+      }
+    </div>
+
+  </div>
+</section>
