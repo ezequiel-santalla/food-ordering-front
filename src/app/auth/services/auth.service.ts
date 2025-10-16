@@ -8,6 +8,7 @@ import { JwtUtils } from '../../utils/jwt-utils';
 import { TokenManager } from '../../utils/token-manager';
 import { AuthStateManager } from './auth-state-manager.service';
 import { AuthApiService } from './auth-api.service';
+import { Employment } from '../../shared/models/common';
 
 /**
  * Servicio principal de autenticación
@@ -38,6 +39,7 @@ export class AuthService {
   isAuthenticated = this.authState.isAuthenticated;
   isGuest = this.authState.isGuest;
   participantId = this.authState.participantId;
+  employments = this.authState.employments;
 
   // Computed adicional para mostrar info legible
   authStatusText = computed(() => {
@@ -163,6 +165,32 @@ export class AuthService {
     participants?: any[]
   } | null {
     return TokenManager.getSessionInfoFromResponse(response);
+  }
+
+  /**
+   * Selecciona un rol de empleado (Admin, Staff, etc.) llamando a la API.
+   * @param employmentId El ID público del rol a seleccionar.
+   */
+  selectRole(employmentId: string): Observable<LoginResponse> {
+    return this.authApi.selectRole(employmentId).pipe(
+      tap(response => {
+        // La API devuelve un nuevo token, así que lo procesamos y actualizamos todo el estado.
+        const processed = TokenManager.processAuthResponse(response as AuthResponse);
+        this.authState.applyAuthData(processed);
+      }),
+      catchError(error => {
+        console.error('❌ Error al seleccionar el rol:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+  
+    /**
+   * Obtener los roles disponibles desde la respuesta de login
+   */
+  getAvailableEmployments(response: AuthResponse): Employment[] {
+    console.log("Buscando empleos disponibles");
+    return TokenManager.getEmploymentsFromResponse(response);
   }
 
   // ==================== MÉTODOS PRIVADOS ====================

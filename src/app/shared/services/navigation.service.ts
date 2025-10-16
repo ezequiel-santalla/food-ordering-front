@@ -78,6 +78,14 @@ export class NavigationService {
    * Navega al login
    */
   navigateToLogin(): void {
-    this.router.navigate(['/auth/login'], { replaceUrl: true });
+    this.router.navigate(['/login/'], { replaceUrl: true });
+  }
+
+    /**
+   * Navega a la seleccion de roles disponibles
+   */
+  navigateToRoleSelection(): void {
+    console.log("navigatig to /role-selection");
+    this.router.navigate(['/role-selection'], { replaceUrl: true });
   }
 }

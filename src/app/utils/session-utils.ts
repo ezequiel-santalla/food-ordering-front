@@ -125,4 +125,24 @@ export class SessionUtils {
       return acc;
     }, {} as Record<string, string | null>);
   }
+
+  // En el archivo src/app/utils/session-utils.ts
+
+  /**
+   * Obtiene un valor de localStorage y lo convierte de JSON a objeto.
+   * @param key La clave a buscar.
+   * @returns El objeto parseado o null si no existe o hay un error.
+   */
+  public static getStorageObject<T>(key: string): T | null {
+    const data = this.getCleanStorageValue(key);
+    if (!data) {
+      return null;
+    }
+    try {
+      return JSON.parse(data) as T;
+    } catch (e) {
+      console.error(`Error al parsear el objeto ${key} de localStorage`, e);
+      return null;
+    }
+  }
 }

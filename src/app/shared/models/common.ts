@@ -35,9 +35,5 @@ export interface Participant {
 export interface Employment {
   publicId: string;
   role: string;
-  restaurant?: {
-    publicId: string;
-    name: string;
-  };
   foodVenueName?: string;
 }

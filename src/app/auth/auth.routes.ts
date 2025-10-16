@@ -1,7 +1,8 @@
-import { Routes } from "@angular/router";
-import { LoginPageComponent } from "./pages/login-page/login-page.component";
-import { AuthLayoutComponent } from "./layout/auth-layout/auth-layout.component";
-import { RegisterPageComponent } from "./pages/register-page/register-page.component";
+import { Routes } from '@angular/router';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { AuthLayoutComponent } from './layout/auth-layout/auth-layout.component';
+import { RegisterPageComponent } from './pages/register-page/register-page.component';
+import { RoleSelectionComponent } from './pages/role-selection/role-selection';
 
 export const authRoutes: Routes = [
   {
@@ -19,9 +20,9 @@ export const authRoutes: Routes = [
       {
         path: '**',
         redirectTo: 'login',
-      }
-    ]
-  }
+      },
+    ],
+  },
 ];
 
 export default authRoutes;
