@@ -32,7 +32,7 @@ export class ProductFormPage {
             tagsId: [[]],
             available: [true]
         });
-        const productId = this.route.snapshot.params['productId'];
+        const productId = this.route.snapshot.params['id'];
         if(productId){
           this.isEditingMode = true;
           this.productService.getProductById(productId).subscribe({
@@ -43,7 +43,7 @@ export class ProductFormPage {
     }
 
     onSubmit(){
-      const productId = this.route.snapshot.params['productId'];
+      const productId = this.route.snapshot.params['id'];
       if(productId){
         if(this.productForm.valid){
           this.productService.updateProduct(productId, this.productForm.value).subscribe({

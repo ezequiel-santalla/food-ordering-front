@@ -26,7 +26,7 @@ export class ProductService {
   }
 
   getProductById(id: string){
-    return this.http.get<ProductResponse>(`${this.API_URL}/${id}`);
+    return this.http.get<Content>(`${this.API_URL}/find-by-id/${id}`);
   }
 
   postProduct(product: ProductRequest){
