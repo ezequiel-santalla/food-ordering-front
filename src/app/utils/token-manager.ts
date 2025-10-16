@@ -18,6 +18,8 @@ export class TokenManager {
       authResponse;
     const sessionData = this.extractSessionDataFromToken(accessToken);
 
+    console.log("Roles disponibles: ", employments);
+
     return {
       accessToken,
       refreshToken,
@@ -52,7 +54,7 @@ export class TokenManager {
       ...sessionData,
       tableNumber: response.tableNumber ?? null,
       participantCount: response.participants?.length ?? null,
-      employments: [],
+      employments: response.employments || [],
     };
   }
 

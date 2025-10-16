@@ -78,7 +78,7 @@ export class NavigationService {
    * Navega al login
    */
   navigateToLogin(): void {
-    this.router.navigate(['/loginauth/'], { replaceUrl: true });
+    this.router.navigate(['/login/'], { replaceUrl: true });
   }
 
     /**
