@@ -110,14 +110,14 @@
            <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
 
   <button
-    (click)="navigateToDetail(product.publicId)"
+    [routerLink]="[product.publicId]"
     class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
     role="menuitem">
     Ver detalle
   </button>
 
   <button
-    (click)="navigateToEdit(product.publicId)"
+    [routerLink]="['edit', product.publicId]"
     class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
     role="menuitem">
     Editar
