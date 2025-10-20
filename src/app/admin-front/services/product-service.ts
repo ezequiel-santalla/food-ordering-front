@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {  map } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import ProductRequest from '../models/request/product-request';
 import { environment } from '../../../environments/environment.development';
 import { Content, ProductResponse } from '../models/response/product-response';
@@ -20,9 +20,10 @@ export class ProductService {
 
   }
 
-  getProducts(){
-    return this.http.get<ProductResponse>(this.API_URL)
-    .pipe(map(response => response.content));
+  getProducts(page : number){
+    let params = new HttpParams().set('page', page.toString());
+    return this.http.get<ProductResponse>(this.API_URL,{params : params})
+    // .pipe(map(response => response.content));
   }
 
   getProductById(id: string){

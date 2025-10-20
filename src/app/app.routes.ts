@@ -8,7 +8,7 @@ export const routes: Routes = [
   // 🔄 Redirección inicial a food-venues
   {
     path: '',
-    redirectTo: 'admin/products/edit/e014eefa-e8e9-434a-965c-f5e935f40480',
+    redirectTo: 'admin/products',
     pathMatch: 'full'
   },
 
