@@ -1,5 +1,5 @@
-import { BaseAuthResponse } from "../../auth/models/auth";
-import { Participant } from "./common";
+import { BaseAuthResponse } from '../../auth/models/auth';
+import { Employment, Participant } from './common';
 
 export interface TableSessionRequest {
   tableId: string;
@@ -17,6 +17,7 @@ export interface TableSessionResponse extends BaseAuthResponse {
   endTime?: string | null;
   hostClient?: Participant;
   participants: Participant[];
+  employments: Employment[];
 }
 
 /**

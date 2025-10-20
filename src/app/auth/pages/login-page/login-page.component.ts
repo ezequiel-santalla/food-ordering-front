@@ -1,7 +1,18 @@
 import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { KeyRound, LucideAngularModule, Mail, RotateCcwIcon, User } from 'lucide-angular';
+import {
+  KeyRound,
+  LucideAngularModule,
+  Mail,
+  RotateCcwIcon,
+  User,
+} from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
@@ -17,7 +28,6 @@ import { JwtUtils } from '../../../utils/jwt-utils';
   templateUrl: './login-page.component.html',
 })
 export class LoginPageComponent {
-
   readonly User = User;
   readonly Mail = Mail;
   readonly KeyRound = KeyRound;
@@ -58,7 +68,7 @@ export class LoginPageComponent {
     this.myForm.reset();
     this.myForm.patchValue({
       email: '',
-      password: ''
+      password: '',
     });
   }
 
@@ -85,22 +95,19 @@ export class LoginPageComponent {
           'Has iniciado sesión correctamente.'
         );
 
-        // Verificar si es una respuesta con sesión de mesa
+        // PASO 1: Procesar la información de la sesión de mesa SIEMPRE que exista.
         if (isTableSessionResponse(response)) {
-          console.log('🪑 TableSessionResponse detectado en login');
+          console.log('🪑 TableSessionResponse detectado en login'); // Decodificar el token para obtener el participantId
 
-          // Decodificar el token para obtener el participantId
           const decodedToken = JwtUtils.decodeJWT(response.accessToken);
           const participantIdFromToken = decodedToken?.participantId;
 
-          console.log('🔍 ParticipantId del token:', participantIdFromToken);
+          console.log('🔍 ParticipantId del token:', participantIdFromToken); // Buscar el participante actual
 
-          // Buscar el participante actual
           const currentParticipant = response.participants.find(
-            p => p.publicId === participantIdFromToken
-          );
+            (p) => p.publicId === participantIdFromToken
+          ); // Determinar el nickname
 
-          // Determinar el nickname
           let nickname: string;
 
           if (currentParticipant) {
@@ -119,9 +126,8 @@ export class LoginPageComponent {
             console.log('⚠️ Participante no encontrado en la lista');
           }
 
-          console.log('👤 Nickname final:', nickname);
+          console.log('👤 Nickname final:', nickname); // Guardar en TableSessionService (actualiza signals y localStorage)
 
-          // Guardar en TableSessionService (actualiza signals y localStorage)
           this.tableSessionService.setTableSessionInfo(
             response.tableNumber,
             nickname,
@@ -132,13 +138,25 @@ export class LoginPageComponent {
         } else {
           // AuthResponse sin mesa activa
           console.log('👤 AuthResponse - Sin sesión de mesa activa');
-          // No guardar nickname porque no hay sesión
           localStorage.removeItem('participantNickname');
         }
 
-        this.resetForm();
+        // PASO 2: Decidir a dónde navegar basándose en los roles.
+        if (
+          'employments' in response &&
+          response.employments &&
+          response.employments.length > 0
+        ) {
+          console.log(
+            'PRIORIDAD 1: Roles detectados. Redirigiendo a selección...'
+          );
+          this.navigation.navigateToRoleSelection();
+          this.resetForm();
+          return; // Salimos para evitar doble navegación
+        }
 
-        // Navegar según el estado de autenticación
+        // PASO 3: Si no hay roles, navegar según el estado de la sesión.
+        this.resetForm();
         this.navigation.navigateBySessionState();
       },
       error: (error) => {
@@ -147,7 +165,7 @@ export class LoginPageComponent {
 
         const { title, message } = this.errorHandler.getAuthError(error);
         this.sweetAlertService.showError(title, message);
-      }
+      },
     });
   }
 

@@ -18,12 +18,12 @@ export class PublicHeaderComponent {
   logout() {
     this.authService.logout().subscribe({
       next: () => {
-        console.log('✅ Logout completado');
+        console.log('✅ Logout completado, redirigiendo...');
         this.router.navigate(['/food-venues']);
       },
       error: (error) => {
-        console.error('❌ Error en logout:', error);
-        // Incluso si hay error, ir a food-venues
+        console.error('❌ Error durante logout:', error);
+        // Incluso con error, se limpia localmente y se redirige
         this.router.navigate(['/food-venues']);
       }
     });
