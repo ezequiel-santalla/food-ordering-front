@@ -70,10 +70,10 @@ deleteProduct(id: string): void {
 }
 
 navigateToDetail(id:string): void {
-  this.router.navigate([`/products/${id}`]);
+  this.router.navigate([`admin/products/${id}`]);
 }
 navigateToEdit(id:string): void{
-  this.router.navigate([`/products/add/${id}`]);
+  this.router.navigate([`admin/products/edit/${id}`]);
 }
 
 }

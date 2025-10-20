@@ -48,7 +48,7 @@ export class ProductFormPage {
         if(this.productForm.valid){
           this.productService.updateProduct(productId, this.productForm.value).subscribe({
             next: (data) => {alert("Producto actualizado con exito")
-                            this.router.navigate(['/products']);
+                            this.router.navigate(['admin/products']);
             },
             error: (e) => {console.error(e)}
           })
@@ -58,7 +58,7 @@ export class ProductFormPage {
         if( this.productForm.valid){
         this.productService.postProduct(this.productForm.value).subscribe({
           next: (data) => {alert("Producto creado con exito")
-                          this.router.navigate(['/products'])
+                          this.router.navigate(['admin/products'])
           },
           error: (e) => {console.error(e)}
         })

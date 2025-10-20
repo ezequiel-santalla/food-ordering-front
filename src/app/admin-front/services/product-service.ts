@@ -39,7 +39,7 @@ export class ProductService {
   }
 
   updateProduct(id: string, product: ProductRequest){
-    return this.http.put<ProductResponse>(`${this.API_URL}/${id}`, product);
+    return this.http.patch<ProductResponse>(`${this.API_URL}/${id}`, product);
   }
 
 
