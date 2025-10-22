@@ -79,7 +79,7 @@ export class RoleSelectionComponent {
     this.authService.selectRole(employment.publicId).subscribe({
       next: () => {
         console.log(`Rol de ${employment.role} seleccionado. Redirigiendo...`);
-        this.router.navigate(['/dashboard/admin']); // Cambia esta ruta a tu dashboard de admin/staff
+        this.router.navigate(['admin']); // Cambia esta ruta a tu dashboard de admin/staff
       },
       error: (err) => {
         console.error('Error al seleccionar el rol', err);
