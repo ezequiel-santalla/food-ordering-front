@@ -5,7 +5,7 @@
             <p class="text-sm text-gray-500">Administra el menú de tu restaurante</p>
         </div>
 
-        <button  routerLink="add" class="flex items-center px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md shadow-lg hover:bg-gray-700 transition duration-150">
+        <button  routerLink="add" class="flex items-center px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md shadow-lg hover:bg-gray-700 transition duration-150 cursor-pointer">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Nuevo Producto
         </button>
@@ -101,7 +101,7 @@
                         </td>
                           <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
 
-    <button (click)="toggleMenu($index)" class="text-gray-400 hover:text-gray-800 focus:outline-none p-1 rounded-full hover:bg-gray-100" aria-expanded="false" [attr.aria-controls]="'menu-' + $index">
+    <button (click)="toggleMenu($index)" class="text-gray-400 hover:text-gray-800 focus:outline-none p-1 rounded-full hover:bg-gray-100 cursor-pointer" aria-expanded="false" [attr.aria-controls]="'menu-' + $index">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zM13 12a1 1 0 11-2 0 1 1 0 012 0zM20 12a1 1 0 11-2 0 1 1 0 012 0z"></path></svg>
     </button>
 
@@ -111,21 +111,21 @@
 
   <button
     [routerLink]="[product.publicId]"
-    class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+    class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right cursor-pointer"
     role="menuitem">
     Ver detalle
   </button>
 
   <button
     [routerLink]="['edit', product.publicId]"
-    class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+    class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right cursor-pointer"
     role="menuitem">
     Editar
   </button>
 
   <button
     (click)="deleteProduct(product.publicId); toggleMenu($index)"
-    class="block w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-100 text-right"
+    class="block w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-100 text-right cursor-pointer"
     role="menuitem">
     Eliminar
   </button>
