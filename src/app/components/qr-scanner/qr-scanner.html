@@ -1,17 +1,18 @@
-<!-- qr-scanner.html -->
-<div class="scanner-container">
-  @if (showScanner()) {
-    <div class="scanner-wrapper">
-      <h2>Apunta la camara al codigo QR de la mesa</h2>
-      <zxing-scanner
-        (scanSuccess)="onScanSuccess($event)"
-        (scanError)="onScanError($event)"
-        [enable]="true"
-      ></zxing-scanner>
-    </div>
-  } @else {
-    <div class="loading-message">
-      <p>Esperando permiso para activar la camara...</p>
-    </div>
-  }
-</div>
+@if (showScanner()) {
+  <div class="scanner-wrapper">
+    <h2>Apunta la camara al codigo QR de la mesa</h2>
+    
+    <zxing-scanner
+      (scanSuccess)="onScanSuccess($event)"
+      (scanError)="onScanError($event)"
+      [enable]="true"
+    ></zxing-scanner>
+    
+    <button class="cancel-btn" (click)="cancelScan()">Cancelar</button>
+  </div>
+} @else if (processing()) {
+  <div class="processing-state">
+    <div class="spinner"></div>
+    <p>Validando acceso...</p>
+  </div>
+}

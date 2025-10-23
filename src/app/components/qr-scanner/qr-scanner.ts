@@ -9,16 +9,17 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [ZXingScannerModule, CommonModule],
   templateUrl: './qr-scanner.html',
-  styleUrl: './qr-scanner.css'
+  styleUrl: './qr-scanner.css',
+  host: {
+    '[class.scanner-active]': 'showScanner() || processing()',
+  },
 })
 export class QrScannerComponent implements OnInit, OnDestroy {
   showScanner = signal(false);
+  processing = signal(false);
   private scannerInitialized = false;
 
-  constructor(
-    private router: Router,
-    private sweetAlert: SweetAlertService
-  ) {}
+  constructor(private router: Router, private sweetAlert: SweetAlertService) {}
 
   async ngOnInit(): Promise<void> {
     try {
@@ -33,17 +34,17 @@ export class QrScannerComponent implements OnInit, OnDestroy {
 
       if (isConfirmed) {
         console.log('Permiso de app concedido. Mostrando escaner...');
-        
+
         // Cerrar explícitamente el modal antes de continuar
         this.sweetAlert.close();
-        
+
         // Esperar a que el DOM se limpie completamente
         await this.delay(300);
-        
+
         // Ahora sí mostrar el scanner
         this.showScanner.set(true);
         this.scannerInitialized = true;
-        
+
         console.log('Scanner activado:', this.showScanner());
       } else {
         console.log('Permiso de app denegado por el usuario.');
@@ -64,7 +65,8 @@ export class QrScannerComponent implements OnInit, OnDestroy {
 
   onScanSuccess(scannedUrl: string): void {
     console.log('QR escaneado:', scannedUrl);
-    
+    this.showScanner.set(true);
+    this.showScanner.set(false);
     try {
       const url = new URL(scannedUrl);
       const hashParts = url.hash.split('/');
@@ -75,20 +77,19 @@ export class QrScannerComponent implements OnInit, OnDestroy {
       }
 
       console.log('ID extraido:', tableId);
-      
+
       // Detener el scanner antes de navegar
       this.showScanner.set(false);
       this.router.navigate(['/scan-qr', tableId]);
-      
     } catch (error) {
       console.error('Error al parsear la URL del QR:', error);
       this.showScanner.set(false);
-      
+      this.showScanner.set(false);
       this.sweetAlert.showError(
         'QR Invalido',
         'El codigo QR no parece ser valido.'
       );
-      
+
       // Dar tiempo para que se vea el mensaje antes de navegar
       setTimeout(() => {
         this.router.navigate(['/']);
@@ -99,20 +100,26 @@ export class QrScannerComponent implements OnInit, OnDestroy {
   onScanError(error: Error): void {
     console.error('Error de la camara:', error);
     this.showScanner.set(false);
-    
+
     this.sweetAlert.showError(
       'Error de Camara',
       'No se pudo acceder a la camara. Revisa los permisos del navegador.'
     );
-    
+
     // Dar tiempo para que se vea el mensaje antes de navegar
     setTimeout(() => {
       this.router.navigate(['/']);
     }, 2500);
   }
 
+  cancelScan(): void {
+    console.log('Escaneo cancelado manualmente por el usuario.');
+    this.showScanner.set(false); // Oculta el scanner
+    this.router.navigate(['/']); // Redirige al inicio
+  }
+
   // Método auxiliar para delays con promesas
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
