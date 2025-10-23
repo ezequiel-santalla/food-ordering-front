@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { SweetAlertService } from '../../shared/services/sweet-alert.service';
 import { CommonModule } from '@angular/common';
+import { QrProcessingService } from '../../services/qr-processing-service';
 
 @Component({
   selector: 'app-qr-scanner',
@@ -18,6 +19,7 @@ export class QrScannerComponent implements OnInit, OnDestroy {
   showScanner = signal(false);
   processing = signal(false);
   private scannerInitialized = false;
+  private qrProcessingService = inject(QrProcessingService);
 
   constructor(private router: Router, private sweetAlert: SweetAlertService) {}
 
@@ -78,9 +80,7 @@ export class QrScannerComponent implements OnInit, OnDestroy {
 
       console.log('ID extraido:', tableId);
 
-      // Detener el scanner antes de navegar
-      this.showScanner.set(false);
-      this.router.navigate(['/scan-qr', tableId]);
+      this.qrProcessingService.processTableId(tableId);
     } catch (error) {
       console.error('Error al parsear la URL del QR:', error);
       this.showScanner.set(false);

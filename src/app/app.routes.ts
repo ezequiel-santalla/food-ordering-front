@@ -33,14 +33,14 @@ export const routes: Routes = [
   },
 
   // 📱 Escaneo de QR (NO requiere estar autenticado)
-  {
-    path: 'scan-qr/:tableId',
-    canActivate: [ScanQrGuard],
-    loadComponent: () =>
-      import('./auth/pages/scan-qr-page/scan-qr-page.component').then(
-        (m) => m.ScanQrPageComponent
-      ),
-  },
+{
+  path: 'scan-qr/:tableId',
+  //canActivate: [ScanQrGuard],
+  loadComponent: () =>
+    import('./auth/pages/qr-scan-handler/qr-scan-handler').then(
+      (m) => m.QrScanHandlerComponent
+    ),
+},
 
   // 🏠 Store Front - Menú, carrito, etc. (requiere autenticación + tableSessionId)
   {
