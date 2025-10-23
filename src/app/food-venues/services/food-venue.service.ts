@@ -12,9 +12,8 @@ export class FoodVenueService {
 
   private http = inject(HttpClient);
 
-  getFoodVenues(): Observable<Content[]> {
-    return this.http.get<FoodVenue>(`${environment.baseUrl}/public/food-venues`)
-      .pipe(map(response => response.content));
+  getFoodVenues(): Observable<FoodVenue> {
+    return this.http.get<FoodVenue>(`${environment.baseUrl}/public/food-venues`);
   }
 
   getMenuByFoodVenueId(id: string): Observable<Menu> {

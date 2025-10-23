@@ -63,35 +63,6 @@ export class SweetAlertService {
     return result.isConfirmed;
   }
 
-  // Métodos específicos que usan el genérico
-  async confirmTournamentAction(
-    isEditMode: boolean,
-    tournamentName: string
-  ): Promise<boolean> {
-    return this.confirmAction(isEditMode, tournamentName, 'torneo');
-  }
-
-  async confirmPlayerAction(
-    isEditMode: boolean,
-    playerName: string
-  ): Promise<boolean> {
-    return this.confirmAction(isEditMode, playerName, 'jugador');
-  }
-
-  async confirmTeamAction(
-    isEditMode: boolean,
-    teamName: string
-  ): Promise<boolean> {
-    return this.confirmAction(isEditMode, teamName, 'equipo');
-  }
-
-  async confirmMatchAction(
-    isEditMode: boolean,
-    matchName: string
-  ): Promise<boolean> {
-    return this.confirmAction(isEditMode, matchName, 'partido');
-  }
-
   async confirmCustomAction(
     title: string,
     text: string,
