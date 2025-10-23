@@ -2,6 +2,8 @@
 // import CategoryResponse from './category-response';
 // import TagResponse from './tag-response';
 
+import CategoryResponse from "./category-response";
+
 // export default interface ProductResponse {
 //     publicId: string;
 //     name: string;
@@ -34,14 +36,8 @@ export interface Content {
   price:       number;
   stock:       number;
   available:   boolean;
-  category:    Category;
+  category:    CategoryResponse;
   tags:        Tag[];
-}
-
-export interface Category {
-  publicId:           string;
-  name:               string;
-  childrenCategories: Category[];
 }
 
 export interface Tag {

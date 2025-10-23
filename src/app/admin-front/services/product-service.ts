@@ -11,8 +11,8 @@ import { Content, ProductResponse } from '../models/response/product-response';
 export class ProductService {
     readonly API_URL = `${environment.baseUrl}/products`
 
-   products: ProductResponse[];
-  contents: Content[]
+    products: ProductResponse[];
+    contents: Content[]
 
   constructor(private http: HttpClient) {
      this.products = [];
