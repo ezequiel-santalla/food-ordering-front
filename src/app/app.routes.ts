@@ -3,13 +3,14 @@ import { AuthenticatedGuard } from './auth/guards/authenticated.guard';
 import { UnauthenticatedGuard } from './auth/guards/unauthenticated.guard';
 import { HasTableSessionGuard } from './auth/guards/has-table-session.guard';
 import { ScanQrGuard } from './auth/guards/scan-qr-guard.guard';
+import { QrScannerComponent } from './components/qr-scanner/qr-scanner';
 
 export const routes: Routes = [
   // 🔄 Redirección inicial a food-venues
   {
     path: '',
-    redirectTo: 'admin/products',
-    pathMatch: 'full'
+    redirectTo: 'food-venues',
+    pathMatch: 'full',
   },
 
   // 🔐 Rutas de autenticación (solo para usuarios NO autenticados)
@@ -25,6 +26,10 @@ export const routes: Routes = [
       import('./auth/pages/switch-role/role-selection').then(
         (m) => m.RoleSelectionComponent
       ),
+  },
+  {
+    path: 'scan-camera',
+    component: QrScannerComponent,
   },
 
   // 📱 Escaneo de QR (NO requiere estar autenticado)
@@ -53,14 +58,13 @@ export const routes: Routes = [
   // ADMIN DASHBOARD
   {
     path: 'admin',
-    loadChildren: () => import('./admin-front/admin-front.routes')
+    loadChildren: () => import('./admin-front/admin-front.routes'),
   },
-
-
 
   // 🔄 Cualquier ruta no encontrada redirige a food-venues
   {
     path: '**',
-    redirectTo: 'food-venues'
-  }
+    redirectTo: 'food-venues',
+  },
 ];
+

@@ -28,4 +28,8 @@ export class PublicHeaderComponent {
       }
     });
   }
+
+  navigateToScanner(){
+    this.router.navigate(['/scan-camera']);
+  }
 }

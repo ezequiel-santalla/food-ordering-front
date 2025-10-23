@@ -107,7 +107,7 @@ export class SweetAlertService {
       confirmButtonText,
       cancelButtonText,
       focusCancel: false,
-      reverseButtons: true,
+      reverseButtons: false,
       ...this.defaultConfig
     });
 
