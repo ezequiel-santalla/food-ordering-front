@@ -68,10 +68,10 @@ export class NavigationService {
   }
 
   /**
-   * Navega a scan-camera
+   * Navega a food-venues
    */
-  navigateToScanCamera(): void {
-    this.router.navigate(['/scan-camera'], { replaceUrl: true });
+  navigateToFoodVenues(): void {
+    this.router.navigate(['/food-venues'], { replaceUrl: true });
   }
 
   /**

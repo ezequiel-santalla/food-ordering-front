@@ -100,8 +100,8 @@ export class RoleSelectionComponent {
       console.log('✅ Ya tiene sesión de mesa, navegando a home');
       this.navigationService.navigateToHome();
     } else {
-      console.log('⚠️ Sin sesión de mesa, navegando a scan-camera');
-      this.navigationService.navigateToScanCamera();
+      console.log('⚠️ Sin sesión de mesa, navegando a food-venues');
+      this.navigationService.navigateToFoodVenues();
     }
   }
 }
