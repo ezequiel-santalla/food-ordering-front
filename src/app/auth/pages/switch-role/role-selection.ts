@@ -12,6 +12,7 @@ import {
 } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { NavigationService } from '../../../shared/services/navigation.service';
+import { SessionUtils } from '../../../utils/session-utils';
 
 @Component({
   selector: 'app-role-selection',
@@ -32,9 +33,7 @@ export class RoleSelectionComponent {
 
   public employments: Signal<Employment[]> = this.authService.employments;
   public hasEmployments = computed(() => this.employments().length > 0);
-  public authStatus = this.authService.authStatus; // Mapeo para mostrar nombres más amigables
-
-  // Expone los íconos a la plantilla para que puedan ser usados con [img]
+  public authStatus = this.authService.authStatus;
 
   public roleDisplayNames: { [key: string]: string } = {
     ROLE_ROOT: 'Superusuario',
@@ -70,11 +69,11 @@ export class RoleSelectionComponent {
       }
     });
   }
+
   /**
    * Llama al servicio para seleccionar un rol específico y cambiar el contexto del token.
    * @param employment El empleo (rol) seleccionado.
    */
-
   selectEmployment(employment: Employment): void {
     this.authService.selectRole(employment.publicId).subscribe({
       next: () => {
@@ -86,14 +85,23 @@ export class RoleSelectionComponent {
       },
     });
   }
+
   /**
    * Continúa la navegación con el rol de cliente por defecto.
+   * Si ya tiene sesión, va al home
    */
-
   continueAsClient(): void {
     console.log('Continuando como cliente...');
-    // El token ya es de cliente, solo necesitamos navegar
-    // según el estado actual de la sesión (si tiene sesión de mesa o no).
-    this.navigationService.navigateBySessionState();
+
+    const tableSessionId = this.authService.tableSessionId();
+
+    // Verificar si ya tiene una sesión de mesa válida
+    if (SessionUtils.isValidSession(tableSessionId)) {
+      console.log('✅ Ya tiene sesión de mesa, navegando a home');
+      this.navigationService.navigateToHome();
+    } else {
+      console.log('⚠️ Sin sesión de mesa, navegando a scan-camera');
+      this.navigationService.navigateToScanCamera();
+    }
   }
 }

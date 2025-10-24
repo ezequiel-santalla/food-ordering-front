@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { SweetAlertService } from '../../shared/services/sweet-alert.service';
 import { CommonModule } from '@angular/common';
 import { QrProcessingService } from '../../services/qr-processing-service';
+import { NavigationService } from '../../shared/services/navigation.service';
 
 @Component({
   selector: 'app-qr-scanner',
@@ -20,8 +20,8 @@ export class QrScannerComponent implements OnInit, OnDestroy {
   processing = signal(false);
   private scannerInitialized = false;
   private qrProcessingService = inject(QrProcessingService);
-
-  constructor(private router: Router, private sweetAlert: SweetAlertService) {}
+  private sweetAlert = inject(SweetAlertService);
+  private navigation = inject(NavigationService);
 
   async ngOnInit(): Promise<void> {
     try {
@@ -50,11 +50,11 @@ export class QrScannerComponent implements OnInit, OnDestroy {
         console.log('Scanner activado:', this.showScanner());
       } else {
         console.log('Permiso de app denegado por el usuario.');
-        this.router.navigate(['/']);
+        this.navigation.navigateBySessionState();
       }
     } catch (error) {
       console.error('Error al solicitar permisos:', error);
-      this.router.navigate(['/']);
+      this.navigation.navigateBySessionState();
     }
   }
 
@@ -67,8 +67,8 @@ export class QrScannerComponent implements OnInit, OnDestroy {
 
   onScanSuccess(scannedUrl: string): void {
     console.log('QR escaneado:', scannedUrl);
-    this.showScanner.set(true);
     this.showScanner.set(false);
+
     try {
       const url = new URL(scannedUrl);
       const hashParts = url.hash.split('/');
@@ -84,7 +84,6 @@ export class QrScannerComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error al parsear la URL del QR:', error);
       this.showScanner.set(false);
-      this.showScanner.set(false);
       this.sweetAlert.showError(
         'QR Invalido',
         'El codigo QR no parece ser valido.'
@@ -92,7 +91,8 @@ export class QrScannerComponent implements OnInit, OnDestroy {
 
       // Dar tiempo para que se vea el mensaje antes de navegar
       setTimeout(() => {
-        this.router.navigate(['/']);
+        // CAMBIO: Usar navigateBySessionState
+        this.navigation.navigateBySessionState();
       }, 2500);
     }
   }
@@ -108,14 +108,16 @@ export class QrScannerComponent implements OnInit, OnDestroy {
 
     // Dar tiempo para que se vea el mensaje antes de navegar
     setTimeout(() => {
-      this.router.navigate(['/']);
+      // CAMBIO: Usar navigateBySessionState
+      this.navigation.navigateBySessionState();
     }, 2500);
   }
 
   cancelScan(): void {
     console.log('Escaneo cancelado manualmente por el usuario.');
-    this.showScanner.set(false); // Oculta el scanner
-    this.router.navigate(['/']); // Redirige al inicio
+    this.showScanner.set(false);
+    // CAMBIO: Usar navigateBySessionState
+    this.navigation.navigateBySessionState();
   }
 
   // Método auxiliar para delays con promesas
