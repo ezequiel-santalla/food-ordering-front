@@ -10,9 +10,8 @@ import { CommonModule } from '@angular/common';
   templateUrl: './product-form-page.html'
 })
 export class ProductFormPage {
-
   productForm!: FormGroup;
-  isEditingMode!: boolean;
+  isEditingMode: boolean = false;
   selectedImage: File | null = null;
   imagePreview: string | null = null;
 
@@ -21,38 +20,62 @@ export class ProductFormPage {
     private productService: ProductService,
     private router: Router,
     private route: ActivatedRoute
-  ) {
-    this.isEditingMode = false;
-  }
+  ) {}
 
   ngOnInit(): void {
+    this.initForm();
+    this.loadProductIfEditMode();
+  }
+
+  private initForm(): void {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
       price: [0, [Validators.required, Validators.min(0)]],
       description: [''],
-      categoryId: ['', Validators.required],
-      stock: [0],
+      categoryId: [''],
+      stock: [0, [Validators.min(0)]],
       tags: [[]],
       available: [true]
     });
+  }
 
+  private loadProductIfEditMode(): void {
     const productId = this.route.snapshot.params['id'];
+
     if (productId) {
       this.isEditingMode = true;
       this.productService.getProductById(productId).subscribe({
         next: (data) => {
-          this.productForm.patchValue(data);
-          this.imagePreview = data.imageUrl;
+          this.populateForm(data);
         },
         error: (e) => {
-          console.error(e);
+          console.error('Error al cargar producto:', e);
+          alert('Error al cargar el producto');
+          this.router.navigate(['/admin/products']);
         }
       });
     }
   }
 
+  private populateForm(data: any): void {
+    const categoryId = data.category?.publicId || '';
+
+    this.productForm.patchValue({
+      name: data.name,
+      price: data.price,
+      description: data.description || '',
+      categoryId: categoryId,
+      stock: data.stock || 0,
+      tags: data.tags || [],
+      available: data.available !== undefined ? data.available : true
+    });
+
+    this.imagePreview = data.imageUrl || null;
+  }
+
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
+
     if (input.files && input.files[0]) {
       this.selectedImage = input.files[0];
 
@@ -65,39 +88,45 @@ export class ProductFormPage {
   }
 
   onSubmit(): void {
+    if (!this.productForm.valid) {
+      this.showValidationErrors();
+      return;
+    }
+
+    const formData = this.createFormData();
     const productId = this.route.snapshot.params['id'];
 
-    if (productId) {
-      if (this.productForm.valid) {
-        this.productService.updateProduct(productId, this.productForm.value).subscribe({
-          next: (data) => {
-            alert("Producto actualizado con éxito");
-            this.router.navigate(['/admin/products']);
-          },
-          error: (e) => {
-            console.error('Error al actualizar:', e);
-            alert('Error al actualizar el producto');
-          }
-        });
-      }
+    if (this.isEditingMode && productId) {
+      this.updateProduct(productId, formData);
     } else {
-      if (this.productForm.valid) {
-        const formData = this.createFormData();
-
-        this.productService.postProduct(formData).subscribe({
-          next: () => {
-            alert("Producto creado con éxito");
-            this.router.navigate(['/admin/products']);
-          },
-          error: (e) => {
-            console.error('Error al crear:', e);
-            alert('Error al crear el producto');
-          }
-        });
-      } else {
-        alert('Por favor completa todos los campos requeridos');
-      }
+      this.createProduct(formData);
     }
+  }
+
+  private createProduct(formData: FormData): void {
+    this.productService.postProduct(formData).subscribe({
+      next: () => {
+        alert("Producto creado con éxito");
+        this.router.navigate(['/admin/products']);
+      },
+      error: (e) => {
+        console.error('Error al crear:', e);
+        alert('Error al crear el producto. Por favor, intente nuevamente.');
+      }
+    });
+  }
+
+  private updateProduct(productId: string, formData: FormData): void {
+    this.productService.updateProduct(productId, formData).subscribe({
+      next: () => {
+        alert("Producto actualizado con éxito");
+        this.router.navigate(['/admin/products']);
+      },
+      error: (e) => {
+        console.error('Error al actualizar:', e);
+        alert('Error al actualizar el producto. Por favor, intente nuevamente.');
+      }
+    });
   }
 
   private createFormData(): FormData {
@@ -107,7 +136,7 @@ export class ProductFormPage {
       name: this.productForm.value.name,
       description: this.productForm.value.description || '',
       price: this.productForm.value.price,
-      stock: this.productForm.value.stock,
+      stock: this.productForm.value.stock || 0,
       available: this.productForm.value.available,
       categoryId: this.productForm.value.categoryId || null,
       tags: this.productForm.value.tags || []
@@ -124,5 +153,31 @@ export class ProductFormPage {
     formData.append('cloudinaryFolder', 'PRODUCTS');
 
     return formData;
+  }
+
+  private showValidationErrors(): void {
+    const errors: string[] = [];
+
+    if (this.productForm.get('name')?.hasError('required')) {
+      errors.push('El nombre es requerido');
+    }
+
+    if (this.productForm.get('price')?.hasError('required')) {
+      errors.push('El precio es requerido');
+    }
+
+    if (this.productForm.get('price')?.hasError('min')) {
+      errors.push('El precio debe ser mayor o igual a 0');
+    }
+
+    if (this.productForm.get('stock')?.hasError('min')) {
+      errors.push('El stock debe ser mayor o igual a 0');
+    }
+
+    const errorMessage = errors.length > 0
+      ? `Por favor corrija los siguientes errores:\n${errors.join('\n')}`
+      : 'Por favor completa todos los campos requeridos';
+
+    alert(errorMessage);
   }
 }

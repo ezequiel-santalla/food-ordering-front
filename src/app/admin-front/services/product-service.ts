@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import ProductRequest from '../models/request/product-request';
 import { environment } from '../../../environments/environment.development';
 import { Content, ProductResponse } from '../models/response/product-response';
 
@@ -37,11 +36,7 @@ export class ProductService {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
 
-  updateProduct(id: string, product: ProductRequest) {
-    return this.http.put<ProductResponse>(`${this.API_URL}/${id}`, product);
+  updateProduct(id: string, formData: FormData) {
+    return this.http.patch<ProductResponse>(`${this.API_URL}/${id}`, formData);
   }
-
-
-
-
 }

@@ -1,58 +1,28 @@
-
-// import CategoryResponse from './category-response';
-// import TagResponse from './tag-response';
-
-// export default interface ProductResponse {
-//     publicId: string;
-//     name: string;
-//     description: string;
-//     imageUrl: string;
-//     price: number;
-//     stock: number;
-//     available: boolean;
-
-//     category: CategoryResponse;
-//     tags: TagResponse[];
-// }
-
 export interface ProductResponse {
-  content:       Content[];
-  pageNumber:    number;
-  pageSize:      number;
+  content: Content[];
+  totalPages: number;
   totalElements: number;
-  totalPages:    number;
-  first:         boolean;
-  last:          boolean;
-  empty:         boolean;
+  size: number;
+  number: number;
 }
 
 export interface Content {
-  publicId:    string;
-  name:        string;
+  publicId: string;
+  name: string;
   description: string;
-  imageUrl:    string;
-  price:       number;
-  stock:       number;
-  available:   boolean;
-  category?:    Category;
-  tags?:        Tag[];
+  imageUrl: string | null;
+  price: number;
+  stock: number;
+  available: boolean;
+  category: Category | null;
+  tags: string[];
 }
 
 export interface Category {
-  publicId:           string;
-  name:               string;
-  childrenCategories: Category[];
+  publicId: string;
+  name: string;
 }
 
 export interface Tag {
-  id:    number;
-  label: Label;
-}
-
-export enum Label {
-  Artesanal = "Artesanal",
-  Picante = "Picante",
-  SinGluten = "Sin Gluten",
-  Vegano = "Vegano",
-  Vegetariano = "Vegetariano",
+  label: string;
 }
