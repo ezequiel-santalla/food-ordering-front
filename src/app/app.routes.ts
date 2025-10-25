@@ -41,7 +41,7 @@ export const routes: Routes = [
     ),
 },
 
-  // 🏠 Store Front - Menú, carrito, etc. (requiere autenticación + tableSessionId)
+  // 🏠 Store Front - Menú, Pedidos, etc. (requiere autenticación + tableSessionId)
   {
     path: 'session/:tableSessionId',
     canActivate: [AuthenticatedGuard, HasTableSessionGuard],

@@ -1,14 +1,15 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { SessionRoutesService } from '../../services/session-routes.service';
 
 @Component({
   selector: 'app-menu-item-card',
-  imports: [NgClass, RouterLink],
+  imports: [NgClass],
   templateUrl: './menu-item-card.html'
 })
 export class MenuItemCard {
+
+  ssessionRoutesService = inject(SessionRoutesService);
 
   image = input.required<string>();
   name = input.required<string>();
@@ -17,5 +18,11 @@ export class MenuItemCard {
 
   layout = input<'vertical' | 'horizontal'>('vertical');
 
-  sessionRoutesService = inject(SessionRoutesService);
+  select = output<void>();
+
+  // Método de debug
+  onCardClick() {
+    console.log('Card clicked! Product:', this.name());
+    this.select.emit();
+  }
 }

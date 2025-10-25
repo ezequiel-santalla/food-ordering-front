@@ -1,19 +1,34 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MenuItemCard } from '../menu-item-card/menu-item-card';
 import { MenuService } from '../../services/menu.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Product } from '../../models/menu.interface';
 import { CategoryService } from '../../services/category.service';
+import { MenuItemDetailModal } from "../menu-item-detail-modal/menu-item-detail-modal";
 
 @Component({
   selector: 'app-menu',
-  imports: [MenuItemCard],
+  imports: [MenuItemCard, MenuItemDetailModal],
   templateUrl: './menu.html'
 })
 export class Menu {
 
   menuService = inject(MenuService);
   categoryService = inject(CategoryService);
+
+  // ✅ Cambiar a signal
+  selectedProduct = signal<Product | undefined>(undefined);
+
+  openProduct(product: Product) {
+  console.log('openProduct called with:', product);
+  console.log('Setting selectedProduct signal');
+  this.selectedProduct.set(product);
+  console.log('selectedProduct value:', this.selectedProduct());
+}
+
+  closeModal() {
+    this.selectedProduct.set(undefined);
+  }
 
   menuResource = rxResource({
     stream: () => {

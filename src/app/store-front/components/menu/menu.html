@@ -39,7 +39,8 @@
               [name]="product.name"
               [description]="product.description"
               [price]="product.price"
-              layout="horizontal">
+              layout="horizontal"
+              (select)="openProduct(product)">
             </app-menu-item-card>
           }
         </div>
@@ -49,3 +50,11 @@
     }
   }
 </section>
+
+@if (selectedProduct()) {
+  <app-menu-item-detail-modal
+    [product]="selectedProduct()!"
+    (close)="closeModal()">
+  </app-menu-item-detail-modal>
+}
+
