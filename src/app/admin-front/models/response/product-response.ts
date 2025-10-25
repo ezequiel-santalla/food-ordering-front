@@ -34,8 +34,8 @@ export interface Content {
   price:       number;
   stock:       number;
   available:   boolean;
-  category:    Category;
-  tags:        Tag[];
+  category?:    Category;
+  tags?:        Tag[];
 }
 
 export interface Category {

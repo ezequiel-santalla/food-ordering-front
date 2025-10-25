@@ -9,7 +9,7 @@ import { CategoryFormPage } from "./pages/category-pages/category-form-page/cate
 import { TagPage } from "./pages/tag-page/tag-page";
 
 export const adminRoutes: Routes = [
- {
+  {
     path: '',
     component: AdminFrontLayout,
     children: [
@@ -26,12 +26,12 @@ export const adminRoutes: Routes = [
         component: ProductFormPage
       },
       {
-        path: 'products/:id',
-        component: ProductDetailPage
-      },
-      {
         path: 'products/edit/:id',
         component: ProductFormPage
+      },
+      {
+        path: 'products/:id',          
+        component: ProductDetailPage
       },
 
 
@@ -47,7 +47,7 @@ export const adminRoutes: Routes = [
         path: 'categories/edit/:id',
         component: CategoryFormPage
       },
-      
+
 
       {
         path: 'tags',

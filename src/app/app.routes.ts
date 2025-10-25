@@ -58,6 +58,7 @@ export const routes: Routes = [
   // ADMIN DASHBOARD
   {
     path: 'admin',
+    canActivate: [AuthenticatedGuard],
     loadChildren: () => import('./admin-front/admin-front.routes'),
   },
 

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ProductService } from '../../../services/product-service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Content, ProductResponse } from '../../../models/response/product-response';
+import { Content } from '../../../models/response/product-response';
 
 @Component({
   selector: 'app-product-detail-page',
@@ -10,26 +10,37 @@ import { Content, ProductResponse } from '../../../models/response/product-respo
 })
 export class ProductDetailPage {
 
-    selectedProduct!: Content;
+  selectedProduct!: Content;
 
-  constructor(private productService: ProductService,
-            private route: ActivatedRoute,
-            private router: Router){}
+  constructor(
+    private productService: ProductService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-      const productId = this.route.snapshot.params['id'];
-      this.productService.getProductById(productId).subscribe({
-        next: (data) => { this.selectedProduct = data},
-        error: (e) => {console.error(e)}
-      })
+    const productId = this.route.snapshot.params['id'];
+
+    this.productService.getProductById(productId).subscribe({
+      next: (data) => {
+        this.selectedProduct = data;
+      },
+      error: (e) => {
+        console.error(e);
+        this.router.navigate(['/products']);
+      }
+    });
   }
 
-  deleteProduct(id : string){
+  deleteProduct(id: string): void {
     this.productService.deleteProduct(id).subscribe({
-      next: () => { alert("Producto Eliminado exitosamente")
-                  this.router.navigate(['/products'])
+      next: () => {
+        alert("Producto Eliminado exitosamente");
+        this.router.navigate(['/admin/products']);
       },
-      error: (e) => {console.log(e)}
-    })
+      error: (e) => {
+        console.log(e);
+      }
+    });
   }
 }
