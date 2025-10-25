@@ -1,1 +1,70 @@
-<p>category-form-page works!</p>
+<div class="min-h-screen bg-gray-100 flex justify-center py-6 sm:py-12">
+  <div class="w-full max-w-lg bg-white shadow-lg rounded-xl">
+
+    <header class="p-6 border-b border-gray-200 flex items-center">
+      <button (click)="onCancel()" class="text-gray-500 hover:text-gray-700 mr-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      </button>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">Nueva Categoría</h1>
+        <p class="text-sm text-gray-500">Crea una nueva categoría para organizar tus productos</p>
+      </div>
+    </header>
+
+    <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
+
+      <h2 class="text-lg font-semibold text-gray-700">Información de la Categoría</h2>
+
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700">Nombre de la Categoría</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="EJ: Cervezas"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 text-base"
+        >
+        @if (categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched) {
+          <p class="mt-2 text-sm text-red-600">El nombre de la categoría es obligatorio.</p>
+        }
+      </div>
+
+      <div>
+        <label for="parentId" class="block text-sm font-medium text-gray-700">Categoría Padre (Opcional)</label>
+        <select
+          id="parentId"
+          formControlName="parentId"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 bg-white focus:ring-indigo-500 focus:border-indigo-500 text-base"
+        >
+          @for (option of parentOptions; track option.id) {
+            <option
+              [value]="option.id === null ? 'null' : option.id"
+              [disabled]="option.id !== null && categoryForm.get('parentId')?.value === option.id && !categoryForm.get('parentId')?.pristine"
+            >
+              {{ option.name }}
+            </option>
+          }
+        </select>
+        <p class="mt-2 text-sm text-gray-500">Selecciona una categoría padre para crear una subcategoría.</p>
+      </div>
+
+      <div class="flex justify-end pt-4 space-x-3">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="px-6 py-3 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="categoryForm.invalid"
+          class="px-6 py-3 bg-black text-white rounded-md text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors"
+        >
+          Crear Categoría
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

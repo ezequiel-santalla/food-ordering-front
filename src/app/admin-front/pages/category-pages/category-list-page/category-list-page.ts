@@ -55,7 +55,7 @@ export class CategoryListPage {
 
   handleNewCategory(): void {
     console.log('Crear nueva categoría raíz');
-    this.router.navigate(['/categories/add']);
+    this.router.navigate(['admin/categories/add']);
   }
 
 
