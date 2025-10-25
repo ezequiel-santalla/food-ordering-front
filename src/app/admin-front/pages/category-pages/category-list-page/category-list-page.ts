@@ -1,17 +1,16 @@
-import { Component} from '@angular/core';
-import CategoryResponse from '../../../models/response/category-response';
+import { Component } from '@angular/core';
 import { CategoryService } from '../../../services/category-service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CategoryItem } from '../../../components/category-item/category-item';
-
+import CategoryResponse from '../../../models/response/category-response';
 
 @Component({
   selector: 'app-category-list-page',
   imports: [CommonModule, CategoryItem],
   templateUrl: './category-list-page.html'
 })
-export class CategoryListPage{
+export class CategoryListPage {
 
   constructor( public categoryService: CategoryService,
               private router: Router){
@@ -60,7 +59,4 @@ export class CategoryListPage{
   }
 
 
-
 }
-
-

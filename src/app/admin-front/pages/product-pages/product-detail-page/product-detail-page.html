@@ -2,17 +2,17 @@
 <div class="p-8 bg-gray-50 min-h-screen">
     <header class="mb-8 flex justify-between items-center">
         <div class="flex items-center">
-            <a routerLink="/admin/products" class="text-gray-500 hover:text-gray-700 mr-4">
+            <a routerLink="/products" class="text-gray-500 hover:text-gray-700 mr-4">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </a>
             <div>
                 <h1 class="text-3xl font-semibold text-gray-900">{{selectedProduct.name}}</h1>
-                <p class="text-sm text-gray-500 mt-1">{{selectedProduct.category.name}}</p>
+                <p class="text-sm text-gray-500 mt-1">{{selectedProduct.category}}</p>
             </div>
         </div>
 
         <div class="flex space-x-3">
-            <a [routerLink]="['/admin/products/edit', selectedProduct.publicId]" class="flex items-center px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-100 transition duration-150">
+            <a [routerLink]="['/products/add/', selectedProduct.publicId]" class="flex items-center px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-100 transition duration-150">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 Editar
             </a>
@@ -60,7 +60,7 @@
                     <p class="text-xs font-medium text-gray-500 uppercase mb-2">Tags</p>
                     <div class="flex flex-wrap gap-2">
                       @for (tag of selectedProduct.tags ; track $index){
-                        <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700 font-medium">{{tag.label}}</span>
+                        <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700 font-medium">{{tag}}</span>
                       }
                     </div>
                 </div>

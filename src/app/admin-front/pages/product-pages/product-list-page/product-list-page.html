@@ -5,7 +5,7 @@
             <p class="text-sm text-gray-500">Administra el menú de tu restaurante</p>
         </div>
 
-        <button  routerLink="add" class="flex items-center px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md shadow-lg hover:bg-gray-700 transition duration-150">
+        <button  routerLink="/products/add" class="flex items-center px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md shadow-lg hover:bg-gray-700 transition duration-150">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Nuevo Producto
         </button>
@@ -40,6 +40,9 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto">
                         Estado
                     </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                        Tags
+                    </th>
                     <th scope="col" class="relative px-6 py-3 w-4">
                         <span class="sr-only">Editar</span>
                     </th>
@@ -56,7 +59,7 @@
                         </td>
 
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ product.category.name}}
+                            {{ product.category }}
                         </td>
 
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
@@ -89,13 +92,13 @@
                             </span> -->
                         </td>
 
-                        <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 space-x-2">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 space-x-2">
                             @for (tag of product.tags; track $index) {
                                 <span class="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full inline-block">
                                     {{ tag }}
                                 </span>
                             }
-                        </td> -->
+                        </td>
                           <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
 
     <button (click)="toggleMenu($index)" class="text-gray-400 hover:text-gray-800 focus:outline-none p-1 rounded-full hover:bg-gray-100" aria-expanded="false" [attr.aria-controls]="'menu-' + $index">
@@ -107,14 +110,14 @@
            <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
 
   <button
-    [routerLink]="[product.publicId]"
+    (click)="navigateToDetail(product.publicId)"
     class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
     role="menuitem">
     Ver detalle
   </button>
 
   <button
-    [routerLink]="['edit', product.publicId]"
+    (click)="navigateToEdit(product.publicId)"
     class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
     role="menuitem">
     Editar
@@ -151,5 +154,3 @@
 <div class="flex justify-center">
   <app-pagination [pages]="totalPages" />
 </div>
-
-

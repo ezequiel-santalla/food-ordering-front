@@ -1,13 +1,15 @@
-import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment.development';
-import CategoryResponse from '../models/response/category-response';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import CategoryResponse from '../models/response/category-response';
+import { environment } from '../../../environments/environment.development';
 import CategoryRequest from '../models/request/category-request';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoryService {
+
+
   readonly API_URL = `${environment.baseUrl}/categories`
 
   categories: CategoryResponse [];
@@ -35,6 +37,7 @@ export class CategoryService {
   updateCategory(id: string, category: CategoryRequest){
     return this.http.patch<CategoryResponse>(`${this.API_URL}/${id}`, category);
   }
+
 
 
 }

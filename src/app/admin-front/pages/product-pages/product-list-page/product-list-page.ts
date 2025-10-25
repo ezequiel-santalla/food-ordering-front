@@ -69,11 +69,11 @@ deleteProduct(id: string): void {
       error: (e) => {console.log(e)}})
 }
 
-// navigateToDetail(id:string): void {
-//   this.router.navigate([`admin/products/${id}`]);
-// }
-// navigateToEdit(id:string): void{
-//   this.router.navigate([`admin/products/edit/${id}`]);
-// }
+navigateToDetail(id:string): void {
+  this.router.navigate([`/products/${id}`]);
+}
+navigateToEdit(id:string): void{
+  this.router.navigate([`/products/add/${id}`]);
+}
 
 }

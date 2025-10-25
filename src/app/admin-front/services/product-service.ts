@@ -11,8 +11,8 @@ import { Content, ProductResponse } from '../models/response/product-response';
 export class ProductService {
     readonly API_URL = `${environment.baseUrl}/products`
 
-    products: ProductResponse[];
-    contents: Content[]
+   products: ProductResponse[];
+  contents: Content[]
 
   constructor(private http: HttpClient) {
      this.products = [];
@@ -39,7 +39,7 @@ export class ProductService {
   }
 
   updateProduct(id: string, product: ProductRequest){
-    return this.http.patch<ProductResponse>(`${this.API_URL}/${id}`, product);
+    return this.http.put<ProductResponse>(`${this.API_URL}/${id}`, product);
   }
 
 

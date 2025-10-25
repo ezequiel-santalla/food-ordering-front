@@ -6,8 +6,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-category-item',
   imports: [CommonModule],
-  templateUrl: './category-item.html',
-  styleUrl: './category-item.css'
+  templateUrl: './category-item.html'
 })
 export class CategoryItem {
 
