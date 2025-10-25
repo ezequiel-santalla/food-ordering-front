@@ -21,28 +21,27 @@ export class ProductFormPage {
     this.isEditingMode = false;
   }
 
-  ngOnInit(): void {
-    this.productForm = this.fb.group({
-      name: ['', Validators.required],
-      price: [0, [Validators.required, Validators.min(0)]],
-      description: [''],
-      imageUrl: [''],
-      categoryId: [''],
-      stock: [0],
-      tagsId: [[]],
-      available: [true]
-    });
-    const productId = this.route.snapshot.params['id'];
-    if (productId) {
-      this.isEditingMode = true;
-      this.productService.getProductById(productId).subscribe({
-        next: (data) => { this.productForm.patchValue(data) },
-        error: (e) => { console.error(e) }
-      })
-    }
-  }
+  // ngOnInit(): void {
+  //   this.productForm = this.fb.group({
+  //     name: ['', Validators.required],
+  //     price: [0, [Validators.required, Validators.min(0)]],
+  //     description: [''],
+  //     imageUrl: [''],
+  //     categoryId: [''],
+  //     stock: [0],
+  //     tagsId: [[]],
+  //     available: [true]
+  //   });
+  //   const productId = this.route.snapshot.params['id'];
+  //   if (productId) {
+  //     this.isEditingMode = true;
+  //     this.productService.getProductById(productId).subscribe({
+  //       next: (data) => { this.productForm.patchValue(data) },
+  //       error: (e) => { console.error(e) }
+  //     })
+  //   }
+  // }
 
-<<<<<<< HEAD
     ngOnInit(): void {
         this.productForm = this.fb.group({
             name: ['', Validators.required],
@@ -76,26 +75,7 @@ export class ProductFormPage {
           })
         }
       }
-      else {
-        if( this.productForm.valid){
-        this.productService.postProduct(this.productForm.value).subscribe({
-          next: (data) => {alert("Producto creado con exito")
-                          this.router.navigate(['/products'])
-=======
-  onSubmit() {
-    const productId = this.route.snapshot.params['id'];
-    if (productId) {
-      if (this.productForm.valid) {
-        this.productService.updateProduct(productId, this.productForm.value).subscribe({
-          next: (data) => {
-            alert("Producto actualizado con exito")
-            this.router.navigate(['admin/products']);
->>>>>>> 4c728637fc2d668317ae5b5b0332ff950fa6552a
-          },
-          error: (e) => { console.error(e) }
-        })
-      }
-    }
+    
     else {
       if (this.productForm.valid) {
         this.productService.postProduct(this.productForm.value).subscribe({

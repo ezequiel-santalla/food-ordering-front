@@ -8,7 +8,7 @@ import { NavigationService } from '../../shared/services/navigation.service';
 @Component({
   selector: 'app-qr-scanner',
   standalone: true,
-  imports: [ZXingScannerModule, CommonModule],
+  imports: [ ZXingScannerModule, CommonModule],
   templateUrl: './qr-scanner.html',
   styleUrl: './qr-scanner.css',
   host: {
