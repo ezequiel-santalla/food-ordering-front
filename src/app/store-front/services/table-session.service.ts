@@ -28,10 +28,16 @@ export class TableSessionService {
     return SessionUtils.isValidSession(sessionId);
   });
 
+  // ✅ Computed para saber si es un invitado
+  private isGuest = computed(() => {
+    const nickname = this._participantNickname();
+    return nickname.toLowerCase().startsWith('guest');
+  });
+
   constructor() {
-    // Sincronizar nickname cuando haya sesión activa
+    // ✅ SOLO sincronizar si NO es invitado
     effect(() => {
-      if (this.hasActiveSession()) {
+      if (this.hasActiveSession() && !this.isGuest()) {
         this.syncNicknameFromProfile();
       }
     });
@@ -39,7 +45,7 @@ export class TableSessionService {
 
   /**
    * Sincroniza el nickname desde el perfil del usuario
-   * Se llama automáticamente cuando hay sesión activa
+   * Se llama automáticamente cuando hay sesión activa (solo para usuarios con cuenta)
    */
   private syncNicknameFromProfile(): void {
     this.profileService.getUserProfile().subscribe({
@@ -65,8 +71,21 @@ export class TableSessionService {
    * Útil después de actualizar el perfil
    */
   refreshNickname(): void {
-    if (this.hasActiveSession()) {
+    // ✅ Solo sincronizar si NO es invitado
+    if (this.hasActiveSession() && !this.isGuest()) {
       this.syncNicknameFromProfile();
+    }
+  }
+
+  /**
+   * Actualiza solo el nickname (para usuarios con cuenta)
+   * Útil cuando se actualiza el perfil manualmente
+   */
+  updateNickname(newNickname: string): void {
+    if (newNickname && newNickname.trim()) {
+      console.log('✅ Actualizando nickname:', newNickname);
+      this._participantNickname.set(newNickname);
+      localStorage.setItem('participantNickname', newNickname);
     }
   }
 

@@ -2,8 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthenticatedGuard } from './auth/guards/authenticated.guard';
 import { UnauthenticatedGuard } from './auth/guards/unauthenticated.guard';
 import { HasTableSessionGuard } from './auth/guards/has-table-session.guard';
-import { ScanQrGuard } from './auth/guards/scan-qr-guard.guard';
-import { QrScannerComponent } from './components/qr-scanner/qr-scanner';
+import { QrScannerComponent } from './auth/components/qr-scanner/qr-scanner';
 
 export const routes: Routes = [
   // 🔄 Redirección inicial a food-venues
