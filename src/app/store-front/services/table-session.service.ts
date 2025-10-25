@@ -1,5 +1,6 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../../auth/services/auth.service';
+import { ProfileService } from './profile.service';
 import { TableSessionInfo } from '../../shared/models/table-session';
 import { SessionUtils } from '../../utils/session-utils';
 
@@ -7,17 +8,18 @@ import { SessionUtils } from '../../utils/session-utils';
 export class TableSessionService {
 
   private authService = inject(AuthService);
+  private profileService = inject(ProfileService);
 
-  // Inicializar desde localStorage
+  // Signals privados
   private _tableNumber = signal<number>(this.getStoredNumber('tableNumber'));
   private _participantNickname = signal<string>(this.getStoredString('participantNickname'));
   private _participantCount = signal<number>(this.getStoredNumber('participantCount'));
 
+  // Computed público que combina todo
   tableSessionInfo = computed<TableSessionInfo>(() => ({
     tableNumber: this._tableNumber(),
     participantNickname: this._participantNickname(),
     participantCount: this._participantCount(),
-    // Usar tableSessionId de AuthService que ya está sincronizado con localStorage
     sessionId: this.authService.tableSessionId()
   }));
 
@@ -25,6 +27,48 @@ export class TableSessionService {
     const sessionId = this.authService.tableSessionId();
     return SessionUtils.isValidSession(sessionId);
   });
+
+  constructor() {
+    // Sincronizar nickname cuando haya sesión activa
+    effect(() => {
+      if (this.hasActiveSession()) {
+        this.syncNicknameFromProfile();
+      }
+    });
+  }
+
+  /**
+   * Sincroniza el nickname desde el perfil del usuario
+   * Se llama automáticamente cuando hay sesión activa
+   */
+  private syncNicknameFromProfile(): void {
+    this.profileService.getUserProfile().subscribe({
+      next: (profile) => {
+        const currentNickname = this._participantNickname();
+        const profileName = profile.name || 'Usuario';
+
+        // Solo actualizar si cambió
+        if (currentNickname !== profileName) {
+          console.log('🔄 Sincronizando nickname desde perfil:', profileName);
+          this._participantNickname.set(profileName);
+          localStorage.setItem('participantNickname', profileName);
+        }
+      },
+      error: (error) => {
+        console.warn('⚠️ No se pudo sincronizar nickname desde perfil:', error);
+      }
+    });
+  }
+
+  /**
+   * Fuerza la sincronización del nickname
+   * Útil después de actualizar el perfil
+   */
+  refreshNickname(): void {
+    if (this.hasActiveSession()) {
+      this.syncNicknameFromProfile();
+    }
+  }
 
   setTableSessionInfo(
     tableNumber: number,
@@ -41,7 +85,6 @@ export class TableSessionService {
     if (tableNumber > 0) {
       this._tableNumber.set(tableNumber);
       localStorage.setItem('tableNumber', tableNumber.toString());
-      console.log('✅ TableNumber guardado:', tableNumber);
     } else {
       this._tableNumber.set(0);
       localStorage.removeItem('tableNumber');
@@ -51,7 +94,6 @@ export class TableSessionService {
     if (participantNickname && participantNickname.trim()) {
       this._participantNickname.set(participantNickname);
       localStorage.setItem('participantNickname', participantNickname);
-      console.log('✅ ParticipantNickname guardado:', participantNickname);
     } else {
       this._participantNickname.set('');
       localStorage.removeItem('participantNickname');
@@ -61,7 +103,6 @@ export class TableSessionService {
     if (participantCount >= 0) {
       this._participantCount.set(participantCount);
       localStorage.setItem('participantCount', participantCount.toString());
-      console.log('✅ ParticipantCount guardado:', participantCount);
     } else {
       this._participantCount.set(0);
       localStorage.removeItem('participantCount');
@@ -85,9 +126,7 @@ export class TableSessionService {
   private getStoredNumber(key: string): number {
     try {
       const stored = localStorage.getItem(key);
-      if (!stored) {
-        return 0;
-      }
+      if (!stored) return 0;
 
       const parsed = parseInt(stored, 10);
       return isNaN(parsed) ? 0 : parsed;
