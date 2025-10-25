@@ -36,7 +36,7 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
 
 function isPublicRoute(url: string): boolean {
   const publicRoutes = [
-    '/auth/login',      // Login de usuarios
+    // '/auth/login',      Login de usuarios
     '/auth/register',   // Registro de nuevos usuarios
     '/public/'          // Cualquier endpoint bajo /public/
   ];

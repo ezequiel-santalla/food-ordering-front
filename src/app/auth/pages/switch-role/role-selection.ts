@@ -2,9 +2,17 @@ import { Component, computed, inject, effect, Signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Employment } from '../../../shared/models/common';
-import { Briefcase, LucideAngularModule, User } from 'lucide-angular';
+import {
+  Briefcase,
+  ChefHat,
+  LucideAngularModule,
+  ShieldAlert,
+  ShieldCheck,
+  User,
+} from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { NavigationService } from '../../../shared/services/navigation.service';
+import { SessionUtils } from '../../../utils/session-utils';
 
 @Component({
   selector: 'app-role-selection',
@@ -17,12 +25,15 @@ export class RoleSelectionComponent {
   private router = inject(Router);
   private navigationService = inject(NavigationService);
 
-  public User = User;
-  public Briefcase = Briefcase;
+  protected readonly User = User;
+  protected readonly Briefcase = Briefcase;
+  protected readonly ChefHat = ChefHat;
+  protected readonly ShieldCheck = ShieldCheck;
+  protected readonly ShieldAlert = ShieldAlert;
 
   public employments: Signal<Employment[]> = this.authService.employments;
   public hasEmployments = computed(() => this.employments().length > 0);
-  public authStatus = this.authService.authStatus; // Mapeo para mostrar nombres más amigables
+  public authStatus = this.authService.authStatus;
 
   public roleDisplayNames: { [key: string]: string } = {
     ROLE_ROOT: 'Superusuario',
@@ -30,6 +41,21 @@ export class RoleSelectionComponent {
     ROLE_MANAGER: 'Encargado',
     ROLE_STAFF: 'Empleado',
   };
+
+  public getIconForRole(role: string): { icon: any; colorClass: string } {
+    switch (role) {
+      case 'ROLE_STAFF':
+        return { icon: this.ChefHat, colorClass: 'text-success' };
+      case 'ROLE_MANAGER':
+        return { icon: this.Briefcase, colorClass: 'text-info' };
+      case 'ROLE_ADMIN':
+        return { icon: this.ShieldCheck, colorClass: 'text-warning' };
+      case 'ROLE_ROOT':
+        return { icon: this.ShieldAlert, colorClass: 'text-error' };
+      default:
+        return { icon: this.User, colorClass: 'text-accent' };
+    }
+  }
 
   constructor() {
     console.log('Cargando selector de roles');
@@ -43,30 +69,39 @@ export class RoleSelectionComponent {
       }
     });
   }
+
   /**
    * Llama al servicio para seleccionar un rol específico y cambiar el contexto del token.
    * @param employment El empleo (rol) seleccionado.
    */
-
   selectEmployment(employment: Employment): void {
     this.authService.selectRole(employment.publicId).subscribe({
       next: () => {
         console.log(`Rol de ${employment.role} seleccionado. Redirigiendo...`);
-        this.router.navigate(['/dashboard/admin']); // Cambia esta ruta a tu dashboard de admin/staff
+        this.router.navigate(['admin']); // Cambia esta ruta a tu dashboard de admin/staff
       },
       error: (err) => {
         console.error('Error al seleccionar el rol', err);
       },
     });
   }
+
   /**
    * Continúa la navegación con el rol de cliente por defecto.
+   * Si ya tiene sesión, va al home
    */
-
   continueAsClient(): void {
     console.log('Continuando como cliente...');
-    // El token ya es de cliente, solo necesitamos navegar
-    // según el estado actual de la sesión (si tiene sesión de mesa o no).
-    this.navigationService.navigateBySessionState();
+
+    const tableSessionId = this.authService.tableSessionId();
+
+    // Verificar si ya tiene una sesión de mesa válida
+    if (SessionUtils.isValidSession(tableSessionId)) {
+      console.log('✅ Ya tiene sesión de mesa, navegando a home');
+      this.navigationService.navigateToHome();
+    } else {
+      console.log('⚠️ Sin sesión de mesa, navegando a food-venues');
+      this.navigationService.navigateToFoodVenues();
+    }
   }
 }

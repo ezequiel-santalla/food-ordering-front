@@ -12,7 +12,7 @@ export class NavigationService {
   /**
    * Navega según el estado de la sesión
    * Si tiene tableSessionId válido -> home (/session/:tableSessionId)
-   * Si no tiene -> scan-qr
+   * Si no tiene -> food-venues (NO scan-camera, porque no quiere escanear)
    */
   navigateBySessionState(delay: number = 100): void {
     setTimeout(() => {
@@ -27,8 +27,8 @@ export class NavigationService {
         console.log('✅ Tiene sesión de mesa, navegando a home');
         this.navigateToHome();
       } else {
-        console.log('⚠️ Sin sesión de mesa, navegando a scan-qr');
-        this.navigateToScanQr();
+        console.log('⚠️ Sin sesión de mesa, navegando a food-venues');
+        this.router.navigate(['/food-venues'], { replaceUrl: true });
       }
     }, delay);
   }
@@ -68,10 +68,10 @@ export class NavigationService {
   }
 
   /**
-   * Navega a scan-qr
+   * Navega a food-venues
    */
-  navigateToScanQr(): void {
-    this.router.navigate(['/scan-qr'], { replaceUrl: true });
+  navigateToFoodVenues(): void {
+    this.router.navigate(['/food-venues'], { replaceUrl: true });
   }
 
   /**
@@ -81,9 +81,9 @@ export class NavigationService {
     this.router.navigate(['/login/'], { replaceUrl: true });
   }
 
-    /**
-   * Navega a la seleccion de roles disponibles
-   */
+  /**
+ * Navega a la seleccion de roles disponibles
+ */
   navigateToRoleSelection(): void {
     console.log("navigatig to /role-selection");
     this.router.navigate(['/role-selection'], { replaceUrl: true });

@@ -12,8 +12,8 @@ export const HasTableSessionGuard: CanActivateFn = () => {
   console.log('🛡️ HasTableSessionGuard:', { tableSessionId });
 
   if (!tableSessionId || tableSessionId === 'undefined' || tableSessionId === 'null') {
-    console.log('❌ No hay sesión de mesa válida, redirigiendo a scan-qr');
-    router.navigate(['/scan-qr']);
+    console.log('❌ No hay sesión de mesa válida, redirigiendo a scan-camera');
+    router.navigate(['/scan-camera'], { replaceUrl: true });
     return false;
   }
 

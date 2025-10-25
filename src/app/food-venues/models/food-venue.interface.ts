@@ -13,8 +13,9 @@ export interface Content {
   publicId: string;
   name: string;
   phone: string;
-  address: Address;
-  styles: VenueStyles | null;  // ← Cambiar de 'null' a 'VenueStyles | null'
+  address: string;
+  location: string;
+  styles: VenueStyles | null;
 }
 
 export interface Address {
@@ -26,7 +27,6 @@ export interface Address {
   country: string;
 }
 
-// ← Agregar esta nueva interface
 export interface VenueStyles {
   logoUrl?: string;
   bannerUrl?: string;

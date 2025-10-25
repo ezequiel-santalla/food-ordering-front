@@ -16,7 +16,6 @@ import { Employment } from '../../shared/models/common';
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-
   private authApi = inject(AuthApiService);
   private authState = inject(AuthStateManager);
 
@@ -52,16 +51,22 @@ export class AuthService {
   /**
    * Login de usuario
    */
-  login(credentials: { email: string; password: string }): Observable<LoginResponse> {
+  login(credentials: {
+    email: string;
+    password: string;
+  }): Observable<LoginResponse> {
     return this.authApi.login(credentials).pipe(
-      tap(response => {
+      tap((response) => {
         const processed = SessionUtils.isTableSessionResponse(response)
-          ? TokenManager.processTableSessionResponse(response as TableSessionResponse, this.authState.refreshToken())
+          ? TokenManager.processTableSessionResponse(
+              response as TableSessionResponse,
+              this.authState.refreshToken()
+            )
           : TokenManager.processAuthResponse(response as AuthResponse);
 
         this.authState.applyAuthData(processed);
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('❌ Error en login:', error);
         return throwError(() => error);
       })
@@ -73,14 +78,17 @@ export class AuthService {
    */
   register(data: any): Observable<LoginResponse> {
     return this.authApi.register(data).pipe(
-      tap(response => {
+      tap((response) => {
         const processed = SessionUtils.isTableSessionResponse(response)
-          ? TokenManager.processTableSessionResponse(response as TableSessionResponse, null)
+          ? TokenManager.processTableSessionResponse(
+              response as TableSessionResponse,
+              null
+            )
           : TokenManager.processAuthResponse(response as AuthResponse);
 
         this.authState.applyAuthData(processed);
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('❌ Error en registro:', error);
         return throwError(() => error);
       })
@@ -90,7 +98,10 @@ export class AuthService {
   /**
    * Escanear QR de mesa
    */
-  scanQR(tableId: string, forceChange = false): Observable<TableSessionResponse> {
+  scanQR(
+    tableId: string,
+    forceChange = false
+  ): Observable<TableSessionResponse> {
     const currentSessionId = this.authState.tableSessionId();
     const hasValidSession = SessionUtils.isValidSession(currentSessionId);
 
@@ -98,7 +109,7 @@ export class AuthService {
     if (hasValidSession && !forceChange) {
       return throwError(() => ({
         status: 409,
-        error: { message: 'Ya tienes una sesión activa' }
+        error: { message: 'Ya tienes una sesión activa' },
       }));
     }
 
@@ -138,8 +149,11 @@ export class AuthService {
         console.log('✅ Logout exitoso en el backend');
         this.performLocalLogout();
       }),
-      catchError(error => {
-        console.error('⚠️ Error en logout del backend, realizando logout local:', error);
+      catchError((error) => {
+        console.error(
+          '⚠️ Error en logout del backend, realizando logout local:',
+          error
+        );
         // Incluso si falla el backend, limpiamos localmente
         this.performLocalLogout();
         return of(void 0);
@@ -162,7 +176,7 @@ export class AuthService {
    */
   getSessionInfoFromResponse(response: LoginResponse): {
     tableNumber?: number;
-    participants?: any[]
+    participants?: any[];
   } | null {
     return TokenManager.getSessionInfoFromResponse(response);
   }
@@ -172,24 +186,28 @@ export class AuthService {
    * @param employmentId El ID público del rol a seleccionar.
    */
   selectRole(employmentId: string): Observable<LoginResponse> {
+    const currentEmployments = this.authState.employments();
     return this.authApi.selectRole(employmentId).pipe(
-      tap(response => {
+      tap((response) => {
         // La API devuelve un nuevo token, así que lo procesamos y actualizamos todo el estado.
-        const processed = TokenManager.processAuthResponse(response as AuthResponse);
+        const processed = TokenManager.processAuthResponse(
+          response as AuthResponse
+        );
+        processed.employments = currentEmployments;
         this.authState.applyAuthData(processed);
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('❌ Error al seleccionar el rol:', error);
         return throwError(() => error);
       })
     );
   }
-  
-    /**
+
+  /**
    * Obtener los roles disponibles desde la respuesta de login
    */
   getAvailableEmployments(response: AuthResponse): Employment[] {
-    console.log("Buscando empleos disponibles");
+    console.log('Buscando empleos disponibles');
     return TokenManager.getEmploymentsFromResponse(response);
   }
 
@@ -197,14 +215,14 @@ export class AuthService {
 
   private performScanQR(tableId: string): Observable<TableSessionResponse> {
     return this.authApi.scanQR(tableId).pipe(
-      tap(response => {
+      tap((response) => {
         const processed = TokenManager.processTableSessionResponse(
           response,
           this.authState.refreshToken()
         );
         this.authState.applyAuthData(processed);
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('❌ Error escaneando QR:', error);
         return throwError(() => error);
       })

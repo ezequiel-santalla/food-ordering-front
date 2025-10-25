@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth.service';
+import { SessionUtils } from '../../../utils/session-utils';
 
 @Component({
   selector: 'app-public-header',
@@ -13,7 +14,12 @@ export class PublicHeaderComponent {
   private router = inject(Router);
 
   isLoggedIn = this.authService.isAuthenticated;
-  tableSessionId = this.authService.tableSessionId;
+
+  // Computed que valida si la sesión es realmente válida
+  hasValidTableSession = computed(() => {
+    const tableSessionId = this.authService.tableSessionId();
+    return SessionUtils.isValidSession(tableSessionId);
+  });
 
   logout() {
     this.authService.logout().subscribe({
@@ -23,9 +29,12 @@ export class PublicHeaderComponent {
       },
       error: (error) => {
         console.error('❌ Error durante logout:', error);
-        // Incluso con error, se limpia localmente y se redirige
         this.router.navigate(['/food-venues']);
       }
     });
+  }
+
+  navigateToScanner(){
+    this.router.navigate(['/scan-camera']);
   }
 }
