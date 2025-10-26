@@ -31,14 +31,15 @@ export class MenuItemDetailModal {
   addToCart() {
     const prod = this.product();
 
-    for (let i = 0; i < this.quantity; i++) {
+    const instructions = prod.customizable ? this.specialInstructions : null;
+
       this.cartService.addItem(
         prod.name,
         prod.price,
-        prod.imageUrl,
-        this.specialInstructions
+        instructions,
+        this.quantity,
+        prod.imageUrl
       );
-    }
 
     this.close.emit();
   }

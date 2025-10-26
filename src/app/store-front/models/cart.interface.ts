@@ -3,7 +3,7 @@ export interface CartItem {
   productPrice: number;
   productImage?: string;
   quantity: number;
-  specialInstructions: string;
+  specialInstructions: string | null;
 }
 
 export interface Cart {
