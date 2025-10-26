@@ -48,7 +48,8 @@ export class CartView {
     const orderRequest: OrderRequest = {
       orderDetails: this.cartService.items().map(item => ({
         productName: item.productName,
-        specialInstructions: item.specialInstructions || ''
+        specialInstructions: item.specialInstructions || '',
+        quantity: item.quantity
       })),
       specialRequirements: this.generalInstructions.trim() || undefined
     };

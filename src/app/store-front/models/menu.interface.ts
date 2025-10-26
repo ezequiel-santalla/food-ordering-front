@@ -28,6 +28,7 @@ export interface Product {
   imageUrl:    string;
   price:       number;
   category:    string;
+  customizable: boolean;
   tags:        Tag[];
 }
 

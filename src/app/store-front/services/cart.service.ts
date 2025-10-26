@@ -22,8 +22,9 @@ export class CartService {
   addItem(
     productName: string,
     productPrice: number,
-    productImage?: string,
-    specialInstructions: string = ''
+    specialInstructions: string | null,
+    quantity: number,
+    productImage?: string
   ): void {
     const currentItems = this._items();
 
@@ -34,20 +35,20 @@ export class CartService {
     );
 
     if (existingIndex >= 0) {
-      // Si existe, incrementar cantidad
+      // Si existe, SUMAR la nueva cantidad
       const updated = [...currentItems];
       updated[existingIndex] = {
         ...updated[existingIndex],
-        quantity: updated[existingIndex].quantity + 1
+        quantity: updated[existingIndex].quantity + quantity // <-- CORRECCIÓN 2
       };
       this._items.set(updated);
     } else {
-      // Si no existe, agregar nuevo
+      // Si no existe, agregar nuevo con la cantidad recibida
       this._items.update(items => [...items, {
         productName,
         productPrice,
         productImage,
-        quantity: 1,
+        quantity: quantity,
         specialInstructions
       }]);
     }
