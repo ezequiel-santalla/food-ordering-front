@@ -52,11 +52,17 @@ export class NavigationService {
   /**
    * Navega al home (/session/:tableSessionId)
    */
-  navigateToHome(): void {
-    const tableSessionId = this.authService.tableSessionId();
-    this.router.navigate(['/session', tableSessionId], { replaceUrl: true });
+navigateToHome(): void {
+  const tableSessionId = this.authService.tableSessionId();
+  
+  if (!tableSessionId) {
+    console.warn('⚠️ No hay tableSessionId, redirigiendo a /food-venues');
+    this.router.navigate(['/food-venues']);
+    return;
   }
-
+  
+  this.router.navigate(['/session', tableSessionId, 'home']);
+}
   /**
    * Navega a una ruta dentro de session
    * Ejemplo: navigateToSessionRoute('menu/item/123')

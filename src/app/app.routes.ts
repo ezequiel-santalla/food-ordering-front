@@ -22,7 +22,7 @@ export const routes: Routes = [
     path: 'role-selection', // La URL será tudominio.com/role-selection
     //canActivate: [AuthenticatedGuard], // Protegida por el guard de autenticados
     loadComponent: () =>
-      import('./auth/pages/switch-role/role-selection').then(
+      import('./auth/pages/role-selection/role-selection').then(
         (m) => m.RoleSelectionComponent
       ),
   },
