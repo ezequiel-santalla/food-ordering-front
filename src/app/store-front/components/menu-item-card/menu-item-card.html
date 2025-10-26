@@ -21,7 +21,7 @@
       </div>
 
       <p class="text-sm text-base-content/70 line-clamp-1 mb-3">{{ description() }}</p>
-    </div>
+ </div>
   </div>
 
   <!-- Botón de agregar FUERA del área clickeable -->
@@ -42,7 +42,7 @@
 
   <!-- Layout HORIZONTAL (imagen a la derecha) -->
   @if (layout() === 'horizontal') {
-  <div class="flex flex-row">
+  < class="flex flex-row">
     <!-- Contenido a la izquierda (clickeable para abrir modal) -->
     <div class="card-body flex-1 py-4 cursor-pointer" (click)="onCardClick()">
       <div class="flex justify-between items-start mb-2">
@@ -59,7 +59,6 @@
         <ng-content></ng-content>
       </div>
     </div>
-
     <!-- Imagen y botón a la derecha -->
     <div class="flex flex-col items-center justify-between pr-4 py-4">
       <figure class="w-28 flex-shrink-0 cursor-pointer" (click)="onCardClick()">
@@ -77,6 +76,5 @@
         </svg>
       </button>
     </div>
-  </div>
   }
 </div>

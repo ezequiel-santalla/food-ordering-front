@@ -163,8 +163,17 @@ export class LoginPageComponent {
         console.error('Error en login:', error);
         this.isSubmitting = false;
 
-        const { title, message } = this.errorHandler.getAuthError(error);
-        this.sweetAlertService.showError(title, message);
+        if (error.status === 409) {
+          // 2. Muestra el SweetAlert específico para este caso
+          this.sweetAlertService.showError(
+            'Conflicto de Sesión', 'Ya tenés una sesión activa en otra mesa.'
+          );
+        } else {
+          // 3. Para cualquier otro error (401, 404, 500 genérico)
+          const { title, message } = this.errorHandler.getAuthError(error);
+          this.sweetAlertService.showError(title, message);
+        }
+        this.navigation.navigateToHome();
       },
     });
   }

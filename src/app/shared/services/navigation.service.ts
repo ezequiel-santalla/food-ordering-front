@@ -5,7 +5,6 @@ import { SessionUtils } from '../../utils/session-utils';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
-
   private router = inject(Router);
   private authService = inject(AuthService);
 
@@ -20,7 +19,7 @@ export class NavigationService {
 
       console.log('🔍 Estado de navegación:', {
         tableSessionId,
-        foodVenueId: this.authService.foodVenueId()
+        foodVenueId: this.authService.foodVenueId(),
       });
 
       if (SessionUtils.isValidSession(tableSessionId)) {
@@ -52,17 +51,17 @@ export class NavigationService {
   /**
    * Navega al home (/session/:tableSessionId)
    */
-navigateToHome(): void {
-  const tableSessionId = this.authService.tableSessionId();
-  
-  if (!tableSessionId) {
-    console.warn('⚠️ No hay tableSessionId, redirigiendo a /food-venues');
-    this.router.navigate(['/food-venues']);
-    return;
+  navigateToHome(): void {
+    const tableSessionId = this.authService.tableSessionId();
+
+    if (!tableSessionId) {
+      console.warn('⚠️ No hay tableSessionId, redirigiendo a /food-venues');
+      this.router.navigate(['/food-venues']);
+      return;
+    }
+
+    this.router.navigate(['/session', tableSessionId], { replaceUrl: true });
   }
-  
-  this.router.navigate(['/session', tableSessionId, 'home']);
-}
   /**
    * Navega a una ruta dentro de session
    * Ejemplo: navigateToSessionRoute('menu/item/123')
@@ -70,7 +69,11 @@ navigateToHome(): void {
   navigateToSessionRoute(route: string): void {
     const tableSessionId = this.authService.tableSessionId();
     const cleanRoute = route.startsWith('/') ? route.substring(1) : route;
-    this.router.navigate(['/session', tableSessionId, ...cleanRoute.split('/')]);
+    this.router.navigate([
+      '/session',
+      tableSessionId,
+      ...cleanRoute.split('/'),
+    ]);
   }
 
   /**
@@ -88,10 +91,10 @@ navigateToHome(): void {
   }
 
   /**
- * Navega a la seleccion de roles disponibles
- */
+   * Navega a la seleccion de roles disponibles
+   */
   navigateToRoleSelection(): void {
-    console.log("navigatig to /role-selection");
+    console.log('navigatig to /role-selection');
     this.router.navigate(['/role-selection'], { replaceUrl: true });
   }
 }
