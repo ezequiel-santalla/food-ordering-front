@@ -1,38 +1,38 @@
 export interface Menu {
-  foodVenueName:     string;
+  foodVenueName: string;
   foodVenueImageUrl: string;
-  menu:              MenuElement[];
+  menu: MenuElement[];
 }
 
 export interface MenuElement {
-  category:     string;
+  category: string;
   subcategory?: Subcategory[];
-  products?:    Product[];
+  products?: Product[];
 }
 
 export interface Subcategory {
-  category:     string;
+  category: string;
   subcategory?: SubcategoryNested[];
-  products?:    Product[];
+  products?: Product[];
 }
 
 export interface SubcategoryNested {
-  category:  string;
+  category: string;
   products?: Product[];
 }
 
 export interface Product {
-  publicId:          string;
-  name:        string;
+  publicId: string;
+  name: string;
   description: string;
-  imageUrl:    string;
-  price:       number;
-  category:    string;
+  imageUrl: string;
+  price: number;
+  category: string;
   customizable: boolean;
-  tags:        Tag[];
+  tags: Tag[];
 }
 
 export interface Tag {
-  id:    number;
+  id: number;
   label: string;
 }

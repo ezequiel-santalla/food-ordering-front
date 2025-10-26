@@ -39,7 +39,7 @@ export class CartService {
       const updated = [...currentItems];
       updated[existingIndex] = {
         ...updated[existingIndex],
-        quantity: updated[existingIndex].quantity + quantity // <-- CORRECCIÓN 2
+        quantity: updated[existingIndex].quantity + quantity
       };
       this._items.set(updated);
     } else {

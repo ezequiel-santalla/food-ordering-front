@@ -19,7 +19,7 @@
     <div class="divide-y divide-gray-100 max-h-[300px] overflow-y-auto pr-2">
 
       @for (item of cartService.items(); track $index) {
-        <div class="flex items-center justify-between py-4">
+        <div class="flex items-center justify-between py-4 group">
 
           <div class="flex items-center gap-3 flex-1 min-w-0">
             <img
@@ -35,7 +35,7 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
 
             <button
               class="btn btn-ghost btn-circle btn-sm"
@@ -55,6 +55,13 @@
             <div class="w-24 text-right font-semibold text-gray-800">
               {{ (item.productPrice * item.quantity) | currency:'ARS' }}
             </div>
+
+            <button
+              class="btn btn-ghost btn-circle btn-sm text-error hover:bg-error/10 hover:scale-110 transition-transform ml-1"
+              (click)="removeItem($index, item.productName)"
+              title="Eliminar producto">
+              <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+            </button>
           </div>
         </div>
       }

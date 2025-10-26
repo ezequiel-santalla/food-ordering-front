@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../services/order.service';
 import { OrderRequest } from '../../../models/order.interface';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
-import { LucideAngularModule, ShoppingBasket } from 'lucide-angular';
+import { LucideAngularModule, ShoppingBasket, Trash2 } from 'lucide-angular';
 
 @Component({
   selector: 'app-cart-view',
@@ -15,6 +15,7 @@ import { LucideAngularModule, ShoppingBasket } from 'lucide-angular';
 export class CartView {
 
   readonly ShoppingBasket = ShoppingBasket;
+  readonly Trash2 = Trash2;
 
   cartService = inject(CartService);
   orderService = inject(OrderService);
@@ -24,13 +25,27 @@ export class CartView {
   isSubmitting = signal(false);
   error = signal<string | null>(null);
 
+  async removeItem(index: number, productName: string) {
+    const confirmed = await this.sweetAlert.confirmCustomAction(
+      '¿Eliminar producto?',
+      `Se eliminará "${productName}" de tu orden`,
+      'Sí, eliminar',
+      'Cancelar',
+      'warning'
+    );
+
+    if (confirmed) {
+      this.cartService.removeItem(index);
+      this.sweetAlert.showSuccess('Producto eliminado', '', 1500);
+    }
+  }
+
   async confirmOrder() {
     if (this.cartService.items().length === 0) {
       this.sweetAlert.showError('Orden vacía', 'Agrega productos antes de confirmar el pedido');
       return;
     }
 
-    // Confirmación antes de enviar
     const confirmed = await this.sweetAlert.confirmCustomAction(
       '¿Confirmar pedido?',
       `Total: $${this.cartService.total().toFixed(2)} - Se enviará tu pedido a la cocina`,
@@ -60,21 +75,14 @@ export class CartView {
         this.sweetAlert.close();
         this.isSubmitting.set(false);
 
-        // Mostrar éxito con número de orden
         this.sweetAlert.showSuccess(
           '¡Pedido confirmado!',
           `Número de orden: ${response.orderNumber}`,
           3000
         );
 
-        // Limpiar orden
         this.cartService.clear();
         this.generalInstructions = '';
-
-        // Aquí podrías navegar a "Mis Pedidos" después del timer
-        // setTimeout(() => {
-        //   this.router.navigate(['/orders/mine']);
-        // }, 3000);
       },
       error: (err) => {
         console.error('❌ Error al crear pedido:', err);

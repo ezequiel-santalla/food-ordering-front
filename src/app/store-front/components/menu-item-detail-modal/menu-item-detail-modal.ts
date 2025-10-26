@@ -32,7 +32,7 @@ export class MenuItemDetailModal {
     const prod = this.product();
 
     const instructions = prod.customizable ? this.specialInstructions : null;
-    
+
       this.cartService.addItem(
         prod.name,
         prod.price,
