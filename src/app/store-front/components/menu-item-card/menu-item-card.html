@@ -9,7 +9,7 @@
   <div (click)="onCardClick()">
     <figure class="p-4">
       <div class="aspect-video w-full bg-white rounded-xl flex items-center justify-center overflow-hidden">
-        <img [src]="'https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp'" [alt]="name()"
+        <img [src]="image()" [alt]="name()"
           class="w-full h-full object-contain" />
       </div>
     </figure>
@@ -64,7 +64,7 @@
     <div class="flex flex-col items-center justify-between pr-4 py-4">
       <figure class="w-28 flex-shrink-0 cursor-pointer" (click)="onCardClick()">
         <div class="aspect-square w-full bg-white rounded-xl flex items-center justify-center overflow-hidden">
-          <img [src]="'https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp'" [alt]="name()"
+          <img [src]="image()" [alt]="name()"
             class="w-full h-full object-cover" />
         </div>
       </figure>
