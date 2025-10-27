@@ -1,8 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CartView } from "./cart-view/cart-view";
 import { TableOrders } from "./table-orders/table-orders";
 import { MyOrders } from "./my-orders/my-orders";
 import { CartService } from '../../services/cart.service';
+import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-order-tabs',
@@ -12,14 +13,47 @@ import { CartService } from '../../services/cart.service';
 export class OrderTabs {
 
   cartService = inject(CartService);
+  orderService = inject(OrderService);
 
-  activeTab = 'cart';
+  activeTab = signal<'cart' | 'table' | 'mine'>('cart');
 
   cartCount = computed(() => this.cartService.items().length);
-  tableCount = 0;
-  myCount = 0;
+  tableCount = signal(0);
+  myCount = signal(0);
+
+  constructor() {
+    this.loadCounts();
+  }
 
   setTab(tab: 'cart' | 'table' | 'mine') {
-    this.activeTab = tab;
+    this.activeTab.set(tab);
+
+    if (tab === 'mine' || tab === 'table') {
+      this.loadCounts();
+    }
+  }
+
+  private loadCounts() {
+    this.orderService.getCurrentParticipantOrders().subscribe({
+      next: (paginatedResponse) => {
+        const myOrders = paginatedResponse.content;
+        console.log('🔍 OrderTabs - Mis pedidos cargados:', myOrders.length);
+        this.myCount.set(myOrders.length);
+      },
+      error: () => {
+        this.myCount.set(0);
+      }
+    });
+
+    this.orderService.getCurrentSessionOrders().subscribe({
+      next: (paginatedResponse) => {
+        const tableOrders = paginatedResponse.content;
+        console.log('🔍 OrderTabs - Pedidos de mesa cargados:', tableOrders.length);
+        this.tableCount.set(tableOrders.length);
+      },
+      error: () => {
+        this.tableCount.set(0);
+      }
+    });
   }
 }

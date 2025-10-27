@@ -3,8 +3,8 @@
   <div class="w-full grid grid-cols-3 gap-2 mb-4 sm:mb-6 h-10">
     <button
       class="btn btn-sm sm:btn-md text-xs sm:text-sm normal-case"
-      [class.btn-primary]="activeTab === 'cart'"
-      [class.btn-ghost]="activeTab !== 'cart'"
+      [class.btn-primary]="activeTab() === 'cart'"
+      [class.btn-ghost]="activeTab() !== 'cart'"
       (click)="setTab('cart')"
     >
       Mi Orden ({{ cartCount() }})
@@ -12,28 +12,28 @@
 
     <button
       class="btn btn-sm sm:btn-md text-xs sm:text-sm normal-case"
-      [class.btn-primary]="activeTab === 'table'"
-      [class.btn-ghost]="activeTab !== 'table'"
+      [class.btn-primary]="activeTab() === 'table'"
+      [class.btn-ghost]="activeTab() !== 'table'"
       (click)="setTab('table')"
     >
-      Mesa ({{ tableCount }})
+      Mesa ({{ tableCount() }})
     </button>
 
     <button
       class="btn btn-sm sm:btn-md text-xs sm:text-sm normal-case"
-      [class.btn-primary]="activeTab === 'mine'"
-      [class.btn-ghost]="activeTab !== 'mine'"
+      [class.btn-primary]="activeTab() === 'mine'"
+      [class.btn-ghost]="activeTab() !== 'mine'"
       (click)="setTab('mine')"
     >
-      Mis Pedidos ({{ myCount }})
+      Mis Pedidos ({{ myCount() }})
     </button>
   </div>
 
   <div>
-    @switch (activeTab) {
+    @switch (activeTab()) {
       @case ('cart') { <app-cart-view /> }
-      @case ('table') { <app-table-orders /> }
-      @case ('mine') { <app-my-orders /> }
+      @case ('table') { <app-table-orders [refresh]="activeTab() === 'table'" /> }
+      @case ('mine') { <app-my-orders [refresh]="activeTab() === 'mine'" /> }
     }
   </div>
 </section>

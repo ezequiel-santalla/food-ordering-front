@@ -9,19 +9,21 @@ export interface OrderRequest {
 }
 
 export interface OrderResponse {
-  id: string;
-  orderNumber: number;
+  publicId: string;
+  orderNumber: string;
+  specialRequirements?: string;
+  clientAlias: string;
+  totalPrice: number;
   status: string;
   orderDetails: OrderDetailResponse[];
-  totalAmount: number;
-  createdAt: string;
-  tableNumber?: number;
 }
 
 export interface OrderDetailResponse {
-  productName: string;
+  id: number;
   quantity: number;
   unitPrice: number;
   subtotal: number;
+  productName: string;
+  category: string;
   specialInstructions?: string;
 }
