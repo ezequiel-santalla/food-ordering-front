@@ -15,7 +15,7 @@ export interface Content {
   stock: number;
   available: boolean;
   category: Category | null;
-  tags: string[];
+  tags: Tag[];
 }
 
 export interface Category {
