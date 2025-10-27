@@ -48,7 +48,7 @@ export class CategoryListPage {
 
   handleAddSubcategory(parentCategory: CategoryResponse): void {
     console.log('Agregar subcategoría a:', parentCategory.name);
-    this.router.navigate(['/categories/new'], {
+    this.router.navigate(['admin/categories/add'], {
       queryParams: { parentId: parentCategory.publicId }
     });
   }

@@ -9,7 +9,7 @@
       </a>
       <div>
         <h1 class="text-3xl font-semibold text-gray-900">{{selectedProduct.name}}</h1>
-        <p class="text-sm text-gray-500 mt-1">{{selectedProduct.category}}</p>
+        <p class="text-sm text-gray-500 mt-1">{{selectedProduct.category?.name}}</p>
       </div>
     </div>
 
@@ -69,7 +69,7 @@
           <p class="text-xs font-medium text-gray-500 uppercase mb-2">Tags</p>
           <div class="flex flex-wrap gap-2">
             @for (tag of selectedProduct.tags ; track $index){
-            <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700 font-medium">{{tag}}</span>
+            <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700 font-medium">{{tag.label}}</span>
             }
           </div>
         </div>
