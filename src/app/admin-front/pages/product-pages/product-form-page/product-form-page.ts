@@ -60,13 +60,17 @@ export class ProductFormPage {
   private populateForm(data: any): void {
     const categoryId = data.category?.publicId || '';
 
+    const tagLabels = data.tags && Array.isArray(data.tags)
+      ? data.tags.map((tag: any) => tag.label || tag)
+      : [];
+
     this.productForm.patchValue({
       name: data.name,
       price: data.price,
       description: data.description || '',
       categoryId: categoryId,
       stock: data.stock || 0,
-      tags: data.tags || [],
+      tags: tagLabels,
       available: data.available !== undefined ? data.available : true
     });
 
@@ -132,15 +136,28 @@ export class ProductFormPage {
   private createFormData(): FormData {
     const formData = new FormData();
 
-    const productData = {
-      name: this.productForm.value.name,
-      description: this.productForm.value.description || '',
-      price: this.productForm.value.price,
-      stock: this.productForm.value.stock || 0,
-      available: this.productForm.value.available,
-      categoryId: this.productForm.value.categoryId || null,
-      tags: this.productForm.value.tags || []
+    const formValues = this.productForm.value;
+
+    const categoryId = formValues.categoryId && formValues.categoryId.trim() !== ''
+      ? formValues.categoryId
+      : undefined;
+
+    const tags = Array.isArray(formValues.tags)
+      ? formValues.tags.filter((tag: any) => typeof tag === 'string' && tag.trim() !== '')
+      : [];
+
+    const productData: any = {
+      name: formValues.name,
+      description: formValues.description || '',
+      price: formValues.price,
+      stock: formValues.stock || 0,
+      available: formValues.available,
+      tags: tags
     };
+
+    if (categoryId) {
+      productData.categoryId = categoryId;
+    }
 
     formData.append('product', new Blob([JSON.stringify(productData)], {
       type: 'application/json'
