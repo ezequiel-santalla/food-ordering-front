@@ -1,6 +1,5 @@
-import { Component, OnInit, inject, signal, input, effect } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { OrderService } from '../../../services/order.service';
-import { OrderResponse } from '../../../models/order.interface';
 import { CurrencyPipe } from '@angular/common';
 import { LucideAngularModule, Clock, CircleCheckBig, CircleX, Package } from 'lucide-angular';
 
@@ -9,65 +8,25 @@ import { LucideAngularModule, Clock, CircleCheckBig, CircleX, Package } from 'lu
   imports: [CurrencyPipe, LucideAngularModule],
   templateUrl: './my-orders.html',
 })
-export class MyOrders implements OnInit {
+export class MyOrders {
 
+  // constantes de iconos
   readonly Clock = Clock;
   readonly CircleCheckBig = CircleCheckBig;
   readonly CircleX = CircleX;
   readonly Package = Package;
 
-  refresh = input<boolean>(false);
-
   private orderService = inject(OrderService);
 
-  orders = signal<OrderResponse[]>([]);
-  isLoading = signal(true);
-  error = signal<string | null>(null);
+
+  // signals conectadas al servicio
+  orders = this.orderService.myOrders;       // ✅ Reactivo
+  isLoading = this.orderService.isLoading; // ✅ Reactivo
+  error = this.orderService.error;         // ✅ Reactivo
 
   constructor() {
-    effect(() => {
-      if (this.refresh()) {
-        console.log('🔍 MyOrders - Effect disparado, recargando...');
-        this.loadOrders();
-      }
-    });
-  }
-
-  ngOnInit(): void {
-    console.log('🔍 MyOrders - ngOnInit ejecutado');
-    this.loadOrders();
-  }
-
-  loadOrders(): void {
-    console.log('🔍 Iniciando carga de MIS pedidos (solo participante actual)...');
-    this.isLoading.set(true);
-    this.error.set(null);
-
-    // ✅ Usa getCurrentParticipantOrders para MIS PEDIDOS
-    this.orderService.getCurrentParticipantOrders().subscribe({
-      next: (paginatedResponse) => {
-        console.log('✅ MyOrders - Respuesta paginada recibida:', paginatedResponse);
-
-        const orders = paginatedResponse.content;
-        console.log('✅ MyOrders - Total de MIS pedidos:', orders.length);
-
-        // Ordenar por número de orden descendente (más reciente primero)
-        const sortedOrders = orders.sort((a, b) =>
-          Number(b.orderNumber) - Number(a.orderNumber)
-        );
-
-        console.log('✅ MyOrders - Pedidos ordenados:', sortedOrders);
-        this.orders.set(sortedOrders);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.error('❌ MyOrders - Error completo:', err);
-        this.error.set('No se pudieron cargar tus pedidos');
-        this.isLoading.set(false);
-      }
-    });
-  }
-
+    }
+ 
   getStatusBadgeClass(status: string): string {
     switch (status) {
       case 'PENDING':

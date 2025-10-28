@@ -1,6 +1,13 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { LucideAngularModule, Bell, User, LogOut, QrCode } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  Bell,
+  User,
+  LogOut,
+  QrCode,
+  UtensilsCrossed,
+} from 'lucide-angular';
 import { MenuService } from '../../services/menu.service';
 import { CategoryService } from '../../services/category.service';
 import { TableSessionService } from '../../services/table-session.service';
@@ -10,14 +17,14 @@ import { AuthService } from '../../../auth/services/auth.service';
 @Component({
   selector: 'app-header',
   imports: [RouterLink, LucideAngularModule],
-  templateUrl: './header.html'
+  templateUrl: './header.html',
 })
 export class Header {
-
   readonly Bell = Bell;
   readonly User = User;
   readonly Logout = LogOut;
   readonly QrCode = QrCode;
+  readonly UtensilsCrossed = UtensilsCrossed;
 
   menuService = inject(MenuService);
   categoryService = inject(CategoryService);
@@ -33,7 +40,7 @@ export class Header {
     params: () => ({}),
     stream: () => {
       return this.menuService.getMenu();
-    }
+    },
   });
 
   categories = computed(() => {
@@ -55,7 +62,7 @@ export class Header {
     menuData.menu.forEach((cat: any) => extractProducts(cat));
 
     const uniqueCategories = new Map<string, string>();
-    allProducts.forEach(product => {
+    allProducts.forEach((product) => {
       uniqueCategories.set(product.category, product.category);
     });
 
@@ -78,7 +85,8 @@ export class Header {
   });
 
   participantNickname = computed(() => {
-    const nickname = this.tableSessionService.tableSessionInfo().participantNickname;
+    const nickname =
+      this.tableSessionService.tableSessionInfo().participantNickname;
     return nickname.toLowerCase().startsWith('guest') ? 'Invitado' : nickname;
   });
 
@@ -96,7 +104,11 @@ export class Header {
         console.error('❌ Error durante logout:', error);
         // Incluso con error, se limpia localmente y se redirige
         this.router.navigate(['/food-venues']);
-      }
+      },
     });
+  }
+
+  endSession() {
+    this.tableSessionService.closeSession();
   }
 }
