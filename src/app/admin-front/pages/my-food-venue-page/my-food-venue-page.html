@@ -1,1 +1,165 @@
-<p>my-food-venue-page works!</p>
+<div class="p-6 sm:p-10 bg-gray-50 min-h-screen">
+
+  <header class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Gestión de Mi Local</h1>
+    <button
+      (click)="saveChanges()"
+      [disabled]="venueForm.invalid || loading"
+      class="flex items-center space-x-2 px-4 py-2 bg-gray-800 text-white font-semibold rounded-lg shadow-md transition duration-300"
+      [ngClass]="{'opacity-50 cursor-not-allowed': venueForm.invalid || loading, 'hover:bg-gray-700': !venueForm.invalid && !loading}"
+      aria-label="Guardar Cambios"
+      type="submit"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7z" />
+        <path fill-rule="evenodd" d="M3 6a1 1 0 011-1h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V6zm3 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z" clip-rule="evenodd" />
+      </svg>
+      <span>{{ loading ? 'Guardando...' : 'Guardar Cambios' }}</span>
+    </button>
+  </header>
+
+  <form [formGroup]="venueForm" (ngSubmit)="saveChanges()">
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+
+      <div>
+          <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mb-6">
+            <h2 class="text-xl font-semibold mb-6 text-gray-700">Información General</h2>
+
+            <div class="mb-4">
+              <label for="restaurant-name" class="block text-sm font-medium text-gray-700">Nombre del Restaurante</label>
+              <input type="text" id="restaurant-name" formControlName="name"
+                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+              <label for="contact-email" class="block text-sm font-medium text-gray-700">Email de Contacto</label>
+              <input type="email" id="contact-email" formControlName="email"
+                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+              <label for="phone" class="block text-sm font-medium text-gray-700">Teléfono</label>
+              <input type="tel" id="phone" formControlName="phone"
+                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+
+            <div>
+              <label for="description" class="block text-sm font-medium text-gray-700">Descripción</label>
+              <textarea id="description" rows="3" formControlName="description"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100" formGroupName="style">
+            <h2 class="text-xl font-semibold mb-6 text-gray-700">Imágenes</h2>
+
+            <div class="mb-6">
+              <p class="block text-sm font-medium text-gray-700 mb-2">Logo</p>
+              <div class="flex items-center space-x-4">
+
+                <div class="relative w-20 h-20 bg-gray-100 border border-dashed border-gray-400 rounded-lg flex items-center justify-center overflow-hidden">
+                  <ng-container *ngIf="venueForm.get('style.logoUrl')?.value; else logoPlaceholder">
+                    <img [src]="venueForm.get('style.logoUrl')?.value" alt="Logo" class="w-full h-full object-cover">
+                  </ng-container>
+                  <ng-template #logoPlaceholder>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">...</svg>
+                  </ng-template>
+
+                  <button *ngIf="venueForm.get('style.logoUrl')?.value"
+                          (click)="venueForm.get('style.logoUrl')?.setValue('')"
+                          type="button"
+                          class="absolute top-0 right-0 p-1 bg-red-500 rounded-full text-white transform translate-x-1 -translate-y-1 hover:bg-red-600 transition duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+
+                <label class="flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition duration-150 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">...</svg>
+                    <span>Cambiar Logo</span>
+                    <input type="file" hidden accept="image/*">
+                </label>
+                <input type="hidden" formControlName="logoUrl">
+              </div>
+            </div>
+
+            <div>
+              <p class="block text-sm font-medium text-gray-700 mb-2">Banner</p>
+              <div class="relative w-full h-32 bg-gray-100 border border-dashed border-gray-400 rounded-lg flex items-center justify-center overflow-hidden">
+                <ng-container *ngIf="venueForm.get('style.bannerUrl')?.value; else bannerPlaceholder">
+                    <img [src]="venueForm.get('style.bannerUrl')?.value" alt="Banner" class="w-full h-full object-cover">
+                </ng-container>
+                <ng-template #bannerPlaceholder>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">...</svg>
+                </ng-template>
+
+                <button *ngIf="venueForm.get('style.bannerUrl')?.value"
+                        (click)="venueForm.get('style.bannerUrl')?.setValue('')"
+                        type="button"
+                        class="absolute top-0 right-0 p-1 bg-red-500 rounded-full text-white transform translate-x-1 -translate-y-1 hover:bg-red-600 transition duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">...</svg>
+                </button>
+              </div>
+              <label class="mt-3 flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition duration-150 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">...</svg>
+                <span>Cambiar Banner</span>
+                <input type="file" hidden accept="image/*">
+              </label>
+              <input type="hidden" formControlName="bannerUrl">
+            </div>
+          </div>
+      </div>
+
+      <div>
+          <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mb-6" formGroupName="address">
+            <h2 class="text-xl font-semibold mb-6 text-gray-700">Dirección</h2>
+            <div class="mb-4">
+              <label for="street" class="block text-sm font-medium text-gray-700">Calle</label>
+              <input type="text" id="street" formControlName="street" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+              <div class="sm:col-span-1">
+                <label for="number" class="block text-sm font-medium text-gray-700">Número</label>
+                <input type="text" id="number" formControlName="number" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+              <div class="sm:col-span-2">
+                <label for="city" class="block text-sm font-medium text-gray-700">Ciudad</label>
+                <input type="text" id="city" formControlName="city" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label for="province" class="block text-sm font-medium text-gray-700">Provincia</label>
+                <input type="text" id="province" formControlName="province" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+              <div>
+                <label for="postal-code" class="block text-sm font-medium text-gray-700">Código Postal</label>
+                <input type="text" id="postal-code" formControlName="postalCode" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+            </div>
+            <div>
+                <label for="country" class="block text-sm font-medium text-gray-700">País</label>
+                <input type="text" id="country" formControlName="country" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100" formGroupName="style">
+            <h2 class="text-xl font-semibold mb-6 text-gray-700">Redes Sociales</h2>
+            <div class="mb-4">
+              <label for="instagram-url" class="block text-sm font-medium text-gray-700">Instagram</label>
+              <input type="url" id="instagram-url" formControlName="instagramUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+              <label for="facebook-url" class="block text-sm font-medium text-gray-700">Facebook</label>
+              <input type="url" id="facebook-url" formControlName="facebookUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div>
+              <label for="whatsapp-number" class="block text-sm font-medium text-gray-700">WhatsApp</label>
+              <input type="tel" id="whatsapp-number" formControlName="whatsappNumber" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+          </div>
+      </div>
+
+    </div>
+  </form>
+</div>
