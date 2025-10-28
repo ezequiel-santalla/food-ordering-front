@@ -23,7 +23,7 @@ export class CategoryService {
   }
 
   getCategoryById(id: string){
-    return this.http.get<CategoryResponse>(`${this.API_URL}${id}`);
+    return this.http.get<CategoryResponse>(`${this.API_URL}/${id}`);
   }
 
   postCategory(category: CategoryRequest){

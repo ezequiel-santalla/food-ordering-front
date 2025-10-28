@@ -129,7 +129,7 @@
 
 
 
-
+<!--
 
 <div class="relative">
     <div
@@ -192,5 +192,71 @@
             }
         </div>
     }
-</div>
+</div> -->
 
+<div class="relative">
+      <div
+        class="flex items-center justify-between p-2 cursor-pointer bg-white hover:bg-gray-100 transition-colors duration-150 flex-shrink-0"
+        [ngClass]="[getIndentClass(), isMenuOpen ? 'relative z-30 shadow-md' : '']"
+        (click)="toggleExpand()"
+        style="min-width: 100%;"
+      >
+        <div class="flex items-center gap-2 flex-grow min-w-0">
+          @if (hasChildren()) {
+            <span
+              class="text-gray-500 transition-transform duration-200"
+              [ngClass]="{'rotate-90': isExpanded}"
+            >
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10l-3.293-3.293a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+              </svg>
+            </span>
+          } @else {
+            <span class="w-3"></span>
+          }
+
+          <span class="font-medium text-gray-800 truncate">{{ category().name }}</span>
+
+          @if (hasChildren()) {
+            <span class="text-xs text-gray-500 ml-1 flex-shrink-0">({{ getChildrenCount() }})</span>
+          }
+        </div>
+
+        <div class="relative z-20 flex-shrink-0">
+          <button
+            (click)="toggleMenu($event)"
+            class="text-gray-400 hover:text-gray-800 focus:outline-none p-1 rounded-full hover:bg-gray-100"
+            aria-expanded="false"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zM13 12a1 1 0 11-2 0 1 1 0 012 0zM20 12a1 1 0 11-2 0 1 1 0 012 0z"></path>
+            </svg>
+          </button>
+
+          @if (isMenuOpen) {
+            <div class="fixed inset-0 z-40" (click)="isMenuOpen = false"></div>
+
+            <div class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-10 z-50 origin-top-right focus:outline-none">
+              <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                <button (click)="onEdit($event)" class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" role="menuitem">Editar</button>
+                <button (click)="onAddSubcategory($event)" class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" role="menuitem">Agregar subcategoría</button>
+                <button (click)="onDelete($event)" class="block w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-100 text-left" role="menuitem">Eliminar</button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (isExpanded && hasChildren()) {
+        <div class="border-l border-gray-200 ml-3">
+          @for (childCategory of getChildren(); track childCategory.publicId) {
+            <app-category-item
+              [category]="childCategory"
+              [level]="level() + 1"
+              (addSubcategory)="addSubcategory.emit($event)"
+              (delete)="delete.emit($event)"
+            ></app-category-item>
+          }
+        </div>
+      }
+    </div>
