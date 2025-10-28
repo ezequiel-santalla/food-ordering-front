@@ -68,28 +68,66 @@ venueForm!: FormGroup;
     });
   }
 
-  loadVenueData(): void {
-    this.loading = true;
-    this.foodVenueService.getMyFoodVenue().subscribe({
-      next: (data: FoodVenueAdminResponse) => {
-        // Mapear la respuesta del backend al formulario
-        this.venueForm.patchValue({
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          address: data.address,
-          style: data.style // Mapea TODO el objeto style (slogan, colores, redes, etc.)
-        });
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error al cargar datos del local', err);
-        this.loading = false;
-        // Considerar deshabilitar el formulario o mostrar un error.
-      }
-    });
-  }
+  // loadVenueData(): void {
+  //   this.loading = true;
+  //   this.foodVenueService.getMyFoodVenue().subscribe({
+  //     next: (data: FoodVenueAdminResponse) => {
+  //       // Mapear la respuesta del backend al formulario
+  //       this.venueForm.patchValue({
+  //         name: data.name,
+  //         email: data.email,
+  //         phone: data.phone,
+  //         address: data.address,
+  //         style: data.style // Mapea TODO el objeto style (slogan, colores, redes, etc.)
+  //       });
+  //       this.loading = false;
+  //     },
+  //     error: (err) => {
+  //       console.error('Error al cargar datos del local', err);
+  //       this.loading = false;
+  //       // Considerar deshabilitar el formulario o mostrar un error.
+  //     }
+  //   });
+  // }
+loadVenueData(): void {
+  this.loading = true;
+  this.foodVenueService.getMyFoodVenue().subscribe({
+    next: (data: FoodVenueAdminResponse) => {
 
+      this.venueForm.patchValue({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        address: data.address
+      });
+
+    const styleGroup = this.venueForm.get('style') as FormGroup;
+if (styleGroup) {
+  styleGroup.patchValue({
+    instagramUrl: data.style?.instagramUrl ?? '',
+    facebookUrl: data.style?.facebookUrl ?? '',
+    whatsappNumber: data.style?.whatsappNumber ?? '',
+    slogan: data.style?.slogan ?? '',
+    description: data.style?.description ?? '',
+    publicMenu: data.style?.publicMenu ?? false,
+    primaryColor: data.style?.primaryColor ?? '#3b82f6',
+    secondaryColor: data.style?.secondaryColor ?? '#8b5cf6',
+    accentColor: data.style?.accentColor ?? '#f59e0b',
+    backgroundColor: data.style?.backgroundColor ?? '#ffffff',
+    textColor: data.style?.textColor ?? '#000000',
+    logoUrl: data.style?.logoUrl ?? '',
+    bannerUrl: data.style?.bannerUrl ?? ''
+  });
+}
+
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Error al cargar datos del local', err);
+      this.loading = false;
+    }
+  });
+}
   saveChanges(): void {
     if (this.venueForm.invalid) {
       this.venueForm.markAllAsTouched();
