@@ -41,24 +41,38 @@ export class ProductListPage {
     });
   }
 
-  toggleMenu(index: number): void {
+  toggleMenu(index: number, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.openMenuIndex = this.openMenuIndex === index ? null : index;
   }
 
   @HostListener('document:click', ['$event'])
-  clickOutside(event: Event) {
-    if (!this.eRef.nativeElement.contains(event.target)) {
+  clickOutside(event: Event): void {
+    const target = event.target as HTMLElement;
+    const clickedInside = this.eRef.nativeElement.contains(target);
+
+    const isMenuButton = target.closest('button[aria-expanded]');
+    const isDropdownMenu = target.closest('[id^="menu-"]');
+
+    if (!clickedInside || (!isMenuButton && !isDropdownMenu)) {
       this.openMenuIndex = null;
     }
   }
 
   deleteProduct(id: string): void {
+    this.openMenuIndex = null;
+
     this.productService.deleteProduct(id).subscribe({
       next: () => {
         alert("Producto eliminado exitosamente");
         this.getProducts();
       },
-      error: (e) => { console.log(e) }
+      error: (e) => {
+        console.log(e);
+        alert("Error al eliminar el producto");
+      }
     });
   }
 }
