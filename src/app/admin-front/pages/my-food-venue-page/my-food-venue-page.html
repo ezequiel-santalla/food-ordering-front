@@ -1,7 +1,10 @@
 <div class="p-6 sm:p-10 bg-gray-50 min-h-screen">
 
   <header class="flex justify-between items-center mb-8">
-    <h1 class="text-3xl font-bold text-gray-800">Gestión de Mi Local</h1>
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800">Gestión de Mi Local</h1>
+        <p class="text-gray-500">Configura la información y estilo de tu restaurante</p>
+    </div>
     <button
       (click)="saveChanges()"
       [disabled]="venueForm.invalid || loading"
@@ -11,8 +14,7 @@
       type="submit"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7z" />
-        <path fill-rule="evenodd" d="M3 6a1 1 0 011-1h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V6zm3 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z" clip-rule="evenodd" />
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-9H6a1 1 0 100 2h3v3a1 1 0 102 0v-3h3a1 1 0 100-2h-3V6a1 1 0 10-2 0v3z" clip-rule="evenodd" />
       </svg>
       <span>{{ loading ? 'Guardando...' : 'Guardar Cambios' }}</span>
     </button>
@@ -20,36 +22,130 @@
 
   <form [formGroup]="venueForm" (ngSubmit)="saveChanges()">
 
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-6">
+
+      <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+        <h2 class="text-xl font-semibold mb-6 text-gray-700">Información General</h2>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Nombre del Restaurante</label>
+          <input type="text" formControlName="name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Email de Contacto</label>
+          <input type="email" formControlName="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Teléfono</label>
+          <input type="tel" formControlName="phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100" formGroupName="address">
+        <h2 class="text-xl font-semibold mb-6 text-gray-700">Dirección</h2>
+
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700">Calle</label>
+            <input type="text" formControlName="street" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+          <div class="col-span-1">
+            <label class="block text-sm font-medium text-gray-700">Número</label>
+            <input type="text" formControlName="number" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Ciudad</label>
+            <input type="text" formControlName="city" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Provincia</label>
+            <input type="text" formControlName="province" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Código Postal</label>
+            <input type="text" formControlName="postalCode" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">País</label>
+            <input type="text" formControlName="country" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-6">
+
+      <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100" formGroupName="style">
+        <h2 class="text-xl font-semibold mb-6 text-gray-700">Estilo y Branding</h2>
+
+        <div class="mb-4">
+          <label for="slogan" class="block text-sm font-medium text-gray-700">Slogan</label>
+          <input type="text" id="slogan" formControlName="slogan" maxlength="200"
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400"
+                 placeholder="Tu slogan aquí...">
+          <p class="text-xs text-gray-500 mt-1">{{ venueForm.get('style.slogan')?.value?.length || 0 }}/200 caracteres</p>
+        </div>
+
+        <div class="mb-4">
+          <label for="description" class="block text-sm font-medium text-gray-700">Descripción</label>
+          <textarea id="description" rows="3" formControlName="description" maxlength="1000"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400"
+                    placeholder="Describe tu restaurante..."></textarea>
+          <p class="text-xs text-gray-500 mt-1">{{ venueForm.get('style.description')?.value?.length || 0 }}/1000 caracteres</p>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <span class="text-sm font-medium text-gray-700">Menú Público</span>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" [formControlName]="'publicMenu'" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+          </label>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">El menú es visible públicamente</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 opacity-60 pointer-events-none">
+        <h2 class="text-xl font-semibold mb-6 text-gray-700">Paleta de Colores (No Editable)</h2>
+
+        <div class="grid grid-cols-2 gap-4" formGroupName="style">
+
+          <ng-template #colorInput let-label="label" let-controlName="controlName">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">{{ label }}</label>
+              <div class="relative mt-1">
+                <input type="color" [formControlName]="controlName" [disabled]="true"
+                       class="absolute inset-0 w-full h-full opacity-0 cursor-not-allowed">
+
+                <input type="text" [formControlName]="controlName" [disabled]="true"
+                       class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pl-10 bg-gray-100 cursor-not-allowed"
+                       [style.border-left-color]="venueForm.get('style.' + controlName)?.value"
+                       [style.border-left-width]="'8px'">
+
+                <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
+                    <div class="w-5 h-5 rounded-full border border-gray-300" [style.background-color]="venueForm.get('style.' + controlName)?.value"></div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-container *ngTemplateOutlet="colorInput; context: {$implicit: {label: 'Color Primario', controlName: 'primaryColor'}}"></ng-container>
+          <ng-container *ngTemplateOutlet="colorInput; context: {$implicit: {label: 'Color Secundario', controlName: 'secondaryColor'}}"></ng-container>
+          <ng-container *ngTemplateOutlet="colorInput; context: {$implicit: {label: 'Color de Acento', controlName: 'accentColor'}}"></ng-container>
+          <ng-container *ngTemplateOutlet="colorInput; context: {$implicit: {label: 'Color de Fondo', controlName: 'backgroundColor'}}"></ng-container>
+          <ng-container *ngTemplateOutlet="colorInput; context: {$implicit: {label: 'Color de Texto', controlName: 'textColor'}}"></ng-container>
+        </div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
 
-      <div>
-          <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mb-6">
-            <h2 class="text-xl font-semibold mb-6 text-gray-700">Información General</h2>
-
-            <div class="mb-4">
-              <label for="restaurant-name" class="block text-sm font-medium text-gray-700">Nombre del Restaurante</label>
-              <input type="text" id="restaurant-name" formControlName="name"
-                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div class="mb-4">
-              <label for="contact-email" class="block text-sm font-medium text-gray-700">Email de Contacto</label>
-              <input type="email" id="contact-email" formControlName="email"
-                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div class="mb-4">
-              <label for="phone" class="block text-sm font-medium text-gray-700">Teléfono</label>
-              <input type="tel" id="phone" formControlName="phone"
-                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-
-            <div>
-              <label for="description" class="block text-sm font-medium text-gray-700">Descripción</label>
-              <textarea id="description" rows="3" formControlName="description"
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100" formGroupName="style">
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100" formGroupName="style">
             <h2 class="text-xl font-semibold mb-6 text-gray-700">Imágenes</h2>
 
             <div class="mb-6">
@@ -61,7 +157,9 @@
                     <img [src]="venueForm.get('style.logoUrl')?.value" alt="Logo" class="w-full h-full object-cover">
                   </ng-container>
                   <ng-template #logoPlaceholder>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">...</svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                   </ng-template>
 
                   <button *ngIf="venueForm.get('style.logoUrl')?.value"
@@ -75,7 +173,9 @@
                 </div>
 
                 <label class="flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition duration-150 cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">...</svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
                     <span>Cambiar Logo</span>
                     <input type="file" hidden accept="image/*">
                 </label>
@@ -90,76 +190,51 @@
                     <img [src]="venueForm.get('style.bannerUrl')?.value" alt="Banner" class="w-full h-full object-cover">
                 </ng-container>
                 <ng-template #bannerPlaceholder>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">...</svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                 </ng-template>
 
                 <button *ngIf="venueForm.get('style.bannerUrl')?.value"
                         (click)="venueForm.get('style.bannerUrl')?.setValue('')"
                         type="button"
                         class="absolute top-0 right-0 p-1 bg-red-500 rounded-full text-white transform translate-x-1 -translate-y-1 hover:bg-red-600 transition duration-150">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">...</svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
                 </button>
               </div>
-              <label class="mt-3 flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition duration-150 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">...</svg>
+
+              <label class="mt-3 flex items-center justify-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition duration-150 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
                 <span>Cambiar Banner</span>
                 <input type="file" hidden accept="image/*">
               </label>
               <input type="hidden" formControlName="bannerUrl">
             </div>
-          </div>
-      </div>
+        </div>
 
-      <div>
-          <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mb-6" formGroupName="address">
-            <h2 class="text-xl font-semibold mb-6 text-gray-700">Dirección</h2>
-            <div class="mb-4">
-              <label for="street" class="block text-sm font-medium text-gray-700">Calle</label>
-              <input type="text" id="street" formControlName="street" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-              <div class="sm:col-span-1">
-                <label for="number" class="block text-sm font-medium text-gray-700">Número</label>
-                <input type="text" id="number" formControlName="number" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-              </div>
-              <div class="sm:col-span-2">
-                <label for="city" class="block text-sm font-medium text-gray-700">Ciudad</label>
-                <input type="text" id="city" formControlName="city" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label for="province" class="block text-sm font-medium text-gray-700">Provincia</label>
-                <input type="text" id="province" formControlName="province" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-              </div>
-              <div>
-                <label for="postal-code" class="block text-sm font-medium text-gray-700">Código Postal</label>
-                <input type="text" id="postal-code" formControlName="postalCode" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-              </div>
-            </div>
-            <div>
-                <label for="country" class="block text-sm font-medium text-gray-700">País</label>
-                <input type="text" id="country" formControlName="country" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-          </div>
-
-          <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100" formGroupName="style">
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100" formGroupName="style">
             <h2 class="text-xl font-semibold mb-6 text-gray-700">Redes Sociales</h2>
-            <div class="mb-4">
-              <label for="instagram-url" class="block text-sm font-medium text-gray-700">Instagram</label>
-              <input type="url" id="instagram-url" formControlName="instagramUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div class="mb-4">
-              <label for="facebook-url" class="block text-sm font-medium text-gray-700">Facebook</label>
-              <input type="url" id="facebook-url" formControlName="facebookUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div>
-              <label for="whatsapp-number" class="block text-sm font-medium text-gray-700">WhatsApp</label>
-              <input type="tel" id="whatsapp-number" formControlName="whatsappNumber" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-          </div>
-      </div>
 
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">Instagram</label>
+              <input type="url" formControlName="instagramUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400" placeholder="https://instagram.com/mi_local">
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">Facebook</label>
+              <input type="url" formControlName="facebookUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400" placeholder="https://facebook.com/mi_local">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">WhatsApp</label>
+              <input type="tel" formControlName="whatsappNumber" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400" placeholder="+54 9 11 5555-4444">
+            </div>
+        </div>
     </div>
+
   </form>
 </div>
