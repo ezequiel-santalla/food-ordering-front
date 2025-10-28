@@ -7,6 +7,7 @@ import { ProductDetailPage } from "./pages/product-pages/product-detail-page/pro
 import { CategoryListPage } from "./pages/category-pages/category-list-page/category-list-page";
 import { CategoryFormPage } from "./pages/category-pages/category-form-page/category-form-page";
 import { TagPage } from "./pages/tag-page/tag-page";
+import { MyFoodVenuePage } from "./pages/my-food-venue-page/my-food-venue-page";
 
 export const adminRoutes: Routes = [
   {
@@ -30,7 +31,7 @@ export const adminRoutes: Routes = [
         component: ProductFormPage
       },
       {
-        path: 'products/:id',          
+        path: 'products/:id',
         component: ProductDetailPage
       },
 
@@ -52,6 +53,11 @@ export const adminRoutes: Routes = [
       {
         path: 'tags',
         component: TagPage
+      },
+
+      {
+        path: 'my-food-venue',
+        component: MyFoodVenuePage
       }
     ],
   },
