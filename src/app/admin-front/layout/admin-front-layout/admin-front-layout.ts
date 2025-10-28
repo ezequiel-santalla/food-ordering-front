@@ -5,7 +5,7 @@ import { AdminHeader } from "../../components/admin-header/admin-header";
 
 @Component({
   selector: 'app-admin-front-layout',
-  imports: [RouterOutlet, AdminDashboard, AdminHeader],
+  imports: [RouterOutlet, AdminHeader],
   templateUrl: './admin-front-layout.html'
 })
 export class AdminFrontLayout {
