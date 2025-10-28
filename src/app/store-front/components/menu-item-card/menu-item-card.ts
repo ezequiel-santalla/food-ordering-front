@@ -9,7 +9,7 @@ import { SessionRoutesService } from '../../services/session-routes.service';
 })
 export class MenuItemCard {
 
-  ssessionRoutesService = inject(SessionRoutesService);
+  sessionRoutesService = inject(SessionRoutesService);
 
   image = input.required<string>();
   name = input.required<string>();
