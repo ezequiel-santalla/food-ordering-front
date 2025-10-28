@@ -15,7 +15,7 @@ export const adminRoutes: Routes = [
     component: AdminFrontLayout,
     children: [
       {
-        path: 'home',
+        path: '',
         component: AdminHomePage,
       },
       {
