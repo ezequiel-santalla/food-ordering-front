@@ -15,10 +15,14 @@ import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { AuthStateManager } from '../../auth/services/auth-state-manager.service';
+import { TokenManager } from '../../utils/token-manager';
+import { AuthResponse } from '../../auth/models/auth';
 
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
   private authService = inject(AuthService);
+  private authState = inject(AuthStateManager)
   private profileService = inject(ProfileService);
   private sseService = inject(ServerSentEventsService);
   private http = inject(HttpClient);
@@ -236,9 +240,15 @@ export class TableSessionService {
     console.log('Cerrando sesión de mesa');
 
     this.http
-      .patch<any>(`${environment.baseUrl}/participants/end`, {})
+      .patch<any>(`${environment.baseUrl}/participants/end`, null, {observe: 'response'})
       .subscribe({
         next: (response) => {
+          if(response.status === 200){
+          const processed = TokenManager.processAuthResponse(response.body);
+          this.authState.applyAuthData(processed);
+          } else {
+          this.authState.clearState();
+          }
           console.log('Sesión cerrada exitosamente', response);
           this.router.navigate(['/food-venues']);
         },
@@ -248,6 +258,37 @@ export class TableSessionService {
       });
   }
 
+  leaveSession(): void {
+    console.log('Abandonando sesión de mesa');
+
+    this.http
+      .patch<any>(
+        `${environment.baseUrl}/participants/leave`, 
+        null, // <--- ESTA ES LA CORRECCIÓN: el body es null
+        { observe: 'response' } // <--- Ahora SÍ es el objeto de opciones
+      )
+      .subscribe({
+        next: (response) => { // 'response' AHORA SÍ es un HttpResponse
+          
+          // Tu controller devuelve 200 (con body) o 204 (sin body)
+          // Esta lógica maneja ambos casos
+          if (response.status === 200 && response.body) {
+            // Caso 1: Vino un 200 OK con el AuthResponse
+            const processed = TokenManager.processAuthResponse(response.body);
+            this.authState.applyAuthData(processed);
+          } else {
+            // Caso 2: Vino un 204 No Content (o un 200 sin body)
+            this.authState.clearState();
+          }
+
+          console.log('El participante dejó la sesión', response);
+          this.router.navigate(['/food-venues']);
+        },
+        error: (err) => {
+          console.error('Error al abandonar la sesión', err);
+        },
+      });
+  }
   private getStoredNumber(key: string): number {
     try {
       const stored = localStorage.getItem(key);
