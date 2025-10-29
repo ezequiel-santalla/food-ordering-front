@@ -111,4 +111,8 @@ export class Header {
   endSession() {
     this.tableSessionService.closeSession();
   }
+
+  leaveSession() {
+    this.tableSessionService.leaveSession();
+  }
 }

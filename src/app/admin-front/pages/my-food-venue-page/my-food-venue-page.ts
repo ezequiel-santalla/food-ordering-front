@@ -94,6 +94,7 @@ loadVenueData(): void {
   this.foodVenueService.getMyFoodVenue().subscribe({
     next: (data: FoodVenueAdminResponse) => {
 
+      // 1. Carga de campos principales (está bien)
       this.venueForm.patchValue({
         name: data.name,
         email: data.email,
@@ -101,24 +102,32 @@ loadVenueData(): void {
         address: data.address
       });
 
-    const styleGroup = this.venueForm.get('style') as FormGroup;
-if (styleGroup) {
-  styleGroup.patchValue({
-    instagramUrl: data.style?.instagramUrl ?? '',
-    facebookUrl: data.style?.facebookUrl ?? '',
-    whatsappNumber: data.style?.whatsappNumber ?? '',
-    slogan: data.style?.slogan ?? '',
-    description: data.style?.description ?? '',
-    publicMenu: data.style?.publicMenu ?? false,
-    primaryColor: data.style?.primaryColor ?? '#3b82f6',
-    secondaryColor: data.style?.secondaryColor ?? '#8b5cf6',
-    accentColor: data.style?.accentColor ?? '#f59e0b',
-    backgroundColor: data.style?.backgroundColor ?? '#ffffff',
-    textColor: data.style?.textColor ?? '#000000',
-    logoUrl: data.style?.logoUrl ?? '',
-    bannerUrl: data.style?.bannerUrl ?? ''
-  });
-}
+      // 2. Carga del grupo 'style' usando 'venueStyle'
+      const styleGroup = this.venueForm.get('style') as FormGroup;
+      // Usamos data.venueStyle para obtener la información del estilo
+      const styleData = data.venueStyle;
+
+      if (styleGroup && styleData) { // Verificamos que styleData exista
+        styleGroup.patchValue({
+          // Redes Sociales
+          instagramUrl: styleData.instagramUrl ?? '',
+          facebookUrl: styleData.facebookUrl ?? '',
+          whatsappNumber: styleData.whatsappNumber ?? '',
+          // Branding
+          slogan: styleData.slogan ?? '',
+          description: styleData.description ?? '',
+          publicMenu: styleData.publicMenu ?? false,
+          // Colores (usamos el OR lógico para mantener los valores por defecto si el BE no los envía)
+          primaryColor: styleData.primaryColor ?? '#3b82f6',
+          secondaryColor: styleData.secondaryColor ?? '#8b5cf6',
+          accentColor: styleData.accentColor ?? '#f59e0b',
+          backgroundColor: styleData.backgroundColor ?? '#ffffff',
+          textColor: styleData.textColor ?? '#000000',
+          // Imágenes
+          logoUrl: styleData.logoUrl ?? '',
+          bannerUrl: styleData.bannerUrl ?? ''
+        });
+      }
 
       this.loading = false;
     },
@@ -128,6 +137,7 @@ if (styleGroup) {
     }
   });
 }
+
   saveChanges(): void {
     if (this.venueForm.invalid) {
       this.venueForm.markAllAsTouched();
