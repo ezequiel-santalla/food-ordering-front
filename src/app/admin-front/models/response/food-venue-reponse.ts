@@ -12,5 +12,5 @@ export interface FoodVenueAdminResponse {
     lastUpdateDate: string;
     numberOfEmployees: number;
     numberOfTables: number;
-    style: VenueStyle;
+    venueStyle: VenueStyle;
 }
