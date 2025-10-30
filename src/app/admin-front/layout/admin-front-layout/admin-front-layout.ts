@@ -12,4 +12,7 @@ import { CommonModule } from '@angular/common';
 export class AdminFrontLayout {
   isSidebarCollapsed = true;
 
+  toggleSidebar() {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
 }

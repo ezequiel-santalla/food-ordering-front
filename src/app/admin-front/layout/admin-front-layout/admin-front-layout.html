@@ -5,6 +5,10 @@
 
 <!-- <app-admin-header></app-admin-header>
 <router-outlet /> -->
+
+
+<!--
+
 <div class="flex">
 
     <div
@@ -21,5 +25,26 @@
     >
         <router-outlet />
     </div>
+
+</div> -->
+
+
+<div class="flex">
+
+    <div>
+        <app-admin-dashboard
+            [isCollapsed]="isSidebarCollapsed"  
+            (toggleRequest)="isSidebarCollapsed = !isSidebarCollapsed"  ></app-admin-dashboard>
+    </div>
+
+    <div
+        class="flex-grow p-4 min-h-screen transition-all duration-300 w-full"
+        [ngClass]="{
+            'ml-64': !isSidebarCollapsed,
+            'ml-20': isSidebarCollapsed
+        }"
+    >
+        <router-outlet />
+    </div>
 
 </div>

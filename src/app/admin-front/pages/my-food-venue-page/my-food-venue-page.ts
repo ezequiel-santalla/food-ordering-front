@@ -42,19 +42,18 @@ venueForm!: FormGroup;
         country: ['', Validators.required]
       }),
 
-      // Bloque: Todos los campos de Estilo (Branding, Imágenes, Redes y Colores)
+
       style: this.fb.group({
-        // Branding (Slogan y Descripción)
+
         slogan: ['', [Validators.maxLength(200)]],
         description: ['', [Validators.maxLength(1000)]],
-        publicMenu: [false], // Toggle Switch
+        publicMenu: [false],
 
-        // Paleta de Colores (Inicializados con valores predeterminados)
-        primaryColor: ['#3b82f6'],
-        secondaryColor: ['#8b5cf6'],
-        accentColor: ['#f59e0b'],
-        backgroundColor: ['#ffffff'],
-        textColor: ['#000000'],
+        primaryColor: [{ value: '#3b82f6', disabled: true }],
+        secondaryColor: [{ value: '#8b5cf6', disabled: true }],
+        accentColor: [{ value: '#f59e0b', disabled: true }],
+        backgroundColor: [{ value: '#ffffff', disabled: true }],
+        textColor: [{ value: '#000000', disabled: true }],
 
         // Imágenes
         logoUrl: [''],
@@ -68,33 +67,12 @@ venueForm!: FormGroup;
     });
   }
 
-  // loadVenueData(): void {
-  //   this.loading = true;
-  //   this.foodVenueService.getMyFoodVenue().subscribe({
-  //     next: (data: FoodVenueAdminResponse) => {
-  //       // Mapear la respuesta del backend al formulario
-  //       this.venueForm.patchValue({
-  //         name: data.name,
-  //         email: data.email,
-  //         phone: data.phone,
-  //         address: data.address,
-  //         style: data.style // Mapea TODO el objeto style (slogan, colores, redes, etc.)
-  //       });
-  //       this.loading = false;
-  //     },
-  //     error: (err) => {
-  //       console.error('Error al cargar datos del local', err);
-  //       this.loading = false;
-  //       // Considerar deshabilitar el formulario o mostrar un error.
-  //     }
-  //   });
-  // }
 loadVenueData(): void {
   this.loading = true;
   this.foodVenueService.getMyFoodVenue().subscribe({
     next: (data: FoodVenueAdminResponse) => {
 
-      // 1. Carga de campos principales (está bien)
+
       this.venueForm.patchValue({
         name: data.name,
         email: data.email,
@@ -102,28 +80,28 @@ loadVenueData(): void {
         address: data.address
       });
 
-      // 2. Carga del grupo 'style' usando 'venueStyle'
+
       const styleGroup = this.venueForm.get('style') as FormGroup;
-      // Usamos data.venueStyle para obtener la información del estilo
+
       const styleData = data.venueStyle;
 
-      if (styleGroup && styleData) { // Verificamos que styleData exista
+      if (styleGroup && styleData) {
         styleGroup.patchValue({
-          // Redes Sociales
+
           instagramUrl: styleData.instagramUrl ?? '',
           facebookUrl: styleData.facebookUrl ?? '',
           whatsappNumber: styleData.whatsappNumber ?? '',
-          // Branding
+
           slogan: styleData.slogan ?? '',
           description: styleData.description ?? '',
           publicMenu: styleData.publicMenu ?? false,
-          // Colores (usamos el OR lógico para mantener los valores por defecto si el BE no los envía)
+
           primaryColor: styleData.primaryColor ?? '#3b82f6',
           secondaryColor: styleData.secondaryColor ?? '#8b5cf6',
           accentColor: styleData.accentColor ?? '#f59e0b',
           backgroundColor: styleData.backgroundColor ?? '#ffffff',
           textColor: styleData.textColor ?? '#000000',
-          // Imágenes
+
           logoUrl: styleData.logoUrl ?? '',
           bannerUrl: styleData.bannerUrl ?? ''
         });
