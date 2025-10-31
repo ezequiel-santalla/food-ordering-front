@@ -13,6 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { SessionUtils } from '../../../utils/session-utils';
+import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-role-selection',
@@ -24,6 +25,7 @@ export class RoleSelectionComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private navigationService = inject(NavigationService);
+  private sweetAlertService = inject(SweetAlertService);
 
   protected readonly User = User;
   protected readonly Briefcase = Briefcase;
@@ -98,7 +100,14 @@ export class RoleSelectionComponent {
     // Verificar si ya tiene una sesión de mesa válida
     if (SessionUtils.isValidSession(tableSessionId)) {
       console.log('✅ Ya tiene sesión de mesa, navegando a home');
-      this.navigationService.navigateToHome();
+      this.sweetAlertService.showInfo(
+        'Sesión Activa',
+        'Ya tenías una sesión de mesa activa. Te redirigiremos allí.'
+      );
+
+      setTimeout(() => {
+        this.navigationService.navigateToHome();
+      }, 2000);
     } else {
       console.log('⚠️ Sin sesión de mesa, navegando a food-venues');
       this.navigationService.navigateToFoodVenues();

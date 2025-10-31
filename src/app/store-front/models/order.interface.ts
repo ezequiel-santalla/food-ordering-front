@@ -13,6 +13,7 @@ export interface OrderResponse {
   orderNumber: string;
   specialRequirements?: string;
   clientAlias: string;
+  participantId: string;
   totalPrice: number;
   status: string;
   orderDetails: OrderDetailResponse[];

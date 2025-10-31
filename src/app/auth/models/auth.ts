@@ -29,7 +29,7 @@ export function isTableSessionResponse(
 ): response is TableSessionResponse {
   return (
     'tableNumber' in response &&
-    'participants' in response &&
+    'activeParticipants' in response &&
     'startTime' in response &&
     Array.isArray((response as any).participants)
   );

@@ -25,5 +25,5 @@ export class Footer {
     return this.orderService.myOrders().length;
   });
 
-  itemsInCartCount = computed(() => this.cartService.items().length);
+  itemsInCartCount = computed(() => this.cartService.itemCount());
 }

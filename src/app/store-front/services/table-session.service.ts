@@ -22,7 +22,7 @@ import { AuthResponse } from '../../auth/models/auth';
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
   private authService = inject(AuthService);
-  private authState = inject(AuthStateManager)
+  private authState = inject(AuthStateManager);
   private profileService = inject(ProfileService);
   private sseService = inject(ServerSentEventsService);
   private http = inject(HttpClient);
@@ -35,6 +35,9 @@ export class TableSessionService {
   private _participantCount = signal<number>(
     this.getStoredNumber('participantCount')
   );
+  private _participantId = signal<string>(
+    this.getStoredString('participantId')
+  );
 
   private sseSubscription: Subscription | undefined;
 
@@ -42,6 +45,7 @@ export class TableSessionService {
   tableSessionInfo = computed<TableSessionInfo>(() => ({
     tableNumber: this._tableNumber(),
     participantNickname: this._participantNickname(),
+    participantId: this._participantId(),
     participantCount: this._participantCount(),
     sessionId: this.authService.tableSessionId(),
   }));
@@ -182,12 +186,14 @@ export class TableSessionService {
   setTableSessionInfo(
     tableNumber: number,
     participantNickname: string,
-    participantCount: number
+    participantCount: number,
+    participantId?: string
   ): void {
     console.log('📝 Guardando info de mesa:', {
       tableNumber,
       participantNickname,
       participantCount,
+      participantId,
     });
 
     // Validar y guardar tableNumber
@@ -217,6 +223,20 @@ export class TableSessionService {
       localStorage.removeItem('participantCount');
     }
 
+    if (participantId && participantId.trim()) {
+      this._participantId.set(participantId);
+      localStorage.setItem('participantId', participantId);
+      console.log('💾 ParticipantId guardado:', participantId);
+    } else {
+      // Intentar obtenerlo del token como fallback
+      const tokenParticipantId = this.authService.participantId();
+      if (tokenParticipantId) {
+        this._participantId.set(tokenParticipantId);
+        localStorage.setItem('participantId', tokenParticipantId);
+        console.log('💾 ParticipantId obtenido del token:', tokenParticipantId);
+      }
+    }
+
     console.log(
       '💾 Estado actual de tableSessionInfo:',
       this.tableSessionInfo()
@@ -229,10 +249,12 @@ export class TableSessionService {
     this._tableNumber.set(0);
     this._participantNickname.set('');
     this._participantCount.set(0);
+    this._participantId.set('');
 
     localStorage.removeItem('tableNumber');
     localStorage.removeItem('participantNickname');
     localStorage.removeItem('participantCount');
+    localStorage.removeItem('participantId');
   }
 
   //Esto podria estar en un servicio dedicado al participante actual
@@ -240,14 +262,16 @@ export class TableSessionService {
     console.log('Cerrando sesión de mesa');
 
     this.http
-      .patch<any>(`${environment.baseUrl}/participants/end`, null, {observe: 'response'})
+      .patch<any>(`${environment.baseUrl}/participants/end`, null, {
+        observe: 'response',
+      })
       .subscribe({
         next: (response) => {
-          if(response.status === 200){
-          const processed = TokenManager.processAuthResponse(response.body);
-          this.authState.applyAuthData(processed);
+          if (response.status === 200) {
+            const processed = TokenManager.processAuthResponse(response.body);
+            this.authState.applyAuthData(processed);
           } else {
-          this.authState.clearState();
+            this.authState.clearState();
           }
           console.log('Sesión cerrada exitosamente', response);
           this.router.navigate(['/food-venues']);
@@ -263,13 +287,14 @@ export class TableSessionService {
 
     this.http
       .patch<any>(
-        `${environment.baseUrl}/participants/leave`, 
+        `${environment.baseUrl}/participants/leave`,
         null, // <--- ESTA ES LA CORRECCIÓN: el body es null
         { observe: 'response' } // <--- Ahora SÍ es el objeto de opciones
       )
       .subscribe({
-        next: (response) => { // 'response' AHORA SÍ es un HttpResponse
-          
+        next: (response) => {
+          // 'response' AHORA SÍ es un HttpResponse
+
           // Tu controller devuelve 200 (con body) o 204 (sin body)
           // Esta lógica maneja ambos casos
           if (response.status === 200 && response.body) {

@@ -5,6 +5,8 @@ import { ErrorHandlerService } from '../shared/services/error-handler.service';
 import { NavigationService } from '../shared/services/navigation.service';
 import { SessionUtils } from '../utils/session-utils';
 import { AuthService } from '../auth/services/auth.service';
+import { Participant } from '../shared/models/common';
+import { finalize } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -51,64 +53,113 @@ export class QrProcessingService {
     );
 
     // 2. Llamar al servicio de autenticación
-    this.authService.scanQR(tableId).subscribe({
-      next: (response) => {
-        console.log('✅ QR procesado exitosamente:', response);
+    this.authService
+      .scanQR(tableId)
+      .pipe(finalize(() => this.isSubmitting.set(false)))
+      .subscribe({
+        next: (response) => {
+          console.log('✅ QR procesado exitosamente:', response);
 
-        if (!response?.tableNumber || !response?.participants) {
-          this.handleInvalidResponse();
-          return;
-        }
+          if (!response?.tableNumber || !response?.activeParticipants) {
+            this.handleInvalidResponse();
+            return;
+          }
 
-        // 3. Determinar el Nickname
-        const nickname = this.determineNickname(response.participants);
-        console.log('📝 Nickname final:', nickname);
+          const participantId = this.authService.participantId();
 
-        // 4. Guardar info de la sesión
-        this.tableSessionService.setTableSessionInfo(
-          response.tableNumber,
-          nickname,
-          response.participants.length
-        );
+          // 3. Determinar el Nickname
+          // *** AQUÍ ESTÁ EL CAMBIO ***
+          // Este método ahora es más inteligente y buscará el nombre del usuario logueado.
+          const nickname = this.getNicknameFromResponse(response);
+          console.log('📝 Nickname final:', nickname);
 
-        // 5. Mostrar éxito y finalizar
-        const finalNickname = nickname.toLocaleLowerCase().startsWith('guest')
-          ? 'Invitado'
-          : nickname;
+          // 4. Guardar info de la sesión
+          this.tableSessionService.setTableSessionInfo(
+            response.tableNumber,
+            nickname,
+            response.numberOfParticipants || 0,
+            participantId || undefined
+          );
 
-        this.sweetAlertService.showSuccess(
-          `¡Bienvenido ${finalNickname}!`,
-          `Te has unido a la mesa ${response.tableNumber}`
-        );
-        this.isSubmitting.set(false);
-        this.navigation.navigateToHome();
-      },
-      error: (error) => {
-        console.error('❌ Error procesando QR:', error);
-        this.isSubmitting.set(false);
-        const { title, message } = this.errorHandler.getQrScanError(error);
-        this.sweetAlertService.showError(title, message);
-        setTimeout(() => {
+          this.sweetAlertService.showSuccess(
+            `¡Bienvenido ${nickname}!`, // <-- Ahora mostrará el nombre correcto
+            `Te has unido a la mesa ${response.tableNumber}`
+          );
           this.navigation.navigateToHome();
-        }, 2500);
-      },
-    });
+        },
+        error: (error) => {
+          console.error('❌ Error procesando QR:', error);
+          this.isSubmitting.set(false);
+          const { title, message } = this.errorHandler.getQrScanError(error);
+          this.sweetAlertService.showError(title, message);
+          setTimeout(() => {
+            this.navigation.navigateToHome();
+          }, 2500);
+        },
+      });
   }
 
   // --- Métodos privados de ayuda ---
 
-  private determineNickname(participants: any[]): string {
-    const participantId = this.authService.participantId();
-    const currentParticipant = participants.find(
-      (p) => p.publicId === participantId
+  // ***** MÉTODO MODIFICADO *****
+  private getNicknameFromResponse(response: any): string {
+    const participantId = this.authService.participantId(); // string UUID
+    const actives = response?.activeParticipants ?? [];
+    const previous = response?.previousParticipants ?? [];
+
+    // 1) Buscar en activos
+    let current: Participant | undefined = actives.find(
+      (p: any) => p?.publicId === participantId
     );
 
-    if (currentParticipant) {
-      if (currentParticipant.nickname) return currentParticipant.nickname;
-      if (currentParticipant.user?.name) return currentParticipant.user.name;
-      return 'Usuario';
+    // 2) Si no está, buscar en previos (puede venir ahí por timing/migración)
+    if (!current) {
+      current = previous.find((p: any) => p?.publicId === participantId);
     }
-    return 'Guest'; // Es un invitado
+
+    // 3) Si soy host y vino hostClient, usarlo como fallback
+    if (!current && response?.isHostClient && response?.hostClient) {
+      current = response.hostClient;
+    }
+
+    // --- LÓGICA MEJORADA (inspirada en LoginPageComponent) ---
+    let nickname: string | undefined;
+
+    if (current) {
+      // Prioridad 1: Usar el nombre de usuario si está vinculado
+      if (current.user?.name) {
+        nickname = current.user.name;
+        console.log('✅ Usando nombre del usuario (user.name):', nickname);
+      }
+      // Prioridad 2: Usar el nickname si existe Y NO es un guest genérico
+      else if (current.nickname && !current.nickname.toLowerCase().startsWith('guest')) {
+        nickname = current.nickname;
+        console.log('✅ Usando nickname del participante (nickname):', nickname);
+      }
+      // Prioridad 3: Usar el nickname de "Guest" (para convertirlo a "Invitado")
+      else if (current.nickname) {
+        nickname = current.nickname;
+        console.log('⚠️ Usando nickname de Guest (para conversión):', nickname);
+      }
+    }
+    
+    // 4) Fallback definitivo: "Invitado-XXXX"
+    const safeNick = this.toSafeNickname(nickname, participantId);
+    return safeNick;
+  }
+
+  private toSafeNickname(
+    nickname: string | undefined,
+    participantId: string | null
+  ): string {
+    const fallback = `Invitado-${(participantId ?? '').slice(-4) || '0000'}`;
+    if (!nickname || typeof nickname !== 'string') return fallback;
+
+    const lower = nickname.toLowerCase();
+    if (lower.startsWith('guest')) {
+      return nickname.replace(/^Guest/i, 'Invitado');
+    }
+    return nickname;
   }
 
   private handleInvalidResponse(): void {

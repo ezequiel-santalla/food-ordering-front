@@ -51,11 +51,19 @@ export class AuthService {
   /**
    * Login de usuario
    */
-  login(credentials: {
-    email: string;
-    password: string;
-  }): Observable<LoginResponse> {
-    return this.authApi.login(credentials).pipe(
+  login(
+    credentials: {
+      email: string;
+      password: string;
+    },
+    initialTableSessionId: string | null = null
+  ): Observable<LoginResponse> {
+    const loginPayload = {
+      ...credentials,
+      currentSessionId: initialTableSessionId,
+    };
+
+    return this.authApi.login(loginPayload).pipe(
       tap((response) => {
         const processed = SessionUtils.isTableSessionResponse(response)
           ? TokenManager.processTableSessionResponse(
@@ -176,7 +184,8 @@ export class AuthService {
    */
   getSessionInfoFromResponse(response: LoginResponse): {
     tableNumber?: number;
-    participants?: any[];
+    activeParticipants?: any[];
+    previousParticipants?: any[];
   } | null {
     return TokenManager.getSessionInfoFromResponse(response);
   }
