@@ -3,13 +3,14 @@ import { AuthenticatedGuard } from './auth/guards/authenticated.guard';
 import { UnauthenticatedGuard } from './auth/guards/unauthenticated.guard';
 import { HasTableSessionGuard } from './auth/guards/has-table-session.guard';
 import { QrScannerComponent } from './auth/components/qr-scanner/qr-scanner';
+import { EmploymentInvitationResponseComponent } from './admin-front/components/employment-invitation-response/employment-invitation-response';
 
 export const routes: Routes = [
   // 🔄 Redirección inicial a food-venues
   {
     path: '',
     redirectTo: 'food-venues',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
 
   // 🔐 Rutas de autenticación (solo para usuarios NO autenticados)
@@ -32,14 +33,14 @@ export const routes: Routes = [
   },
 
   // 📱 Escaneo de QR (NO requiere estar autenticado)
-{
-  path: 'scan-qr/:tableId',
-  //canActivate: [ScanQrGuard],
-  loadComponent: () =>
-    import('./auth/pages/qr-scan-handler/qr-scan-handler').then(
-      (m) => m.QrScanHandlerComponent
-    ),
-},
+  {
+    path: 'scan-qr/:tableId',
+    //canActivate: [ScanQrGuard],
+    loadComponent: () =>
+      import('./auth/pages/qr-scan-handler/qr-scan-handler').then(
+        (m) => m.QrScanHandlerComponent
+      ),
+  },
 
   // 🏠 Store Front - Menú, Pedidos, etc. (requiere autenticación + tableSessionId)
   {
@@ -60,6 +61,11 @@ export const routes: Routes = [
     canActivate: [AuthenticatedGuard],
     loadChildren: () => import('./admin-front/admin-front.routes'),
   },
+  
+  {
+    path: 'invitations/respond',
+    component: EmploymentInvitationResponseComponent,
+  },
 
   // 🔄 Cualquier ruta no encontrada redirige a food-venues
   {
@@ -67,4 +73,3 @@ export const routes: Routes = [
     redirectTo: 'food-venues',
   },
 ];
-

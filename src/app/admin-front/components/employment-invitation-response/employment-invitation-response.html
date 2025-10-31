@@ -1,0 +1,96 @@
+<!-- 
+ Este contenedor centra todo en la pantalla, similar
+ a la página de éxito que tenías en el backend.
+-->
+<div class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+  <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-xl text-center">
+    <!-- 
+ Usamos @switch (la nueva sintaxis de Angular) 
+ para mostrar una vista diferente para cada estado.
+  -->
+    @switch (state()) {
+    <!-- Estado 1: Cargando (mientras se envía la respuesta) -->
+    @case ('loading') {
+    <div class="flex justify-center items-center">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"
+      ></div>
+    </div>
+    <p class="mt-4 text-lg text-gray-600">Procesando tu respuesta...</p>
+    } @case ('error') {
+    <svg
+      class="w-16 h-16 mx-auto text-red-500"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      ></path>
+    </svg>
+    <h1 class="mt-4 text-2xl font-bold text-red-700">Algo salió mal</h1>
+    <button
+      (click)="goToHome()"
+      class="mt-6 w-full sm:w-auto px-6 py-3 text-lg font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-200"
+    >
+      Ir a inicio
+    </button>
+    <p class="mt-2 text-gray-600">{{ errorMsg() }}</p>
+    } @case ('success') {
+    <svg
+      class="w-16 h-16 mx-auto text-green-500"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+      ></path>
+    </svg>
+    <h1 class="mt-4 text-2xl font-bold text-green-700">Respuesta Enviada</h1>
+
+    <p class="mt-2 text-gray-600">{{ successMsg() }}</p>
+
+    <p class="mt-4 text-sm text-gray-500">
+      Serás redirigido a la página de login en 5 segundos.
+    </p>
+
+    <button
+      (click)="goToLogin()"
+      class="mt-6 w-full sm:w-auto px-6 py-3 text-lg font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-200"
+    >
+      Ir al Login ahora
+    </button>
+    } @case ('pending') {
+    <h1 class="text-2xl font-bold text-gray-800">Responder a la Invitación</h1>
+
+    <p class="mt-2 text-gray-600">
+      Has sido invitado a unirte al staff. ¿Aceptas la invitación?
+    </p>
+
+    <div class="mt-6 flex flex-col sm:flex-row sm:justify-center gap-4">
+      <button
+        (click)="respond('accept')"
+        class="w-full sm:w-auto px-6 py-3 text-lg font-semibold text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition duration-200"
+      >
+        Aceptar
+      </button>
+
+      <button
+        (click)="respond('decline')"
+        class="w-full sm:w-auto px-6 py-3 text-lg font-semibold text-gray-700 bg-gray-200 rounded-lg shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75 transition duration-200"
+      >
+        Rechazar
+      </button>
+    </div>
+    } }
+  </div>
+</div>
