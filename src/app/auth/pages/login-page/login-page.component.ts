@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -19,7 +19,7 @@ import { SweetAlertService } from '../../../shared/services/sweet-alert.service'
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { TableSessionService } from '../../../store-front/services/table-session.service';
-import { isTableSessionResponse } from '../../models/auth';
+import { isTableSessionResponse, LoginResponse } from '../../models/auth';
 import { JwtUtils } from '../../../utils/jwt-utils';
 
 @Component({
@@ -27,7 +27,7 @@ import { JwtUtils } from '../../../utils/jwt-utils';
   imports: [RouterLink, ReactiveFormsModule, LucideAngularModule],
   templateUrl: './login-page.component.html',
 })
-export class LoginPageComponent {
+export class LoginPageComponent implements OnInit {
   readonly User = User;
   readonly Mail = Mail;
   readonly KeyRound = KeyRound;
@@ -39,6 +39,14 @@ export class LoginPageComponent {
   private tableSessionService = inject(TableSessionService);
   private errorHandler = inject(ErrorHandlerService);
   private navigation = inject(NavigationService);
+  private initialTableSessionId: string | null = null;
+  private wasGuest = false;
+
+  ngOnInit(): void {
+    // Captura el estado ANTES de que el usuario haga nada.
+    this.initialTableSessionId = this.authService.tableSessionId();
+    this.wasGuest = this.authService.isGuest();
+  }
 
   get pageTitle(): string {
     return 'Iniciar Sesión';
@@ -86,94 +94,49 @@ export class LoginPageComponent {
       'Por favor espera mientras verificamos tus credenciales'
     );
 
-    this.authService.login(formValue).subscribe({
+    this.authService.login(formValue, this.initialTableSessionId).subscribe({
       next: (response) => {
         this.isSubmitting = false;
 
-        this.sweetAlertService.showSuccess(
-          '¡Bienvenido!',
-          'Has iniciado sesión correctamente.'
-        );
-
-        // PASO 1: Procesar la información de la sesión de mesa SIEMPRE que exista.
-        if (isTableSessionResponse(response)) {
-          console.log('🪑 TableSessionResponse detectado en login'); // Decodificar el token para obtener el participantId
-
-          const decodedToken = JwtUtils.decodeJWT(response.accessToken);
-          const participantIdFromToken = decodedToken?.participantId;
-
-          console.log('🔍 ParticipantId del token:', participantIdFromToken); // Buscar el participante actual
-
-          const currentParticipant = response.participants.find(
-            (p) => p.publicId === participantIdFromToken
-          ); // Determinar el nickname
-
-          let nickname: string;
-
-          if (currentParticipant) {
-            if (currentParticipant.nickname) {
-              nickname = currentParticipant.nickname;
-              console.log('✅ Usando nickname del participante:', nickname);
-            } else if (currentParticipant.user?.name) {
-              nickname = currentParticipant.user.name;
-              console.log('✅ Usando nombre del usuario:', nickname);
-            } else {
-              nickname = 'Usuario';
-              console.log('⚠️ Participante sin nickname ni nombre');
-            }
-          } else {
-            nickname = 'Usuario';
-            console.log('⚠️ Participante no encontrado en la lista');
-          }
-
-          console.log('👤 Nickname final:', nickname); // Guardar en TableSessionService (actualiza signals y localStorage)
-
-          this.tableSessionService.setTableSessionInfo(
-            response.tableNumber,
-            nickname,
-            response.participants.length
-          );
-
-          console.log('✅ Datos de mesa guardados correctamente');
-        } else {
-          // AuthResponse sin mesa activa
-          console.log('👤 AuthResponse - Sin sesión de mesa activa');
-          localStorage.removeItem('participantNickname');
-        }
-
-        // PASO 2: Decidir a dónde navegar basándose en los roles.
-        if (
+        const hasEmployments =
           'employments' in response &&
           response.employments &&
-          response.employments.length > 0
-        ) {
-          console.log(
-            'PRIORIDAD 1: Roles detectados. Redirigiendo a selección...'
+          response.employments.length > 0;
+
+        if (this.wasGuest && !hasEmployments) {
+          this.sweetAlertService.showSuccess(
+            '¡Sesión Vinculada!',
+            'Tu sesión de invitado ahora está vinculada a tu cuenta.'
           );
-          this.navigation.navigateToRoleSelection();
-          this.resetForm();
-          return; // Salimos para evitar doble navegación
+        } else {
+          this.sweetAlertService.showSuccess(
+            '¡Bienvenido!',
+            'Has iniciado sesión correctamente.'
+          );
         }
 
-        // PASO 3: Si no hay roles, navegar según el estado de la sesión.
-        this.resetForm();
-        this.navigation.navigateBySessionState();
+        this.processSuccessfulLogin(response);
       },
       error: (error) => {
         console.error('Error en login:', error);
         this.isSubmitting = false;
 
         if (error.status === 409) {
-          // 2. Muestra el SweetAlert específico para este caso
-          this.sweetAlertService.showError(
-            'Conflicto de Sesión', 'Ya tenés una sesión activa en otra mesa.'
+          console.log(
+            '⚠️ Conflicto 409. Sesión activa detectada en otra mesa.',
+            error.error
           );
+
+          this.sweetAlertService.showError(
+            'Conflicto de Sesión',
+            'Ya tenés una sesión activa en otra mesa. Se canceló el inicio de sesión.'
+          );
+
+          this.navigation.navigateBySessionState(1500);
         } else {
-          // 3. Para cualquier otro error (401, 404, 500 genérico)
           const { title, message } = this.errorHandler.getAuthError(error);
           this.sweetAlertService.showError(title, message);
         }
-        this.navigation.navigateToHome();
       },
     });
   }
@@ -181,4 +144,76 @@ export class LoginPageComponent {
   onCancel() {
     this.resetForm();
   }
+
+  /**
+   * Método privado para manejar la respuesta de un login exitoso
+   * (ya sea un 200 OK o un 409 Conflict con datos de sesión)
+   */
+  private processSuccessfulLogin(response: LoginResponse): void {
+    
+    // Comprueba y guarda la sesión SIEMPRE que exista.
+    if (isTableSessionResponse(response)) {
+      console.log('🪑 TableSessionResponse detectado en login');
+
+      const decodedToken = JwtUtils.decodeJWT(response.accessToken);
+      const participantIdFromToken = decodedToken?.participantId;
+
+      console.log('🔍 ParticipantId del token:', participantIdFromToken);
+
+      const currentParticipant = response.activeParticipants.find(
+        (p) => p.publicId === participantIdFromToken
+      );
+
+      let nickname: string;
+
+      if (currentParticipant) {
+        // Prioriza el nombre de usuario, luego el nickname
+        if (currentParticipant.user?.name) {
+          nickname = currentParticipant.user.name;
+          console.log('✅ Usando nombre del usuario:', nickname);
+        } else if (currentParticipant.nickname) {
+          nickname = currentParticipant.nickname;
+          console.log('✅ Usando nickname del participante:', nickname);
+        } else {
+          nickname = 'Usuario';
+          console.log('⚠️ Participante sin nickname ni nombre');
+        }
+      } else {
+        nickname = 'Usuario';
+        console.log('⚠️ Participante no encontrado en la lista');
+      }
+
+      console.log('👤 Nickname final:', nickname);
+
+      this.tableSessionService.setTableSessionInfo(
+        response.tableNumber,
+        nickname,
+        response.numberOfParticipants || 0,
+        participantIdFromToken
+      );
+
+      console.log('✅ Datos de mesa guardados correctamente');
+    } else {
+      // AuthResponse sin mesa activa (ej. admin logueando sin sesión)
+      console.log('👤 AuthResponse - Sin sesión de mesa activa');
+    }
+
+    if (
+      'employments' in response &&
+      response.employments &&
+      response.employments.length > 0
+    ) {
+      console.log(
+        'PRIORIDAD 1: Roles detectados. Redirigiendo a selección...'
+      );
+      this.navigation.navigateToRoleSelection();
+      this.resetForm();
+      return;
+    }
+    
+    // 3. Si no hay roles, navega al estado de la sesión
+    this.resetForm();
+    this.navigation.navigateBySessionState();
+  }
 }
+

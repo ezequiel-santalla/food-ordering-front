@@ -53,7 +53,7 @@ export class TokenManager {
       expirationDate: response.expirationDate,
       ...sessionData,
       tableNumber: response.tableNumber ?? null,
-      participantCount: response.participants?.length ?? null,
+      participantCount: response.numberOfParticipants || 0,
       employments: response.employments || [],
     };
   }
@@ -145,7 +145,7 @@ export class TokenManager {
       const tsResponse = response as TableSessionResponse;
       return {
         tableNumber: tsResponse.tableNumber,
-        participants: tsResponse.participants,
+        participants: tsResponse.activeParticipants,
       };
     }
 

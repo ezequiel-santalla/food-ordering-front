@@ -10,13 +10,16 @@ export interface TableSessionRequest {
  * Extiende BaseAuthResponse para reutilizar la estructura de tokens
  */
 export interface TableSessionResponse extends BaseAuthResponse {
+  publicId: string;
   tableNumber: number;
+  tableCapacity: number;
   numberOfParticipants?: number;
   tableSessionId?: string;
   startTime: string;
   endTime?: string | null;
   hostClient?: Participant;
-  participants: Participant[];
+  activeParticipants: Participant[];
+  previuosParticipants: Participant[];
   employments: Employment[];
 }
 
@@ -25,6 +28,7 @@ export interface TableSessionResponse extends BaseAuthResponse {
  */
 export interface TableSessionInfo {
   tableNumber: number;
+  participantId: string;
   participantNickname: string;
   participantCount: number;
   sessionId: string | null;

@@ -32,9 +32,10 @@ export class SessionUtils {
     return response &&
            typeof response === 'object' &&
            'tableNumber' in response &&
-           'participants' in response &&
+           'activeParticipants' in response &&
+           'previousParticipants' in response &&
            'startTime' in response &&
-           Array.isArray(response.participants);
+           Array.isArray(response.activeParticipantsparticipants);
   }
 
   /**

@@ -1,15 +1,18 @@
 {
-    "angular-schematics.schematicsDefaultOptions": {
-        "angular-*": {
-            "externalTemplate": true,
-            "skipStyle": true
-        },
-        "angular-component": {
-            "skipChangeDetectionOnPush": true,
-            "skipDisplayBlock": true
-        },
-        "angular-page": {
-            "skipChangeDetectionOnPush": true
-        }
+  "angular-schematics.schematicsDefaultOptions": {
+    "angular-*": {
+      "externalTemplate": true,
+      "skipStyle": true
+    },
+    "angular-component": {
+      "skipChangeDetectionOnPush": true,
+      "skipDisplayBlock": true
+    },
+    "angular-page": {
+      "skipChangeDetectionOnPush": true
     }
+  },
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "workbench.editor.enablePreviewFromCodeNavigation": false
 }

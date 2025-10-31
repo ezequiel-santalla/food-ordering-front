@@ -115,7 +115,7 @@ export class RegisterPageComponent {
 
           console.log('🔍 ParticipantId del token:', participantIdFromToken);
 
-          const currentParticipant = response.participants.find(
+          const currentParticipant = response.activeParticipants.find(
             p => p.publicId === participantIdFromToken
           );
 
@@ -142,7 +142,7 @@ export class RegisterPageComponent {
           this.tableSessionService.setTableSessionInfo(
             response.tableNumber,
             nickname,
-            response.participants.length
+            response.numberOfParticipants || 0
           );
 
           console.log('✅ Datos de mesa guardados correctamente');
