@@ -32,7 +32,7 @@
 
     <div class="flex gap-2 mb-4">
       <button (click)="filterByStatus(null)"
-        [class.bg-gray-900]="activeFilter === null"
+        [class.bg-indigo-600]="activeFilter === null"
         [class.text-white]="activeFilter === null"
         [class.bg-gray-200]="activeFilter !== null"
         [class.text-gray-700]="activeFilter !== null"
@@ -40,7 +40,7 @@
         Todos
       </button>
       <button (click)="filterByStatus(true)"
-        [class.bg-gray-900]="activeFilter === true"
+        [class.bg-indigo-600]="activeFilter === true"
         [class.text-white]="activeFilter === true"
         [class.bg-gray-200]="activeFilter !== true"
         [class.text-gray-700]="activeFilter !== true"
@@ -48,7 +48,7 @@
         Activos
       </button>
       <button (click)="filterByStatus(false)"
-        [class.bg-gray-900]="activeFilter === false"
+        [class.bg-indigo-600]="activeFilter === false"
         [class.text-white]="activeFilter === false"
         [class.bg-gray-200]="activeFilter !== false"
         [class.text-gray-700]="activeFilter !== false"

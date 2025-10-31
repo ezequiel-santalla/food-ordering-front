@@ -1,9 +1,10 @@
-<div class="min-h-screen bg-gray-50 p-6">
+<div class="p-8">
   <!-- Header -->
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">Armado de Salón</h1>
-    <p class="text-gray-600">Organiza las mesas en el espacio del restaurante</p>
-  </div>
+   <header class="mb-6">
+    <div >
+    <h1 class="text-3xl font-semibold text-gray-900 mb-2">Armado de Salón</h1>
+    <p class="text-gray-500 text-sm">Organiza las mesas en el espacio del restaurante</p>
+    </div>
 
   <!-- Top Controls -->
   <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
@@ -25,7 +26,7 @@
           Agregar Sector
         </button>
 
-        <button (click)="openTableModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+        <button (click)="openTableModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -42,8 +43,11 @@
     </div>
   </div>
 
+   </header>
+
+
   <!-- Canvas Area -->
-  <div class="bg-white rounded-lg shadow-sm p-4">
+  <div div class="bg-white rounded-lg shadow-sm p-4">
     <div class="relative border-2 border-dashed border-gray-300 rounded-lg overflow-hidden"
          [style.height.px]="gridHeight"
          [style.width.px]="gridWidth"
