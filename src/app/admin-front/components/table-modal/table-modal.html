@@ -1,0 +1,145 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="onBackdropClick($event)">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl p-6" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-800">Nueva Mesa</h2>
+      <button (click)="onClose()" class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Description -->
+    <p class="text-gray-600 mb-6">Configura los detalles de la nueva mesa</p>
+
+    <!-- Form Grid Layout -->
+    <form (ngSubmit)="onSubmit()" class="grid grid-cols-2 gap-6">
+
+      <!-- Left Column: Form Fields -->
+      <div class="space-y-4">
+        <!-- Table Number -->
+        <div>
+          <label for="tableNumber" class="block text-sm font-medium text-gray-700 mb-2">
+            Número de Mesa
+          </label>
+          <input
+            type="number"
+            id="tableNumber"
+            [(ngModel)]="tableNumber"
+            name="tableNumber"
+            min="1"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+
+        <!-- Capacity -->
+        <div>
+          <label for="capacity" class="block text-sm font-medium text-gray-700 mb-2">
+            Capacidad
+          </label>
+          <input
+            type="number"
+            id="capacity"
+            [(ngModel)]="capacity"
+            name="capacity"
+            min="1"
+            max="20"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+
+        <!-- Shape Selector -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Forma
+          </label>
+          <select
+            [(ngModel)]="selectedShape"
+            name="shape"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="">Selecciona una forma</option>
+            <option value="round">Redonda</option>
+            <option value="square">Cuadrada</option>
+            <option value="rect">Barra</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Right Column: Legend -->
+      <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Leyenda</h3>
+
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white shadow-md">
+              <div class="text-center">
+                <div class="text-xl font-bold">1</div>
+                <div class="text-xs">4p</div>
+              </div>
+            </div>
+            <span class="text-sm text-gray-700">Redonda</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center text-white shadow-md">
+              <div class="text-center">
+                <div class="text-xl font-bold">2</div>
+                <div class="text-xs">2p</div>
+              </div>
+            </div>
+            <span class="text-sm text-gray-700">Cuadrada</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="w-24 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center text-white shadow-md">
+              <div class="text-center">
+                <div class="text-xl font-bold">3</div>
+                <div class="text-xs">6p</div>
+              </div>
+            </div>
+            <span class="text-sm text-gray-700">Barra</span>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-gray-200">
+          <h4 class="text-sm font-semibold text-gray-700 mb-2">Estados:</h4>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-green-500 rounded"></div>
+              <span class="text-xs text-gray-600">Disponible</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-red-500 rounded"></div>
+              <span class="text-xs text-gray-600">Ocupada</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-gray-800 rounded"></div>
+              <span class="text-xs text-gray-600">Fuera de Servicio</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions (Full Width) -->
+      <div class="col-span-2 flex gap-3 mt-2">
+        <button
+          type="button"
+          (click)="onClose()"
+          class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="!isFormValid()"
+          class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Crear Mesa
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

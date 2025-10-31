@@ -50,10 +50,10 @@ venueForm!: FormGroup;
         publicMenu: [false],
 
         primaryColor: [{ value: '#3b82f6', disabled: true }],
-        secondaryColor: [{ value: '#8b5cf6', disabled: true }],
-        accentColor: [{ value: '#f59e0b', disabled: true }],
-        backgroundColor: [{ value: '#ffffff', disabled: true }],
-        textColor: [{ value: '#000000', disabled: true }],
+        secondaryColor: [{ value: '#8b5cf6', disabled: true }],
+        accentColor: [{ value: '#f59e0b', disabled: true }],
+        backgroundColor: [{ value: '#ffffff', disabled: true }],
+        textColor: [{ value: '#000000', disabled: true }],
 
         // Imágenes
         logoUrl: [''],
