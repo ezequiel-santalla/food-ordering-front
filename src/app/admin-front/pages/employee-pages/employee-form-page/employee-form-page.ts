@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './employee-form-page.html'
 })
 export class EmployeeFormPage {
-@Input() isOpen = false;
+  @Input() isOpen = false;
   @Output() close = new EventEmitter<void>();
   @Output() employeeAssigned = new EventEmitter<void>();
 
@@ -51,6 +51,26 @@ export class EmployeeFormPage {
           },
           error: (e) => {
             console.error(e);
+            // 💡 AQUÍ ES DONDE CAPTURAS Y MANEJAS EL ERROR 409 💡
+            if (e.status === 409 && e.error && e.error.appCode) {
+              const appCode = e.error.appCode;
+
+              switch (appCode) {
+                case 'DUPLICATED_EMPLOYMENT':
+                  alert('❌ Error: El Employment ya está asignado y se encuentra ACTIVO. No se puede crear uno duplicado.');
+                  break;
+
+                case 'INACTIVE_EMPLOYMENT':
+                  alert('⚠️ Advertencia: Ya existe un Employment con este Rol, pero está INACTIVO. Debe activarlo en lugar de intentar crear uno nuevo.');
+                  break;
+
+                default:
+                  alert('Error de conflicto (409) no especificado. Contacte a soporte.');
+              }
+
+            } else {
+              alert('Error inesperado al asignar el empleado. Intente nuevamente.');
+            }
             alert('Error al asignar el empleado');
           }
         });
