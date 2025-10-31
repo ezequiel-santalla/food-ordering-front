@@ -8,6 +8,7 @@ import { CategoryListPage } from "./pages/category-pages/category-list-page/cate
 import { CategoryFormPage } from "./pages/category-pages/category-form-page/category-form-page";
 import { TagPage } from "./pages/tag-page/tag-page";
 import { MyFoodVenuePage } from "./pages/my-food-venue-page/my-food-venue-page";
+import { EmployeeListPage } from "./pages/employee-pages/employee-list-page/employee-list-page";
 
 export const adminRoutes: Routes = [
   {
@@ -53,6 +54,11 @@ export const adminRoutes: Routes = [
       {
         path: 'tags',
         component: TagPage
+      },
+
+      {
+        path: 'employees',
+        component: EmployeeListPage
       },
 
       {
