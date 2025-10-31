@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import Swal from 'sweetalert2';
+import Swal, { SweetAlertResult } from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root'
@@ -196,5 +196,49 @@ showLogoutSuccess(userName?: string) {
 
   close() {
     Swal.close();
+  }
+
+  
+  showConfirmableSuccess(
+    title: string,
+    text: string = '',
+    confirmButtonText: string = 'Aceptar'
+  ): Promise<SweetAlertResult> {
+    return Swal.fire({
+      title,
+      text,
+      icon: 'success',
+      showConfirmButton: true,
+      confirmButtonText: confirmButtonText,
+      ...this.defaultConfig,
+      customClass: {
+        popup: 'rounded-lg',
+      },
+    });
+  }
+
+  /**
+   * Muestra un popup de error que REQUIERE la confirmación del usuario.
+   * Devuelve una promesa para que se pueda actuar después.
+   * @param title Título del popup
+   * @param text Texto del popup
+   * @param confirmButtonText Texto del botón (ej. 'Ir al Inicio')
+   */
+  showConfirmableError(
+    title: string,
+    text: string = '',
+    confirmButtonText: string = 'Entendido'
+  ): Promise<SweetAlertResult> {
+    return Swal.fire({
+      title,
+      text,
+      icon: 'error',
+      showConfirmButton: true,
+      confirmButtonText: confirmButtonText,
+      ...this.defaultConfig,
+      customClass: {
+        popup: 'rounded-lg',
+      },
+    });
   }
 }
