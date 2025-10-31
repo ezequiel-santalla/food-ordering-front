@@ -14,8 +14,6 @@ interface LeafCategory {
   path: string;
 }
 
-
-
 @Component({
   selector: 'app-product-form-page',
   imports: [ReactiveFormsModule, RouterLink, CommonModule],
@@ -30,9 +28,8 @@ productForm!: FormGroup;
 
   leafCategories: LeafCategory[] = [];
   availableTags: TagResponse[] = [];
-  selectedTags: string[] = []; // Ahora solo guardamos los labels
+  selectedTags: string[] = [];
 
-  // Control del input de tags
   tagInput: string = '';
   filteredTags: TagResponse[] = [];
   isTagDropdownOpen: boolean = false;

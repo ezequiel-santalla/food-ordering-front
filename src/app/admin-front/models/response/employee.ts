@@ -30,6 +30,7 @@ export interface EmploymentContent {
   user: UserDetail;
   role: RoleType;
   foodVenue: string;
+  active:boolean;
 }
 
 export interface UserDetail {

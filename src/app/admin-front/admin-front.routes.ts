@@ -9,6 +9,7 @@ import { CategoryFormPage } from "./pages/category-pages/category-form-page/cate
 import { TagPage } from "./pages/tag-page/tag-page";
 import { MyFoodVenuePage } from "./pages/my-food-venue-page/my-food-venue-page";
 import { EmployeeListPage } from "./pages/employee-pages/employee-list-page/employee-list-page";
+import { LoungeBuilderPage } from "./pages/lounge-pages/lounge-builder-page/lounge-builder-page";
 
 export const adminRoutes: Routes = [
   {
@@ -19,6 +20,13 @@ export const adminRoutes: Routes = [
         path: '',
         component: AdminHomePage,
       },
+
+     {
+      path: 'lounge',
+      component: LoungeBuilderPage
+     },
+
+
       {
         path: 'products',
         component: ProductListPage,
