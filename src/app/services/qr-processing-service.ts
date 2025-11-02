@@ -18,13 +18,9 @@ export class QrProcessingService {
   private errorHandler = inject(ErrorHandlerService);
   private navigation = inject(NavigationService);
 
-  // Usamos un signal interno para evitar procesar dos QR a la vez
+  // Signal interno para evitar procesar dos QR a la vez
   private isSubmitting = signal(false);
 
-  /**
-   * Método centralizado para procesar un ID de mesa.
-   * Usado tanto por el escáner interno como por la ruta de URL.
-   */
   processTableId(tableId: string): void {
     if (this.isSubmitting()) {
       console.warn('Procesamiento de QR ya en curso.');
@@ -33,12 +29,11 @@ export class QrProcessingService {
 
     const currentSession = this.authService.tableSessionId();
 
-    // 1. Verificar sesión activa válida
     if (SessionUtils.isValidSession(currentSession)) {
-      console.log('⚠️ Ya tienes una sesión activa:', currentSession);
+      console.log('⚠️ Ya tenés una sesión activa:', currentSession);
       this.sweetAlertService.showInfo(
         'Sesión activa',
-        'Ya tienes una sesión de mesa activa'
+        'Ya tenés una sesión de mesa activa'
       );
       this.navigation.navigateToHome();
       return;
@@ -52,7 +47,6 @@ export class QrProcessingService {
       'Conectando con la mesa'
     );
 
-    // 2. Llamar al servicio de autenticación
     this.authService
       .scanQR(tableId)
       .pipe(finalize(() => this.isSubmitting.set(false)))
@@ -67,13 +61,9 @@ export class QrProcessingService {
 
           const participantId = this.authService.participantId();
 
-          // 3. Determinar el Nickname
-          // *** AQUÍ ESTÁ EL CAMBIO ***
-          // Este método ahora es más inteligente y buscará el nombre del usuario logueado.
           const nickname = this.getNicknameFromResponse(response);
           console.log('📝 Nickname final:', nickname);
 
-          // 4. Guardar info de la sesión
           this.tableSessionService.setTableSessionInfo(
             response.tableNumber,
             nickname,
@@ -125,49 +115,44 @@ export class QrProcessingService {
 
   // --- Métodos privados de ayuda ---
 
-  // ***** MÉTODO MODIFICADO *****
   private getNicknameFromResponse(response: any): string {
-    const participantId = this.authService.participantId(); // string UUID
+    const participantId = this.authService.participantId();
     const actives = response?.activeParticipants ?? [];
     const previous = response?.previousParticipants ?? [];
 
-    // 1) Buscar en activos
     let current: Participant | undefined = actives.find(
       (p: any) => p?.publicId === participantId
     );
 
-    // 2) Si no está, buscar en previos (puede venir ahí por timing/migración)
     if (!current) {
       current = previous.find((p: any) => p?.publicId === participantId);
     }
 
-    // 3) Si soy host y vino hostClient, usarlo como fallback
     if (!current && response?.isHostClient && response?.hostClient) {
       current = response.hostClient;
     }
 
-    // --- LÓGICA MEJORADA (inspirada en LoginPageComponent) ---
     let nickname: string | undefined;
 
     if (current) {
-      // Prioridad 1: Usar el nombre de usuario si está vinculado
+
       if (current.user?.name) {
         nickname = current.user.name;
         console.log('✅ Usando nombre del usuario (user.name):', nickname);
       }
-      // Prioridad 2: Usar el nickname si existe Y NO es un guest genérico
+
       else if (current.nickname && !current.nickname.toLowerCase().startsWith('guest')) {
         nickname = current.nickname;
         console.log('✅ Usando nickname del participante (nickname):', nickname);
       }
-      // Prioridad 3: Usar el nickname de "Guest" (para convertirlo a "Invitado")
+
       else if (current.nickname) {
         nickname = current.nickname;
         console.log('⚠️ Usando nickname de Guest (para conversión):', nickname);
       }
     }
     
-    // 4) Fallback definitivo: "Invitado-XXXX"
+
     const safeNick = this.toSafeNickname(nickname, participantId);
     return safeNick;
   }
