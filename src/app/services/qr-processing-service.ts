@@ -82,16 +82,40 @@ export class QrProcessingService {
           );
 
           this.sweetAlertService.showSuccess(
-            `¡Bienvenido ${nickname}!`, // <-- Ahora mostrará el nombre correcto
+            `¡Bienvenido ${nickname}!`,
             `Te has unido a la mesa ${response.tableNumber}`
           );
           this.navigation.navigateToHome();
         },
-        error: (error) => {
-          console.error('❌ Error procesando QR:', error);
+     error: (errorResponse) => {
+          console.error('❌ Error procesando QR:', errorResponse);
           this.isSubmitting.set(false);
-          const { title, message } = this.errorHandler.getQrScanError(error);
+
+          const backendError = errorResponse.error;
+
+          let title = 'Error';
+          let message = 'No se pudo procesar el QR.';
+
+          if (backendError && backendError.message) {
+            
+            message = backendError.message;
+
+            if (backendError.appCode === 'COMPLETE') {
+              title = 'Mesa Llena';
+            } else if (backendError.appCode === 'OUT_OF_SERVICE') {
+              title = 'Mesa Fuera de Servicio';
+            } else {
+              title = 'No disponible';
+            }
+
+          } else if (errorResponse.status === 409) {
+            // Fallback por si algo falla en el JSON
+            title = 'Acción no permitida';
+            message = 'Ya existe un conflicto con esta acción.';
+          }
+          
           this.sweetAlertService.showError(title, message);
+
           setTimeout(() => {
             this.navigation.navigateToHome();
           }, 2500);

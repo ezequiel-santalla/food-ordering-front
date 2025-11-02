@@ -25,7 +25,7 @@ export class ServerSentEventsService {
 
   constructor(private _zone: NgZone) {}
 
-  subscribeToSession(tableSessionId: string): Observable<any> {
+  subscribeToSession(): Observable<any> {
     return new Observable((observer) => {
       let retryDelay = 2000; // 2s
       let eventSource: EventSource | null = null;
@@ -37,13 +37,13 @@ export class ServerSentEventsService {
           return;
         }
 
-        const sseUrl = `${environment.baseUrl}/events-subscriptions/table-sessions/${tableSessionId}?token=${token}`;
+        const sseUrl = `${environment.baseUrl}/events-subscriptions/table-sessions?token=${token}`;
         eventSource = new EventSource(sseUrl);
 
         // 🔹 Conexión abierta correctamente
         eventSource.onopen = () => {
           this._zone.run(() => {
-            console.info(`SSE connected to session ${tableSessionId}`);
+            console.info(`SSE connected to session`);
             retryDelay = 2000; // reiniciamos el backoff
           });
         };
@@ -73,7 +73,7 @@ export class ServerSentEventsService {
         // 🔹 Manejo de errores y reconexión automática
         eventSource.onerror = (error) => {
           this._zone.run(() => {
-            console.warn(`SSE error for session ${tableSessionId}:`, error);
+            console.warn(`SSE error for session`, error);
             observer.error(error);
             eventSource?.close();
             setTimeout(() => {
@@ -89,7 +89,7 @@ export class ServerSentEventsService {
 
       // 🔹 Cierre limpio de conexión al desuscribirse
       return () => {
-        console.info(`SSE connection closed for session ${tableSessionId}`);
+        console.info(`SSE connection closed for session`);
         eventSource?.close();
       };
     });

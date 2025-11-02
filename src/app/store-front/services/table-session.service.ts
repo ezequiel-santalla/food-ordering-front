@@ -76,11 +76,11 @@ export class TableSessionService {
         // ¿Hay una sesión activa y tenemos un ID de mesa?
         if (this.hasActiveSession() && tableSessionId) {
           // --- SÍ: Nos conectamos al SSE ---
-          console.log(`🔌 Conectando a SSE para mesa: ${tableSessionId}`);
+          console.log(`🔌 Conectando a SSE para mesa:`);
 
           // Usamos tu SseService para suscribirnos
           this.sseSubscription = this.sseService
-            .subscribeToSession(tableSessionId)
+            .subscribeToSession()
             .subscribe({
               next: (event) => {
                 console.log(
