@@ -8,7 +8,7 @@ import { NavigationService } from '../../../shared/services/navigation.service';
 @Component({
   selector: 'app-qr-scanner',
   standalone: true,
-  imports: [ ZXingScannerModule, CommonModule],
+  imports: [ZXingScannerModule, CommonModule],
   templateUrl: './qr-scanner.html',
   styleUrl: './qr-scanner.css',
   host: {
@@ -71,9 +71,17 @@ export class QrScannerComponent implements OnInit, OnDestroy {
 
     try {
       const url = new URL(scannedUrl);
-      const hashParts = url.hash.split('/');
-      const tableId = hashParts.pop();
+      let tableId: string | undefined;
 
+      if (url.hash.includes('/scan-qr/')) {
+        const hashParts = url.hash.split('/');
+        tableId = hashParts.pop();
+        console.log('ID extraído desde el HASH:', tableId);
+      } else if (url.pathname.includes('/scan-qr/')) {
+        const pathParts = url.pathname.split('/');
+        tableId = pathParts.pop();
+        console.log('ID extraído desde el PATH:', tableId);
+      }
       if (!tableId || tableId.length < 36) {
         throw new Error('ID no encontrado en la URL del QR');
       }

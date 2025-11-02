@@ -162,12 +162,11 @@ export class OrderService {
       this.sseSubscription.unsubscribe();
     }
 
-    console.log(`OrderService: Suscribiendo a SSE para mesa ${tableSessionId}`);
+    console.log(`OrderService: Suscribiendo a SSE para mesa`);
     this.sseSubscription = this.sseService
-      .subscribeToSession(tableSessionId)
+      .subscribeToSession()
       .subscribe({
         next: (event) => {
-          // --- AQUÍ OCURRE LA MAGIA EN TIEMPO REAL ---
 
           // order.service.ts (dentro de subscribeToOrderEvents → next:)
           if (event.type === 'new-order') {

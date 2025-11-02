@@ -7,7 +7,7 @@ import { QrProcessingService } from '../../../services/qr-processing-service';
 @Component({
   selector: 'app-qr-scan-handler',
   standalone: true,
-  template: '', // <-- No tiene HTML
+  template: '',
 })
 export class QrScanHandlerComponent implements OnInit {
   private route = inject(ActivatedRoute);
