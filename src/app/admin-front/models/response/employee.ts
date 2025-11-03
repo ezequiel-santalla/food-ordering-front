@@ -48,6 +48,7 @@ export interface UserDetail {
 export interface EmployeeRequest {
   userEmail: string;
   role: RoleType;
+  active?: boolean;
 }
 
 
