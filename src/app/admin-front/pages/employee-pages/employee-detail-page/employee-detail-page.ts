@@ -37,10 +37,8 @@ export class EmployeeDetailPage {
     if (this.employee) {
       this.selectedRole = this.employee.role;
       this.originalRole = this.employee.role;
-      // Por ahora asumimos que todos están activos al cargar
-      // Podrías agregar un campo 'active' al modelo si el backend lo devuelve
       this.isActive = this.employee.active;
-      this.originalStatus = true;
+      this.originalStatus = this.employee.active;
     }
   }
 
@@ -68,7 +66,8 @@ export class EmployeeDetailPage {
     console.log("ID del Empleado para actualizar:", this.employee.publicId);
     const updateData: EmployeeRequest = {
       userEmail: this.employee.user.email,
-      role: this.selectedRole
+      role: this.selectedRole,
+      active: this.isActive
     };
 
     this.employeeService.updateEmployee(this.employee.publicId, updateData).subscribe({
