@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { DiningTableRequest, DiningTableResponse } from '../models/dining-table';
+import { environment } from '../../../environments/environment.development';
 
 
 @Injectable({

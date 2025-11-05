@@ -1,10 +1,7 @@
 .table-item {
-  width: 80px;
-  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
   user-select: none;
@@ -38,8 +35,16 @@
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
-.table-occupied {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+.table-in-session {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.table-complete {
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+}
+
+.table-waiting {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
 }
 
 .table-disabled {
@@ -56,11 +61,9 @@
 }
 
 .table-rect {
-  width: 120px;
   border-radius: 8px;
 }
 
-/* Drag feedback */
 .table-item.dragging {
   opacity: 0.5;
   cursor: grabbing;

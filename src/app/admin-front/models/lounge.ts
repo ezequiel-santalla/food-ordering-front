@@ -1,4 +1,4 @@
-
+// Lounge Models
 export interface LoungeRequest {
   name: string;
   gridWidth?: number;
@@ -13,12 +13,15 @@ export interface LoungeResponse {
   tablePositions: TablePositionResponse[];
 }
 
-
+// Table Position Models
 export interface TablePosition {
   diningTableId: string;
   positionX: number;
   positionY: number;
   sector: string;
+  tableShape: string; // 'round', 'square', 'rect'
+  width?: number;
+  height?: number;
 }
 
 export interface TablePositionResponse {
@@ -26,8 +29,19 @@ export interface TablePositionResponse {
   diningTableId: string;
   diningTableNumber: number;
   diningTableCapacity: number;
-  diningTableStatus: string;
+  diningTableStatus: DiningTableStatus;
   positionX: number;
   positionY: number;
   sector: string;
+  tableShape: string;
+  width: number;
+  height: number;
+}
+
+export enum DiningTableStatus {
+  AVAILABLE = 'AVAILABLE',
+  IN_SESSION = 'IN_SESSION',
+  COMPLETE = 'COMPLETE',
+  WAITING_RESET = 'WAITING_RESET',
+  OUT_OF_SERVICE = 'OUT_OF_SERVICE'
 }

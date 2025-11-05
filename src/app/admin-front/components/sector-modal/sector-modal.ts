@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -7,9 +7,8 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './sector-modal.html'
 })
 export class SectorModal {
-
-  @Output() close = new EventEmitter<void>();
-  @Output() sectorCreated = new EventEmitter<string>();
+ close = output<void>();
+  sectorCreated = output<string>();
 
   sectorName: string = '';
 
