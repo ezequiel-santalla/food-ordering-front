@@ -45,7 +45,7 @@
         </a>
 
         <!-- Perfil -->
-        @if (!participantNickname().startsWith('Invitado')) {
+        @if (isAuthenticated()) {
         <a
           [routerLink]="['/session', tableSession().sessionId, 'profile']"
           class="p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer"
@@ -78,7 +78,7 @@
         }
 
         <!-- Logout -->
-        @if (!participantNickname().startsWith('Invitado')) {
+        @if (isAuthenticated()) {
         <button
           (click)="logout()"
           class="p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer"
@@ -89,15 +89,12 @@
           ></lucide-icon>
         </button>
         }
-       <button
+        <button
           (click)="leaveSession()"
           class="px-4 py-2 ml-4 rounded-xl bg-primary text-primary-content font-medium text-sm active:scale-95 transition-all duration-150 cursor-pointer hover:bg-primary/90 shadow-sm flex items-center gap-2"
         >
-          <lucide-icon
-            [img]="UtensilsCrossed"
-            class="w-5 h-5"
-          ></lucide-icon>
-          
+          <lucide-icon [img]="UtensilsCrossed" class="w-5 h-5"></lucide-icon>
+
           Abandonar sesión
         </button>
       </div>

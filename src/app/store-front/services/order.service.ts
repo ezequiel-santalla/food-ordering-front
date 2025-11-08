@@ -168,6 +168,8 @@ export class OrderService {
       .subscribe({
         next: (event) => {
 
+          console.log('OrderService: Evento SSE recibido:', event);
+          
           // order.service.ts (dentro de subscribeToOrderEvents → next:)
           if (event.type === 'new-order') {
             const newOrder: OrderResponse = event.payload;

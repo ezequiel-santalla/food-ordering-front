@@ -13,6 +13,7 @@ import { CategoryService } from '../../services/category.service';
 import { TableSessionService } from '../../services/table-session.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../auth/services/auth.service';
+import { AuthStateManager } from '../../../auth/services/auth-state-manager.service';
 
 @Component({
   selector: 'app-header',
@@ -31,6 +32,10 @@ export class Header {
   tableSessionService = inject(TableSessionService);
   authService = inject(AuthService);
   private router = inject(Router);
+  private authState = inject(AuthStateManager);
+
+  isAuthenticated = this.authState.isAuthenticated;
+  isGuest = this.authState.isGuest;
 
   // Info de la sesión de mesa
   tableSession = this.tableSessionService.tableSessionInfo;
@@ -84,10 +89,8 @@ export class Header {
     return this.menuResource.value()?.foodVenueName;
   });
 
-  participantNickname = computed(() => {
-    const nickname =
-      this.tableSessionService.tableSessionInfo().participantNickname;
-    return nickname.toLowerCase().startsWith('guest') ? 'Invitado' : nickname;
+  participantNickname = computed(() => {      
+    return this.tableSessionService.tableSessionInfo().participantNickname;
   });
 
   selectCategory(categoryId: string) {
