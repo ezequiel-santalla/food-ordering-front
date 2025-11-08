@@ -31,6 +31,10 @@ export class TableSessionService {
     this.getStoredString('participantId')
   );
 
+  private _tableCapacity = signal<number>(
+    this.getStoredNumber('tableCapacity')
+  );
+
   private sseSubscription: Subscription | undefined;
 
   tableSessionInfo = computed<TableSessionInfo>(() => ({
@@ -39,6 +43,7 @@ export class TableSessionService {
     participantId: this._participantId(),
     participantCount: this._participantCount(),
     sessionId: this.authService.tableSessionId(),
+    tableCapacity: this._tableCapacity(),
   }));
 
   hasActiveSession = computed(() => {
@@ -88,10 +93,8 @@ export class TableSessionService {
                 }
 
                 if (event.type === 'user-joined') {
-
                   console.log('[SSE user-joined] Incrementando contador');
                   this._participantCount.update((count) => count + 1);
-
                 }
               },
               error: (err) =>
@@ -166,12 +169,14 @@ export class TableSessionService {
     tableNumber: number,
     participantNickname: string,
     participantCount: number,
+    tableCapacity: number,
     participantId?: string
   ): void {
     console.log('📝 Guardando info de mesa:', {
       tableNumber,
       participantNickname,
       participantCount,
+      tableCapacity,
       participantId,
     });
 
@@ -202,6 +207,14 @@ export class TableSessionService {
       localStorage.removeItem('participantCount');
     }
 
+    if (tableCapacity >= 0) {
+      this._tableCapacity.set(tableCapacity);
+      localStorage.setItem('tableCapacity', tableCapacity.toString());
+    } else {
+      this._tableCapacity.set(0);
+      localStorage.removeItem('tableCapacity');
+    }
+
     if (participantId && participantId.trim()) {
       this._participantId.set(participantId);
       localStorage.setItem('participantId', participantId);
@@ -229,11 +242,13 @@ export class TableSessionService {
     this._participantNickname.set('');
     this._participantCount.set(0);
     this._participantId.set('');
+    this._tableCapacity.set(0);
 
     localStorage.removeItem('tableNumber');
     localStorage.removeItem('participantNickname');
     localStorage.removeItem('participantCount');
     localStorage.removeItem('participantId');
+    localStorage.removeItem('tableCapacity');
   }
 
   //Esto podria estar en un servicio dedicado al participante actual

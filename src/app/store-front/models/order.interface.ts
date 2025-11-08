@@ -26,5 +26,7 @@ export interface OrderDetailResponse {
   subtotal: number;
   productName: string;
   category: string;
-  specialInstructions?: string;
+  specialInstructions?: string;
 }
+
+export type OrderStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED';

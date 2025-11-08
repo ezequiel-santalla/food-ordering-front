@@ -4,9 +4,8 @@ import { Menu } from '../../components/menu/menu';
 
 @Component({
   selector: 'app-home-page',
+  standalone: true,
   imports: [Recommendations, Menu],
   templateUrl: './home-page.html'
 })
-export class HomePage {
-
-}
+export class HomePage {}

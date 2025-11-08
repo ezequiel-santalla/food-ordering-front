@@ -39,13 +39,7 @@
     </div>
 
     <!-- Product Card -->
-    <app-menu-item-card
-      [image]="product.imageUrl"
-      [name]="product.name"
-      [description]="product.description"
-      [price]="product.price"
-      layout="horizontal">
-    </app-menu-item-card>
+    <app-menu-item-card [product]="product"></app-menu-item-card>
 
     <!-- Additional Info (opcional) -->
     @if (product.category) {

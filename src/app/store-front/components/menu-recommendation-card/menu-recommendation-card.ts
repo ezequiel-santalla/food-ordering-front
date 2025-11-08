@@ -1,27 +1,22 @@
 import { Component, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Plus } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { Product } from '../../models/menu.interface';
 
 @Component({
-  selector: 'app-menu-item-card',
+  selector: 'app-menu-recommendation-card',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
-  templateUrl: './menu-item-card.html',
+  templateUrl: './menu-recommendation-card.html',
 })
-export class MenuItemCard {
+export class MenuRecommendationCard {
   @Input({ required: true }) product!: Product;
 
-  // Se usa para abrir el modal o ver detalle
   select = output<Product>();
-
-  // Evento separado para el botón de agregar
   add = output<Product>();
 
-  readonly Plus = Plus;
-
   onActionClick(event: Event) {
-    event.stopPropagation(); // evita que dispare el click del contenedor
+    event.stopPropagation();
     this.add.emit(this.product);
   }
 }

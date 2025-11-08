@@ -1,41 +1,39 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { MenuItemCard } from '../menu-item-card/menu-item-card';
-import { MenuService } from '../../services/menu.service';
+import { CommonModule } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { MenuService } from '../../services/menu.service';
 import { Product } from '../../models/menu.interface';
-import { MenuItemDetailModal } from "../menu-item-detail-modal/menu-item-detail-modal";
-
+import { MenuItemDetailModal } from '../menu-item-detail-modal/menu-item-detail-modal';
+import { MenuRecommendationCard } from '../menu-recommendation-card/menu-recommendation-card';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-recommendations',
-  imports: [MenuItemCard, MenuItemDetailModal],
+  standalone: true,
+  imports: [CommonModule, MenuRecommendationCard, MenuItemDetailModal],
   templateUrl: './recommendations.html'
 })
 export class Recommendations {
-
-  menuService = inject(MenuService);
+  private menuService = inject(MenuService);
+  private cartService = inject(CartService);
 
   selectedProduct = signal<Product | undefined>(undefined);
 
   openProduct(product: Product) {
-  console.log('openProduct called with:', product);
-  console.log('Setting selectedProduct signal');
-  this.selectedProduct.set(product);
-  console.log('selectedProduct value:', this.selectedProduct());
-}
-
+    this.selectedProduct.set(product);
+  }
   closeModal() {
     this.selectedProduct.set(undefined);
   }
 
+  addToCart(product: Product) {
+    // ajustá a tu API real del carrito si difiere
+    this.cartService.addItem(product.name, product.price, null, 1, product.imageUrl);
+  }
+
   recommendationsResource = rxResource({
-    stream: () => {
-      console.log('🎲 Cargando recomendaciones...');
-      return this.menuService.getRecommendations();
-    }
+    stream: () => this.menuService.getRecommendations(),
   });
 
-  recommendations = computed(() => {
-    return this.recommendationsResource.value() || [];
-  });
+  recommendations = computed(() => this.recommendationsResource.value() ?? []);
 }

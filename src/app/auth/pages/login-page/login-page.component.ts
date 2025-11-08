@@ -191,6 +191,7 @@ export class LoginPageComponent implements OnInit {
         response.tableNumber,
         nickname,
         response.numberOfParticipants || 0,
+        response.tableCapacity || 0, 
         participantIdFromToken
       );
 

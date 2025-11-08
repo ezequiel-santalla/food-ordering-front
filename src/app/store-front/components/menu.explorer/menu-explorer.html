@@ -2,45 +2,52 @@
 <div class="sticky top-14 sm:top-16 z-40 bg-base-200">
   <div class="tabs tabs-boxed p-2 overflow-x-auto flex-nowrap gap-2">
     <button
-      type="button"
       class="tab tab-sm whitespace-nowrap px-4"
       [class.tab-active]="selectedL1() === 'all'"
-      (click)="selectL1('all')"
-    >
-      Todos
-    </button>
+      (click)="selectL1('all')">Todos</button>
+
     @for (name of level1(); track name) {
       <button
-        type="button"
         class="tab tab-sm whitespace-nowrap px-4"
         [class.tab-active]="selectedL1() === name"
-        (click)="selectL1(name)"
-      >
-        {{ name }}
-      </button>
+        (click)="selectL1(name)">{{ name }}</button>
     }
   </div>
 </div>
 
-<!-- Nivel 2 -->
+<!-- Nivel 2 (visible sólo si hay L1) -->
 @if (level2().length) {
   <div class="bg-base-100 border-b border-base-300">
     <div class="flex gap-2 overflow-x-auto p-2">
-      <button class="btn btn-xs btn-ghost" [class.btn-active]="selectedL2() === 'all'" (click)="selectL2('all')">Todas</button>
+      <button
+        class="btn btn-xs btn-ghost"
+        [class.btn-active]="selectedL2() === 'all'"
+        (click)="selectL2('all')">Todas</button>
+
       @for (name of level2(); track name) {
-        <button class="btn btn-xs btn-ghost" [class.btn-active]="selectedL2() === name" (click)="selectL2(name)">{{ name }}</button>
+        <button
+          class="btn btn-xs btn-ghost"
+          [class.btn-active]="selectedL2() === name"
+          (click)="selectL2(name)">{{ name }}</button>
       }
     </div>
   </div>
 }
 
-<!-- Nivel 3 -->
+<!-- Nivel 3 (visible sólo si hay L3) -->
 @if (level3().length) {
   <div class="bg-base-100 border-b border-base-300">
     <div class="flex gap-2 overflow-x-auto p-2">
-      <button class="btn btn-xs btn-ghost" [class.btn-active]="selectedL3() === 'all'" (click)="selectL3('all')">Todas</button>
+      <button
+        class="btn btn-xs btn-ghost"
+        [class.btn-active]="selectedL3() === 'all'"
+        (click)="selectL3('all')">Todas</button>
+
       @for (name of level3(); track name) {
-        <button class="btn btn-xs btn-ghost" [class.btn-active]="selectedL3() === name" (click)="selectL3(name)">{{ name }}</button>
+        <button
+          class="btn btn-xs btn-ghost"
+          [class.btn-active]="selectedL3() === name"
+          (click)="selectL3(name)">{{ name }}</button>
       }
     </div>
   </div>
@@ -53,14 +60,16 @@
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
     </div>
   }
-
   @if (menuResource.error()) {
     <div class="alert alert-error"><span>Error al cargar el menú.</span></div>
   }
 
   <div class="grid grid-cols-1 gap-4">
     @for (p of products(); track p.publicId) {
-      <app-menu-item-card [product]="p" (select)="openProduct($event)"></app-menu-item-card>
+      <app-menu-item-card
+        [product]="p"
+        (select)="openProduct($event)">
+      </app-menu-item-card>
     }
     @if (!products().length && !menuResource.isLoading()) {
       <p class="text-center text-base-content/70 italic">Sin productos para esta selección.</p>
@@ -71,5 +80,6 @@
 @if (selectedProduct()) {
   <app-menu-item-detail-modal
     [product]="selectedProduct()!"
-    (close)="closeModal()" />
+    (close)="closeModal()">
+  </app-menu-item-detail-modal>
 }

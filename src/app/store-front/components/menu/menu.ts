@@ -1,109 +1,96 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { MenuItemCard } from '../menu-item-card/menu-item-card';
-import { MenuService } from '../../services/menu.service';
+import { CommonModule } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { MenuService } from '../../services/menu.service';
+import { MenuItemCard } from '../menu-item-card/menu-item-card';
+import { MenuItemDetailModal } from '../menu-item-detail-modal/menu-item-detail-modal';
 import { Product } from '../../models/menu.interface';
-import { CategoryService } from '../../services/category.service';
-import { MenuItemDetailModal } from "../menu-item-detail-modal/menu-item-detail-modal";
+
+type MenuNode = {
+  name: string;
+  subcategory?: MenuNode[];
+  products?: Product[];
+};
 
 @Component({
   selector: 'app-menu',
-  imports: [MenuItemCard, MenuItemDetailModal],
-  templateUrl: './menu.html'
+  standalone: true,
+  imports: [CommonModule, MenuItemCard, MenuItemDetailModal],
+  templateUrl: './menu.html',
 })
 export class Menu {
+  private menuService = inject(MenuService);
 
-  menuService = inject(MenuService);
-  categoryService = inject(CategoryService);
-
-  // ✅ Cambiar a signal
+  // Modal
   selectedProduct = signal<Product | undefined>(undefined);
+  openProduct(p: Product) { this.selectedProduct.set(p); }
+  closeModal() { this.selectedProduct.set(undefined); }
 
-  openProduct(product: Product) {
-  console.log('openProduct called with:', product);
-  console.log('Setting selectedProduct signal');
-  this.selectedProduct.set(product);
-  console.log('selectedProduct value:', this.selectedProduct());
-}
-
-  closeModal() {
-    this.selectedProduct.set(undefined);
-  }
-
+  // Carga del árbol
   menuResource = rxResource({
-    stream: () => {
-      return this.menuService.getMenu();
-    }
+    stream: () => this.menuService.getMenuNodes(),
   });
 
-  allProducts = computed(() => {
-    const menuData = this.menuResource.value();
-    if (!menuData) return [];
+  // Jerarquía (L1/L2/L3)
+  selectedL1 = signal<'all' | string>('all');
+  selectedL2 = signal<'all' | string>('all');
+  selectedL3 = signal<'all' | string>('all');
 
-    const products: Product[] = [];
+  tree = computed(() => this.menuResource.value()?.menu ?? []);
 
-    menuData.menu.forEach(category => {
-      // Si tiene productos directos (estructura plana)
-      if (category.products) {
-        products.push(...category.products);
-      }
+  level1 = computed(() => this.tree().map(n => n.name));
 
-      // Si tiene subcategorías (estructura anidada)
-      if (category.subcategory) {
-        category.subcategory.forEach(sub => {
-          if (sub.products) {
-            products.push(...sub.products);
-          }
-
-          // Sub-subcategorías
-          if (sub.subcategory) {
-            sub.subcategory.forEach(subSub => {
-              if (subSub.products) {
-                products.push(...subSub.products);
-              }
-            });
-          }
-        });
-      }
-    });
-
-    return products;
+  level2 = computed(() => {
+    const l1 = this.selectedL1();
+    if (l1 === 'all') return [];
+    const n1 = this.tree().find(n => n.name === l1);
+    return n1?.subcategory?.map(s => s.name) ?? [];
   });
 
-  // Agrupar productos por su categoría real (del objeto category dentro de product)
-  groupedByCategory = computed(() => {
-    const products = this.allProducts();
-    const grouped = new Map<string, Product[]>();
-
-    products.forEach(product => {
-      const categoryName = product.category;
-      if (!grouped.has(categoryName)) {
-        grouped.set(categoryName, []);
-      }
-      grouped.get(categoryName)!.push(product);
-    });
-
-    return grouped;
+  level3 = computed(() => {
+    const l1 = this.selectedL1();
+    const l2 = this.selectedL2();
+    if (l1 === 'all' || l2 === 'all') return [];
+    const n1 = this.tree().find(n => n.name === l1);
+    const n2 = n1?.subcategory?.find(s => s.name === l2);
+    return n2?.subcategory?.map(s => s.name) ?? [];
   });
 
-  // Obtener categorías únicas
-  categories = computed(() => {
-    return Array.from(this.groupedByCategory().keys());
+  products = computed(() => {
+    const l1 = this.selectedL1();
+    const l2 = this.selectedL2();
+    const l3 = this.selectedL3();
+
+    const collect = (nodes?: MenuNode[]): Product[] => {
+      if (!nodes) return [];
+      const out: Product[] = [];
+      const walk = (n: MenuNode) => {
+        if (n.products) out.push(...n.products);
+        n.subcategory?.forEach(walk);
+      };
+      nodes.forEach(walk);
+      return out;
+    };
+
+    const root = this.tree();
+    if (l1 === 'all') return collect(root);
+
+    const n1 = root.find(n => n.name === l1);
+    if (!n1) return [];
+
+    if (l2 === 'all') return collect([n1]);
+
+    const n2 = n1.subcategory?.find(s => s.name === l2);
+    if (!n2) return [];
+
+    if (l3 === 'all') return collect([n2]);
+
+    const n3 = n2.subcategory?.find(s => s.name === l3);
+    return collect(n3 ? [n3] : []);
   });
 
-  filteredCategories = computed(() => {
-    const selected = this.categoryService.selectedCategory();
-    const allCategories = this.categories();
-
-    if (selected === 'all') {
-      return allCategories;
-    }
-
-    return allCategories.filter(cat => cat.toLowerCase() === selected);
-  });
-
-  // Helper para obtener productos de una categoría
-  getProductsByCategory(category: string): Product[] {
-    return this.groupedByCategory().get(category) || [];
-  }
+  // handlers jerárquicos
+  selectL1(v: 'all' | string) { this.selectedL1.set(v); this.selectedL2.set('all'); this.selectedL3.set('all'); }
+  selectL2(v: 'all' | string) { this.selectedL2.set(v); this.selectedL3.set('all'); }
+  selectL3(v: 'all' | string) { this.selectedL3.set(v); }
 }
