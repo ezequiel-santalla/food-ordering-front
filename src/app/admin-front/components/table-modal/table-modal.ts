@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { DiningTableService } from '../../services/dining-table-service';
-import { DiningTableRequest } from '../../models/dining-table';
+import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+
+import { DiningTableRequest } from '../../models/dining-table';
+import { DiningTableService } from '../../services/dining-table-service';
 
 @Component({
   selector: 'app-table-modal',
@@ -9,16 +10,16 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './table-modal.html'
 })
 export class TableModal {
+  currentSector = input.required<string>();
 
-@Input() currentSector: string = '';
-  @Output() close = new EventEmitter<void>();
-  @Output() tableCreated = new EventEmitter<any>();
+  close = output<void>();
+  tableCreated = output<any>();
 
   tableNumber: number | null = null;
   capacity: number | null = null;
   selectedShape: string = '';
 
-  constructor(private diningTableService: DiningTableService) {}
+  constructor(private diningTableService : DiningTableService) {}
 
   onClose(): void {
     this.close.emit();
@@ -40,7 +41,7 @@ export class TableModal {
     const tableRequest: DiningTableRequest = {
       number: this.tableNumber!,
       capacity: this.capacity!,
-      status: 'AVAILABLE'
+     // status: 'AVAILABLE'
     };
 
     this.diningTableService.createTable(tableRequest).subscribe({
@@ -63,5 +64,4 @@ export class TableModal {
     this.capacity = null;
     this.selectedShape = '';
   }
-
 }

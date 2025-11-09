@@ -1,0 +1,143 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="onBackdropClick($event)">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-800">Mesa Seleccionada</h2>
+      <button (click)="onClose()" class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mesa Info Grid -->
+    <div class="grid grid-cols-2 gap-6 mb-6">
+      <!-- Left: Info -->
+      <div class="space-y-4">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h3 class="text-sm font-medium text-gray-500 mb-1">Número</h3>
+          <p class="text-2xl font-bold text-gray-800">{{table().diningTableNumber}}</p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h3 class="text-sm font-medium text-gray-500 mb-1">Capacidad</h3>
+          <p class="text-2xl font-bold text-gray-800">{{table().diningTableCapacity}} personas</p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h3 class="text-sm font-medium text-gray-500 mb-1">Estado</h3>
+          <span [class]="getStatusBadgeClass()">
+            {{getStatusLabel()}}
+          </span>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h3 class="text-sm font-medium text-gray-500 mb-1">Forma</h3>
+          <p class="text-lg font-semibold text-gray-800 capitalize">{{getShapeLabel()}}</p>
+        </div>
+      </div>
+
+      <!-- Right: Controls -->
+      <div>
+        @if (table().tableShape === 'rect') {
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <h3 class="text-sm font-semibold text-blue-900 mb-3">Ajustar Tamaño de Barra</h3>
+
+            <!-- Width Control -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Ancho: {{currentWidth}}px
+              </label>
+              <div class="flex items-center gap-2">
+                <button
+                  (click)="decreaseWidth()"
+                  [disabled]="currentWidth <= 120"
+                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                  </svg>
+                </button>
+                <input
+                  type="range"
+                  [(ngModel)]="currentWidth"
+                  (change)="onSizeChange()"
+                  min="120"
+                  max="400"
+                  step="20"
+                  class="flex-1">
+                <button
+                  (click)="increaseWidth()"
+                  [disabled]="currentWidth >= 400"
+                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Height Control -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Alto: {{currentHeight}}px
+              </label>
+              <div class="flex items-center gap-2">
+                <button
+                  (click)="decreaseHeight()"
+                  [disabled]="currentHeight <= 60"
+                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                  </svg>
+                </button>
+                <input
+                  type="range"
+                  [(ngModel)]="currentHeight"
+                  (change)="onSizeChange()"
+                  min="60"
+                  max="120"
+                  step="10"
+                  class="flex-1">
+                <button
+                  (click)="increaseHeight()"
+                  [disabled]="currentHeight >= 120"
+                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <p class="text-xs text-gray-600 mt-3">
+              Usa los controles para ajustar el tamaño de la barra según tu salón
+            </p>
+          </div>
+        } @else {
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 h-full flex items-center justify-center">
+            <div class="text-center text-gray-500">
+              <svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p class="text-sm">Las mesas redondas y cuadradas<br>tienen tamaño fijo</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3 pt-4 border-t">
+      <button
+        (click)="onRemove()"
+        class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+        Eliminar Mesa del Salón
+      </button>
+      <button
+        (click)="onClose()"
+        class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
