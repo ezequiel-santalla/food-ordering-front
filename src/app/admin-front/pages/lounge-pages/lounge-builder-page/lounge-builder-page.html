@@ -1,137 +1,255 @@
-<div class="p-8">
+<div class="p-8 lounge-container">
+
   <!-- Header -->
-   <header class="mb-6">
-    <div >
-    <h1 class="text-3xl font-semibold text-gray-900 mb-2">Armado de Salón</h1>
-    <p class="text-gray-500 text-sm">Organiza las mesas en el espacio del restaurante</p>
+
+  <header class="mb-6 flex justify-between items-start">
+
+    <div>
+
+      <h1 class="text-3xl font-semibold text-gray-900">Armado de Salón</h1>
+
+      <p class="text-sm text-gray-500">Organiza las mesas en el espacio del restaurante</p>
+
     </div>
 
-  <!-- Top Controls -->
-  <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-    <div class="flex flex-wrap items-center gap-4">
-      <!-- Sector Selector -->
-      <div class="flex-1 min-w-[200px]">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Sector Actual</label>
-        <select [(ngModel)]="currentSector" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          <option *ngFor="let sector of sectors" [value]="sector">{{sector}}</option>
-        </select>
-      </div>
 
-      <!-- Action Buttons -->
-      <div class="flex gap-2">
-        <button (click)="openSectorModal()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          Agregar Sector
-        </button>
 
-        <button (click)="openTableModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          Agregar Mesa
-        </button>
+    <div class="flex gap-2">
 
-        <button (click)="saveChanges()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-          Guardar Cambios
-        </button>
-      </div>
+      <button (click)="openSectorModal()" class="flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md cursor-pointer shadow-lg hover:bg-gray-700 transition duration-150">
+
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+
+        </svg>
+
+        Agregar Sector
+
+      </button>
+
+
+
+      <button (click)="openTableModal()" class="flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md cursor-pointer shadow-lg hover:bg-indigo-700 transition duration-150">
+
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+
+        </svg>
+
+        Agregar Mesa
+
+      </button>
+
+
+
+      <button (click)="saveLoungeChanges()" [disabled]="!hasUnsavedChanges"
+
+        class="flex items-center px-4 py-2 text-white text-sm font-medium rounded-md cursor-pointer shadow-lg transition duration-150"
+
+        [class.bg-green-600]="hasUnsavedChanges"
+
+        [class.bg-green-400]="!hasUnsavedChanges"
+
+        [class.cursor-not-allowed]="!hasUnsavedChanges"
+
+        [class.hover\:bg-green-700]="hasUnsavedChanges">
+
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-4 0V4a2 2 0 00-2-2H9a2 2 0 00-2 2v3m4 0h.01"/>
+
+        </svg>
+
+        Guardar Salón
+
+      </button>
+
+
+
     </div>
+
+  </header>
+
+
+
+  <!-- Selector de Sector -->
+
+  <div class="mb-6 pt-4 border-t border-gray-200 flex justify-between items-center">
+
+    <div>
+
+      <label class="text-sm font-medium text-gray-700 mr-2">Sector Actual:</label>
+
+      <select [(ngModel)]="currentSector" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 text-sm">
+
+        <option *ngFor="let sector of sectors" [value]="sector">{{sector}}</option>
+
+      </select>
+
+    </div>
+
+    <div class="text-sm text-gray-600">
+
+      <span class="font-medium">Mesas en {{currentSector}}:</span> {{tablesInCurrentSector.length}} |
+
+      <span class="font-medium ml-4">Capacidad Total:</span> {{getTotalCapacity()}} personas
+
+    </div>
+
   </div>
 
-   </header>
 
 
-  <!-- Canvas Area -->
-  <div div class="bg-white rounded-lg shadow-sm p-4">
+  <!-- Canvas centrado -->
+
+  <div class="bg-white shadow-md rounded-lg overflow-visible border border-gray-200 relative flex justify-center p-8">
+
     <div class="relative border-2 border-dashed border-gray-300 rounded-lg overflow-hidden"
-         [style.height.px]="gridHeight"
-         [style.width.px]="gridWidth"
-         (drop)="onDrop($event)"
-         (dragover)="onDragOver($event)">
+
+      [style.height.px]="viewportHeight"
+
+      [style.width.px]="viewportWidth"
+
+      (drop)="onDrop($event)"
+
+      (dragover)="onDragOver($event)">
+
+
+
+
 
       <!-- Grid Background -->
+
       <div class="absolute inset-0 opacity-10"
-           [style.backgroundImage]="'repeating-linear-gradient(0deg, #ccc, #ccc 1px, transparent 1px, transparent 50px), repeating-linear-gradient(90deg, #ccc, #ccc 1px, transparent 1px, transparent 50px)'"
-           [style.backgroundSize]="'50px 50px'">
+
+        [style.backgroundImage]="'repeating-linear-gradient(0deg, #ccc, #ccc 1px, transparent 1px, transparent ' + (50 * scaleRatio) + 'px), repeating-linear-gradient(90deg, #ccc, #ccc 1px, transparent 1px, transparent ' + (50 * scaleRatio) + 'px)'"
+
+        [style.backgroundSize]="(50 * scaleRatio) + 'px ' + (50 * scaleRatio) + 'px'">
+
       </div>
 
-<!-- Tables -->
 
-      @for (table of tablesInCurrentSector; track table.diningTableId) {
-  <div
-    [style.left.px]="table.positionX"
-    [style.top.px]="table.positionY"
-    class="absolute cursor-move table-item"
-    [class.table-available]="table.diningTableStatus === 'AVAILABLE'"
-    [class.table-occupied]="table.diningTableStatus === 'OCCUPIED'"
-    [class.table-disabled]="table.diningTableStatus === 'OUT_OF_SERVICE'"
-    [class.table-round]="isRound(table)"
-    [class.table-square]="isSquare(table)"
-    [class.table-rect]="isRect(table)"
-    draggable="true"
-    (dragstart)="onDragStart($event, table)"
-    (click)="selectTable(table)"
-  >
-    <div class="table-content">
-      <div class="table-number">{{ table.diningTableNumber }}</div>
-      <div class="table-capacity">{{ table.diningTableCapacity }}p</div>
-    </div>
-  </div>
-} @empty {
-  <div>No hay mesas en este sector.</div>
-}
-<!-- Empty State -->
-@if (tablesInCurrentSector.length === 0) {
-  <div class="absolute inset-0 flex items-center justify-center">
-    <div class="text-center text-gray-400">
-      <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-      </svg>
-      <p class="text-lg font-medium">No hay mesas en este sector</p>
-      <p class="text-sm mt-1">Haz clic en "Agregar Mesa" para comenzar</p>
-    </div>
-  </div>
-}
 
-    <!-- Summary -->
-    <div class="mt-4 flex items-center justify-between text-sm text-gray-600">
-      <div>
-        <span class="font-medium">Mesas en {{currentSector}}:</span> {{tablesInCurrentSector.length}} |
-        <span class="font-medium ml-4">Capacidad Total:</span> {{getTotalCapacity()}} personas
+      <!-- Tables -->
+
+     <div *ngFor="let table of scaledTablesInCurrentSector"
+
+        [style.left.px]="table.displayX"
+
+        [style.top.px]="table.displayY"
+
+        [style.width.px]="table.displayWidth"
+
+        [style.height.px]="table.displayHeight"
+
+        class="absolute cursor-move table-item"
+
+        [class.table-available]="table.diningTableStatus === 'AVAILABLE'"
+
+        [class.table-in-session]="table.diningTableStatus === 'IN_SESSION'"
+
+        [class.table-complete]="table.diningTableStatus === 'COMPLETE'"
+
+        [class.table-waiting]="table.diningTableStatus === 'WAITING_RESET'"
+
+        [class.table-disabled]="table.diningTableStatus === 'OUT_OF_SERVICE'"
+
+        [class.table-round]="table.tableShape === 'round'"
+
+        [class.table-square]="table.tableShape === 'square'"
+
+        [class.table-rect]="table.tableShape === 'rect'"
+
+        draggable="true"
+
+        (dragstart)="onDragStart($event, table)"
+
+        (click)="selectTable(table)">
+
+
+
+        <div class="table-content">
+
+          <div class="table-number" [style.fontSize.px]="30 * scaleRatio">
+
+            {{table.diningTableNumber}}
+
+          </div>
+
+          <div class="table-capacity" [style.fontSize.px]="16 * scaleRatio">
+
+            {{table.diningTableCapacity}}p
+
+          </div>
+
+        </div>
+
       </div>
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2">
-          <div class="w-4 h-4 bg-green-500 rounded"></div>
-          <span>Disponible</span>
+
+
+
+      <!-- Empty State -->
+
+     <div *ngIf="scaledTablesInCurrentSector.length === 0" class="absolute inset-0 flex items-center justify-center">
+
+        <div class="text-center text-gray-400">
+
+          <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+
+              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+
+          </svg>
+
+          <p class="text-lg font-medium">No hay mesas en este sector</p>
+
+          <p class="text-sm mt-1">Haz clic en "Agregar Mesa" para comenzar</p>
+
         </div>
-        <div class="flex items-center gap-2">
-          <div class="w-4 h-4 bg-red-500 rounded"></div>
-          <span>Ocupada</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="w-4 h-4 bg-gray-800 rounded"></div>
-          <span>Fuera de Servicio</span>
-        </div>
+
       </div>
+
     </div>
+
+
+
+    <div class="absolute bottom-2 right-2 text-xs text-gray-500 bg-white px-2 py-1 rounded shadow">
+
+      Escala: {{(scaleRatio * 100).toFixed(0)}}%
+
+    </div>
+
   </div>
+
+
+
+  <!-- Leyenda -->
+
+  <div class="mt-4 flex justify-center gap-6 text-sm text-gray-600">
+
+    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-green-500 rounded"></div><span>Disponible</span></div>
+
+    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-blue-500 rounded"></div><span>En Sesión</span></div>
+
+    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-yellow-500 rounded"></div><span>Completa</span></div>
+
+    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-orange-500 rounded"></div><span>Esperando Reset</span></div>
+
+    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-gray-800 rounded"></div><span>Fuera de Servicio</span></div>
+
+  </div>
+
+
+
+  <!-- Modales -->
+
+  <app-sector-modal *ngIf="showSectorModal" (close)="closeSectorModal()" (sectorCreated)="onSectorCreated($event)"></app-sector-modal>
+
+  <app-table-modal *ngIf="showTableModal" [currentSector]="currentSector" (close)="closeTableModal()" (tableCreated)="onTableCreated($event)"></app-table-modal>
+
+  <app-table-detail-modal *ngIf="selectedTable" [table]="selectedTable" (close)="closeTableDetailModal()" (sizeChanged)="onTableSizeChanged($event)" (removed)="onTableRemoved($event)"></app-table-detail-modal>
+
 </div>
-
-<!-- Modals -->
-<app-sector-modal
-  *ngIf="showSectorModal"
-  (close)="closeSectorModal()"
-  (sectorCreated)="onSectorCreated($event)">
-</app-sector-modal>
-
-<app-table-modal
-  *ngIf="showTableModal"
-  [currentSector]="currentSector"
-  (close)="closeTableModal()"
-  (tableCreated)="onTableCreated($event)">
-</app-table-modal>
