@@ -1,9 +1,54 @@
-<div class="mx-auto py-8 space-y-8">
-  <h2 class="text-xl font-bold text-base-content mb-4 px-6">Recomendaciones</h2>
+<div class="max-w-3xl mx-auto">
+    <figure
+    class="h-32 sm:h-40 bg-gradient-to-br from-primary/20 to-secondary/20"
+  >
+    @if (venue().styles?.logoUrl || venue().styles?.bannerUrl) {
+    <img
+      [src]="venue().styles?.bannerUrl || venue().styles?.logoUrl"
+      [alt]="venue().name"
+      class="w-full h-full object-cover"
+    />
+    } @else {
+    <div class="flex items-center justify-center w-full h-full">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-12 w-12 text-base-content/30"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+        />
+      </svg>
+    </div>
+    }
+  </figure>
+  <h2 class="text-xl font-bold text-base-content my-4 px-4 sm:px-6">
+    Recomendaciones
+  </h2>
+  <div class="mx-auto py-4 space-y-8">
+    <app-highlights-section />
+  </div>
 
-  <app-recommendations />
+  <div class="divider"></div>
 
-  <h2 class="text-xl font-bold text-base-content mb-4 px-6">Menú</h2>
+  <h2 class="text-xl font-bold text-base-content my-4 px-4 sm:px-6">
+    Favoritos
+  </h2>
+  <div class="mx-auto py-4 space-y-8">
+    <app-highlights-section />
+  </div>
 
-  <app-menu />
+  <div class="divider"></div>
+
+  <h2 class="text-xl font-bold text-base-content my-4 px-4 sm:px-6">
+    Mas vendidos
+  </h2>
+  <div class="mx-auto py-4 space-y-8">
+    <app-highlights-section />
+  </div>
 </div>

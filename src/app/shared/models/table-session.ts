@@ -32,4 +32,5 @@ export interface TableSessionInfo {
   participantNickname: string;
   participantCount: number;
   sessionId: string | null;
+  tableCapacity: number;
 }

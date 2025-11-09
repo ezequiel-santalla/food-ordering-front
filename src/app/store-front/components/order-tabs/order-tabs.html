@@ -1,7 +1,7 @@
-<section class="max-w-3xl mx-auto p-4">
+<section class="max-w-3xl mx-auto p-4 px-1">
   <!-- 🔹 Tabs -->
 
-  <div class="w-full grid grid-cols-3 gap-2 mb-4 sm:mb-6 h-10">
+  <div class="w-full grid grid-cols-3 gap-2 mb-4 sm:mb-6 h-6">
     <button
       class="btn btn-sm sm:btn-md text-xs sm:text-sm normal-case"
       [class.btn-primary]="activeTab() === 'cart'"
@@ -13,23 +13,22 @@
 
     <button
       class="btn btn-sm sm:btn-md text-xs sm:text-sm normal-case"
-      [class.btn-primary]="activeTab() === 'table'"
-      [class.btn-ghost]="activeTab() !== 'table'"
-      (click)="setTab('table')"
-    >
-      Mesa ({{ tableCount() }})
-    </button>
-
-    <button
-      class="btn btn-sm sm:btn-md text-xs sm:text-sm normal-case"
       [class.btn-primary]="activeTab() === 'mine'"
       [class.btn-ghost]="activeTab() !== 'mine'"
       (click)="setTab('mine')"
     >
       Mis Pedidos ({{ myCount() }})
     </button>
-  </div>
 
+    <button
+      class="btn btn-sm sm:btn-md text-xs sm:text-sm normal-case"
+      [class.btn-primary]="activeTab() === 'table'"
+      [class.btn-ghost]="activeTab() !== 'table'"
+      (click)="setTab('table')"
+    >
+      Mesa ({{ tableCount() }})
+    </button>
+  </div>
   <div>
     @switch (activeTab()) { @case ('cart') { <app-cart-view /> } @case ('mine')
     { <app-my-orders /> } @case ('table') { <app-table-orders /> } }

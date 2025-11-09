@@ -1,166 +1,82 @@
 <header
-  class="fixed top-0 left-0 right-0 h-auto bg-base-100/70 backdrop-blur-md z-50"
+  class="bg-base-100 border-b border-base-300 sticky top-0 z-50 shadow-sm"
 >
-  <div class="max-w-6xl mx-auto px-4 py-3 pt-safe space-y-4">
-    <!-- Fila 1: Todo en una línea -->
-    <div class="flex items-center justify-between gap-2">
-      <!-- Logo + Nickname -->
-      <a
-        [routerLink]="['/session', tableSession().sessionId]"
-        class="flex items-center gap-2 min-w-0 flex-1"
-      >
-        <img
-          [src]="venueImageUrl()"
-          [alt]="venueName()"
-          class="h-8 w-8 flex-shrink-0 object-contain rounded-full"
-        />
-        <div class="flex flex-col leading-tight min-w-0">
-          <h1 class="text-base font-bold text-base-content truncate">
-            {{venueName()}}
-          </h1>
-          @if (participantNickname()) {
-          <p class="text-xs text-base-content/60 truncate">
-            Hola, {{participantNickname()}}
-          </p>
+  <div class="navbar max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16">
+    <div class="navbar-start">
+      <div class="flex items-center gap-3">
+        <div class="avatar">
+          <a routerLink="/food-venues">
+            <div
+              class="w-10 h-10 rounded-lg bg-base-200 flex items-center justify-center"
+            >
+              @if(venueImageUrl()) {
+              <img [src]="venueImageUrl()" [alt]="venueName()" />
+              } @else {
+              <span class="text-xl font-bold">?</span>
+              }
+            </div>
+          </a>
+        </div>
+
+        <div class="flex flex-col min-w-0">
+          <span class="font-bold text-base leading-tight truncate"
+            >{{ venueName() }}</span
+          >
+
+          <span class="text-sm text-base-content/70 leading-tight truncate"
+            >Hola, {{ participantNickname() }}</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-end flex items-center gap-1">
+      <button class="btn btn-ghost btn-circle">
+        <div class="indicator">
+          <lucide-icon [img]="Bell" class="w-5 h-5"></lucide-icon>
+        </div>
+      </button>
+
+      <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+          <lucide-icon [img]="User" class="w-6 h-6"></lucide-icon>
+        </div>
+
+        <ul
+          tabindex="0"
+          class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-56"
+        >
+          @if (isAuthenticated()) {
+          <li>
+            <a routerLink="/profile">
+              <lucide-icon [img]="UserCog" class="w-4 h-4"></lucide-icon>
+              Ver perfil
+            </a>
+          </li>
+          } @if (hasActiveSession()) {
+          <li>
+            <a (click)="onLeaveSession()">
+              <lucide-icon [img]="UtensilsCrossed" class="w-4 h-4"></lucide-icon>
+              Abandonar Mesa
+            </a>
+          </li>
+          } @if (isAuthenticated()) {
+          <li>
+            <a (click)="onLogout()">
+              <lucide-icon [img]="Power" class="w-4 h-4"></lucide-icon>
+              Cerrar Sesión
+            </a>
+          </li>
+          } @if (!isAuthenticated()) {
+          <li>
+            <a routerLink="/auth/login">
+              <lucide-icon [img]="Power" class="w-4 h-4"></lucide-icon>
+              Iniciar Sesión
+            </a>
+          </li>
           }
-        </div>
-      </a>
-
-      <!-- Botones de acción -->
-      <div class="flex items-center gap-1 flex-shrink-0">
-        <!-- Notificaciones -->
-        <a
-          [routerLink]="['/session', tableSession().sessionId, 'notifications']"
-          class="relative p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer"
-        >
-          <lucide-icon
-            [img]="Bell"
-            class="w-5 h-5 text-base-content/70"
-          ></lucide-icon>
-          <div
-            class="absolute -top-1 -right-1 bg-error text-error-content text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold text-[10px] shadow-sm"
-          >
-            0
-          </div>
-        </a>
-
-        <!-- Perfil -->
-        @if (!participantNickname().startsWith('Invitado')) {
-        <a
-          [routerLink]="['/session', tableSession().sessionId, 'profile']"
-          class="p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer"
-        >
-          <lucide-icon
-            [img]="User"
-            class="w-5 h-5 text-base-content/70"
-          ></lucide-icon>
-        </a>
-        } @else {
-        <button
-          routerLink="/auth/login"
-          class="px-4 py-2 ml-4 rounded-xl bg-primary text-primary-content font-medium text-sm active:scale-95 transition-all duration-150 cursor-pointer hover:bg-primary/90 shadow-sm flex items-center gap-2"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-            ></path>
-          </svg>
-          Loguearse
-        </button>
-        }
-
-        <!-- Logout -->
-        @if (!participantNickname().startsWith('Invitado')) {
-        <button
-          (click)="logout()"
-          class="p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer"
-        >
-          <lucide-icon
-            [img]="Logout"
-            class="w-5 h-5 text-base-content/70"
-          ></lucide-icon>
-        </button>
-        }
-       <button
-          (click)="leaveSession()"
-          class="px-4 py-2 ml-4 rounded-xl bg-primary text-primary-content font-medium text-sm active:scale-95 transition-all duration-150 cursor-pointer hover:bg-primary/90 shadow-sm flex items-center gap-2"
-        >
-          <lucide-icon
-            [img]="UtensilsCrossed"
-            class="w-5 h-5"
-          ></lucide-icon>
-          
-          Abandonar sesión
-        </button>
+        </ul>
       </div>
     </div>
-
-    <!-- Fila 2: Info QR + mesa -->
-    @if (hasActiveSession()) {
-    <div
-      class="flex items-center justify-between rounded-2xl border border-base-300 px-4 py-2 bg-base-100 shadow-sm"
-    >
-      <div class="flex items-center gap-3 min-w-0">
-        <div
-          class="w-9 h-9 flex items-center justify-center rounded-full bg-primary/10 flex-shrink-0"
-        >
-          <lucide-icon [img]="QrCode" class="w-5 h-5"></lucide-icon>
-        </div>
-        <div class="flex flex-col leading-tight min-w-0">
-          <p class="text-sm font-semibold text-base-content">
-            Mesa #{{ tableSession().tableNumber }}
-          </p>
-          <p class="text-xs text-base-content/70">Sesión Activa</p>
-        </div>
-      </div>
-      <div class="flex-shrink-0">
-        <p class="text-sm font-medium text-base-content">
-          {{ tableSession().participantCount }} {{
-          tableSession().participantCount === 1 ? 'persona' : 'personas' }}
-        </p>
-      </div>
-    </div>
-    } @else {
-    <div
-      class="flex items-center justify-center rounded-2xl border border-base-300 px-4 py-2 bg-base-200 shadow-sm"
-    >
-      <p class="text-sm text-base-content/70">Sin sesión activa</p>
-    </div>
-    }
-
-    <!-- Fila 3: Categorías dinámicas -->
-    @if (menuResource.isLoading()) {
-    <div class="flex gap-2">
-      <div class="skeleton h-8 w-20 rounded-full"></div>
-      <div class="skeleton h-8 w-28 rounded-full"></div>
-      <div class="skeleton h-8 w-24 rounded-full"></div>
-    </div>
-    } @if (categories().length > 0) {
-    <div class="overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
-      <div class="flex gap-2">
-        @for (category of categories(); track category.id) {
-        <button
-          (click)="selectCategory(category.id)"
-          class="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 cursor-pointer"
-          [class.bg-primary]="selectedCategory() === category.id"
-          [class.text-primary-content]="selectedCategory() === category.id"
-          [class.shadow-sm]="selectedCategory() === category.id"
-          [class.bg-base-200]="selectedCategory() !== category.id"
-          [class.text-base-content]="selectedCategory() !== category.id"
-        >
-          {{ category.name }}
-        </button>
-        }
-      </div>
-    </div>
-    }
   </div>
 </header>

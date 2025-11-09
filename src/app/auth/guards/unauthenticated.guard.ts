@@ -1,10 +1,28 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  CanActivateFn,
+  Router,
+  RouterStateSnapshot,
+} from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-export const UnauthenticatedGuard: CanActivateFn = () => {
+export const UnauthenticatedGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+) => {
+  console.log('🛡️ UnauthenticatedGuard | URL solicitada:', state.url);
+  
   const authService = inject(AuthService);
   const router = inject(Router);
+
+  const isPasswordResetFlow =
+    state.url.includes('/forgot-password') ||
+    state.url.includes('/reset-password');
+
+  if (isPasswordResetFlow) {
+    return true;
+  }
 
   const isAuthenticated = authService.isAuthenticated();
 
@@ -14,7 +32,7 @@ export const UnauthenticatedGuard: CanActivateFn = () => {
   }
 
   const isGuest = authService.isGuest();
-  
+
   if (isGuest) {
     console.log('👻 Guest detectado, permitiendo acceso a login');
     return true;
@@ -24,7 +42,11 @@ export const UnauthenticatedGuard: CanActivateFn = () => {
 
   const tableSessionId = authService.tableSessionId();
 
-  if (tableSessionId && tableSessionId !== 'undefined' && tableSessionId !== 'null') {
+  if (
+    tableSessionId &&
+    tableSessionId !== 'undefined' &&
+    tableSessionId !== 'null'
+  ) {
     console.log('✅ Con sesión de mesa, redirigiendo a home');
     router.navigate(['/']);
   } else {

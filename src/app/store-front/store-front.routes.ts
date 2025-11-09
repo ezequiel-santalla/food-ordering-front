@@ -4,6 +4,7 @@ import { NotificationsPage } from './pages/notifications-page/notifications-page
 import { ProfilePage } from './pages/profile-page/profile-page';
 import { HomePage } from './pages/home-page/home-page';
 import { NotFoundPage } from './pages/not-found-page/not-found-page';
+import { MenuPage } from './pages/menu-page/menu-page';
 
 export const storeFrontRoutes: Routes = [
   {
@@ -24,7 +25,7 @@ export const storeFrontRoutes: Routes = [
       },
       {
         path: 'menu',
-        loadChildren: () => import('./routes/menu.routes').then(m => m.Menu),
+        component: MenuPage,
       },
       {
         path: 'orders',

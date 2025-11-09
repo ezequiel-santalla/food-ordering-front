@@ -1,4 +1,4 @@
-import { AbstractControl, FormGroup } from "@angular/forms";
+import { AbstractControl, FormGroup, ValidationErrors } from "@angular/forms";
 
 export class FormUtils {
 
@@ -87,6 +87,27 @@ export class FormUtils {
           return `Error de validación no controlado. ${key}`;
       }
     };
+
+    return null;
+  }
+
+  public static passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
+    const formGroup = control as FormGroup;
+    const password = formGroup.get('password');
+    const confirmPassword = formGroup.get('confirmPassword');
+
+    if (!password || !confirmPassword) {
+      return null;
+    }
+
+    if (password.value !== confirmPassword.value) {
+      confirmPassword.setErrors({ notSame: true });
+      return { notSame: true };
+    }
+
+    if (confirmPassword.hasError('notSame')) {
+      confirmPassword.setErrors(null);
+    }
 
     return null;
   }

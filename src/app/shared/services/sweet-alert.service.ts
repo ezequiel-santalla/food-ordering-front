@@ -2,21 +2,23 @@ import { Injectable } from '@angular/core';
 import Swal, { SweetAlertResult } from 'sweetalert2';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SweetAlertService {
-
   private defaultConfig = {
     customClass: {
       popup: 'rounded-lg',
       confirmButton: 'rounded-lg',
-      cancelButton: 'rounded-lg'
+      cancelButton: 'rounded-lg',
     },
     confirmButtonColor: '#dc2626',
     cancelButtonColor: '#6b7280',
   };
 
-  async confirmDelete(itemName: string, itemType: string = 'elemento'): Promise<boolean> {
+  async confirmDelete(
+    itemName: string,
+    itemType: string = 'elemento'
+  ): Promise<boolean> {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
       text: `El ${itemType} "${itemName}" será eliminado permanentemente`,
@@ -26,7 +28,7 @@ export class SweetAlertService {
       cancelButtonText: 'Cancelar',
       focusCancel: true,
       reverseButtons: true,
-      ...this.defaultConfig
+      ...this.defaultConfig,
     });
 
     return result.isConfirmed;
@@ -44,7 +46,9 @@ export class SweetAlertService {
 
     const result = await Swal.fire({
       title: `¿Confirmar ${action} ${entityType}?`,
-      text: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} "${entityName}" será ${actionPast} con la información proporcionada`,
+      text: `${
+        entityType.charAt(0).toUpperCase() + entityType.slice(1)
+      } "${entityName}" será ${actionPast} con la información proporcionada`,
       icon: icon,
       showCancelButton: true,
       confirmButtonText: `Sí, ${action}`,
@@ -54,7 +58,7 @@ export class SweetAlertService {
       customClass: {
         popup: 'rounded-lg',
         confirmButton: 'rounded-lg',
-        cancelButton: 'rounded-lg'
+        cancelButton: 'rounded-lg',
       },
       confirmButtonColor: isEditMode ? '#f59e0b' : '#10b981',
       cancelButtonColor: '#6b7280',
@@ -79,13 +83,17 @@ export class SweetAlertService {
       cancelButtonText,
       focusCancel: false,
       reverseButtons: false,
-      ...this.defaultConfig
+      ...this.defaultConfig,
     });
 
     return result.isConfirmed;
   }
 
-  async showInput(title: string, placeholder: string = '', inputType: 'text' | 'email' | 'password' = 'text') {
+  async showInput(
+    title: string,
+    placeholder: string = '',
+    inputType: 'text' | 'email' | 'password' = 'text'
+  ) {
     const result = await Swal.fire({
       title,
       input: inputType,
@@ -99,13 +107,16 @@ export class SweetAlertService {
         }
         return null;
       },
-      ...this.defaultConfig
+      ...this.defaultConfig,
     });
 
     return result.isConfirmed ? result.value : null;
   }
 
-  showLoading(title: string = 'Cargando...', text: string = 'Por favor espera') {
+  showLoading(
+    title: string = 'Cargando...',
+    text: string = 'Por favor espera'
+  ) {
     Swal.fire({
       title,
       text,
@@ -115,8 +126,8 @@ export class SweetAlertService {
         Swal.showLoading();
       },
       customClass: {
-        popup: 'rounded-lg'
-      }
+        popup: 'rounded-lg',
+      },
     });
   }
 
@@ -129,18 +140,18 @@ export class SweetAlertService {
       timerProgressBar: true,
       showConfirmButton: false,
       customClass: {
-        popup: 'rounded-lg'
-      }
+        popup: 'rounded-lg',
+      },
     });
   }
 
-  showError(title: string, text: string = '') {
-    Swal.fire({
-      title,
-      text,
+  showError(title: string, message: string): Promise<any> {
+    // 👇 ¡AÑADE LA PALABRA 'return' AQUÍ!
+    return Swal.fire({
       icon: 'error',
-      confirmButtonText: 'Entendido',
-      ...this.defaultConfig
+      title: title,
+      text: message,
+      confirmButtonColor: '#d33',
     });
   }
 
@@ -150,55 +161,54 @@ export class SweetAlertService {
       text,
       icon: 'info',
       confirmButtonText: 'Entendido',
-      ...this.defaultConfig
+      ...this.defaultConfig,
     });
   }
 
   async confirmLogout(userName?: string): Promise<boolean> {
-  const greeting = userName ? `${userName}` : 'usuario';
+    const greeting = userName ? `${userName}` : 'usuario';
 
-  const result = await Swal.fire({
-    title: '¿Cerrar sesión?',
-    text: `¡Hasta luego, ${greeting}! ¿Estás seguro que deseas cerrar sesión?`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Sí, cerrar sesión',
-    cancelButtonText: 'Cancelar',
-    focusCancel: false,
-    reverseButtons: true,
-    customClass: {
-      popup: 'rounded-lg',
-      confirmButton: 'rounded-lg',
-      cancelButton: 'rounded-lg'
-    },
-    confirmButtonColor: '#f59e0b',
-    cancelButtonColor: '#6b7280',
-  });
+    const result = await Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: `¡Hasta luego, ${greeting}! ¿Estás seguro que deseas cerrar sesión?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      focusCancel: false,
+      reverseButtons: true,
+      customClass: {
+        popup: 'rounded-lg',
+        confirmButton: 'rounded-lg',
+        cancelButton: 'rounded-lg',
+      },
+      confirmButtonColor: '#f59e0b',
+      cancelButtonColor: '#6b7280',
+    });
 
-  return result.isConfirmed;
-}
+    return result.isConfirmed;
+  }
 
-showLogoutSuccess(userName?: string) {
-  const message = userName ? `¡Hasta luego, ${userName}!` : '¡Hasta luego!';
+  showLogoutSuccess(userName?: string) {
+    const message = userName ? `¡Hasta luego, ${userName}!` : '¡Hasta luego!';
 
-  Swal.fire({
-    title: message,
-    text: 'Has cerrado sesión correctamente.',
-    icon: 'success',
-    timer: 2000,
-    timerProgressBar: true,
-    showConfirmButton: false,
-    customClass: {
-      popup: 'rounded-lg'
-    }
-  });
-}
+    Swal.fire({
+      title: message,
+      text: 'Has cerrado sesión correctamente.',
+      icon: 'success',
+      timer: 2000,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      customClass: {
+        popup: 'rounded-lg',
+      },
+    });
+  }
 
   close() {
     Swal.close();
   }
 
-  
   showConfirmableSuccess(
     title: string,
     text: string = '',
