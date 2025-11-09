@@ -45,7 +45,9 @@ export class MenuService {
     products?: Product[];
   }): MenuNode {
     const name = String(node.category ?? '').trim();
-    const products: Product[] = Array.isArray(node.products) ? node.products : [];
+    const products: Product[] = Array.isArray(node.products)
+      ? node.products
+      : [];
     const subs = Array.isArray(node.subcategory) ? node.subcategory : [];
 
     return {
@@ -56,6 +58,38 @@ export class MenuService {
   }
 
   getRecommendations(): Observable<Product[]> {
+    return this.getMenuNodes().pipe(
+      map(({ menu }) => {
+        const all: Product[] = [];
+        const collect = (nodes: MenuNode[]) => {
+          for (const n of nodes) {
+            if (n.products?.length) all.push(...n.products);
+            if (n.subcategory?.length) collect(n.subcategory);
+          }
+        };
+        collect(menu);
+        return all.sort(() => Math.random() - 0.5).slice(0, 20);
+      })
+    );
+  }
+
+  getHighlights() {
+    return this.getMenuNodes().pipe(
+      map(({ menu }) => {
+        const all: Product[] = [];
+        const collect = (nodes: MenuNode[]) => {
+          for (const n of nodes) {
+            if (n.products?.length) all.push(...n.products);
+            if (n.subcategory?.length) collect(n.subcategory);
+          }
+        };
+        collect(menu);
+        return all.sort(() => Math.random() - 0.5).slice(0, 20);
+      })
+    );
+  }
+
+  getMyFavorites() {
     return this.getMenuNodes().pipe(
       map(({ menu }) => {
         const all: Product[] = [];

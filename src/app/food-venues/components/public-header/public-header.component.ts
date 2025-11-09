@@ -3,7 +3,14 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth.service';
 import { SessionUtils } from '../../../utils/session-utils';
 import { AuthStateManager } from '../../../auth/services/auth-state-manager.service';
-import { Bell, LogOut, User, LucideAngularModule } from 'lucide-angular';
+import {
+  Bell,
+  LogOut,
+  User,
+  LucideAngularModule,
+  Utensils,
+  House,
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-public-header',
@@ -14,9 +21,11 @@ export class PublicHeaderComponent {
   readonly Bell = Bell;
   readonly User = User;
   readonly Logout = LogOut;
+  readonly Utensils = Utensils;
+  readonly House = House;
 
   authService = inject(AuthService);
-  private authState = inject(AuthStateManager)
+  private authState = inject(AuthStateManager);
   private router = inject(Router);
 
   isLoggedIn = this.authState.isAuthenticated;
@@ -35,13 +44,13 @@ export class PublicHeaderComponent {
       },
       error: (error) => {
         console.error('❌ Error durante logout:', error);
-        this.authState.clearState(); 
+        this.authState.clearState();
         this.router.navigate(['/food-venues']);
-      }
+      },
     });
   }
 
-  navigateToScanner(){
+  navigateToScanner() {
     this.router.navigate(['/scan-camera']);
   }
 }

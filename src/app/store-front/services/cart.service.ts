@@ -1,6 +1,7 @@
 // services/cart.service.ts
 import { Injectable, computed, signal } from '@angular/core';
 import { CartItem } from '../models/cart.interface';
+import { Product } from '../models/menu.interface';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
@@ -20,6 +21,23 @@ export class CartService {
   );
 
   addItem(
+    product: Product,
+    quantity: number,
+    specialInstructions: string | null
+  ) {
+    const instructions = product.customizable ? specialInstructions : null;
+
+    // Llama a tu lógica de 'addItem' existente
+    this.addItemInternal(
+      product.name,
+      product.price,
+      instructions,
+      quantity,
+      product.imageUrl
+    );
+  }
+
+  private addItemInternal(
     productName: string,
     productPrice: number,
     specialInstructions: string | null,
@@ -27,15 +45,12 @@ export class CartService {
     productImage?: string
   ): void {
     const currentItems = this._items();
-
-    // Buscar si ya existe el producto con las mismas instrucciones
     const existingIndex = currentItems.findIndex(
       item => item.productName === productName &&
               item.specialInstructions === specialInstructions
     );
 
     if (existingIndex >= 0) {
-      // Si existe, SUMAR la nueva cantidad
       const updated = [...currentItems];
       updated[existingIndex] = {
         ...updated[existingIndex],
@@ -43,7 +58,6 @@ export class CartService {
       };
       this._items.set(updated);
     } else {
-      // Si no existe, agregar nuevo con la cantidad recibida
       this._items.update(items => [...items, {
         productName,
         productPrice,
@@ -52,7 +66,6 @@ export class CartService {
         specialInstructions
       }]);
     }
-
     this.saveToStorage();
     console.log('✅ Producto agregado a la orden');
   }

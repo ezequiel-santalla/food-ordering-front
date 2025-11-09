@@ -14,7 +14,7 @@
       <div class="flex gap-4 items-stretch snap-x snap-mandatory">
         @for (p of recommendations(); track p.publicId) {
           <div class="flex-shrink-0 w-48 sm:w-56 md:w-60 snap-start">
-            <app-menu-recommendation-card
+            <app-menu-highlight-card
               [product]="p"
               (select)="openProduct($event)"
               (add)="addToCart($event)"

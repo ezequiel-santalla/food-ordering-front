@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideAngularModule, House, Menu, ShoppingCart, CreditCard, HandPlatter } from 'lucide-angular';
+import { LucideAngularModule, House, Menu, ShoppingCart, CreditCard, HandPlatter, Hamburger } from 'lucide-angular';
 import { SessionRoutesService } from '../../services/session-routes.service';
 import { OrderService } from '../../services/order.service';
 import { CartService } from '../../services/cart.service';
@@ -12,7 +12,7 @@ import { CartService } from '../../services/cart.service';
 })
 export class Footer {
   readonly House = House;
-  readonly Menu = Menu;
+  readonly Menu = Hamburger;
   readonly ShoppingCart = ShoppingCart;
   readonly HandPlatter = HandPlatter;
   readonly CreditCard = CreditCard;

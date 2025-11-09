@@ -11,31 +11,31 @@ import { Product } from '../../models/menu.interface';
   selector: 'app-menu-item-details',
   standalone: true,
   imports: [MenuItemCard],
-  templateUrl: './menu-item-details.html'
+  templateUrl: './menu-item-details.html',
 })
 export class MenuItemDetails {
-
-  private route = inject(ActivatedRoute);
+  public route = inject(ActivatedRoute);
   private menuService = inject(MenuService);
 
   @Input() product?: Product;
   @Input() name?: string;
 
   private routeNameSig = toSignal(
-    this.route.paramMap.pipe(map(pm => pm.get('name') || null)),
+    this.route.paramMap.pipe(map((pm) => pm.get('name') || null)),
     { initialValue: null }
   );
   effectiveName = computed(() => this.name ?? this.routeNameSig());
 
-menuItemResource = rxResource({
-    stream: () => {
-      if (this.product) return of(this.product);
-
-      const name = this.effectiveName();
-      if (!name || !name.trim()) {
-        return of(null);
+  menuItemResource = rxResource({
+    params: () => {
+      const name = this.route.snapshot.paramMap.get('name');
+      return { name };
+    },
+    stream: ({ params }) => {
+      if (!params.name) {
+        return of(undefined);
       }
-      return this.menuService.getMenuItemByName(name);
+      return this.menuService.getMenuItemByName(params.name);
     },
   });
 

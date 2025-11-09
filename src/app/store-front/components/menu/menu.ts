@@ -6,9 +6,9 @@ import { MenuItemCard } from '../menu-item-card/menu-item-card';
 import { MenuItemDetailModal } from '../menu-item-detail-modal/menu-item-detail-modal';
 import { Product } from '../../models/menu.interface';
 
-type MenuNode = {
-  name: string;
-  subcategory?: MenuNode[];
+type Node = {
+  category: string;
+  subcategory?: Node[];
   products?: Product[];
 };
 
@@ -26,71 +26,85 @@ export class Menu {
   openProduct(p: Product) { this.selectedProduct.set(p); }
   closeModal() { this.selectedProduct.set(undefined); }
 
-  // Carga del árbol
+  // Carga del menú
   menuResource = rxResource({
-    stream: () => this.menuService.getMenuNodes(),
+    stream: () => this.menuService.getMenu(),
   });
 
-  // Jerarquía (L1/L2/L3)
+  // === Utils ===
+  private norm = (s?: string) => (s ?? '').trim();
+  private walkProducts = (n?: Node): Product[] => {
+    if (!n) return [];
+    const here = Array.isArray(n.products) ? n.products : [];
+    const subs = Array.isArray(n.subcategory) ? n.subcategory.flatMap(this.walkProducts) : [];
+    return [...here, ...subs];
+  };
+  private unique = <T>(arr: T[]) => Array.from(new Set(arr));
+
+  // Árbol base
+  tree = computed<Node[]>(() => (this.menuResource.value()?.menu as any) ?? []);
+
+  // Nivel 1: nombres de categorías top
+  level1 = computed<string[]>(() => this.tree().map(n => this.norm(n.category)).filter(Boolean));
+
+  // Selecciones
   selectedL1 = signal<'all' | string>('all');
   selectedL2 = signal<'all' | string>('all');
-  selectedL3 = signal<'all' | string>('all');
 
-  tree = computed(() => this.menuResource.value()?.menu ?? []);
+  selectL1(name: 'all' | string) {
+    this.selectedL1.set(name);
+    this.selectedL2.set('all'); // reset cascada
+  }
+  selectL2(name: 'all' | string) {
+    this.selectedL2.set(name);
+  }
 
-  level1 = computed(() => this.tree().map(n => n.name));
+  // Buscar nodo Top por nombre
+  private findTop(name: string): Node | undefined {
+    const target = this.norm(name);
+    return this.tree().find(n => this.norm(n.category) === target);
+  }
 
-  level2 = computed(() => {
+  // Nivel 2: subcategorías del Top seleccionado
+  level2 = computed<string[]>(() => {
     const l1 = this.selectedL1();
     if (l1 === 'all') return [];
-    const n1 = this.tree().find(n => n.name === l1);
-    return n1?.subcategory?.map(s => s.name) ?? [];
+
+    const top = this.findTop(l1);
+    if (!top) return [];
+
+    // Preferimos subcategory[].category
+    const subsByNode = (top.subcategory ?? []).map(s => this.norm(s.category)).filter(Boolean);
+    if (subsByNode.length) return this.unique(subsByNode);
+
+    // Fallback: si no hay subnodes, usamos los category de los products dentro del Top
+    const products = this.walkProducts(top);
+    const subsByProducts = products.map(p => this.norm(p.category)).filter(Boolean);
+    return this.unique(subsByProducts);
   });
 
-  level3 = computed(() => {
+  // Productos filtrados (2 niveles)
+  products = computed<Product[]>(() => {
     const l1 = this.selectedL1();
     const l2 = this.selectedL2();
-    if (l1 === 'all' || l2 === 'all') return [];
-    const n1 = this.tree().find(n => n.name === l1);
-    const n2 = n1?.subcategory?.find(s => s.name === l2);
-    return n2?.subcategory?.map(s => s.name) ?? [];
+
+    // Sin Top: todos
+    if (l1 === 'all') {
+      return this.tree().flatMap(n => this.walkProducts(n));
+    }
+
+    const top = this.findTop(l1);
+    if (!top) return [];
+
+    // Con Top pero Sub = Todas → todo lo de ese Top
+    if (l2 === 'all') return this.walkProducts(top);
+
+    // Con Top + Sub → si existen subnodos con ese nombre, juntamos sus productos
+    const subName = this.norm(l2);
+    const directSubs = (top.subcategory ?? []).filter(s => this.norm(s.category) === subName);
+    if (directSubs.length) return directSubs.flatMap(s => this.walkProducts(s));
+
+    // Fallback: filtrar por product.category en todo el Top
+    return this.walkProducts(top).filter(p => this.norm(p.category) === subName);
   });
-
-  products = computed(() => {
-    const l1 = this.selectedL1();
-    const l2 = this.selectedL2();
-    const l3 = this.selectedL3();
-
-    const collect = (nodes?: MenuNode[]): Product[] => {
-      if (!nodes) return [];
-      const out: Product[] = [];
-      const walk = (n: MenuNode) => {
-        if (n.products) out.push(...n.products);
-        n.subcategory?.forEach(walk);
-      };
-      nodes.forEach(walk);
-      return out;
-    };
-
-    const root = this.tree();
-    if (l1 === 'all') return collect(root);
-
-    const n1 = root.find(n => n.name === l1);
-    if (!n1) return [];
-
-    if (l2 === 'all') return collect([n1]);
-
-    const n2 = n1.subcategory?.find(s => s.name === l2);
-    if (!n2) return [];
-
-    if (l3 === 'all') return collect([n2]);
-
-    const n3 = n2.subcategory?.find(s => s.name === l3);
-    return collect(n3 ? [n3] : []);
-  });
-
-  // handlers jerárquicos
-  selectL1(v: 'all' | string) { this.selectedL1.set(v); this.selectedL2.set('all'); this.selectedL3.set('all'); }
-  selectL2(v: 'all' | string) { this.selectedL2.set(v); this.selectedL3.set('all'); }
-  selectL3(v: 'all' | string) { this.selectedL3.set(v); }
 }

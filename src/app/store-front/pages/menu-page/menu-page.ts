@@ -5,6 +5,6 @@ import { Menu } from '../../components/menu/menu';
   selector: 'app-menu-page',
   standalone: true,
   imports: [Menu],
-  templateUrl: './menu-page.html',
+  templateUrl: './menu-page.html'
 })
 export class MenuPage {}

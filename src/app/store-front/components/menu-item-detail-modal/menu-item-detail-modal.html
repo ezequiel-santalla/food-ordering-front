@@ -56,10 +56,29 @@
 
     <div class="overflow-y-auto flex-1 px-6 pt-1 pb-4 space-y-3">
       <div class="space-y-2">
-        <h2 class="text-2xl font-bold text-base-content leading-tight">
-          {{ product().name }}
-        </h2>
         <div class="flex items-center justify-between">
+  <h2 class="text-2xl font-bold text-base-content leading-tight">
+    {{ product().name }}
+  </h2>
+
+  <button 
+    class="btn btn-ghost btn-circle ml-2 hover:bg-base-200 transition-transform hover:scale-110" 
+    (click)="toggleFavorite($event)"
+    [attr.aria-pressed]="isFavorite()"
+    title="Marcar como favorito">
+    <lucide-icon 
+      [img]="Star" 
+      class="w-6 h-6 transition-all duration-300"
+      [class.text-yellow-400]="isFavorite()"
+      [class.text-base-content/30]="!isFavorite()"
+      [class.fill-current]="isFavorite()"  
+      [class.fill-none]="!isFavorite()"
+    ></lucide-icon>
+  </button>
+</div>
+
+
+<div class="flex items-center justify-between">
           <span class="text-2xl font-bold text-primary"
             >{{ product().price | currency }}</span
           >

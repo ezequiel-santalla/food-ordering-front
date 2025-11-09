@@ -5,9 +5,9 @@ import {
   LucideAngularModule,
   Bell,
   User,
-  UserCog, // Para "Ver Perfil"
-  LogOut, // Para "Abandonar Mesa"
-  Power, // Para "Cerrar Sesión"
+  UserCog,
+  Power,
+  UtensilsCrossed,
 } from 'lucide-angular';
 import { MenuService } from '../../services/menu.service'; // Ajusta la ruta
 import { TableSessionService } from '../../services/table-session.service'; // Ajusta la ruta
@@ -33,7 +33,7 @@ export class Header {
   readonly Bell = Bell;
   readonly User = User;
   readonly UserCog = UserCog;
-  readonly LogOut = LogOut;
+  readonly UtensilsCrossed = UtensilsCrossed;
   readonly Power = Power;
 
   // --- Estado de Autenticación ---
