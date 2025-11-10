@@ -1,5 +1,14 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import {
+  catchError,
+  first,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AuthResponse, LoginResponse } from '../models/auth';
 import { TableSessionResponse } from '../../shared/models/table-session';
@@ -18,6 +27,9 @@ import { Employment } from '../../shared/models/common';
 export class AuthService {
   private authApi = inject(AuthApiService);
   private authState = inject(AuthStateManager);
+
+  private isRefreshingToken = false;
+  private tokenRefreshed$ = new Subject<string>();
 
   constructor() {
     this.authState.loadFromStorage();
@@ -98,6 +110,27 @@ export class AuthService {
       }),
       catchError((error) => {
         console.error('❌ Error en registro:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  forgotPassword(data: any): Observable<LoginResponse> {
+    return this.authApi.requestPasswordReset(data).pipe(
+      catchError((error) => {
+        console.error('❌ Error en solicitud de reseteo:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  resetPassword(token: string, password: string): Observable<any> {
+    const data = { token, password };
+
+    // Este método NO debe manejar tokens de sesión, solo envía la petición.
+    return this.authApi.performPasswordReset(data).pipe(
+      catchError((error) => {
+        console.error('❌ Error en reseteo de contraseña:', error);
         return throwError(() => error);
       })
     );
@@ -242,5 +275,55 @@ export class AuthService {
     this.authState.clearSessionData();
     SessionUtils.clearAllSessionData();
     return of(void 0);
+  }
+
+  refreshAccessToken(): Observable<string> {
+    if (this.isRefreshingToken) {
+      // Si ya hay un refresco en progreso,
+      // las otras peticiones "esperan" hasta que termine.
+      return this.tokenRefreshed$.pipe(first());
+    }
+
+    // Iniciar el proceso de refresco
+    this.isRefreshingToken = true;
+    const currentRefreshToken = this.authState.refreshToken();
+
+    if (!currentRefreshToken || currentRefreshToken === 'guest') {
+      this.isRefreshingToken = false;
+      this.logoutAndReload();
+      return throwError(() => new Error('No hay refresh token válido.'));
+    }
+
+    // Llamar al API Service
+    return this.authApi.refreshToken(currentRefreshToken).pipe(
+      tap((response: AuthResponse) => {
+        // 1. Guardar los nuevos tokens
+        const processed = TokenManager.processAuthResponse(response);
+        this.authState.applyAuthData(processed);
+
+        // 2. Avisar a las peticiones en espera que tenemos un nuevo token
+        this.tokenRefreshed$.next(response.accessToken);
+        this.isRefreshingToken = false;
+      }),
+      switchMap((response) => {
+        // 3. Devolver un Observable con el nuevo access token
+        return of(response.accessToken);
+      }),
+      catchError((error) => {
+        // 4. ¡El refresh token falló! (ej. también expiró o fue revocado)
+        // No hay nada que hacer. Cierra la sesión.
+        this.isRefreshingToken = false;
+        this.logoutAndReload();
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Helper para centralizar el logout + recarga de página.
+   */
+  logoutAndReload(): void {
+    this.logout(); 
+    location.reload();
   }
 }

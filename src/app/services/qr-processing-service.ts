@@ -68,6 +68,7 @@ export class QrProcessingService {
             response.tableNumber,
             nickname,
             response.numberOfParticipants || 0,
+            response.tableCapacity || 0,
             participantId || undefined
           );
 
@@ -77,7 +78,7 @@ export class QrProcessingService {
           );
           this.navigation.navigateToHome();
         },
-     error: (errorResponse) => {
+        error: (errorResponse) => {
           console.error('❌ Error procesando QR:', errorResponse);
           this.isSubmitting.set(false);
 
@@ -87,23 +88,24 @@ export class QrProcessingService {
           let message = 'No se pudo procesar el QR.';
 
           if (backendError && backendError.message) {
-            
             message = backendError.message;
 
             if (backendError.appCode === 'COMPLETE') {
               title = 'Mesa Llena';
+              message = 'La mesa escaneada no admite mas participantes';
             } else if (backendError.appCode === 'OUT_OF_SERVICE') {
               title = 'Mesa Fuera de Servicio';
+              message = 'La mesa no se encuentra habilitada para iniciar sesión';
             } else {
               title = 'No disponible';
+              message = 'Ocurrió un error al iniciar sesión';
             }
-
           } else if (errorResponse.status === 409) {
             // Fallback por si algo falla en el JSON
             title = 'Acción no permitida';
             message = 'Ya existe un conflicto con esta acción.';
           }
-          
+
           this.sweetAlertService.showError(title, message);
 
           setTimeout(() => {
@@ -135,23 +137,23 @@ export class QrProcessingService {
     let nickname: string | undefined;
 
     if (current) {
-
       if (current.user?.name) {
         nickname = current.user.name;
         console.log('✅ Usando nombre del usuario (user.name):', nickname);
-      }
-
-      else if (current.nickname && !current.nickname.toLowerCase().startsWith('guest')) {
+      } else if (
+        current.nickname &&
+        !current.nickname.toLowerCase().startsWith('guest')
+      ) {
         nickname = current.nickname;
-        console.log('✅ Usando nickname del participante (nickname):', nickname);
-      }
-
-      else if (current.nickname) {
+        console.log(
+          '✅ Usando nickname del participante (nickname):',
+          nickname
+        );
+      } else if (current.nickname) {
         nickname = current.nickname;
         console.log('⚠️ Usando nickname de Guest (para conversión):', nickname);
       }
     }
-    
 
     const safeNick = this.toSafeNickname(nickname, participantId);
     return safeNick;

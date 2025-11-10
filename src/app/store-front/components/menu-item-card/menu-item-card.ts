@@ -1,28 +1,42 @@
-import { Component, inject, input, output } from '@angular/core';
-import { NgClass } from '@angular/common';
-import { SessionRoutesService } from '../../services/session-routes.service';
+// app-menu-item-card.ts
+import { Component, inject, Input, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { LucideAngularModule, Plus, Star } from 'lucide-angular';
+import { Product } from '../../models/menu.interface';
+import { CartService } from '../../services/cart.service';
+import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-menu-item-card',
-  imports: [NgClass],
-  templateUrl: './menu-item-card.html'
+  standalone: true,
+  imports: [CommonModule, LucideAngularModule],
+  templateUrl: './menu-item-card.html',
 })
 export class MenuItemCard {
+  @Input({ required: true }) product!: Product;
+  @Input() layout: 'horizontal' | 'vertical' = 'horizontal';
 
-  sessionRoutesService = inject(SessionRoutesService);
+  private cartService = inject(CartService);
+  private sweetAlert = inject(SweetAlertService);
 
-  image = input.required<string>();
-  name = input.required<string>();
-  description = input.required<string>();
-  price = input.required<number>();
+  readonly Plus = Plus;
+  readonly Star = Star;
 
-  layout = input<'vertical' | 'horizontal'>('vertical');
+  select = output<Product>();
 
-  select = output<void>();
-
-  // Método de debug
-  onCardClick() {
-    console.log('Card clicked! Product:', this.name());
-    this.select.emit();
+  onActionClick(event: Event) {
+    event.stopPropagation();
+this.cartService.addItem(
+      this.product, 
+      1,    // Cantidad 1
+      null  // Sin instrucciones
+    );
+    
+    // 7. (Opcional) Da feedback al usuario
+    this.sweetAlert.showSuccess(
+      '¡Agregado!',
+      `${this.product.name} fue añadido a tu orden.`,
+      1500 // 1.5 segundos
+    );
   }
 }

@@ -1,11 +1,4 @@
-import {
-  computed,
-  effect,
-  Inject,
-  inject,
-  Injectable,
-  signal,
-} from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../../auth/services/auth.service';
 import { ProfileService } from './profile.service';
 import { TableSessionInfo } from '../../shared/models/table-session';
@@ -17,7 +10,6 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthStateManager } from '../../auth/services/auth-state-manager.service';
 import { TokenManager } from '../../utils/token-manager';
-import { AuthResponse } from '../../auth/models/auth';
 
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
@@ -39,15 +31,19 @@ export class TableSessionService {
     this.getStoredString('participantId')
   );
 
+  private _tableCapacity = signal<number>(
+    this.getStoredNumber('tableCapacity')
+  );
+
   private sseSubscription: Subscription | undefined;
 
-  // Computed público que combina todo
   tableSessionInfo = computed<TableSessionInfo>(() => ({
     tableNumber: this._tableNumber(),
     participantNickname: this._participantNickname(),
     participantId: this._participantId(),
     participantCount: this._participantCount(),
     sessionId: this.authService.tableSessionId(),
+    tableCapacity: this._tableCapacity(),
   }));
 
   hasActiveSession = computed(() => {
@@ -55,20 +51,13 @@ export class TableSessionService {
     return SessionUtils.isValidSession(sessionId);
   });
 
-  // ✅ Computed para saber si es un invitado
-  private isGuest = computed(() => {
-    const nickname = this._participantNickname();
-    return nickname.toLowerCase().startsWith('guest');
-  });
-
   constructor(private router: Router) {
     effect(() => {
-      if (this.hasActiveSession() && !this.isGuest()) {
+      if (this.hasActiveSession() && !this.authState.isGuest()) {
         this.syncNicknameFromProfile();
       }
     });
 
-    // 👇 5. AÑADIR ESTE NUEVO EFFECT PARA GESTIONAR LA CONEXIÓN SSE
     effect(
       (onCleanup) => {
         const tableSessionId = this.authService.tableSessionId();
@@ -78,7 +67,7 @@ export class TableSessionService {
           // --- SÍ: Nos conectamos al SSE ---
           console.log(`🔌 Conectando a SSE para mesa:`);
 
-          // Usamos tu SseService para suscribirnos
+          // Usamos el SseService para suscribirnos
           this.sseSubscription = this.sseService
             .subscribeToSession()
             .subscribe({
@@ -86,15 +75,15 @@ export class TableSessionService {
                 console.log(
                   'Evento SSE recibido en TableSessionService:',
                   event
-                ); // <-- Log general
+                );
 
                 if (event.type === 'count-updated') {
                   const newCount = event.payload.count;
                   if (typeof newCount === 'number') {
                     console.log(
                       `[SSE count-updated] Recibido conteo: ${newCount}. Actualizando signal...`
-                    ); // <-- Log específico
-                    this._participantCount.set(newCount); // <-- Actualiza la signal
+                    );
+                    this._participantCount.set(newCount);
                   } else {
                     console.warn(
                       '[SSE count-updated] Payload inválido:',
@@ -104,16 +93,9 @@ export class TableSessionService {
                 }
 
                 if (event.type === 'user-joined') {
-                  // Para USER_JOINED, simplemente incrementar sigue siendo una opción válida
-                  // aunque ahora recibas el DTO del participante en event.payload
-                  console.log('[SSE user-joined] Incrementando contador'); // Log para confirmar
+                  console.log('[SSE user-joined] Incrementando contador');
                   this._participantCount.update((count) => count + 1);
-
-                  // Alternativa si prefieres usar el conteo del evento COUNT_UPDATED:
-                  // Puedes simplemente comentar o eliminar este bloque 'if (event.type === 'user-joined')'
-                  // y confiar únicamente en el evento 'count-updated' para setear el número correcto.
                 }
-                // ...
               },
               error: (err) =>
                 console.error(
@@ -166,7 +148,7 @@ export class TableSessionService {
    */
   refreshNickname(): void {
     // ✅ Solo sincronizar si NO es invitado
-    if (this.hasActiveSession() && !this.isGuest()) {
+    if (this.hasActiveSession() && !this.authState.isGuest()) {
       this.syncNicknameFromProfile();
     }
   }
@@ -187,12 +169,14 @@ export class TableSessionService {
     tableNumber: number,
     participantNickname: string,
     participantCount: number,
+    tableCapacity: number,
     participantId?: string
   ): void {
     console.log('📝 Guardando info de mesa:', {
       tableNumber,
       participantNickname,
       participantCount,
+      tableCapacity,
       participantId,
     });
 
@@ -223,6 +207,14 @@ export class TableSessionService {
       localStorage.removeItem('participantCount');
     }
 
+    if (tableCapacity >= 0) {
+      this._tableCapacity.set(tableCapacity);
+      localStorage.setItem('tableCapacity', tableCapacity.toString());
+    } else {
+      this._tableCapacity.set(0);
+      localStorage.removeItem('tableCapacity');
+    }
+
     if (participantId && participantId.trim()) {
       this._participantId.set(participantId);
       localStorage.setItem('participantId', participantId);
@@ -250,11 +242,13 @@ export class TableSessionService {
     this._participantNickname.set('');
     this._participantCount.set(0);
     this._participantId.set('');
+    this._tableCapacity.set(0);
 
     localStorage.removeItem('tableNumber');
     localStorage.removeItem('participantNickname');
     localStorage.removeItem('participantCount');
     localStorage.removeItem('participantId');
+    localStorage.removeItem('tableCapacity');
   }
 
   //Esto podria estar en un servicio dedicado al participante actual
@@ -305,6 +299,8 @@ export class TableSessionService {
             // Caso 2: Vino un 204 No Content (o un 200 sin body)
             this.authState.clearState();
           }
+
+          this.clearSession();
 
           console.log('El participante dejó la sesión', response);
           this.router.navigate(['/food-venues']);

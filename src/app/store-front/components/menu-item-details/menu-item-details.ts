@@ -1,40 +1,42 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, Input } from '@angular/core';
 import { MenuService } from '../../services/menu.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { of, switchMap } from 'rxjs';
+import { map, of, switchMap } from 'rxjs';
 import { MenuItemCard } from '../menu-item-card/menu-item-card';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Product } from '../../models/menu.interface';
 
 @Component({
   selector: 'app-menu-item-details',
+  standalone: true,
   imports: [MenuItemCard],
-  templateUrl: './menu-item-details.html'
+  templateUrl: './menu-item-details.html',
 })
 export class MenuItemDetails {
-
-  private route = inject(ActivatedRoute);
+  public route = inject(ActivatedRoute);
   private menuService = inject(MenuService);
 
-  private routeParams = toSignal(
-    this.route.paramMap.pipe(
-      switchMap(params => of(params.get('name')))
-    )
+  @Input() product?: Product;
+  @Input() name?: string;
+
+  private routeNameSig = toSignal(
+    this.route.paramMap.pipe(map((pm) => pm.get('name') || null)),
+    { initialValue: null }
   );
+  effectiveName = computed(() => this.name ?? this.routeNameSig());
 
   menuItemResource = rxResource({
-    params: () => ({
-      name: this.routeParams()
-    }),
+    params: () => {
+      const name = this.route.snapshot.paramMap.get('name');
+      return { name };
+    },
     stream: ({ params }) => {
       if (!params.name) {
-        console.log('❌ No hay nombre de producto en la ruta');
-        return of(null);
+        return of(undefined);
       }
-
-      console.log('🔍 Buscando producto:', params.name);
       return this.menuService.getMenuItemByName(params.name);
-    }
+    },
   });
 
   isRootRoute = () => {

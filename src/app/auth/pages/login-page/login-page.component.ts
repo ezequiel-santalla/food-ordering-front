@@ -12,6 +12,7 @@ import {
   Mail,
   RotateCcwIcon,
   User,
+  X,
 } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 import { FormUtils } from '../../../utils/form-utils';
@@ -32,6 +33,7 @@ export class LoginPageComponent implements OnInit {
   readonly Mail = Mail;
   readonly KeyRound = KeyRound;
   readonly RotateCcwIcon = RotateCcwIcon;
+  readonly X = X;
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
@@ -189,6 +191,7 @@ export class LoginPageComponent implements OnInit {
         response.tableNumber,
         nickname,
         response.numberOfParticipants || 0,
+        response.tableCapacity || 0, 
         participantIdFromToken
       );
 
@@ -213,6 +216,10 @@ export class LoginPageComponent implements OnInit {
     
     // 3. Si no hay roles, navega al estado de la sesión
     this.resetForm();
+    this.navigation.navigateBySessionState();
+  }
+
+  onExit(){
     this.navigation.navigateBySessionState();
   }
 }

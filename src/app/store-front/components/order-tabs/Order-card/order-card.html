@@ -1,0 +1,85 @@
+<div class="bg-base-100 rounded-lg shadow-sm overflow-hidden">
+  <div
+    class="flex items-center gap-3 p-4 cursor-pointer bg-[rgba(200,220,255,0.3)] hover:bg-[rgba(190,210,250,0.5)] transition-colors"
+    (click)="toggleExpand()"
+  >
+    <div
+      class="flex-grow grid grid-cols-[auto,1fr] gap-x-2 gap-y-1 items-center min-w-0"
+    >
+      <div class="flex items-center gap-3 min-w-0 flex-grow">
+        <input
+          type="checkbox"
+          class="checkbox checkbox-primary flex-shrink-0"
+          [checked]="isSelected()"
+          (change)="onSelectionChange($event)"
+        />
+
+        <h3 class="font-semibold text-base-content whitespace-nowrap">
+          Orden #{{ order.orderNumber }}
+        </h3>
+      </div>
+
+      <div></div>
+
+      <p class="text-xs text-base-content/70 flex items-center gap-1 truncate">
+        <lucide-icon [img]="User" [size]="14"></lucide-icon>
+        <span>{{ order.clientAlias }}</span>
+      </p>
+    </div>
+
+    <div class="flex flex-col items-end ml-2 flex-shrink-0">
+      <span [class]="'badge badge-sm ' + getStatusBadgeClass(order.status)">
+        {{ getStatusText(order.status) }}
+      </span>
+      <span class="font-bold text-lg text-base-content mt-1"
+        >${{ order.totalPrice | number:'1.2-2' }}</span
+      >
+    </div>
+
+    <div class="flex-shrink-0 ml-2">
+      <lucide-icon
+        [img]="ChevronDown"
+        class="transition-transform duration-300 w-5 h-5 text-base-content/50"
+        [class.rotate-180]="isExpanded()"
+      ></lucide-icon>
+    </div>
+  </div>
+
+  @if (isExpanded()) {
+  <div class="px-4 sm:px-6 py-4 bg-base-200/50 border-t border-base-200">
+    <div class="space-y-2 mb-4">
+      @for (detail of order.orderDetails; track detail.id) {
+      <div class="flex items-start justify-between text-sm py-1">
+        <p class="text-base-content/90">
+          <span class="font-semibold">{{ detail.quantity }}x</span> {{
+          detail.productName }}
+        </p>
+        <p class="font-medium text-base-content">
+          ${{ detail.subtotal | number:'1.2-2' }}
+        </p>
+      </div>
+      }
+    </div>
+
+    @if (order.specialRequirements) {
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
+      <p class="text-xs font-semibold text-amber-800 mb-1">
+        📋 Requisitos especiales de la orden:
+      </p>
+      <p class="text-sm text-amber-700">{{ order.specialRequirements }}</p>
+    </div>
+    }
+
+    <div
+      class="flex justify-between items-center text-lg font-bold text-base-content py-2 border-t border-base-300 mt-4"
+    >
+      <span>Total:</span>
+      <span>${{ order.totalPrice | number:'1.2-2' }}</span>
+    </div>
+
+    <div class="card-actions justify-end mt-4">
+      <button class="btn btn-primary btn-sm">Marcar como pagado</button>
+    </div>
+  </div>
+  }
+</div>

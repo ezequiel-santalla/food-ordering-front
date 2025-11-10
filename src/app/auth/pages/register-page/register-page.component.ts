@@ -142,7 +142,9 @@ export class RegisterPageComponent {
           this.tableSessionService.setTableSessionInfo(
             response.tableNumber,
             nickname,
-            response.numberOfParticipants || 0
+            response.numberOfParticipants || 0,
+            response.tableCapacity || 0,
+            participantIdFromToken
           );
 
           console.log('✅ Datos de mesa guardados correctamente');

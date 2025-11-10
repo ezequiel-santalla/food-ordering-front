@@ -42,10 +42,20 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    path: 'profile', // <-- 2. Esta ruta coincide con tu routerLink
+    canActivate: [AuthenticatedGuard], // <-- 3. Protegida por autenticación
+    loadComponent: () =>
+      // 4. Apunta al archivo del componente de la página
+      import('./store-front/pages/profile-page/profile-page').then(
+        (m) => m.ProfilePage
+      ),
+  },
+
   // 🏠 Store Front - Menú, Pedidos, etc. (requiere autenticación + tableSessionId)
   {
     path: 'session/:tableSessionId',
-    canActivate: [AuthenticatedGuard, HasTableSessionGuard],
+    canActivate: [HasTableSessionGuard],
     loadChildren: () => import('./store-front/store-front.routes'),
   },
 
@@ -61,7 +71,7 @@ export const routes: Routes = [
     canActivate: [AuthenticatedGuard],
     loadChildren: () => import('./admin-front/admin-front.routes'),
   },
-  
+
   {
     path: 'invitations/respond',
     component: EmploymentInvitationResponseComponent,
