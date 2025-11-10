@@ -38,6 +38,10 @@ export interface TablePositionResponse {
   height: number;
 }
 
+export interface SectorResponse {
+  sectors: string[];
+}
+
 export enum DiningTableStatus {
   AVAILABLE = 'AVAILABLE',
   IN_SESSION = 'IN_SESSION',

@@ -1,13 +1,14 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { DiningTableRequest } from '../../models/dining-table';
 import { DiningTableService } from '../../services/dining-table-service';
 import { TablePositionResponse } from '../../models/lounge';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { EditTableModal } from "../edit-table-modal/edit-table-modal";
 
 @Component({
   selector: 'app-table-detail-modal',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, EditTableModal],
   templateUrl: './table-detail-modal.html'
 })
 export class TableDetailModal {
@@ -19,8 +20,11 @@ export class TableDetailModal {
   sizeChanged = output<{ tableId: string, width: number, height: number }>();
   removed = output<string>();
 
+  dataUpdated = output<TablePositionResponse>();
   currentWidth: number = 200;
   currentHeight: number = 80;
+  isEditing = signal(false);
+
 
   ngOnInit(): void {
     this.currentWidth = this.table().width || 200;
@@ -109,5 +113,29 @@ export class TableDetailModal {
       'rect': 'Barra'
     };
     return shapeMap[this.table().tableShape] || this.table().tableShape;
+  }
+
+
+  onEdit(): void {
+    this.isEditing.set(true);
+  }
+
+  onCloseEditModal(): void {
+    this.isEditing.set(false);
+  }
+
+  onTableEdited(updatedTable: TablePositionResponse): void {
+    // 1. Emitir el evento para que el padre actualice el salón/lista
+    this.dataUpdated.emit(updatedTable);
+
+    // 2. Opcionalmente: cerrar el modal de detalles *o* actualizar el signal 'table' si es un 'input' o reasignar si es un 'signal' en el componente padre.
+    // Si tu componente padre maneja la lista de mesas, el 'dataUpdated.emit' debería ser suficiente.
+    // Para simplificar, cerraremos el modal de edición y mantendremos abierto el de detalles con los datos ya actualizados.
+    this.isEditing.set(false);
+
+    // Nota: Necesitas que el componente padre que usa table-detail-modal actualice la información de 'table()'
+    // al recibir 'dataUpdated' para que el modal de detalles refleje los cambios.
+    // Si table() es un 'input' (que no se puede cambiar dentro de este componente), debes actualizarlo en el padre.
+    this.onClose(); // Cerrar ambos modales después de la edición exitosa es una UX común
   }
 }

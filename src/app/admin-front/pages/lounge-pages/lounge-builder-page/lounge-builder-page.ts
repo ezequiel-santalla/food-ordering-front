@@ -1,3 +1,4 @@
+import { TableDetailModal } from './../../../components/table-detail-modal/table-detail-modal';
 import { Component, OnInit } from '@angular/core';
 
 import { TablePosition, TablePositionResponse } from '../../../models/lounge';
@@ -11,8 +12,6 @@ import { SectorModal } from '../../../components/sector-modal/sector-modal';
 import { FormsModule } from '@angular/forms';
 
 import { CommonModule } from '@angular/common';
-
-import { TableDetailModal } from "../../../components/table-detail-modal/table-detail-modal";
 
 
 
@@ -42,13 +41,10 @@ export class LoungeBuilderPage implements OnInit { // Implementamos OnInit
 
   // 📐 CONSTANTES DE AJUSTE
 
-  gridStep = 50; // Paso para "Snap to Grid" (las mesas caen en múltiplos de 50)
+  gridStep = 50;
 
   collisionBuffer = 5;
 
-
-
-  // 📱 COORDENADAS DEL VIEWPORT (calculadas dinámicamente)
 
   viewportWidth = 0;
 
@@ -56,15 +52,9 @@ export class LoungeBuilderPage implements OnInit { // Implementamos OnInit
 
   scaleRatio = 1;
 
+currentSector: string = 'Principal';
 
-
-
-
-
-
-  currentSector: string = 'Planta Baja';
-
-  sectors: string[] = ['Planta Baja', 'Primer Piso', 'Terraza'];
+sectors: string[] = [];
 
 
 
@@ -140,23 +130,34 @@ export class LoungeBuilderPage implements OnInit { // Implementamos OnInit
 
   }
 
+   loadSectors(): void {
+    this.loungeService.getSectors().subscribe({
+      next: (response) => {
+        this.sectors = response.sectors;
 
-
-  // ===================================
-
-  // Lógica de Persistencia (Nueva)
-
-  // ===================================
-
+        // Si hay sectores, usar el primero como default
+        if (this.sectors.length > 0) {
+          this.currentSector = this.sectors[0];
+        } else {
+          // Si no hay sectores, usar default y agregarlo
+          this.currentSector = 'Planta Baja';
+          this.sectors = ['Planta Baja'];
+        }
+      },
+      error: (err) => {
+        console.error('Error loading sectors:', err);
+        // Fallback a sectores por defecto
+        this.sectors = ['Planta Baja'];
+        this.currentSector = 'Planta Baja';
+      }
+    });
+  }
 
 
   saveLoungeChanges(): void {
 
     if (!this.hasUnsavedChanges) return;
 
-
-
-    // Mapear solo las propiedades necesarias para la persistencia
 
     const positionsToSave: TablePosition[] = this.tablePositions.map(t => ({
 
@@ -178,6 +179,8 @@ export class LoungeBuilderPage implements OnInit { // Implementamos OnInit
 
 
 
+
+
     // Llamada al nuevo método del servicio
 
     this.loungeService.saveAllTablePositions(positionsToSave).subscribe({
@@ -189,6 +192,8 @@ export class LoungeBuilderPage implements OnInit { // Implementamos OnInit
         this.tablePositions = persistedPositions;
 
         this.hasUnsavedChanges = false; // Desactivar la bandera
+
+        this.loadSectors();
 
         alert('Salón guardado exitosamente.');
 
@@ -220,7 +225,7 @@ export class LoungeBuilderPage implements OnInit { // Implementamos OnInit
 
     const availableWidth = containerElement.clientWidth -64; // Padding
 
-    const availableHeight = window.innerHeight-150; // Header + controles + leyenda
+    const availableHeight = window.innerHeight-250; // Header + controles + leyenda
 
 
 
@@ -243,8 +248,6 @@ export class LoungeBuilderPage implements OnInit { // Implementamos OnInit
     this.viewportHeight = this.virtualGridHeight * this.scaleRatio;
 
   }
-
-
 
   // 🔄 CONVERTIR coordenadas virtuales → viewport
 
@@ -285,11 +288,6 @@ toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } 
   };
 
   }
-
-
-
-  // 🎨 OBTENER posiciones escaladas para renderizado
-
   get scaledTablesInCurrentSector() {
 
     return this.tablesInCurrentSector.map(table => ({
@@ -307,19 +305,6 @@ toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } 
     }));
 
   }
-
-
-
-
-
-
-
-  // ===================================
-
-  // Lógica de Movimiento (Actualizada)
-
-  // ===================================
-
 
 
   onDrop(event: DragEvent): void {
@@ -364,7 +349,7 @@ toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } 
 
   ));
 
-      // 🔄 CONVERTIR A COORDENADAS VIRTUALES
+
 
     const virtualCoords = this.toVirtualCoords(viewportX, viewportY);
 
@@ -451,17 +436,6 @@ toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } 
                      virtualY + height + this.collisionBuffer > table.positionY;
 
 
-
-    // Para un rectángulo, la colisión ocurre cuando NO hay separación en ambos ejes.
-
-    // La lógica de colisión de rectángulos es correcta, pero hay que quitar el buffer
-
-    // porque el buffer ya está incluido en la posición de inicio/fin para relajar la condición.
-
-
-
-    // Corrección para relajar la condición (simplemente hacer que se puedan solapar por el buffer)
-
     const overlapXRelaxed = virtualX < table.positionX + tableWidth &&
 
                             virtualX + width > table.positionX;
@@ -473,14 +447,6 @@ toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } 
                             virtualY + height > table.positionY;
 
 
-
-    // Si la colisión es exacta (sin buffer), la lógica actual es correcta.
-
-    // Si queremos que se puedan acercar a 10px, debemos relajar:
-
-
-
-    // Si la distancia entre ellas es menor al buffer, consideramos colisión
 
     const distanceX = Math.abs(virtualX - table.positionX) - ((width + tableWidth) / 2);
 
@@ -509,24 +475,8 @@ toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } 
 
 
 
-
-  // ===================================
-
-  // Lógica de Creación/Tamaño/Eliminación
-
-  // ===================================
-
-
-
   onTableCreated(tableData: any): void {
 
-    // ⚠️ NOTA: La creación (POST) debe seguir llamando al servicio inmediatamente
-
-    // para obtener el diningTableId persistido.
-
-
-
-    // ... (Tu lógica de creación permanece igual, ya que addTablePosition debe ser inmediata)
 
     const tablePosition: TablePosition = {
 
@@ -640,6 +590,7 @@ toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } 
 
         this.gridHeight = lounge.gridHeight;
 
+        this.loadSectors();
         this.loadTablePositions();
 
       },
@@ -649,7 +600,6 @@ toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } 
     });
 
   }
-
 
 
   loadTablePositions(): void {
@@ -692,16 +642,13 @@ toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } 
 
   closeTableDetailModal(): void { this.selectedTable = null; }
 
-  onSectorCreated(sectorName: string): void {
-
-    if (!this.sectors.includes(sectorName)) { this.sectors.push(sectorName); }
-
+ onSectorCreated(sectorName: string): void {
+    if (!this.sectors.includes(sectorName)) {
+      this.sectors.push(sectorName);
+    }
     this.currentSector = sectorName;
-
-    this.hasUnsavedChanges = true; // Nuevo sector es un cambio
-
+    this.hasUnsavedChanges = true;
     this.closeSectorModal();
-
   }
 
 
@@ -736,4 +683,18 @@ toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } 
 
   }
 
+  handleTableDataUpdate(updatedTable: TablePositionResponse): void {
+
+ // 1. Actualizar la lista principal de posiciones (ESENCIAL para el dibujado y el guardado)
+ // Esto usa tu helper privado para encontrar la mesa por diningTableId y aplicar todos los cambios (número, capacidad, estado, etc.)
+ this.updateTablePositionLocal(updatedTable.diningTableId, updatedTable);
+
+ // 2. Limpiar la mesa seleccionada.
+ // Se asume que el `TableDetailModal` se cerró con `this.onClose()` después de la edición.
+ // Dado que el detalle ya se cerró, limpiamos la referencia en el padre para ocultar el modal.
+ this.selectedTable = null;
+ // Si deseas que el modal de detalle se reabra automáticamente con los nuevos datos,
+ // reemplaza la línea de arriba con:
+ // this.selectedTable = updatedTable;
+ }
 }
