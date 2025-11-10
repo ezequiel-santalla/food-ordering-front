@@ -1,9 +1,11 @@
+import { SweetAlertResult } from 'sweetalert2';
   import { Component, input, output, OnInit } from '@angular/core';
   import { CommonModule } from '@angular/common';
   import { FormsModule } from '@angular/forms';
   import { DiningTableRequest, DiningTableResponse} from '../../models/dining-table';
   import { DiningTableService } from '../../services/dining-table-service';
   import { DiningTableStatus, TablePositionResponse } from '../../models/lounge'; // Asumiendo este modelo para la posición/forma
+import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 
   // Definición local de los estados para el selector
   interface StatusOption {
@@ -98,6 +100,7 @@
               width: this.originalTable().width,
               height: this.originalTable().height,
           };
+          alert('Mesa modificada correctamente.');
           this.tableUpdated.emit(updatedTable);
           this.onClose();
         },
