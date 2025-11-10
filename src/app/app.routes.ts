@@ -65,11 +65,18 @@ export const routes: Routes = [
     loadChildren: () => import('./food-venues/food-venues.routes'),
   },
 
-  // ADMIN DASHBOARD
+  // ADMIN LAYOUT
   {
     path: 'admin',
     canActivate: [AuthenticatedGuard],
     loadChildren: () => import('./admin-front/admin-front.routes'),
+  },
+
+  // EMPLOYEES LAYOUT
+  {
+    path: 'employee',
+    canActivate: [AuthenticatedGuard],
+    loadChildren: () => import('./employees-front/employees-front.routes')
   },
 
   {
