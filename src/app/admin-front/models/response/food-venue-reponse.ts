@@ -14,3 +14,12 @@ export interface FoodVenueAdminResponse {
     numberOfTables: number;
     venueStyle: VenueStyle;
 }
+
+export interface FoodVenuePublicResponse {
+  publicId: string;
+  name: string;
+  phone: string;
+  address: string;
+  location: string;
+  styles: VenueStyle;
+}

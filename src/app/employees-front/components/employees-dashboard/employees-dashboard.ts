@@ -60,7 +60,7 @@ employeeInfo: EmployeeInfo= {
         }
     }
 loadFoodVenueName(): void {
-        this.foodVenueService.getMyFoodVenue().subscribe({
+        this.foodVenueService.getMyCurrentFoodVenue().subscribe({
             // 'next' es el callback cuando la llamada es exitosa
             next: (foodVenue) => {
                 if (foodVenue && foodVenue.name) {

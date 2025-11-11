@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import { FoodVenueAdminResponse } from '../models/response/food-venue-reponse';
+import { FoodVenueAdminResponse, FoodVenuePublicResponse } from '../models/response/food-venue-reponse';
 import { FoodVenueRequest } from '../models/request/food-venue-request';
 
 @Injectable({
@@ -20,6 +20,11 @@ export class FoodVenueService {
 
   updateMyCurrentFoodVenue(data: Partial<FoodVenueRequest>): Observable<FoodVenueAdminResponse> {
     return this.http.patch<FoodVenueAdminResponse>(`${this.API_URL}/admin/current`, data);
+  }
+
+  getMyCurrentFoodVenue(): Observable<FoodVenuePublicResponse> {
+    
+    return this.http.get<FoodVenuePublicResponse>(`${this.API_URL}/current`);
   }
 
 }
