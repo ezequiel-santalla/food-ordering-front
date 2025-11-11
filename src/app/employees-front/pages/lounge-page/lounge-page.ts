@@ -36,8 +36,9 @@ export class LoungePage {
   scaleRatio = 1;
 
   // Data
-  currentSector = 'Planta Baja';
-  sectors: string[] = ['Planta Baja', 'Primer Piso', 'Terraza'];
+  currentSector: string = 'Principal';
+  sectors: string[] = [];
+
   tablePositions: TablePositionResponse[] = [];
   orders: OrderResponse[] = [];
 
@@ -72,12 +73,36 @@ export class LoungePage {
   // Data Loading
   // ===================================
 
+  loadSectors(): void {
+    this.loungeService.getSectors().subscribe({
+      next: (response) => {
+        this.sectors = response.sectors;
+
+        // Si hay sectores, usar el primero como default
+        if (this.sectors.length > 0) {
+          this.currentSector = this.sectors[0];
+        } else {
+          // Si no hay sectores, usar default y agregarlo
+          this.currentSector = 'Planta Baja';
+          this.sectors = ['Planta Baja'];
+        }
+      },
+      error: (err) => {
+        console.error('Error loading sectors:', err);
+        // Fallback a sectores por defecto
+        this.sectors = ['Planta Baja'];
+        this.currentSector = 'Planta Baja';
+      }
+    });
+  }
+
   initializeLounge(): void {
     this.isLoading.set(true);
 
     this.loungeService.getOrCreateLounge().subscribe({
       next: () => {
         this.loadTablePositions();
+        this.loadSectors();
         this.loadOrders();
       },
       error: (err) => {

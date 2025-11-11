@@ -32,7 +32,7 @@ export class TableModal {
   }
 
   isFormValid(): boolean {
-    return !!(this.tableNumber && this.capacity && this.selectedShape);
+    return !!(this.capacity && this.selectedShape);
   }
 
   onSubmit(): void {
