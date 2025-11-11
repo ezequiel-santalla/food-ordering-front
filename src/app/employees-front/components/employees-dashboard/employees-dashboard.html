@@ -39,6 +39,7 @@
 
             <a routerLink="/employee"
                 routerLinkActive="!text-blue-600 bg-blue-50/70 hover:bg-blue-50/70"
+                [routerLinkActiveOptions]="{exact: true}"
                 class="flex items-center p-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-md">
                 <svg class="w-5 h-5"
                     [class.mr-3]="!isCollapsed" [class.mx-auto]="isCollapsed"
