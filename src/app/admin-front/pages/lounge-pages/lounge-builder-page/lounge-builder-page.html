@@ -250,6 +250,6 @@
 
   <app-table-modal *ngIf="showTableModal" [currentSector]="currentSector" (close)="closeTableModal()" (tableCreated)="onTableCreated($event)"></app-table-modal>
 
-  <app-table-detail-modal *ngIf="selectedTable" [table]="selectedTable" (close)="closeTableDetailModal()" (sizeChanged)="onTableSizeChanged($event)" (removed)="onTableRemoved($event)"></app-table-detail-modal>
+  <app-table-detail-modal *ngIf="selectedTable" [table]="selectedTable" (close)="closeTableDetailModal()" (sizeChanged)="onTableSizeChanged($event)" (removed)="onTableRemoved($event)"(dataUpdated)="handleTableDataUpdate($event)"></app-table-detail-modal>
 
 </div>
