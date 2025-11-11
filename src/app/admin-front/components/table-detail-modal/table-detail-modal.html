@@ -129,6 +129,11 @@
     <!-- Actions -->
     <div class="flex gap-3 pt-4 border-t">
       <button
+        (click)="onEdit()"
+        class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        Editar Mesa
+      </button>
+      <button
         (click)="onRemove()"
         class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
         Eliminar Mesa del Salón
@@ -140,4 +145,11 @@
       </button>
     </div>
   </div>
+  @if (isEditing()) {
+    <app-edit-table-modal
+      [originalTable]="table()"
+      (close)="onCloseEditModal()"
+      (tableUpdated)="onTableEdited($event)">
+    </app-edit-table-modal>
+  }
 </div>

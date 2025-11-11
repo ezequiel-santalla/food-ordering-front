@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import {LoungeResponse, TablePosition, TablePositionResponse } from '../models/lounge';
+import {LoungeResponse, SectorResponse, TablePosition, TablePositionResponse } from '../models/lounge';
 import { environment } from '../../../environments/environment.development';
 
 @Injectable({
@@ -62,5 +62,9 @@ export class LoungeService {
     return this.http.get<TablePositionResponse[]>(
       `${this.apiUrl}/tables`
     );
+  }
+
+    getSectors(): Observable<SectorResponse> {
+    return this.http.get<SectorResponse>(`${this.apiUrl}/sectors`);
   }
 }
