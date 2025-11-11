@@ -33,7 +33,7 @@ export class LoungeBuilderPage implements OnInit { // Implementamos OnInit
 
 // 🌐 COORDENADAS VIRTUALES (Ajustadas para una escala más grande)
 
-  virtualGridWidth = 1200; // Reducido de 1600 para forzar una escala mayor
+  virtualGridWidth = 1600; // Reducido de 1600 para forzar una escala mayor
 
   virtualGridHeight = 800;  // Mantenido en 800
 
@@ -52,7 +52,7 @@ export class LoungeBuilderPage implements OnInit { // Implementamos OnInit
 
   scaleRatio = 1;
 
-currentSector: string = '';
+currentSector: string = 'Principal';
 
 sectors: string[] = [];
 
