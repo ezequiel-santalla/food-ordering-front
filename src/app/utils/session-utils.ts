@@ -35,7 +35,7 @@ export class SessionUtils {
            'activeParticipants' in response &&
            'previousParticipants' in response &&
            'startTime' in response &&
-           Array.isArray(response.activeParticipantsparticipants);
+           Array.isArray(response.activeParticipants);
   }
 
   /**

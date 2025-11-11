@@ -1,9 +1,12 @@
 import { computed, inject, Injectable } from '@angular/core';
 import {
   catchError,
+  finalize,
   first,
+  map,
   Observable,
   of,
+  shareReplay,
   Subject,
   switchMap,
   tap,
@@ -35,12 +38,10 @@ export class AuthService {
     this.authState.loadFromStorage();
   }
 
-  // Resource para verificación de estado
   checkStatusResource = rxResource({
     stream: () => this.checkAuthStatus(),
   });
 
-  // Exponer computed del state manager
   authStatus = this.authState.authStatus;
   accessToken = this.authState.accessToken;
   refreshToken = this.authState.refreshToken;
@@ -52,7 +53,6 @@ export class AuthService {
   participantId = this.authState.participantId;
   employments = this.authState.employments;
 
-  // Computed adicional para mostrar info legible
   authStatusText = computed(() => {
     const status = this.authState.authStatus();
     if (status === 'checking') return 'Verificando...';
@@ -127,7 +127,6 @@ export class AuthService {
   resetPassword(token: string, password: string): Observable<any> {
     const data = { token, password };
 
-    // Este método NO debe manejar tokens de sesión, solo envía la petición.
     return this.authApi.performPasswordReset(data).pipe(
       catchError((error) => {
         console.error('❌ Error en reseteo de contraseña:', error);
@@ -146,7 +145,6 @@ export class AuthService {
     const currentSessionId = this.authState.tableSessionId();
     const hasValidSession = SessionUtils.isValidSession(currentSessionId);
 
-    // Si ya tiene sesión y no quiere forzar cambio
     if (hasValidSession && !forceChange) {
       return throwError(() => ({
         status: 409,
@@ -154,7 +152,6 @@ export class AuthService {
       }));
     }
 
-    // Si tiene sesión y quiere cambiar, cerrarla primero
     if (hasValidSession && forceChange) {
       return this.closeCurrentSession().pipe(
         switchMap(() => this.performScanQR(tableId))
@@ -195,7 +192,6 @@ export class AuthService {
           '⚠️ Error en logout del backend, realizando logout local:',
           error
         );
-        // Incluso si falla el backend, limpiamos localmente
         this.performLocalLogout();
         return of(void 0);
       })
@@ -231,7 +227,7 @@ export class AuthService {
     const currentEmployments = this.authState.employments();
     return this.authApi.selectRole(employmentId).pipe(
       tap((response) => {
-        // La API devuelve un nuevo token, así que lo procesamos y actualizamos todo el estado.
+        
         const processed = TokenManager.processAuthResponse(
           response as AuthResponse
         );
@@ -256,20 +252,24 @@ export class AuthService {
   // ==================== MÉTODOS PRIVADOS ====================
 
   private performScanQR(tableId: string): Observable<TableSessionResponse> {
-    return this.authApi.scanQR(tableId).pipe(
-      tap((response) => {
-        const processed = TokenManager.processTableSessionResponse(
-          response,
-          this.authState.refreshToken()
-        );
-        this.authState.applyAuthData(processed);
-      }),
-      catchError((error) => {
-        console.error('❌ Error escaneando QR:', error);
-        return throwError(() => error);
-      })
-    );
-  }
+  console.log('🚀 performScanQR() ejecutado con tableId=', tableId);
+  
+  return this.authApi.scanQR(tableId).pipe(
+    tap((response) => {
+      console.log('✅ Respuesta del backend en scanQR:', response);
+      const processed = TokenManager.processTableSessionResponse(
+        response,
+        this.authState.refreshToken()
+      );
+      this.authState.applyAuthData(processed);
+    }),
+    catchError((error) => {
+      console.error('❌ Error escaneando QR:', error);
+      return throwError(() => error);
+    })
+  );
+}
+
 
   private closeCurrentSession(): Observable<void> {
     this.authState.clearSessionData();
@@ -277,48 +277,45 @@ export class AuthService {
     return of(void 0);
   }
 
+  private refreshInFlight$?: Observable<string>;
+
   refreshAccessToken(): Observable<string> {
-    if (this.isRefreshingToken) {
-      // Si ya hay un refresco en progreso,
-      // las otras peticiones "esperan" hasta que termine.
-      return this.tokenRefreshed$.pipe(first());
-    }
-
-    // Iniciar el proceso de refresco
-    this.isRefreshingToken = true;
-    const currentRefreshToken = this.authState.refreshToken();
-
-    if (!currentRefreshToken || currentRefreshToken === 'guest') {
-      this.isRefreshingToken = false;
-      this.logoutAndReload();
-      return throwError(() => new Error('No hay refresh token válido.'));
-    }
-
-    // Llamar al API Service
-    return this.authApi.refreshToken(currentRefreshToken).pipe(
-      tap((response: AuthResponse) => {
-        // 1. Guardar los nuevos tokens
-        const processed = TokenManager.processAuthResponse(response);
-        this.authState.applyAuthData(processed);
-
-        // 2. Avisar a las peticiones en espera que tenemos un nuevo token
-        this.tokenRefreshed$.next(response.accessToken);
-        this.isRefreshingToken = false;
-      }),
-      switchMap((response) => {
-        // 3. Devolver un Observable con el nuevo access token
-        return of(response.accessToken);
-      }),
-      catchError((error) => {
-        // 4. ¡El refresh token falló! (ej. también expiró o fue revocado)
-        // No hay nada que hacer. Cierra la sesión.
-        this.isRefreshingToken = false;
-        this.logoutAndReload();
-        return throwError(() => error);
-      })
-    );
+  
+  if (this.refreshInFlight$) {
+    return this.refreshInFlight$.pipe(first());
   }
 
+  const currentRefreshToken = this.authState.refreshToken();
+  if (!currentRefreshToken || currentRefreshToken === 'guest') {
+    this.logoutAndReload();
+    return throwError(() => new Error('No hay refresh token válido.'));
+  }
+
+  this.refreshInFlight$ = this.authApi.refreshToken(currentRefreshToken).pipe(
+    tap((response: AuthResponse) => {
+      
+      const processed = TokenManager.processAuthResponse(response);
+
+      this.authState.applyAuthData(processed);
+
+      this.tokenRefreshed$.next(response.accessToken);
+    }),
+    map((response) => response.accessToken),
+    catchError((error) => {
+      
+      this.logoutAndReload();
+      return throwError(() => error);
+    }),
+    finalize(() => {
+      // Libera inFlight
+      this.refreshInFlight$ = undefined;
+    }),
+    // Comparte un único refresh para múltiples suscriptores
+    shareReplay(1)
+  );
+
+  return this.refreshInFlight$;
+}
   /**
    * Helper para centralizar el logout + recarga de página.
    */

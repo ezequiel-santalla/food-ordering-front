@@ -101,7 +101,7 @@ export class ResetPasswordPageComponent implements OnInit {
       error: (error) => {
         this.isSubmitting = false;
         // El manejador de errores de auth debería servir
-        const { title, message } = this.errorHandler.getAuthError(error);
+        const { title, message } = this.errorHandler.getGenericError(error);
         this.sweetAlertService.showError(title, message);
       },
     });

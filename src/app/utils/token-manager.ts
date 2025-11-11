@@ -18,7 +18,7 @@ export class TokenManager {
       authResponse;
     const sessionData = this.extractSessionDataFromToken(accessToken);
 
-    console.log("Roles disponibles: ", employments);
+    console.log('Roles disponibles: ', employments);
 
     return {
       accessToken,
@@ -86,13 +86,23 @@ export class TokenManager {
   static saveTokens(
     accessToken: string,
     refreshToken: string,
-    expirationDate: string
+    expirationDate?: string
   ): void {
     this.validateTokens(accessToken, refreshToken);
 
+    let finalExpiration = expirationDate ?? null;
+    try {
+      const decoded = JwtUtils.decodeJWT(accessToken);
+      if (decoded?.exp) {
+        finalExpiration = new Date(decoded.exp * 1000).toISOString();
+      }
+    } catch (e) {
+      console.warn('No se pudo derivar expiration desde el token', e);
+    }
+
     SessionUtils.setStorageValue('accessToken', accessToken);
     SessionUtils.setStorageValue('refreshToken', refreshToken);
-    SessionUtils.setStorageValue('expirationDate', expirationDate);
+    SessionUtils.setStorageValue('expirationDate', finalExpiration);
 
     console.log('✅ Tokens guardados en localStorage', {
       isGuest: refreshToken === 'guest',
@@ -196,9 +206,7 @@ export class TokenManager {
     response: AuthResponse
   ): Employment[] {
     // Lee directamente la propiedad 'employments' del objeto de respuesta.
-    console.log("Roles disponibles por empleo: ",
-      response?.employments
-    );
+    console.log('Roles disponibles por empleo: ', response?.employments);
     return response?.employments || [];
   }
 

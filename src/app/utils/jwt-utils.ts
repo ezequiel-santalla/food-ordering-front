@@ -40,7 +40,7 @@ export class JwtUtils {
   static isTokenExpired(decodedToken: any): boolean {
     // Si no hay token o no tiene exp, considerarlo expirado
     if (!decodedToken || !decodedToken.exp) {
-      return true; // ← FIX: Cambiar false por true
+      return true;
     }
 
     try {
@@ -58,7 +58,7 @@ export class JwtUtils {
    */
   static getClaimValue(token: string, claimName: string): any {
     const decoded = this.decodeJWT(token);
-    return decoded?.[claimName] ?? null; // Usar optional chaining y nullish coalescing
+    return decoded?.[claimName] ?? null;
   }
 
   /**
@@ -74,7 +74,7 @@ export class JwtUtils {
       return false;
     }
 
-    return !this.isTokenExpired(decoded); // Más legible con negación
+    return !this.isTokenExpired(decoded);
   }
 
   /**
@@ -87,7 +87,6 @@ export class JwtUtils {
       return {};
     }
 
-    // Usar reduce para ser más funcional
     return claimNames.reduce((acc, claim) => {
       acc[claim] = decoded[claim] ?? null;
       return acc;

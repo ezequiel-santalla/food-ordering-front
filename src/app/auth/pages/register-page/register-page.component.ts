@@ -160,7 +160,7 @@ export class RegisterPageComponent {
         console.error('Error en registro:', error);
         this.isSubmitting = false;
 
-        const { title, message } = this.errorHandler.getAuthError(error);
+        const { title, message } = this.errorHandler.getGenericError(error);
         this.sweetAlertService.showError(title, message);
       }
     });

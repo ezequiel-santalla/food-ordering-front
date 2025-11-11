@@ -74,7 +74,7 @@ export class ForgotPasswordPageComponent {
       error: (error) => {
         this.isSubmitting = false;
         // Reutilizamos tu manejador de errores
-        const { title, message } = this.errorHandler.getAuthError(error);
+        const { title, message } = this.errorHandler.getGenericError(error);
         this.sweetAlertService.showError(title, message);
       },
     });

@@ -55,7 +55,7 @@ export class AuthApiService {
 
   refreshToken(token: string): Observable<AuthResponse> {
     // Asegúrate que esta sea la URL correcta de tu backend
-    const url = `${this.baseUrl}/refresh-token`; 
+    const url = `${this.baseUrl}/auth/refresh`; 
     
     // El backend espera el refresh token en el body
     return this.http.post<AuthResponse>(url, { refreshToken: token });

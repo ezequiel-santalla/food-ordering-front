@@ -136,7 +136,7 @@ export class LoginPageComponent implements OnInit {
 
           this.navigation.navigateBySessionState(1500);
         } else {
-          const { title, message } = this.errorHandler.getAuthError(error);
+          const { title, message } = this.errorHandler.getGenericError(error);
           this.sweetAlertService.showError(title, message);
         }
       },

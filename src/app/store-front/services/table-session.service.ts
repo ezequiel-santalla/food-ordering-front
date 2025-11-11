@@ -114,9 +114,8 @@ export class TableSessionService {
             this.sseSubscription = undefined;
           }
         });
-      },
-      { allowSignalWrites: true }
-    ); // Permitir que este effect actualice signals
+      }
+    );
   }
 
   /**

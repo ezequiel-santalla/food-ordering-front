@@ -4,6 +4,7 @@ import { TokenManager } from '../../utils/token-manager';
 import { LoadedAuthData, ProcessedAuthData } from '../../utils/token-manager';
 import { SessionUtils } from '../../utils/session-utils';
 import { Employment } from '../../shared/models/common';
+import { RoleType } from '../../admin-front/models/response/employee';
 
 type AuthStatus = 'checking' | 'authenticated' | 'unauthenticated' | 'guest';
 
@@ -42,7 +43,7 @@ export class AuthStateManager {
   }
 
   public isHandlingAuthError = false;
-  
+
   /**
    * Carga datos desde localStorage y actualiza el estado
    */
@@ -51,28 +52,49 @@ export class AuthStateManager {
     this.updateState(data);
   }
 
-  private isTokenExpired(expirationDate: string | null): boolean {
-    if (!expirationDate) {
-      return true; // Sin fecha de expiración = inválido
-    }
+  private isTokenExpired(expirationDateFromStorage: string | null): boolean {
+    const token = this._accessToken();
+    if (!token) return true;
+
     try {
-      // Compara la fecha de expiración con la hora actual
-      // Damos un búfer de 10 segundos por si acaso
-      const expiration = new Date(expirationDate).getTime();
-      const now = new Date().getTime();
-      const buffer = 10 * 1000; // 10 segundos
-      return expiration < now + buffer;
-    } catch (error) {
-      console.error('Error al parsear fecha de expiración', error);
-      return true; // Fecha inválida = inválido
+      const decoded = JwtUtils.decodeJWT(token);
+      if (!decoded?.exp) return true;
+      const expMs = decoded.exp * 1000;
+      const now = Date.now();
+      const buffer = 10_000;
+      return expMs < now + buffer;
+    } catch (e) {
+      console.error('Error al verificar exp del token', e);
+      return true;
     }
+  }
+
+  public applyRefresh(accessToken: string, refreshToken?: string) {
+    TokenManager.saveTokens(
+      accessToken,
+      refreshToken ?? this._refreshToken() ?? ''
+    );
+
+    const decoded = JwtUtils.decodeJWT(accessToken);
+    this._accessToken.set(accessToken);
+    if (refreshToken) this._refreshToken.set(refreshToken);
+
+    const expIso = decoded?.exp
+      ? new Date(decoded.exp * 1000).toISOString()
+      : null;
+    this._expirationDate.set(expIso);
+
+    const role =
+      decoded?.role ??
+      (Array.isArray(decoded?.roles) ? decoded.roles[0] : null);
+    this._role.set(role);
+    this.updateStatusFromToken(accessToken);
   }
 
   /**
    * Aplica datos procesados al estado y los guarda
    */
   applyAuthData(data: ProcessedAuthData): void {
-    // Guardar en localStorage
     TokenManager.saveTokens(
       data.accessToken,
       data.refreshToken,
@@ -85,7 +107,6 @@ export class AuthStateManager {
       participantCount: data.participantCount,
     });
 
-    // Actualizar estado
     this._accessToken.set(data.accessToken);
     this._refreshToken.set(data.refreshToken);
     this._expirationDate.set(data.expirationDate);
@@ -101,7 +122,6 @@ export class AuthStateManager {
    * Limpia tanto signals como localStorage
    */
   clearState(): void {
-    // Limpiar signals
     this._accessToken.set(null);
     this._refreshToken.set(null);
     this._expirationDate.set(null);
@@ -111,7 +131,6 @@ export class AuthStateManager {
     this._employments.set([]);
     this._role.set(null);
 
-    // Limpiar localStorage
     SessionUtils.clearAllAuthData();
   }
 
@@ -120,11 +139,9 @@ export class AuthStateManager {
    * Limpia tanto signals como localStorage
    */
   clearSessionData(): void {
-    // Limpiar signals
     this._tableSessionId.set(null);
     this._foodVenueId.set(null);
 
-    // Limpiar localStorage
     SessionUtils.clearAllSessionData();
   }
 
@@ -162,18 +179,43 @@ export class AuthStateManager {
     }
 
     try {
-      const role = JwtUtils.getClaimValue(token, 'role') as string | null;
-      this._role.set(role);
+      const decoded = JwtUtils.decodeJWT(token);
+      if (!decoded) {
+        this._authStatus.set('unauthenticated');
+        this._role.set(null);
+        return;
+      }
 
-      switch (role) {
-        case 'ROLE_CLIENT':
-          this._authStatus.set('authenticated');
-          break;
-        case 'ROLE_GUEST':
+      const expSec = decoded.exp as number | undefined;
+      if (!expSec || expSec * 1000 <= Date.now() + 10_000) {
+        
+        this._authStatus.set('unauthenticated');
+        this._role.set(null);
+        return;
+      }
+
+      const normalizedRole: string | null =
+        (decoded.role as string) ??
+        (Array.isArray(decoded.roles) ? (decoded.roles[0] as string) : null);
+
+      this._role.set(normalizedRole);
+
+      switch (normalizedRole) {
+        case RoleType.ROLE_GUEST:
           this._authStatus.set('guest');
           break;
+
+        case RoleType.ROLE_CLIENT:
+        case RoleType.ROLE_ADMIN:
+        case RoleType.ROLE_MANAGER:
+        case RoleType.ROLE_STAFF:
+        case RoleType.ROLE_ROOT:
+          this._authStatus.set('authenticated');
+          break;
+
         default:
           this._authStatus.set('unauthenticated');
+          break;
       }
     } catch (error) {
       console.error('Error al parsear token, limpiando estado', error);
