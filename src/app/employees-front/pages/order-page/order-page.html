@@ -1,1 +1,210 @@
-<p>order-page works!</p>
+<div class="p-4 sm:p-8 min-h-screen bg-gray-50">
+
+  <!-- Header -->
+  <header class="mb-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Gestión de Pedidos</h1>
+    <p class="text-sm text-gray-500 mt-1">Administra todos los pedidos del restaurante</p>
+  </header>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-gray-400">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm font-medium text-gray-600">Total Pedidos</p>
+          <p class="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
+            {{stats().total}}
+          </p>
+        </div>
+        <lucide-icon [img]="Package" [size]="32" class="text-gray-400"></lucide-icon>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-yellow-400">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm font-medium text-gray-600">Pendientes</p>
+          <p class="text-xl sm:text-2xl font-bold text-yellow-600 mt-1">
+            {{stats().pending}}
+          </p>
+        </div>
+        <lucide-icon [img]="Clock" [size]="32" class="text-yellow-400"></lucide-icon>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-blue-400">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm font-medium text-gray-600">En Preparación</p>
+          <p class="text-xl sm:text-2xl font-bold text-blue-600 mt-1">
+            {{stats().inPreparation}}
+          </p>
+        </div>
+        <lucide-icon [img]="ChefHat" [size]="32" class="text-blue-400"></lucide-icon>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-green-400">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm font-medium text-gray-600">Completados</p>
+          <p class="text-xl sm:text-2xl font-bold text-green-600 mt-1">
+            {{stats().completed}}
+          </p>
+        </div>
+        <lucide-icon [img]="CheckCircle2" [size]="32" class="text-green-400"></lucide-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search -->
+  <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+    <div class="flex flex-col sm:flex-row gap-3">
+
+      <!-- Search -->
+      <div class="flex-1">
+        <div class="relative">
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()"
+            placeholder="Buscar por ID, mesa o producto..."
+            class="input input-bordered w-full pl-10">
+          <lucide-icon
+            [img]="Search"
+            [size]="20"
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          </lucide-icon>
+        </div>
+      </div>
+
+      <!-- Status Filter -->
+      <select
+        [(ngModel)]="selectedStatus"
+        (change)="onFilterChange()"
+        class="select select-bordered w-full sm:w-48">
+        <option value="">Todos los estados</option>
+        <option value="PENDING">Pendientes</option>
+        <option value="APPROVED">Aprobados</option>
+        <option value="IN_PROGRESS">En Preparación</option>
+        <option value="COMPLETED">Completados</option>
+        <option value="SERVED">Servidos</option>
+        <option value="CANCELLED">Cancelados</option>
+      </select>
+
+      <!-- Refresh Button -->
+      <button
+        (click)="refreshOrders()"
+        [disabled]="isLoading()"
+        class="btn btn-outline gap-2">
+        <lucide-icon
+          [img]="RefreshCw"
+          [size]="20"
+          [class.animate-spin]="isLoading()">
+        </lucide-icon>
+        <span class="hidden sm:inline">Actualizar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Orders List -->
+  @if (isLoading()) {
+    <div class="flex flex-col items-center justify-center py-12">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="text-gray-500 mt-4">Cargando pedidos...</p>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-error">
+      <lucide-icon [img]="AlertCircle" [size]="20"></lucide-icon>
+      <span>{{error()}}</span>
+    </div>
+  } @else if (filteredOrders().length === 0) {
+    <div class="bg-white rounded-xl shadow-sm p-12">
+      <div class="text-center">
+        <lucide-icon [img]="Package" [size]="64" class="text-gray-300 mx-auto mb-4"></lucide-icon>
+        <p class="text-gray-500 font-medium text-lg mb-2">
+          No se encontraron pedidos
+        </p>
+        <p class="text-sm text-gray-400">
+          Intenta ajustar los filtros de búsqueda
+        </p>
+      </div>
+    </div>
+  } @else {
+
+    <!-- Tabs for order grouping -->
+    <div class="tabs tabs-boxed bg-white rounded-xl shadow-sm p-1 mb-4">
+      <button
+        class="tab gap-2"
+        [class.tab-active]="activeView() === 'pending'"
+        (click)="setActiveView('pending')">
+        <lucide-icon [img]="Clock" [size]="16"></lucide-icon>
+        <span>Pendientes ({{getPendingCount()}})</span>
+      </button>
+      <button
+        class="tab gap-2"
+        [class.tab-active]="activeView() === 'inProgress'"
+        (click)="setActiveView('inProgress')">
+        <lucide-icon [img]="ChefHat" [size]="16"></lucide-icon>
+        <span>En Proceso ({{getInProgressCount()}})</span>
+      </button>
+      <button
+        class="tab gap-2"
+        [class.tab-active]="activeView() === 'all'"
+        (click)="setActiveView('all')">
+        <lucide-icon [img]="List" [size]="16"></lucide-icon>
+        <span>Todos</span>
+      </button>
+    </div>
+
+    <div class="space-y-3">
+      @for (order of getDisplayedOrders(); track order.publicId) {
+        <app-order-card
+          [order]="order"
+          (statusChanged)="onOrderStatusChanged($event)"
+          (viewDetails)="onViewOrderDetails($event)">
+        </app-order-card>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="flex justify-center mt-6">
+        <div class="join">
+          <button
+            class="join-item btn btn-sm"
+            [disabled]="currentPage() === 0"
+            (click)="goToPage(currentPage() - 1)">
+            «
+          </button>
+
+          @for (page of getPageNumbers(); track page) {
+            <button
+              class="join-item btn btn-sm"
+              [class.btn-active]="page === currentPage()"
+              (click)="goToPage(page)">
+              {{page + 1}}
+            </button>
+          }
+
+          <button
+            class="join-item btn btn-sm"
+            [disabled]="currentPage() === totalPages() - 1"
+            (click)="goToPage(currentPage() + 1)">
+            »
+          </button>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Order Detail Modal -->
+  @if (selectedOrder()) {
+    <app-order-detail-modal
+      [order]="selectedOrder()!"
+      (close)="closeOrderModal()"
+      (statusChanged)="onOrderStatusChanged($event)">
+    </app-order-detail-modal>
+  }
+
+</div>
