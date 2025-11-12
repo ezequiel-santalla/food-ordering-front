@@ -1,5 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
-import { OrderService } from '../../../services/order.service';
+import { OrderService } from '../../../services/order-service';
 import { CurrencyPipe, CommonModule } from '@angular/common'; // <-- 1. Importa CommonModule
 import {
   LucideAngularModule,
@@ -8,7 +8,7 @@ import {
   CircleX,
   Package,
 } from 'lucide-angular';
-import { TableSessionService } from '../../../services/table-session.service';
+import { TableSessionService } from '../../../services/table-session-service';
 import { OrderCardComponent } from '../Order-card/order-card';
 
 @Component({
@@ -16,7 +16,7 @@ import { OrderCardComponent } from '../Order-card/order-card';
   standalone: true, // Asumo que es standalone
   imports: [
     CommonModule, // <-- 3. Añade CommonModule
-    LucideAngularModule, 
+    LucideAngularModule,
     OrderCardComponent// <-- 4. Añade OrderCardComponent
   ],
   templateUrl: './table-orders.html',

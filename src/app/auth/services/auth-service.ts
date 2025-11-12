@@ -15,14 +15,10 @@ import { TableSessionResponse } from '../../shared/models/table-session';
 import { SessionUtils } from '../../utils/session-utils';
 import { JwtUtils } from '../../utils/jwt-utils';
 import { TokenManager } from '../../utils/token-manager';
-import { AuthStateManager } from './auth-state-manager.service';
-import { AuthApiService } from './auth-api.service';
+import { AuthStateManager } from './auth-state-manager-service';
+import { AuthApiService } from './auth-api-service';
 import { Employment } from '../../shared/models/common';
 
-/**
- * Servicio principal de autenticación
- * Coordina entre AuthApiService (HTTP) y AuthStateManager (estado)
- */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private authApi = inject(AuthApiService);
@@ -60,9 +56,6 @@ export class AuthService {
     return 'No autenticado';
   });
 
-  /**
-   * Login de usuario
-   */
   login(
     credentials: {
       email: string;
@@ -79,9 +72,9 @@ export class AuthService {
       tap((response) => {
         const processed = SessionUtils.isTableSessionResponse(response)
           ? TokenManager.processTableSessionResponse(
-              response as TableSessionResponse,
-              this.authState.refreshToken()
-            )
+            response as TableSessionResponse,
+            this.authState.refreshToken()
+          )
           : TokenManager.processAuthResponse(response as AuthResponse);
 
         this.authState.applyAuthData(processed);
@@ -93,21 +86,8 @@ export class AuthService {
     );
   }
 
-  /**
-   * Registro de usuario
-   */
   register(data: any): Observable<LoginResponse> {
     return this.authApi.register(data).pipe(
-      tap((response) => {
-        const processed = SessionUtils.isTableSessionResponse(response)
-          ? TokenManager.processTableSessionResponse(
-              response as TableSessionResponse,
-              null
-            )
-          : TokenManager.processAuthResponse(response as AuthResponse);
-
-        this.authState.applyAuthData(processed);
-      }),
       catchError((error) => {
         console.error('❌ Error en registro:', error);
         return throwError(() => error);
@@ -127,7 +107,6 @@ export class AuthService {
   resetPassword(token: string, password: string): Observable<any> {
     const data = { token, password };
 
-    // Este método NO debe manejar tokens de sesión, solo envía la petición.
     return this.authApi.performPasswordReset(data).pipe(
       catchError((error) => {
         console.error('❌ Error en reseteo de contraseña:', error);
@@ -136,9 +115,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Escanear QR de mesa
-   */
   scanQR(
     tableId: string,
     forceChange = false
@@ -146,7 +122,6 @@ export class AuthService {
     const currentSessionId = this.authState.tableSessionId();
     const hasValidSession = SessionUtils.isValidSession(currentSessionId);
 
-    // Si ya tiene sesión y no quiere forzar cambio
     if (hasValidSession && !forceChange) {
       return throwError(() => ({
         status: 409,
@@ -154,7 +129,6 @@ export class AuthService {
       }));
     }
 
-    // Si tiene sesión y quiere cambiar, cerrarla primero
     if (hasValidSession && forceChange) {
       return this.closeCurrentSession().pipe(
         switchMap(() => this.performScanQR(tableId))
@@ -164,9 +138,6 @@ export class AuthService {
     return this.performScanQR(tableId);
   }
 
-  /**
-   * Verificar estado de autenticación
-   */
   checkAuthStatus(): Observable<boolean> {
     const token = SessionUtils.getCleanStorageValue('accessToken');
 
@@ -179,9 +150,6 @@ export class AuthService {
     return of(true);
   }
 
-  /**
-   * Cerrar sesión - Llamada al backend + limpieza local
-   */
   logout(): Observable<void> {
     const refreshToken = this.authState.refreshToken();
 
@@ -195,7 +163,7 @@ export class AuthService {
           '⚠️ Error en logout del backend, realizando logout local:',
           error
         );
-        // Incluso si falla el backend, limpiamos localmente
+
         this.performLocalLogout();
         return of(void 0);
       })
@@ -323,7 +291,7 @@ export class AuthService {
    * Helper para centralizar el logout + recarga de página.
    */
   logoutAndReload(): void {
-    this.logout(); 
+    this.logout();
     location.reload();
   }
 }

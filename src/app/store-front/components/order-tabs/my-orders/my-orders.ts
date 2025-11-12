@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { OrderService } from '../../../services/order.service';
+import { OrderService } from '../../../services/order-service';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { LucideAngularModule, Package } from 'lucide-angular';
 import { OrderCardComponent } from '../Order-card/order-card';
@@ -19,6 +19,6 @@ export class MyOrders {
 
   onOrderSelected(event: {orderId: string, isSelected: boolean}) {
     console.log(`Orden ${event.orderId} seleccionada: ${event.isSelected}`);
-    //añadir los IDs a un array para acciones 
+    //añadir los IDs a un array para acciones
   }
 }

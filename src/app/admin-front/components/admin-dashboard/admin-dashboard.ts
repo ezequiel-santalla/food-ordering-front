@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth.service';
+import { AuthService } from '../../../auth/services/auth-service';
 import { SessionUtils } from '../../../utils/session-utils';
 import { JwtUtils } from '../../../utils/jwt-utils';
 import { FoodVenueService } from '../../services/food-venue-service';

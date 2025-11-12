@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { Product } from '../../models/menu.interface';
-import { CartService } from '../../services/cart.service';
+import { CartService } from '../../services/cart-service';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
 import { LucideAngularModule, Star } from 'lucide-angular';
@@ -39,7 +39,7 @@ export class MenuItemDetailModal {
         console.log('TODO: Comprobar si', currentProduct.name, 'es favorito');
         // const isFav = this.favoriteService.isFavorite(currentProduct.id);
         // this.isFavorite.set(isFav);
-        
+
         this.isFavorite.set(false);
       }
     });
@@ -48,7 +48,7 @@ export class MenuItemDetailModal {
   toggleFavorite(event: Event) {
     event.stopPropagation();
     this.isFavorite.set(!this.isFavorite());
-    
+
     console.log('TODO: Llamar al backend para guardar favorito:', this.product().name, this.isFavorite());
     // --- Lógica futura ---
     // if (this.isFavorite()) {
@@ -72,8 +72,8 @@ export class MenuItemDetailModal {
 
     // Llama al nuevo método del servicio
     this.cartService.addItem(
-      prod, 
-      this.quantity, 
+      prod,
+      this.quantity,
       instructions
     );
 

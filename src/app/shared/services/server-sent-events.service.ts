@@ -1,6 +1,6 @@
 import { inject, Injectable, NgZone } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthService } from '../../auth/services/auth.service';
+import { AuthService } from '../../auth/services/auth-service';
 import { environment } from '../../../environments/environment.development';
 
 @Injectable({
@@ -94,7 +94,7 @@ export class ServerSentEventsService {
                  observer.error(new Error('SSE connection failed after 10 retries.'));
                  return;
               }
-              
+
               console.warn(`Reconnecting SSE in ${retryDelay / 1000}s`);
               connect();
             }, retryDelay);

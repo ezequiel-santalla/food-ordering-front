@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AuthService } from '../../../auth/services/auth.service';
+import { AuthService } from '../../../auth/services/auth-service';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import EmployeeInfo from '../../models/user';
 import { SessionUtils } from '../../../utils/session-utils';

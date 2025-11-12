@@ -12,7 +12,7 @@ import {
   LucideAngularModule,
   Save,         // Ícono nuevo
 } from 'lucide-angular';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth-service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
@@ -47,7 +47,7 @@ export class ResetPasswordPageComponent implements OnInit {
     confirmPassword: ['', [Validators.required]],
   }, {
     // Validador a nivel de formulario para comparar contraseñas
-    validators: [ FormUtils.passwordsMatchValidator ] 
+    validators: [ FormUtils.passwordsMatchValidator ]
   });
 
   ngOnInit(): void {
@@ -73,7 +73,7 @@ export class ResetPasswordPageComponent implements OnInit {
       this.resetForm.markAllAsTouched();
       return;
     }
-    
+
     // Doble chequeo por si acaso
     if (!this.token) {
        this.sweetAlertService.showError('Error Inesperado', 'No se encontró el token.');

@@ -1,5 +1,5 @@
 import { Component, computed, inject, Input } from '@angular/core';
-import { MenuService } from '../../services/menu.service';
+import { MenuService } from '../../services/menu-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { map, of, switchMap } from 'rxjs';

@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { OrderService } from '../../../services/order.service';
-import { TableSessionService } from '../../../services/table-session.service';
+import { OrderService } from '../../../services/order-service';
+import { TableSessionService } from '../../../services/table-session-service';
 import { BanknoteX, Coins, Hash, LucideAngularModule, PersonStanding, UsersRound } from 'lucide-angular';
 
 @Component({

@@ -5,14 +5,14 @@ import {
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../services/auth-service';
 
 export const UnauthenticatedGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ) => {
   console.log('🛡️ UnauthenticatedGuard | URL solicitada:', state.url);
-  
+
   const authService = inject(AuthService);
   const router = inject(Router);
 

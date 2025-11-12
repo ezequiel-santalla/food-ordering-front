@@ -1,4 +1,3 @@
-// shared/services/error-handler.service.ts
 import { Injectable } from '@angular/core';
 
 export interface ErrorMessage {
@@ -9,25 +8,27 @@ export interface ErrorMessage {
 @Injectable({ providedIn: 'root' })
 export class ErrorHandlerService {
 
-  /**
-   * Obtiene mensaje de error para autenticación
-   */
   getAuthError(error: any): ErrorMessage {
     switch (error.status) {
+      case 400:
+        return {
+          title: 'Email ya registrado',
+          message: 'Este email ya tiene una cuenta. Intenta iniciar sesión.'
+        };
       case 401:
         return {
           title: 'Credenciales inválidas',
           message: 'Email o contraseña incorrectos. Por favor, verifica tus datos.'
         };
+      case 403:
+        return {
+          title: 'Cuenta no verificada',
+          message: 'Revisa tu email para verificar tu cuenta antes de iniciar sesión.'
+        };
       case 404:
         return {
           title: 'Usuario no encontrado',
           message: 'No existe una cuenta asociada a este email.'
-        };
-      case 403:
-        return {
-          title: 'Acceso denegado',
-          message: 'Tu cuenta podría estar bloqueada o inactiva.'
         };
       case 0:
         return {
