@@ -17,6 +17,7 @@ import { SectorModal } from '../../../components/sector-modal/sector-modal';
 import { TableEditDetailModal } from '../../../components/dining-table/table-edit-detail-modal/table-edit-detail-modal';
 import { TableDetailModal } from '../../../components/dining-table/table-detail-modal/table-detail-modal';
 import { catchError, of, switchMap, tap } from 'rxjs';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
  selector: 'app-lounge-builder-page',
@@ -57,7 +58,8 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
  private loungeService: LoungeService,
  private orderService: OrderService,
  private tableSessionService: TableSessionService,
- private diningTableService: DiningTableService // Inyectado
+ private diningTableService: DiningTableService,
+ private sweetAlertService: SweetAlertService
  ) {}
 
  ngOnInit(): void {
@@ -345,7 +347,7 @@ endSession(): void {
  next: (persistedPositions: TablePositionResponse[]) => { // Tipado explícito
  this.tablePositions = persistedPositions;
  this.hasUnsavedChanges = false;
- alert('Salón guardado exitosamente.');
+ this.sweetAlertService.showSuccess('Salón guardado exitosamente.');
  },
  error: (err) => console.error('Error al guardar el salón:', err)
  });

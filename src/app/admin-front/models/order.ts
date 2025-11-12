@@ -40,10 +40,3 @@ export type OrderStatus =
   | 'COMPLETED'
   | 'SERVED'
   | 'CANCELLED';
-
-// Extended interface para la vista de empleados (calculado en frontend)
-// export interface OrderResponseExtended extends OrderResponse {
-//   tableNumber?: number;
-//   tableSessionId?: string;
-//   orderDate?: string | Date;
-// }

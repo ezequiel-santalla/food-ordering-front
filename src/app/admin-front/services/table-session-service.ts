@@ -62,23 +62,22 @@ readonly API_URL = `${environment.baseUrl}/table-sessions`
   }
 
     getOrdersByTableSession(sessionId: string, status?: OrderStatus, page = 0, size = 50): Observable<PaginatedResponse<OrderResponse>> {
-      let params = new HttpParams()
-        .set('page', page.toString())
-        .set('size', size.toString());
+ let params = new HttpParams()
+ .set('page', page.toString())
+ .set('size', size.toString());
+ if (status) {
+ params = params.set('status', status.toString());
+ }
 
-      if (status) {
-        params = params.set('status', status.toString());
-      }
-
-      return this.http.get<PaginatedResponse<OrderResponse>>(`${this.API_URL}/${sessionId}/orders`, { params });
-    }
+ return this.http.get<PaginatedResponse<OrderResponse>>(`${this.API_URL}/${sessionId}/orders`, { params });
+ }
 
   /**
      * Obtener la ÚLTIMA SESIÓN por ID de MESA
      * Endpoint: GET /api/table-sessions/latest/{tableId}
      * Esto es útil para obtener la sesión activa de una mesa sin buscar entre todas las activas.
      */
-    getLatestSessionByTableId(tableId: string): Observable<TableSessionResponse> {
-      return this.http.get<TableSessionResponse>(`${this.API_URL}/latest/${tableId}`);
-    }
+ getLatestSessionByTableId(tableId: string): Observable<TableSessionResponse> {
+return this.http.get<TableSessionResponse>(`${this.API_URL}/latest/${tableId}`);
+}
 }

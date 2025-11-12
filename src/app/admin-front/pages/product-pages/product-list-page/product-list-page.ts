@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { PaginationComponent } from "../../../../shared/components/pagination/pagination.component";
 import { PaginationService } from '../../../../shared/components/pagination/pagination.service';
 import { ProductResponse } from '../../../models/response/product-response';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-product-list-page',
@@ -19,7 +20,8 @@ export class ProductListPage {
     public productService: ProductService,
     private paginationService: PaginationService,
     private eRef: ElementRef,
-    private router: Router
+    private router: Router,
+    private sweetAlertService: SweetAlertService
   ) {
     effect(() => {
       const page = this.paginationService.currentPage();
@@ -66,12 +68,12 @@ export class ProductListPage {
 
     this.productService.deleteProduct(id).subscribe({
       next: () => {
-        alert("Producto eliminado exitosamente");
+        this.sweetAlertService.showSuccess("Producto eliminado correctamente")
         this.getProducts();
       },
       error: (e) => {
         console.log(e);
-        alert("Error al eliminar el producto");
+        this.sweetAlertService.showError("Error al eliminar el producto","")
       }
     });
   }

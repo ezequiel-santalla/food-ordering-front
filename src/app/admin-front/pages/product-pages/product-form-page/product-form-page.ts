@@ -7,6 +7,7 @@ import TagResponse from '../../../models/response/tag-response';
 import { CategoryService } from '../../../services/category-service';
 import { TagService } from '../../../services/tag-service';
 import CategoryResponse from '../../../models/response/category-response';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 interface LeafCategory {
   publicId: string;
@@ -41,7 +42,8 @@ productForm!: FormGroup;
     private categoryService: CategoryService,
     private tagService: TagService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private sweetAlertService: SweetAlertService
   ) {}
 
   ngOnInit(): void {
@@ -257,7 +259,7 @@ productForm!: FormGroup;
       },
       error: (e) => {
         console.error('Error al crear tag:', e);
-        alert('Error al crear el tag. Por favor, intente nuevamente.');
+        this,this.sweetAlertService.showError('Error al crear el tag.', 'Por favor, intente nuevamente.');
         this.isCreatingTag = false;
       }
     });
@@ -339,12 +341,12 @@ canCreateNewTag(): boolean {
   private createProduct(formData: FormData): void {
     this.productService.postProduct(formData).subscribe({
       next: () => {
-        alert("Producto creado con éxito");
+        this.sweetAlertService.showSuccess("Producto creado con éxito");
         this.router.navigate(['/admin/products']);
       },
       error: (e) => {
         console.error('Error al crear:', e);
-        alert('Error al crear el producto. Por favor, intente nuevamente.');
+        this.sweetAlertService.showError('Error al crear el producto.', 'Por favor, intente nuevamente.');
       }
     });
   }
@@ -352,12 +354,12 @@ canCreateNewTag(): boolean {
   private updateProduct(productId: string, formData: FormData): void {
     this.productService.updateProduct(productId, formData).subscribe({
       next: () => {
-        alert("Producto actualizado con éxito");
+       this.sweetAlertService.showSuccess("Producto actualizado con éxito");
         this.router.navigate(['/admin/products']);
       },
       error: (e) => {
         console.error('Error al actualizar:', e);
-        alert('Error al actualizar el producto. Por favor, intente nuevamente.');
+        this.sweetAlertService.showError('Error al actualizar el producto.', 'Por favor, intente nuevamente.');
       }
     });
   }

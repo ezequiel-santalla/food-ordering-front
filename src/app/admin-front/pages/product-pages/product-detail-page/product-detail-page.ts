@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ProductService } from '../../../services/product-service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Content } from '../../../models/response/product-response';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-product-detail-page',
@@ -15,7 +16,8 @@ export class ProductDetailPage {
   constructor(
     private productService: ProductService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private sweetAlertService: SweetAlertService
   ) { }
 
   ngOnInit(): void {
@@ -35,7 +37,7 @@ export class ProductDetailPage {
   deleteProduct(id: string): void {
     this.productService.deleteProduct(id).subscribe({
       next: () => {
-        alert("Producto Eliminado exitosamente");
+        this.sweetAlertService.showSuccess("Producto Eliminado exitosamente");
         this.router.navigate(['/admin/products']);
       },
       error: (e) => {

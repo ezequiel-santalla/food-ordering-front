@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { CategoryService } from '../../../services/category-service';
 import CategoryResponse from '../../../models/response/category-response';
 import CategoryRequest from '../../../models/request/category-request';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 interface CategoryForm {
   name: string;
@@ -32,6 +33,7 @@ export class CategoryFormPage implements OnInit {
   parentOptions: CategoryFlatOption[] = [];
   categoryId: string | null = null;
   isEditMode: boolean = false;
+  private sweetAlertService = inject(SweetAlertService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -69,7 +71,7 @@ export class CategoryFormPage implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar la categoría para edición:', err);
-        alert('No se pudo cargar la categoría para edición.');
+        this.sweetAlertService.showError('No se pudo cargar la categoría para edición', 'intente nuevamente');
         this.router.navigate(['/admin/categories']);
       },
     });
@@ -165,7 +167,7 @@ export class CategoryFormPage implements OnInit {
     serviceCall.subscribe({
       next: () => {
         const action = this.isEditMode ? 'actualizada' : 'creada';
-        alert(`Categoría "${rawFormData.name}" ${action} con éxito.`);
+        this.sweetAlertService.showSuccess(`Categoría "${rawFormData.name}" ${action} con éxito.`);
         this.router.navigate(['/admin/categories']);
       },
       error: (err) => {
@@ -173,7 +175,7 @@ export class CategoryFormPage implements OnInit {
           `Error al ${this.isEditMode ? 'actualizar' : 'crear'} categoría:`,
           err
         );
-        alert('Hubo un error al procesar la categoría.');
+        this.sweetAlertService.showError('Hubo un error al procesar la categoría', 'intente nuevamente');
       },
     });
   }
