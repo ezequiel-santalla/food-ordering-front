@@ -1,0 +1,78 @@
+ /* Estilos base del contenedor principal */
+    .admin-bg {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      /* Fondo azul oscuro con gradientes abstractos */
+      background-color: #0d1a2f; /* Azul profundo base */
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Patrón de fondo abstracto y digital con pseudo-elementos */
+    .admin-bg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3; /* Transparencia para que sea sutil */
+        pointer-events: none;
+
+        /* Simulación de wireframes y datos con gradientes y puntos */
+        background:
+            /* Primer gradiente radial (esquina superior izquierda) - Azul brillante */
+            radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.25) 0%, transparent 40%),
+            /* Segundo gradiente radial (esquina inferior derecha) - Cian */
+            radial-gradient(circle at 90% 80%, rgba(20, 184, 166, 0.2) 0%, transparent 40%),
+            /* Patrón de puntos o líneas sutiles (simulando una cuadrícula digital) */
+            repeating-linear-gradient(
+                0deg,
+                rgba(255, 255, 255, 0.05) 0px,
+                rgba(255, 255, 255, 0.05) 1px,
+                transparent 1px,
+                transparent 100px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.05) 0px,
+                rgba(255, 255, 255, 0.05) 1px,
+                transparent 1px,
+                transparent 100px
+            );
+    }
+
+    /* Superposición (overlay) para asegurar que el texto sea legible */
+    .overlay {
+        background-color: rgba(0, 0, 0, 0.2);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5; /* Necesita estar encima del before */
+    }
+
+    .dashboard-card {
+        max-width: 900px;
+        width: 100%;
+        /* Usar fondo con opacidad y filtro para que se vea el fondo */
+        background-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(8px);
+        z-index: 10;
+    }
+
+    .section-item {
+        border-left: 4px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .section-item:hover {
+        border-left: 4px solid #3b82f6; /* Azul brillante en hover */
+        background-color: #f3f4f6;
+    }

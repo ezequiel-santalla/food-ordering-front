@@ -1,1 +1,37 @@
-<p>admin-home-page works!</p>
+<div class="admin-bg">
+      <div class="overlay"></div>
+
+      <!-- Contenido principal centrado -->
+      <div class="dashboard-card rounded-xl p-8 md:p-12 relative z-10">
+        <header class="mb-8">
+          <h1 class="text-4xl md:text-5xl font-extrabold text-blue-700 leading-tight">
+            ¡Bienvenido, <span class="text-blue-500">{{adminInfo.role}} de {{adminInfo.foodVenueName}} !</span>
+          </h1>
+          <p class="mt-2 text-xl text-gray-600">
+            Aquí podrás gestionar digitalmente tu comercio gastronómico y optimizar cada proceso.
+          </p>
+        </header>
+
+        <section class="mt-8">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Panel de Navegación Rápida</h2>
+          <p class="text-gray-600 mb-6">
+            Estas son las secciones principales a las que puedes acceder desde el panel lateral:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @for (section of sections; track section.title) {
+              <div class="section-item p-4 rounded-lg bg-white shadow">
+                <h3 class="font-semibold text-lg text-blue-700 flex items-center">
+                  <!-- Icono SVG (incorporado en el template) -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path [attr.d]="section.iconPath" [attr.fill-rule]="section.rule" />
+                  </svg>
+                  {{ section.title }}
+                </h3>
+                <p class="text-sm text-gray-500 mt-1">{{ section.description }}</p>
+              </div>
+            }
+          </div>
+        </section>
+      </div>
+    </div>

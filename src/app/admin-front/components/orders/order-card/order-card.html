@@ -1,0 +1,136 @@
+<div
+  class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200 overflow-hidden cursor-pointer"
+  (click)="viewDetails.emit(order.publicId)">
+
+  <div class="p-4">
+    <div class="flex justify-between items-start mb-3">
+
+      <!-- Order Info -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <h3 class="font-bold text-lg text-gray-900">
+            Pedido #{{order.orderNumber}}
+          </h3>
+          <span class="badge badge-sm" [ngClass]="getStatusBadgeClass(order.status)">
+            {{getStatusText(order.status)}}
+          </span>
+        </div>
+
+        <div class="flex items-center gap-3 text-sm text-gray-600">
+          <div class="flex items-center gap-1">
+            <lucide-icon [img]="User" [size]="14"></lucide-icon>
+            <span>{{order.clientAlias}}</span>
+           </div>
+
+          @if (order.tableNumber) {
+            <div class="flex items-center gap-1">
+              <lucide-icon [img]="Armchair" [size]="14"></lucide-icon>
+              <span>Mesa {{order.tableNumber}}</span>
+            </div>
+          }
+
+          <div class="flex items-center gap-1">
+            <lucide-icon [img]="Clock" [size]="14"></lucide-icon>
+            <span>{{getTimeAgo(order.orderDate)}}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price -->
+      <div class="text-right ml-4">
+        <p class="text-xl font-bold text-gray-900">
+          ${{order.totalPrice | number:'1.2-2'}}
+        </p>
+        <p class="text-xs text-gray-500">
+          {{order.orderDetails.length}} items
+        </p>
+      </div>
+    </div>
+
+    <!-- Order Items Summary -->
+    <div class="mb-3 space-y-1">
+      @for (detail of order.orderDetails.slice(0, 3); track detail.id) {
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-600">
+            <span class="font-semibold text-gray-800">{{detail.quantity}}x</span>
+            {{detail.productName}}
+          </span>
+          <span class="text-gray-700 font-medium">
+            ${{detail.subtotal | number:'1.2-2'}}
+          </span>
+        </div>
+      }
+
+      @if (order.orderDetails.length > 3) {
+        <p class="text-xs text-gray-500 italic">
+          + {{order.orderDetails.length - 3}} items más
+        </p>
+      }
+    </div>
+
+    @if (order.specialRequirements) {
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-2 mb-3">
+        <p class="text-xs font-semibold text-amber-800 mb-1 flex items-center gap-1">
+          <lucide-icon [img]="AlertCircle" [size]="12"></lucide-icon>
+          Requisitos especiales:
+        </p>
+        <p class="text-xs text-amber-700 line-clamp-2">
+          {{order.specialRequirements}}
+        </p>
+      </div>
+    }
+
+    <!-- Quick Actions -->
+    <div class="flex gap-2 pt-3 border-t border-gray-100">
+
+      @if (order.status === 'PENDING') {
+        <button
+          class="btn btn-sm btn-primary flex-1"
+          (click)="changeStatus($event, 'APPROVED')">
+          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
+          Aprobar
+        </button>
+        <button
+          class="btn btn-sm btn-error btn-outline"
+          (click)="changeStatus($event, 'CANCELLED')">
+          <lucide-icon [img]="X" [size]="16"></lucide-icon>
+        </button>
+      }
+
+      @if (order.status === 'APPROVED') {
+        <button
+          class="btn btn-sm btn-info flex-1"
+          (click)="changeStatus($event, 'IN_PROGRESS')">
+          <lucide-icon [img]="ChefHat" [size]="16"></lucide-icon>
+          Iniciar
+        </button>
+      }
+
+      @if (order.status === 'IN_PROGRESS') {
+        <button
+          class="btn btn-sm btn-success flex-1"
+          (click)="changeStatus($event, 'COMPLETED')">
+          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
+          Completar
+        </button>
+      }
+
+      @if (order.status === 'COMPLETED') {
+        <button
+          class="btn btn-sm btn-info flex-1"
+          (click)="changeStatus($event, 'SERVED')">
+          <lucide-icon [img]="Utensils" [size]="16"></lucide-icon>
+          Servir
+        </button>
+      }
+
+      @if (order.status === 'SERVED' || order.status === 'CANCELLED') {
+        <button
+          class="btn btn-sm btn-ghost flex-1"
+          disabled>
+          {{getStatusText(order.status)}}
+        </button>
+      }
+    </div>
+  </div>
+</div>

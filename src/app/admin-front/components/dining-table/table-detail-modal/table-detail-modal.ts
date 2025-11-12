@@ -1,13 +1,14 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { DiningTableStatus, TablePositionResponse } from '../../../admin-front/models/lounge';
-import { OrderResponse, OrderStatus } from '../../models/orders';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule,X,
   Ban,
   Check,
   Clock,
   Users,
-  ShoppingBag  } from 'lucide-angular';
+  ShoppingBag,
+  Utensils} from 'lucide-angular';
+import { OrderResponse, OrderStatus } from '../../../models/order';
+import { DiningTableStatus, TablePositionResponse } from '../../../models/lounge';
 
 @Component({
   selector: 'app-table-detail-modal',
@@ -16,7 +17,7 @@ import { LucideAngularModule,X,
 })
 export class TableDetailModal {
 
-@Input({ required: true }) table!: TablePositionResponse;
+  @Input({ required: true }) table!: TablePositionResponse;
   @Input({ required: true }) orders: OrderResponse[] = [];
 
   @Output() close = new EventEmitter<void>();
@@ -28,6 +29,8 @@ export class TableDetailModal {
     orderId: string;
     newStatus: OrderStatus
   }>();
+  @Output() endSession = new EventEmitter<void>();
+
 
   readonly X = X;
   readonly Ban = Ban;
@@ -35,6 +38,7 @@ export class TableDetailModal {
   readonly Clock = Clock;
   readonly Users = Users;
   readonly ShoppingBag = ShoppingBag;
+  readonly Utensils = Utensils;
 
   onBackdropClick(event: MouseEvent): void {
     this.close.emit();
@@ -149,5 +153,11 @@ export class TableDetailModal {
         return status;
     }
   }
+
+  finishAndPay(): void {
+ if (confirm('¿Estás seguro de que quieres finalizar la sesión y liberar la mesa? Esta acción no se puede deshacer.')) {
+ this.endSession.emit();
+ }
+ }
 
 }
