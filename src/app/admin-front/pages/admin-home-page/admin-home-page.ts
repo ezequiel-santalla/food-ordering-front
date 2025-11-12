@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import AdminInfo from '../../models/user-info';
-import { AuthService } from '../../../auth/services/auth.service';
+import { AuthService } from '../../../auth/services/auth-service';
 import { SessionUtils } from '../../../utils/session-utils';
 import { JwtUtils } from '../../../utils/jwt-utils';
 import { FoodVenueService } from '../../services/food-venue-service';
@@ -9,7 +9,7 @@ interface Section {
   title: string;
   description: string;
   iconPath: string;
-  rule: 'evenodd' | 'nonzero'; // SVG fill-rule
+  rule: 'evenodd' | 'nonzero';
 }
 
 @Component({
