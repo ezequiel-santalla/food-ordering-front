@@ -2,6 +2,7 @@ import { Component, EventEmitter, inject, Input, Output, SimpleChanges } from '@
 import { EmployeeService } from '../../../services/employee-service';
 import { EmployeeRequest, EmploymentContent, RoleType } from '../../../models/response/employee';
 import { FormsModule } from '@angular/forms';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-employee-detail-page',
@@ -15,6 +16,7 @@ export class EmployeeDetailPage {
   @Output() employeeUpdated = new EventEmitter<void>();
 
   private employeeService = inject(EmployeeService);
+  private sweetAlertService= inject(SweetAlertService)
 
   // Exponer RoleType para el template
   RoleType = RoleType;
@@ -72,12 +74,12 @@ export class EmployeeDetailPage {
 
     this.employeeService.updateEmployee(this.employee.publicId, updateData).subscribe({
       next: () => {
-        alert('Empleado actualizado exitosamente');
+        this.sweetAlertService.showSuccess('Empleado actualizado exitosamente');
         this.employeeUpdated.emit();
       },
       error: (e) => {
         console.error(e);
-        alert('Error al actualizar el empleado');
+        this.sweetAlertService.showError('Error al actualizar el empleado con el email: ', updateData.userEmail);
       }
     });
   }

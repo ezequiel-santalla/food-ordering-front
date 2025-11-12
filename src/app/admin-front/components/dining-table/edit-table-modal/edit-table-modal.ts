@@ -5,6 +5,7 @@ import { SweetAlertResult } from 'sweetalert2';
   import { DiningTableRequest, DiningTableResponse} from '../../../models/dining-table';
   import { DiningTableService } from '../../../services/dining-table-service';
   import { DiningTableStatus, TablePositionResponse } from '../../../models/lounge'; // Asumiendo este modelo para la posición/forma
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 
   // Definición local de los estados para el selector
@@ -39,7 +40,8 @@ import { SweetAlertResult } from 'sweetalert2';
       { key: DiningTableStatus.OUT_OF_SERVICE, label: 'Fuera de Servicio' }
     ];
 
-    constructor(private diningTableService: DiningTableService) {}
+    constructor(private diningTableService: DiningTableService,
+                private sweetAlertService: SweetAlertService) {}
 
     ngOnInit(): void {
       this.tableNumber = this.originalTable().diningTableNumber;
@@ -100,13 +102,13 @@ import { SweetAlertResult } from 'sweetalert2';
               width: this.originalTable().width,
               height: this.originalTable().height,
           };
-          alert('Mesa modificada correctamente.');
+          this.sweetAlertService.showSuccess('Mesa modificada correctamente.');
           this.tableUpdated.emit(updatedTable);
           this.onClose();
         },
         error: (err) => {
           console.error('Error al actualizar la mesa:', err);
-          alert('Error al actualizar la mesa. Por favor, verifica los datos e intenta de nuevo.');
+          this.sweetAlertService.showError('Error al actualizar la mesa. Por favor', 'verifica los datos e intenta de nuevo.');
           this.isLoading = false;
         },
         complete: () => {

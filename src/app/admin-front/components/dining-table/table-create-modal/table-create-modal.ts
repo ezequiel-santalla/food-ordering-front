@@ -2,6 +2,7 @@ import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DiningTableService } from '../../../services/dining-table-service';
 import { DiningTableRequest } from '../../../models/dining-table';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-table-modal',
@@ -18,7 +19,9 @@ export class TableCreateModal {
   capacity: number | null = null;
   selectedShape: string = '';
 
-  constructor(private diningTableService : DiningTableService) {}
+  constructor(private diningTableService : DiningTableService,
+              private sweetAlertService: SweetAlertService
+  ) {}
 
   onClose(): void {
     this.close.emit();
@@ -53,7 +56,7 @@ export class TableCreateModal {
       },
       error: (err) => {
         console.error('Error creating table:', err);
-        alert('Error al crear la mesa. Por favor, intenta nuevamente.');
+        this.sweetAlertService.showError('Error al crear la mesa', 'Por favor, intenta nuevamente.');
       }
     });
   }

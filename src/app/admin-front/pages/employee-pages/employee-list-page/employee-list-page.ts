@@ -7,6 +7,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
 import { EmployeeDetailPage } from '../employee-detail-page/employee-detail-page';
 import { EmployeeFormPage } from '../employee-form-page/employee-form-page';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-employee-list-page',
@@ -25,6 +26,7 @@ openMenuIndex: number | null = null;
   public employeeService = inject(EmployeeService);
   private paginationService = inject(PaginationService);
   private eRef = inject(ElementRef);
+  private sweetAlertService=  inject(SweetAlertService)
 
   currentPage = this.paginationService.currentPage;
 
@@ -138,7 +140,7 @@ openMenuIndex: number | null = null;
     if (confirm('¿Estás seguro de que deseas eliminar este empleado?')) {
       this.employeeService.deleteEmployee(id).subscribe({
         next: () => {
-          alert('Empleado eliminado exitosamente');
+          this.sweetAlertService.showSuccess('Empleado eliminado exitosamente');
           this.getEmployees(this.currentPage());
         },
         error: (e) => {
