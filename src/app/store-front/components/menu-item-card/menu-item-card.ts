@@ -3,7 +3,7 @@ import { Component, inject, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Plus, Star } from 'lucide-angular';
 import { Product } from '../../models/menu.interface';
-import { CartService } from '../../services/cart.service';
+import { CartService } from '../../services/cart-service';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 
 @Component({
@@ -27,11 +27,11 @@ export class MenuItemCard {
   onActionClick(event: Event) {
     event.stopPropagation();
 this.cartService.addItem(
-      this.product, 
+      this.product,
       1,    // Cantidad 1
       null  // Sin instrucciones
     );
-    
+
     // 7. (Opcional) Da feedback al usuario
     this.sweetAlert.showSuccess(
       '¡Agregado!',

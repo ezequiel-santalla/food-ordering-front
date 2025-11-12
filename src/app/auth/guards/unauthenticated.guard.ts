@@ -5,22 +5,26 @@ import {
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../services/auth-service';
 
 export const UnauthenticatedGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ) => {
   console.log('🛡️ UnauthenticatedGuard | URL solicitada:', state.url);
-  
+
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  const isPasswordResetFlow =
+  // Rutas públicas que NO requieren verificación de autenticación
+  const isPublicAuthFlow =
     state.url.includes('/forgot-password') ||
-    state.url.includes('/reset-password');
+    state.url.includes('/reset-password') ||
+    state.url.includes('/verify-email') ||
+    state.url.includes('/resend-verification');
 
-  if (isPasswordResetFlow) {
+  if (isPublicAuthFlow) {
+    console.log('✅ Ruta pública de auth, acceso permitido');
     return true;
   }
 

@@ -1,8 +1,8 @@
 import { Component, inject, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth.service';
+import { AuthService } from '../../../auth/services/auth-service';
 import { SessionUtils } from '../../../utils/session-utils';
-import { AuthStateManager } from '../../../auth/services/auth-state-manager.service';
+import { AuthStateManager } from '../../../auth/services/auth-state-manager-service';
 import {
   Bell,
   LogOut,

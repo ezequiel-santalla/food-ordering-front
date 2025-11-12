@@ -4,6 +4,8 @@ import { AuthLayoutComponent } from './layout/auth-layout/auth-layout.component'
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
 import { ForgotPasswordPageComponent } from './pages/forgot-password-page/forgot-password-page.component';
 import { ResetPasswordPageComponent } from './pages/reset-password-page/reset-password-page.component';
+import { ResendEmailPageComponent } from './pages/resend-email-page/resend-email-page.component';
+import { VerifyEmailComponent } from './pages/verify-email/verify-email';
 
 export const authRoutes: Routes = [
   {
@@ -25,6 +27,14 @@ export const authRoutes: Routes = [
       {
         path: 'reset-password',
         component: ResetPasswordPageComponent,
+      },
+      {
+        path: 'resend-verification',
+        component: ResendEmailPageComponent,
+      },
+      {
+        path: 'verify-email',
+        component: VerifyEmailComponent,
       },
       {
         path: '**',

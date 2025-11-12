@@ -1,9 +1,15 @@
 import { Component, inject, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ProfileService } from '../../services/profile.service';
-import { TableSessionService } from '../../../store-front/services/table-session.service';
+import { CommonModule, DatePipe } from '@angular/common';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { ProfileService } from '../../services/profile-service';
+import { TableSessionService } from '../../../store-front/services/table-session-service';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-profile-form',
@@ -14,6 +20,7 @@ export class ProfileForm {
   private profileService = inject(ProfileService);
   private tableSessionService = inject(TableSessionService);
   private fb = inject(FormBuilder);
+  private sweetAlert = inject(SweetAlertService);
 
   profileForm!: FormGroup;
   isEditing = false;
@@ -22,7 +29,7 @@ export class ProfileForm {
   profileResource = rxResource({
     stream: () => {
       return this.profileService.getUserProfile();
-    }
+    },
   });
 
   constructor() {
@@ -32,6 +39,7 @@ export class ProfileForm {
       const profile = this.profileResource.value();
       if (profile) {
         this.populateForm(profile);
+        this.profileForm.disable();
       }
     });
   }
@@ -41,7 +49,10 @@ export class ProfileForm {
       name: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: [{ value: '', disabled: true }],
-      phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{10,15}$/)]],
+      phone: [
+        '',
+        [Validators.required, Validators.pattern(/^\+?[0-9\s\-()]{7,20}$/)],
+      ],
       birthDate: ['', Validators.required],
       address: this.fb.group({
         street: ['', Validators.required],
@@ -49,15 +60,21 @@ export class ProfileForm {
         city: ['', Validators.required],
         province: ['', Validators.required],
         country: ['', Validators.required],
-        postalCode: ['', [Validators.required, Validators.pattern(/^[0-9]{4,10}$/)]]
-      })
+        postalCode: [
+          '',
+          [Validators.required, Validators.pattern(/^[0-9A-Za-z\- ]{3,10}$/)],
+        ],
+      }),
     });
   }
 
   toggleEdit(): void {
     this.isEditing = !this.isEditing;
 
-    if (!this.isEditing) {
+    if (this.isEditing) {
+      this.profileForm.enable();
+      this.profileForm.get('email')?.disable();
+    } else {
       const profile = this.profileResource.value();
       if (profile) {
         this.populateForm(profile);
@@ -84,8 +101,8 @@ export class ProfileForm {
         city: data.address?.city || '',
         province: data.address?.province || '',
         country: data.address?.country || '',
-        postalCode: data.address?.postalCode || ''
-      }
+        postalCode: data.address?.postalCode || '',
+      },
     });
   }
 
@@ -105,13 +122,14 @@ export class ProfileForm {
       lastName: rawValue.lastName,
       phone: rawValue.phone,
       birthDate: rawValue.birthDate,
-      address: rawValue.address
+      address: rawValue.address,
     };
 
     this.profileService.updateUserProfile(formData).subscribe({
       next: () => {
         this.isSaving = false;
         this.isEditing = false;
+        this.profileForm.disable();
 
         if (this.tableSessionService.hasActiveSession()) {
           console.log('🔄 Actualizando nickname después de editar perfil');
@@ -125,40 +143,56 @@ export class ProfileForm {
         this.isSaving = false;
         console.error('Error al actualizar perfil:', error);
         this.showErrorMessage(error);
-      }
+      },
     });
   }
 
   private showValidationErrors(): void {
     const errors: string[] = [];
 
-    Object.keys(this.profileForm.controls).forEach(key => {
+    Object.keys(this.profileForm.controls).forEach((key) => {
       const control = this.profileForm.get(key);
       if (control?.invalid && key !== 'address') {
         if (control.hasError('required')) {
-          errors.push(`${this.getFieldName(key)} es requerido`);
+          errors.push(`${ this.getFieldName(key) } es requerido`);
         }
         if (control.hasError('minlength')) {
-          errors.push(`${this.getFieldName(key)} debe tener al menos ${control.errors?.['minlength'].requiredLength} caracteres`);
+          errors.push(
+            `${ this.getFieldName(key) } debe tener al menos ${ control.errors?.['minlength'].requiredLength } caracteres`
+          );
         }
         if (control.hasError('pattern')) {
-          errors.push(`${this.getFieldName(key)} tiene un formato inválido`);
+          errors.push(`${ this.getFieldName(key) } tiene un formato inválido`);
         }
       }
     });
 
     const address = this.profileForm.get('address') as FormGroup;
-    if (address) {
-      Object.keys(address.controls).forEach(key => {
+    if (address.invalid) {
+      Object.keys(address.controls).forEach((key) => {
         const control = address.get(key);
         if (control?.invalid) {
-          errors.push(`${this.getFieldName(key)} en la dirección es requerido`);
+          if (control.hasError('required')) {
+            errors.push(
+              `${ this.getFieldName(key) }(en dirección) es requerido`
+            );
+          }
+          if (control.hasError('pattern')) {
+            errors.push(
+              `${ this.getFieldName(key) }(en dirección) tiene formato inválido`
+            );
+          }
         }
       });
     }
 
     if (errors.length > 0) {
-      alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
+      const htmlErrors = `
+        <ul class="list-disc list-inside text-left text-sm -ml-4">
+          ${errors.map((e) => `<li>${ e }</li>`).join('')}
+        </ul>
+      `;
+      this.sweetAlert.showError('Campos incompletos', htmlErrors);
     }
   }
 
@@ -173,18 +207,24 @@ export class ProfileForm {
       city: 'Ciudad',
       province: 'Provincia',
       country: 'País',
-      postalCode: 'Código postal'
+      postalCode: 'Código postal',
     };
     return names[key] || key;
   }
 
   private showSuccessMessage(): void {
-    alert('✅ Perfil actualizado con éxito');
+    this.sweetAlert.showSuccess(
+      '¡Listo!',
+      'Tu perfil ha sido actualizado.',
+      2000
+    );
   }
 
   private showErrorMessage(error: any): void {
-    const message = error?.error?.message || 'Error al actualizar el perfil. Por favor, intente nuevamente.';
-    alert(`❌ ${message}`);
+    const message =
+      error?.error?.message ||
+      'Error al actualizar el perfil. Por favor, intente nuevamente.';
+    this.sweetAlert.showError('Ocurrió un Problema', message);
   }
 
   hasError(field: string): boolean {
@@ -202,7 +242,8 @@ export class ProfileForm {
     }
     if (control.hasError('pattern')) {
       if (field === 'phone') return 'Formato: +54 11 1234-5678';
-      if (field === 'address.postalCode') return 'Solo números, entre 4 y 10 dígitos';
+      if (field === 'address.postalCode')
+        return 'Solo números, entre 4 y 10 dígitos';
     }
     return 'Campo inválido';
   }

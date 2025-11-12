@@ -5,78 +5,91 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import {
-  KeyRound,
   LucideAngularModule,
   Mail,
-  Send, // Ícono para "Enviar"
+  RotateCcwIcon,
+  Send,
+  X,
 } from 'lucide-angular';
 import { AuthService } from '../../services/auth-service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
+import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({
-  selector: 'app-forgot-password-page',
-  // Asumo que sigues el patrón de 'standalone' e 'imports' del login
+  selector: 'app-resend-email-page',
   standalone: true,
   imports: [RouterLink, ReactiveFormsModule, LucideAngularModule],
-  templateUrl: './forgot-password-page.component.html',
+  templateUrl: './resend-email-page.component.html',
 })
-export class ForgotPasswordPageComponent {
-  // Íconos
-  readonly KeyRound = KeyRound;
+export class ResendEmailPageComponent {
   readonly Mail = Mail;
   readonly Send = Send;
+  readonly RotateCcwIcon = RotateCcwIcon;
+  readonly X = X;
 
-  // Servicios
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private sweetAlertService = inject(SweetAlertService);
   private errorHandler = inject(ErrorHandlerService);
-  private router = inject(Router);
+  private navigation = inject(NavigationService);
 
   formUtils = FormUtils;
   isSubmitting = false;
 
-  forgotForm: FormGroup = this.fb.group({
+  myForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
   });
 
+  private resetForm() {
+    this.myForm.reset();
+  }
+
   onSubmit() {
-    if (this.forgotForm.invalid) {
-      this.forgotForm.markAllAsTouched();
+    if (this.myForm.invalid) {
+      this.myForm.markAllAsTouched();
       return;
     }
 
+    const email = this.myForm.getRawValue().email;
     this.isSubmitting = true;
-    const { email } = this.forgotForm.value;
 
     this.sweetAlertService.showLoading(
-      'Enviando...',
-      'Por favor espera un momento'
+      'Reenviando correo...',
+      'Por favor espera'
     );
 
-    // --- IMPORTANTE ---
-    // Asumo que tu AuthService tiene un método `forgotPassword(email: string)`
-    // que devuelve un Observable.
-    this.authService.forgotPassword({ email: email }).subscribe({
+    this.authService.resendVerificationEmail(email).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.sweetAlertService.showSuccess(
-          'Email Enviado',
-          'Revisa tu bandeja de entrada (y spam) para ver las instrucciones.'
+        this.sweetAlertService.showConfirmableSuccess(
+          '¡Correo enviado!',
+          `Revisa tu correo ${email} para activar tu cuenta.`,
+          'Entendido'
         );
-        // Redirigimos al login
-        this.router.navigate(['/auth/login']);
+        this.resetForm();
       },
       error: (error) => {
+        console.error('Error reenviando email:', error);
         this.isSubmitting = false;
-        // Reutilizamos tu manejador de errores
-        const { title, message } = this.errorHandler.getAuthError(error);
+
+        const { title, message } = this.errorHandler.getGenericError(
+          error,
+          'reenviar el correo'
+        );
         this.sweetAlertService.showError(title, message);
       },
     });
+  }
+
+  onCancel() {
+    this.resetForm();
+  }
+
+  onExit() {
+    this.navigation.navigateBySessionState();
   }
 }

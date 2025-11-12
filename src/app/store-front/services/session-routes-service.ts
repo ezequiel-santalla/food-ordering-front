@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { AuthService } from '../../auth/services/auth.service';
+import { AuthService } from '../../auth/services/auth-service';
 
 /**
  * Servicio para generar rutas de sesión dinámicamente

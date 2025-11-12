@@ -1,6 +1,6 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { AuthService } from '../../auth/services/auth.service';
-import { ProfileService } from './profile.service';
+import { AuthService } from '../../auth/services/auth-service';
+import { ProfileService } from './profile-service';
 import { TableSessionInfo } from '../../shared/models/table-session';
 import { SessionUtils } from '../../utils/session-utils';
 import { ServerSentEventsService } from '../../shared/services/server-sent-events.service';
@@ -8,11 +8,12 @@ import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { AuthStateManager } from '../../auth/services/auth-state-manager.service';
+import { AuthStateManager } from '../../auth/services/auth-state-manager-service';
 import { TokenManager } from '../../utils/token-manager';
 
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
+
   private authService = inject(AuthService);
   private authState = inject(AuthStateManager);
   private profileService = inject(ProfileService);

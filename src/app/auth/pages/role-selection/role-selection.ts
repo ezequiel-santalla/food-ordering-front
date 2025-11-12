@@ -1,6 +1,6 @@
 import { Component, computed, inject, effect, Signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth-service';
 import { Employment } from '../../../shared/models/common';
 import {
   Briefcase,
@@ -88,7 +88,7 @@ export class RoleSelectionComponent {
         this.router.navigate(['admin']);
 
       } else if (role === 'ROLE_MANAGER' || role === 'ROLE_STAFF') {
-       
+
         this.router.navigate(['employee']);
 
       }

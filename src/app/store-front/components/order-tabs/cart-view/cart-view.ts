@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
-import { CartService } from '../../../services/cart.service';
+import { CartService } from '../../../services/cart-service';
 import { CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { OrderService } from '../../../services/order.service';
+import { OrderService } from '../../../services/order-service';
 import { OrderRequest } from '../../../models/order.interface';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 import { LucideAngularModule, ShoppingBasket, Trash2 } from 'lucide-angular';

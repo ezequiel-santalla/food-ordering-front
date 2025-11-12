@@ -86,13 +86,24 @@ export class TokenManager {
   static saveTokens(
     accessToken: string,
     refreshToken: string,
-    expirationDate: string
+    expirationDate?: string
   ): void {
     this.validateTokens(accessToken, refreshToken);
 
+    let finalExpiration = expirationDate ?? null;
+
+    try {
+      const decoded = JwtUtils.decodeJWT(accessToken);
+      if (decoded?.exp) {
+        finalExpiration = new Date(decoded.exp * 1000).toISOString();
+      }
+    } catch (e) {
+      console.warn('No se pudo derivar expiration desde el token', e);
+    }
+
     SessionUtils.setStorageValue('accessToken', accessToken);
     SessionUtils.setStorageValue('refreshToken', refreshToken);
-    SessionUtils.setStorageValue('expirationDate', expirationDate);
+    SessionUtils.setStorageValue('expirationDate', finalExpiration);
 
     console.log('✅ Tokens guardados en localStorage', {
       isGuest: refreshToken === 'guest',

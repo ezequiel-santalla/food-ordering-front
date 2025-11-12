@@ -42,7 +42,29 @@ export class AuthStateManager {
   }
 
   public isHandlingAuthError = false;
-  
+
+  public applyRefresh(accessToken: string, refreshToken?: string) {
+    TokenManager.saveTokens(
+      accessToken,
+      refreshToken ?? this._refreshToken() ?? ''
+    );
+
+    const decoded = JwtUtils.decodeJWT(accessToken);
+    this._accessToken.set(accessToken);
+    if (refreshToken) this._refreshToken.set(refreshToken);
+
+    const expIso = decoded?.exp
+      ? new Date(decoded.exp * 1000).toISOString()
+      : null;
+    this._expirationDate.set(expIso);
+
+    const role =
+      decoded?.role ??
+      (Array.isArray(decoded?.roles) ? decoded.roles[0] : null);
+    this._role.set(role);
+    this.updateStatusFromToken(accessToken);
+  }
+
   /**
    * Carga datos desde localStorage y actualiza el estado
    */

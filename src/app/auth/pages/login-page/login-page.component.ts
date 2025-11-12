@@ -14,12 +14,12 @@ import {
   User,
   X,
 } from 'lucide-angular';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth-service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import { NavigationService } from '../../../shared/services/navigation.service';
-import { TableSessionService } from '../../../store-front/services/table-session.service';
+import { TableSessionService } from '../../../store-front/services/table-session-service';
 import { isTableSessionResponse, LoginResponse } from '../../models/auth';
 import { JwtUtils } from '../../../utils/jwt-utils';
 
@@ -152,7 +152,7 @@ export class LoginPageComponent implements OnInit {
    * (ya sea un 200 OK o un 409 Conflict con datos de sesión)
    */
   private processSuccessfulLogin(response: LoginResponse): void {
-    
+
     // Comprueba y guarda la sesión SIEMPRE que exista.
     if (isTableSessionResponse(response)) {
       console.log('🪑 TableSessionResponse detectado en login');
@@ -191,7 +191,7 @@ export class LoginPageComponent implements OnInit {
         response.tableNumber,
         nickname,
         response.numberOfParticipants || 0,
-        response.tableCapacity || 0, 
+        response.tableCapacity || 0,
         participantIdFromToken
       );
 
@@ -213,7 +213,7 @@ export class LoginPageComponent implements OnInit {
       this.resetForm();
       return;
     }
-    
+
     // 3. Si no hay roles, navega al estado de la sesión
     this.resetForm();
     this.navigation.navigateBySessionState();

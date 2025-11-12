@@ -16,7 +16,7 @@ import { PaginatedResponse } from '../../shared/components/pagination/pagination
 import { environment } from '../../../environments/environment.development';
 
 // 🛑 Importa tus servicios de estado y SSE
-import { TableSessionService } from './table-session.service'; // Asegúrate que la ruta sea correcta
+import { TableSessionService } from './table-session-service'; // Asegúrate que la ruta sea correcta
 import { ServerSentEventsService } from '../../shared/services/server-sent-events.service';
 
 @Injectable({ providedIn: 'root' })
@@ -169,7 +169,7 @@ export class OrderService {
         next: (event) => {
 
           console.log('OrderService: Evento SSE recibido:', event);
-          
+
           // order.service.ts (dentro de subscribeToOrderEvents → next:)
           if (event.type === 'new-order') {
             const newOrder: OrderResponse = event.payload;

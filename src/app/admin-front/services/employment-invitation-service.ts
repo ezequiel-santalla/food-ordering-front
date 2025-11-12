@@ -20,15 +20,15 @@ export class EmploymentInvitationService {
     action: 'accept' | 'decline'
   ): Observable<InvitationResponse> {
     const body = { token, action };
-    
+
     return this.http.post<InvitationResponse>(`${API_URL}/respond`, body).pipe(
       catchError(this.handleError)
     );
   }
 
   private handleError(error: any) {
-    // Extrae el mensaje de error que envía el backend
     const errorMessage = error.error?.message || 'Ocurrió un error desconocido. Por favor, intenta de nuevo.';
+    
     return throwError(() => new Error(errorMessage));
   }
 }

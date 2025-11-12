@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { EmploymentInvitationService } from '../../services/employment-invitation.service';
+import { EmploymentInvitationService } from '../../services/employment-invitation-service';
 
 type PageState = 'pending' | 'loading' | 'success' | 'error';
 

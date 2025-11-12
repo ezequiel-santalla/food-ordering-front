@@ -1,10 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { SweetAlertService } from '../shared/services/sweet-alert.service';
-import { TableSessionService } from '../store-front/services/table-session.service';
+import { TableSessionService } from '../store-front/services/table-session-service';
 import { ErrorHandlerService } from '../shared/services/error-handler.service';
 import { NavigationService } from '../shared/services/navigation.service';
 import { SessionUtils } from '../utils/session-utils';
-import { AuthService } from '../auth/services/auth.service';
+import { AuthService } from '../auth/services/auth-service';
 import { Participant } from '../shared/models/common';
 import { finalize } from 'rxjs';
 

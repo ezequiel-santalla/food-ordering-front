@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { CartView } from "./cart-view/cart-view";
 import { MyOrders } from "./my-orders/my-orders";
 import { TableOrders } from "./table-orders/table-orders";
-import { CartService } from '../../services/cart.service';
-import { OrderService } from '../../services/order.service';
+import { CartService } from '../../services/cart-service';
+import { OrderService } from '../../services/order-service';
 import { TableSummaryComponent } from './table-summary/table-summary';
 // 1. Importar el nuevo componente de resumen
 

@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { MenuService } from '../../services/menu.service';
+import { MenuService } from '../../services/menu-service';
 import { MenuItemCard } from '../menu-item-card/menu-item-card';
 import { MenuItemDetailModal } from '../menu-item-detail-modal/menu-item-detail-modal';
 import { Product } from '../../models/menu.interface';

@@ -2,14 +2,11 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { KeyRound, LucideAngularModule, Mail, RotateCcwIcon, User, Phone, MapPin } from 'lucide-angular';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth-service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
-import { NavigationService } from '../../../shared/services/navigation.service';
-import { TableSessionService } from '../../../store-front/services/table-session.service';
-import { isTableSessionResponse } from '../../models/auth';
-import { JwtUtils } from '../../../utils/jwt-utils';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register-page',
@@ -28,9 +25,7 @@ export class RegisterPageComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private sweetAlertService = inject(SweetAlertService);
-  private tableSessionService = inject(TableSessionService);
   private errorHandler = inject(ErrorHandlerService);
-  private navigation = inject(NavigationService);
 
   get pageTitle(): string {
     return 'Crear Cuenta';
@@ -98,63 +93,17 @@ export class RegisterPageComponent {
     const registerData = this.buildRegisterData(formValue);
 
     this.authService.register(registerData).subscribe({
-      next: (response) => {
+      next: () => {
         this.isSubmitting = false;
 
-        this.sweetAlertService.showSuccess(
-          '¡Cuenta creada!',
-          'Tu cuenta ha sido registrada correctamente.'
-        );
-
-        // Verificar si es una respuesta con sesión de mesa
-        if (isTableSessionResponse(response)) {
-          console.log('🪑 TableSessionResponse detectado en registro');
-
-          const decodedToken = JwtUtils.decodeJWT(response.accessToken);
-          const participantIdFromToken = decodedToken?.participantId;
-
-          console.log('🔍 ParticipantId del token:', participantIdFromToken);
-
-          const currentParticipant = response.activeParticipants.find(
-            p => p.publicId === participantIdFromToken
-          );
-
-          let nickname: string;
-
-          if (currentParticipant) {
-            if (currentParticipant.nickname) {
-              nickname = currentParticipant.nickname;
-              console.log('✅ Usando nickname del participante:', nickname);
-            } else if (currentParticipant.user?.name) {
-              nickname = currentParticipant.user.name;
-              console.log('✅ Usando nombre del usuario:', nickname);
-            } else {
-              nickname = formValue.name;
-              console.log('⚠️ Participante sin nickname ni nombre');
-            }
-          } else {
-            nickname = formValue.name;
-            console.log('⚠️ Participante no encontrado en la lista');
-          }
-
-          console.log('👤 Nickname final:', nickname);
-
-          this.tableSessionService.setTableSessionInfo(
-            response.tableNumber,
-            nickname,
-            response.numberOfParticipants || 0,
-            response.tableCapacity || 0,
-            participantIdFromToken
-          );
-
-          console.log('✅ Datos de mesa guardados correctamente');
-        } else {
-          console.log('👤 AuthResponse - Sin sesión de mesa activa');
-          localStorage.removeItem('participantNickname');
-        }
+        Swal.fire({
+          title: '¡Cuenta creada!',
+          html: `Revisa tu correo <strong>${formValue.email}</strong><br>para activar tu cuenta.`,
+          icon: 'success',
+          confirmButtonText: 'Entendido',
+        });
 
         this.resetForm();
-        this.navigation.navigateBySessionState();
       },
       error: (error) => {
         console.error('Error en registro:', error);
@@ -172,8 +121,6 @@ export class RegisterPageComponent {
   }
 
   // ==================== MÉTODOS PRIVADOS ====================
-
-  // En register-page.component.ts
 
   private buildRegisterData(formValue: any) {
     // Campos requeridos
