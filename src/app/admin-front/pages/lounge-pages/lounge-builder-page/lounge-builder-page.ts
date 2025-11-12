@@ -1,700 +1,435 @@
-import { TableDetailModal } from './../../../components/table-detail-modal/table-detail-modal';
-import { Component, OnInit } from '@angular/core';
-
-import { TablePosition, TablePositionResponse } from '../../../models/lounge';
-
-import { LoungeService } from '../../../services/lounge-service';
-
-import { TableModal } from '../../../components/table-modal/table-modal';
-
-import { SectorModal } from '../../../components/sector-modal/sector-modal';
-
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
 import { CommonModule } from '@angular/common';
 
+// DTOs/Interfaces
+// Importaciones de DTOs de tus modelos. Se asume que existen.
+import { TablePosition, TablePositionResponse, DiningTableStatus, LoungeResponse } from '../../../models/lounge';
+import { OrderResponse, OrderStatus } from '../../../models/order';
 
+// Servicios
+import { LoungeService } from '../../../services/lounge-service';
+import { OrderService } from '../../../services/order-service'; // Asumo que existe para onOrderStatusChanged
+import { TableSessionService } from '../../../services/table-session-service'; // Requiere el placeholder o tu implementación
+import { DiningTableService } from '../../../services/dining-table-service'; // Nuevo: Para actualizar el estado de la mesa
+import { TableCreateModal } from '../../../components/dining-table/table-create-modal/table-create-modal';
+import { SectorModal } from '../../../components/sector-modal/sector-modal';
+import { TableEditDetailModal } from '../../../components/dining-table/table-edit-detail-modal/table-edit-detail-modal';
+import { TableDetailModal } from '../../../components/dining-table/table-detail-modal/table-detail-modal';
 
 @Component({
-
-  selector: 'app-lounge-builder-page',
-
-  standalone: true, // Asumimos standalone o lo tienes en imports del módulo
-
-  imports: [TableModal, SectorModal, FormsModule, CommonModule, TableDetailModal],
-
-  templateUrl: './lounge-builder-page.html',
-
-  styleUrl: './lounge-builder-page.css'
-
+  selector: 'app-lounge-builder-page',
+  imports: [TableCreateModal, SectorModal, FormsModule, CommonModule, TableEditDetailModal, TableDetailModal],
+  templateUrl: './lounge-builder-page.html',
+  styleUrl: './lounge-builder-page.css'
 })
-
-export class LoungeBuilderPage implements OnInit { // Implementamos OnInit
-
-// 🌐 COORDENADAS VIRTUALES (Ajustadas para una escala más grande)
-
-  virtualGridWidth = 1600; // Reducido de 1600 para forzar una escala mayor
-
-  virtualGridHeight = 800;  // Mantenido en 800
-
-
-
-  // 📐 CONSTANTES DE AJUSTE
-
-  gridStep = 50;
-
-  collisionBuffer = 5;
-
-
-  viewportWidth = 0;
-
-  viewportHeight = 0;
-
-  scaleRatio = 1;
-
-currentSector: string = 'Principal';
-
-sectors: string[] = [];
-
-
-
-  tablePositions: TablePositionResponse[] = [];
-
-  selectedTable: TablePositionResponse | null = null;
-
-
-
-  hasUnsavedChanges: boolean = false; // 🚨 NUEVA BANDERA DE CAMBIOS
-
-
-
-  gridWidth = 1200;
-
-  gridHeight = 800;
-
-
-
-  showSectorModal = false;
-
-  showTableModal = false;
-
-
-
-  draggedTable: TablePositionResponse | null = null;
-
-
-
-  constructor(private loungeService: LoungeService) {}
-
-
-
-  ngOnInit(): void {
-
-    this.initializeLounge();
-
-    this.calculateViewportDimensions();
-
-     // Recalcular en resize
-
-    window.addEventListener('resize', () => this.calculateViewportDimensions());
-
-  }
-
-
-
-  ngOnDestroy(): void {
-
-    window.removeEventListener('resize', () => this.calculateViewportDimensions());
-
-  }
-
-
-
-  // Helper para hacer actualizaciones locales
-
-  private updateTablePositionLocal(tableId: string, updates: Partial<TablePositionResponse>): void {
-
-    const index = this.tablePositions.findIndex(t => t.diningTableId === tableId);
-
-    if (index !== -1) {
-
-      // 1. Clonar y actualizar localmente
-
-      this.tablePositions[index] = { ...this.tablePositions[index], ...updates };
-
-      // 2. Activar la bandera de cambios
-
-      this.hasUnsavedChanges = true;
-
-    }
-
-  }
-
-   loadSectors(): void {
-    this.loungeService.getSectors().subscribe({
-      next: (response) => {
-        this.sectors = response.sectors;
-
-        // Si hay sectores, usar el primero como default
-        if (this.sectors.length > 0) {
-          this.currentSector = this.sectors[0];
-        } else {
-          // Si no hay sectores, usar default y agregarlo
-          this.currentSector = 'Planta Baja';
-          this.sectors = ['Planta Baja'];
-        }
-      },
-      error: (err) => {
-        console.error('Error loading sectors:', err);
-        // Fallback a sectores por defecto
-        this.sectors = ['Planta Baja'];
-        this.currentSector = 'Planta Baja';
-      }
-    });
-  }
-
-
-  saveLoungeChanges(): void {
-
-    if (!this.hasUnsavedChanges) return;
-
-
-    const positionsToSave: TablePosition[] = this.tablePositions.map(t => ({
-
-      diningTableId: t.diningTableId,
-
-      positionX: t.positionX,
-
-      positionY: t.positionY,
-
-      sector: t.sector,
-
-      tableShape: t.tableShape,
-
-      width: t.width,
-
-      height: t.height
-
-    }));
-
-
-
-
-
-    // Llamada al nuevo método del servicio
-
-    this.loungeService.saveAllTablePositions(positionsToSave).subscribe({
-
-      next: (persistedPositions) => {
-
-        // Opcional: Reemplazar el array completo con la respuesta del backend (para IDs o datos actualizados)
-
-        this.tablePositions = persistedPositions;
-
-        this.hasUnsavedChanges = false; // Desactivar la bandera
-
-        this.loadSectors();
-
-        alert('Salón guardado exitosamente.');
-
-      },
-
-      error: (err) => {
-
-        console.error('Error al guardar el salón:', err);
-
-        alert('Error al guardar el salón. Revisa la consola.');
-
-      }
-
-    });
-
-  }
-
-
-
-  calculateViewportDimensions(): void {
-
-    // Obtener el contenedor padre (ej: 90% del ancho disponible)
-
-    const containerElement = document.querySelector('.lounge-container');
-
-    if (!containerElement) return;
-
-
-
-    const availableWidth = containerElement.clientWidth -64; // Padding
-
-    const availableHeight = window.innerHeight-250; // Header + controles + leyenda
-
-
-
-    // Calcular escala manteniendo aspect ratio
-
-    const scaleX = availableWidth / this.virtualGridWidth;
-
-    const scaleY = availableHeight / this.virtualGridHeight;
-
-
-
-    // Usar la escala menor para que TODO quepa
-
-    this.scaleRatio = Math.min(scaleX, scaleY, 1); // Max 1 para no agrandar
-
-
-
-    this.viewportWidth = this.virtualGridWidth * this.scaleRatio;
-
-    this.viewportHeight = this.virtualGridHeight * this.scaleRatio;
-
-  }
-
-  // 🔄 CONVERTIR coordenadas virtuales → viewport
-
-  toViewportCoords(virtualX: number, virtualY: number): { x: number, y: number } {
-
-    return {
-
-      x: virtualX * this.scaleRatio,
-
-      y: virtualY * this.scaleRatio
-
-    };
-
-  }
-
-
-
- // 🔄 CONVERTIR coordenadas viewport → virtuales (para guardar)
-
-toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } {
-
-  // Conversión pura
-
-  const rawVirtualX = viewportX / this.scaleRatio;
-
-  const rawVirtualY = viewportY / this.scaleRatio;
-
-
-
-  // 🎯 Snap to Grid: Redondear al múltiplo de gridStep más cercano
-
-  return {
-
-    x: Math.round(rawVirtualX / this.gridStep) * this.gridStep,
-
-    y: Math.round(rawVirtualY / this.gridStep) * this.gridStep
-
-  };
-
-  }
-  get scaledTablesInCurrentSector() {
-
-    return this.tablesInCurrentSector.map(table => ({
-
-      ...table,
-
-      displayX: table.positionX * this.scaleRatio,
-
-      displayY: table.positionY * this.scaleRatio,
-
-      displayWidth: (table.width || 80) * this.scaleRatio,
-
-      displayHeight: (table.height || 80) * this.scaleRatio
-
-    }));
-
-  }
-
-
-  onDrop(event: DragEvent): void {
-
-    event.preventDefault();
-
-
-
-    if (!this.draggedTable) return;
-
-
-
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-
-  const tableWidth = (this.draggedTable.width || 80) * this.scaleRatio;
-
-    const tableHeight = (this.draggedTable.height || 80) * this.scaleRatio;
-
-// 1. Coordenadas del ratón relativas al contenedor de drop
-
-  const dropX = event.offsetX; // Posición X del ratón dentro del div
-
-  const dropY = event.offsetY; // Posición Y del ratón dentro del div
-
-
-
-  // 2. Calcular la nueva posición de la esquina superior izquierda de la tabla (centrada en el ratón)
-
-  const viewportX = Math.max(0, Math.min(
-
-      dropX - tableWidth / 2, // Centrado en el cursor
-
-      this.viewportWidth - tableWidth
-
-  ));
-
-  const viewportY = Math.max(0, Math.min(
-
-      dropY - tableHeight / 2, // Centrado en el cursor
-
-      this.viewportHeight - tableHeight
-
-  ));
-
-
-
-    const virtualCoords = this.toVirtualCoords(viewportX, viewportY);
-
-
-
-    // Validar colisión EN COORDENADAS VIRTUALES
-
-    if (this.detectCollision(
-
-      virtualCoords.x,
-
-      virtualCoords.y,
-
-      this.draggedTable.width || 80,
-
-      this.draggedTable.height || 80,
-
-      this.draggedTable.diningTableId
-
-    )) {
-
-      alert('No puedes colocar una mesa encima de otra');
-
-      this.draggedTable = null;
-
-      return;
-
-    }
-
-
-
-    this.updateTablePositionLocal(this.draggedTable.diningTableId, {
-
-    positionX: virtualCoords.x,
-
-    positionY: virtualCoords.y,
-
-});
-
-  }
-
-
-
-
-
-     // ✅ VALIDACIÓN en coordenadas virtuales
-
-  private detectCollision(
-
-    virtualX: number,
-
-    virtualY: number,
-
-    width: number,
-
-    height: number,
-
-    excludeTableId: string
-
-  ): boolean {
-
-    return this.tablesInCurrentSector.some(table => {
-
-    if (table.diningTableId === excludeTableId) return false;
-
-
-
-    const tableWidth = table.width || 80;
-
-    const tableHeight = table.height || 80;
-
-
-
-    // 🎯 APLICAR BUFFER: Sumar el buffer a los límites de colisión
-
-    const overlapX = virtualX < table.positionX + tableWidth + this.collisionBuffer &&
-
-                     virtualX + width + this.collisionBuffer > table.positionX;
-
-
-
-    const overlapY = virtualY < table.positionY + tableHeight + this.collisionBuffer &&
-
-                     virtualY + height + this.collisionBuffer > table.positionY;
-
-
-    const overlapXRelaxed = virtualX < table.positionX + tableWidth &&
-
-                            virtualX + width > table.positionX;
-
-
-
-    const overlapYRelaxed = virtualY < table.positionY + tableHeight &&
-
-                            virtualY + height > table.positionY;
-
-
-
-    const distanceX = Math.abs(virtualX - table.positionX) - ((width + tableWidth) / 2);
-
-    const distanceY = Math.abs(virtualY - table.positionY) - ((height + tableHeight) / 2);
-
-
-
-    // Volver a la lógica de colisión simple, pero añadiendo la holgura (buffer):
-
-    const overlapXBuffer = virtualX < table.positionX + tableWidth - this.collisionBuffer &&
-
-                           virtualX + width - this.collisionBuffer > table.positionX;
-
-    const overlapYBuffer = virtualY < table.positionY + tableHeight - this.collisionBuffer &&
-
-                           virtualY + height - this.collisionBuffer > table.positionY;
-
-
-
-    return overlapXBuffer && overlapYBuffer;
-
-    });
-
-  }
-
-
-
-
-  onTableCreated(tableData: any): void {
-
-
-    const tablePosition: TablePosition = {
-
-      diningTableId: tableData.diningTableId,
-
-      positionX: 100,
-
-      positionY: 100,
-
-      sector: this.currentSector,
-
-      tableShape: tableData.shape,
-
-      width: tableData.shape === 'rect' ? 200 : 80,
-
-      height: 80
-
-    };
-
-
-
-    this.loungeService.addTablePosition(tablePosition).subscribe({
-
-      next: (newPosition) => {
-
-        this.tablePositions.push(newPosition);
-
-        this.hasUnsavedChanges = true; // La creación es un cambio no guardado
-
-        this.closeTableModal();
-
-      },
-
-      error: (err) => {
-
-        console.error('Error adding table:', err);
-
-        alert('Error al agregar la mesa al salón');
-
-      }
-
-    });
-
-  }
-
-
-
-  onTableSizeChanged(data: { tableId: string, width: number, height: number }): void {
-
-    const table = this.tablePositions.find(t => t.diningTableId === data.tableId);
-
-    if (!table) return;
-
-
-
-    // 🚨 MODIFICACIÓN CLAVE: Actualiza el modelo local SIN llamar al servicio
-
-    this.updateTablePositionLocal(data.tableId, {
-
-      width: data.width,
-
-      height: data.height
-
-    });
-
-  }
-
-
-
-  onTableRemoved(tableId: string): void {
-
-    // ⚠️ NOTA: La eliminación (DELETE) debe seguir llamando al servicio inmediatamente
-
-    // para liberar el ID de la tabla si el backend lo requiere.
-
-
-
-    this.loungeService.removeTablePosition(tableId).subscribe({
-
-      next: () => {
-
-        this.tablePositions = this.tablePositions.filter(t => t.diningTableId !== tableId);
-
-        this.hasUnsavedChanges = true; // La eliminación es un cambio no guardado
-
-        this.closeTableDetailModal();
-
-      },
-
-      error: (err) => console.error('Error removing table:', err)
-
-    });
-
-  }
-
-
-
-  // ... (El resto de métodos como initializeLounge, loadTablePositions, getTotalCapacity, etc., permanecen igual)
-
-
-
-  initializeLounge(): void {
-
-    // El backend crea el lounge automáticamente si no existe
-
-    this.loungeService.getOrCreateLounge().subscribe({
-
-      next: (lounge) => {
-
-        this.gridWidth = lounge.gridWidth;
-
-        this.gridHeight = lounge.gridHeight;
-
-        this.loadSectors();
-        this.loadTablePositions();
-
-      },
-
-      error: (err) => console.error('Error initializing lounge:', err)
-
-    });
-
-  }
-
-
-  loadTablePositions(): void {
-
-    this.loungeService.getTablePositions().subscribe({
-
-      next: (positions) => {
-
-        this.tablePositions = positions;
-
-        this.hasUnsavedChanges = false; // Resetear al cargar
-
-      },
-
-      error: (err) => console.error('Error loading table positions:', err)
-
-    });
-
-  }
-
-
-
-  get tablesInCurrentSector(): TablePositionResponse[] {
-
-    return this.tablePositions.filter(t => t.sector === this.currentSector);
-
-  }
-
-
-
-  openSectorModal(): void { this.showSectorModal = true; }
-
-  closeSectorModal(): void { this.showSectorModal = false; }
-
-  openTableModal(): void { this.showTableModal = true; }
-
-  closeTableModal(): void { this.showTableModal = false; }
-
-  selectTable(table: TablePositionResponse): void { this.selectedTable = table; }
-
-  closeTableDetailModal(): void { this.selectedTable = null; }
-
- onSectorCreated(sectorName: string): void {
-    if (!this.sectors.includes(sectorName)) {
-      this.sectors.push(sectorName);
-    }
-    this.currentSector = sectorName;
-    this.hasUnsavedChanges = true;
-    this.closeSectorModal();
-  }
-
-
-
-  onDragStart(event: DragEvent, table: TablePositionResponse): void {
-
-    this.draggedTable = table;
-
-    event.dataTransfer!.effectAllowed = 'move';
-
-  }
-
-
-
-  onDragOver(event: DragEvent): void {
-
-    event.preventDefault();
-
-    event.dataTransfer!.dropEffect = 'move';
-
-  }
-
-
-
-  getTotalCapacity(): number {
-
-    return this.tablesInCurrentSector.reduce(
-
-      (sum, table) => sum + (table.diningTableCapacity || 0), 0
-
-    );
-
-  }
-
-  handleTableDataUpdate(updatedTable: TablePositionResponse): void {
-
- // 1. Actualizar la lista principal de posiciones (ESENCIAL para el dibujado y el guardado)
- // Esto usa tu helper privado para encontrar la mesa por diningTableId y aplicar todos los cambios (número, capacidad, estado, etc.)
- this.updateTablePositionLocal(updatedTable.diningTableId, updatedTable);
-
- // 2. Limpiar la mesa seleccionada.
- // Se asume que el `TableDetailModal` se cerró con `this.onClose()` después de la edición.
- // Dado que el detalle ya se cerró, limpiamos la referencia en el padre para ocultar el modal.
- this.selectedTable = null;
- // Si deseas que el modal de detalle se reabra automáticamente con los nuevos datos,
- // reemplaza la línea de arriba con:
- // this.selectedTable = updatedTable;
- }
+export class LoungeBuilderPage implements OnInit, OnDestroy {
+  // Viewport dimensions (TU CÓDIGO)
+  virtualGridWidth = 1600;
+  virtualGridHeight = 800;
+  gridStep = 50;
+  collisionBuffer = 5;
+  viewportWidth = 0;
+  viewportHeight = 0;
+  scaleRatio = 1;
+
+  // Data (TU CÓDIGO)
+  currentSector: string = '';
+  sectors: string[] = [];
+  tablePositions: TablePositionResponse[] = [];
+  selectedTable: TablePositionResponse | null = null;
+  allOrders: OrderResponse[] = [];
+  selectedTableOrders: OrderResponse[] = [];
+
+  // State (TU CÓDIGO)
+  hasUnsavedChanges: boolean = false;
+  isEditingMode: boolean = false;
+
+  // Modal/Drag (TU CÓDIGO)
+  gridWidth = 1200;
+  gridHeight = 800;
+  showSectorModal = false;
+  showTableModal = false;
+  draggedTable: TablePositionResponse | null = null;
+
+  constructor(
+    private loungeService: LoungeService,
+    private orderService: OrderService,
+    private tableSessionService: TableSessionService,
+    private diningTableService: DiningTableService // Inyectado
+  ) {}
+
+  ngOnInit(): void {
+    this.initializeLounge();
+    this.calculateViewportDimensions();
+    window.addEventListener('resize', () => this.calculateViewportDimensions());
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('resize', () => this.calculateViewportDimensions());
+  }
+ 
+  // =======================================================
+  // UTILS Y GETTERS
+  // =======================================================
+
+  get tablesInCurrentSector(): TablePositionResponse[] {
+    return this.tablePositions.filter(t => t.sector === this.currentSector);
+  }
+
+  get scaledTablesInCurrentSector() {
+    return this.tablesInCurrentSector.map(table => ({
+      ...table,
+      displayX: table.positionX * this.scaleRatio,
+      displayY: table.positionY * this.scaleRatio,
+      displayWidth: (table.width || 80) * this.scaleRatio,
+      displayHeight: (table.height || 80) * this.scaleRatio
+    }));
+  }
+
+  getTotalCapacity(): number {
+    return this.tablesInCurrentSector.reduce(
+      (sum, table) => sum + (table.diningTableCapacity || 0), 0
+    );
+  }
+ 
+  private updateTablePositionLocal(tableId: string, updates: Partial<TablePositionResponse>): void {
+    const index = this.tablePositions.findIndex(t => t.diningTableId === tableId);
+    if (index !== -1) {
+      this.tablePositions[index] = { ...this.tablePositions[index], ...updates };
+      this.hasUnsavedChanges = true;
+    }
+  }
+ 
+  // =======================================================
+  // MANEJO DE VISTA Y DRAG & DROP
+  // =======================================================
+
+  calculateViewportDimensions(): void {
+    const containerElement = document.querySelector('.lounge-container');
+    if (!containerElement) return;
+    const availableWidth = containerElement.clientWidth - 64;
+    const availableHeight = window.innerHeight - 250;
+   
+    const scaleX = availableWidth / this.virtualGridWidth;
+    const scaleY = availableHeight / this.virtualGridHeight;
+   
+    this.scaleRatio = Math.min(scaleX, scaleY, 1);
+    this.viewportWidth = this.virtualGridWidth * this.scaleRatio;
+    this.viewportHeight = this.virtualGridHeight * this.scaleRatio;
+  }
+
+  toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } {
+    const rawVirtualX = viewportX / this.scaleRatio;
+    const rawVirtualY = viewportY / this.scaleRatio;
+    return {
+      x: Math.round(rawVirtualX / this.gridStep) * this.gridStep,
+      y: Math.round(rawVirtualY / this.gridStep) * this.gridStep
+    };
+  }
+
+  onDragStart(event: DragEvent, table: TablePositionResponse): void {
+    if (!this.isEditingMode) {
+      event.preventDefault();
+      return;
+    }
+    this.draggedTable = table;
+    event.dataTransfer!.effectAllowed = 'move';
+    event.dataTransfer!.setData('text/plain', table.diningTableId);
+  }
+
+  onDragOver(event: DragEvent): void {
+    if (!this.isEditingMode) return;
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
+  }
+
+  onDrop(event: DragEvent): void {
+    if (!this.isEditingMode) return;
+    event.preventDefault();
+    if (!this.draggedTable) return;
+   
+    const tableWidth = (this.draggedTable.width || 80) * this.scaleRatio;
+    const tableHeight = (this.draggedTable.height || 80) * this.scaleRatio;
+
+    const dropX = event.offsetX;
+    const dropY = event.offsetY;
+   
+    const viewportX = Math.max(0, Math.min(
+      dropX - tableWidth / 2,
+      this.viewportWidth - tableWidth
+    ));
+
+    const viewportY = Math.max(0, Math.min(
+      dropY - tableHeight / 2,
+      this.viewportHeight - tableHeight
+    ));
+   
+    const virtualCoords = this.toVirtualCoords(viewportX, viewportY);
+   
+    if (this.detectCollision(
+        virtualCoords.x,
+        virtualCoords.y,
+        this.draggedTable.width || 80,
+        this.draggedTable.height || 80,
+        this.draggedTable.diningTableId
+    )) {
+      alert('No puedes colocar una mesa encima de otra');
+      this.draggedTable = null;
+      return;
+    }
+
+    this.updateTablePositionLocal(this.draggedTable.diningTableId, {
+      positionX: virtualCoords.x,
+      positionY: virtualCoords.y,
+    });
+    this.draggedTable = null;
+  }
+ 
+  private detectCollision(
+    virtualX: number,
+    virtualY: number,
+    width: number,
+    height: number,
+    excludeTableId: string
+  ): boolean {
+    return this.tablesInCurrentSector.some(table => {
+      if (table.diningTableId === excludeTableId) return false;
+     
+      const tableWidth = table.width || 80;
+      const tableHeight = table.height || 80;
+
+      const overlapXBuffer = virtualX < table.positionX + tableWidth - this.collisionBuffer &&
+                           virtualX + width - this.collisionBuffer > table.positionX;
+      const overlapYBuffer = virtualY < table.positionY + tableHeight - this.collisionBuffer &&
+                           virtualY + height - this.collisionBuffer > table.positionY;
+      return overlapXBuffer && overlapYBuffer;
+    });
+  }
+
+  // =======================================================
+  // LÓGICA DE CARGA DE DATOS
+  // =======================================================
+
+  initializeLounge(): void {
+   this.loungeService.getLounge().subscribe({
+      next: (lounge: LoungeResponse) => { // Tipado explícito
+        this.gridWidth = lounge.gridWidth;
+        this.gridHeight = lounge.gridHeight;
+        this.loadSectors();
+        this.loadTablePositions();
+      },
+      error: (err) => console.error('Error initializing lounge:', err)
+    });
+  }
+
+  loadTablePositions(): void {
+    this.loungeService.getTablePositions().subscribe({
+      next: (positions: TablePositionResponse[]) => {
+        this.tablePositions = positions;
+        this.hasUnsavedChanges = false;
+      },
+      error: (err) => console.error('Error loading table positions:', err)
+    });
+  }
+
+  loadSectors(): void {
+    this.loungeService.getSectors().subscribe({
+      next: (response) => {
+        this.sectors = response.sectors;
+        if (this.sectors.length > 0) {
+          this.currentSector = this.sectors[0];
+        } else {
+          this.currentSector = 'Planta Baja';
+          this.sectors = ['Planta Baja'];
+        }
+      },
+      error: (err) => console.error('Error loading sectors:', err)
+    });
+  }
+
+  // =======================================================
+  // LÓGICA DE SESIÓN Y ÓRDENES (MODO SERVICIO)
+  // =======================================================
+
+  loadTableSessionAndOrders(table: TablePositionResponse): void {
+    this.selectedTableOrders = [];
+   
+    if (table.diningTableStatus !== 'IN_SESSION') {
+      return;
+    }
+   
+    // 1. Obtener la sesión activa/última sesión por ID de Mesa
+    this.tableSessionService.getLatestSessionByTableId(table.diningTableId).subscribe({
+      next: (session) => {
+        const sessionId = (session as any).publicId; // ID de la sesión para buscar órdenes
+
+        // 2. Obtener las órdenes usando el ID de la Sesión
+        this.tableSessionService.getOrdersByTableSession(sessionId, undefined, 0, 100).subscribe({
+          next: (orderPage) => {
+            this.selectedTableOrders = orderPage.content || [];
+          },
+          error: (err) => console.error('Error loading orders by session:', err)
+        });
+      },
+      error: (err) => console.error('No active session found for table:', table.diningTableId, err)
+    });
+  }
+
+
+  // =======================================================
+  // MANEJO DE MODALES Y MODOS
+  // =======================================================
+
+  toggleEditingMode(): void {
+    if (this.isEditingMode && this.hasUnsavedChanges) {
+        const confirmDiscard = confirm('Tienes cambios sin guardar. ¿Estás seguro de que quieres salir del modo edición y descartarlos?');
+        if (!confirmDiscard) return;
+        this.loadTablePositions();
+    }
+    this.isEditingMode = !this.isEditingMode;
+    this.closeTableDetailModal();
+    if (this.isEditingMode) {
+        setTimeout(() => this.calculateViewportDimensions(), 0);
+    }
+  }
+
+  selectTable(table: TablePositionResponse): void {
+    this.selectedTable = table;
+   
+    if (!this.isEditingMode) {
+      // MODO SERVICIO
+      this.loadTableSessionAndOrders(table);
+    }
+    // MODO EDICIÓN: selectedTable se usa para abrir TableEditDetailModal
+  }
+
+  closeTableDetailModal(): void {
+    this.selectedTable = null;
+    this.selectedTableOrders = [];
+    this.loadTablePositions(); // Recargar estados de mesa
+  }
+ 
+  openSectorModal(): void { this.showSectorModal = true; }
+  closeSectorModal(): void { this.showSectorModal = false; }
+
+  openTableModal(): void { this.showTableModal = true; }
+  closeTableModal(): void { this.showTableModal = false; }
+
+  // =======================================================
+  // HANDLERS DE ACCIÓN (Staff/Edit)
+  // =======================================================
+
+  saveLoungeChanges(): void {
+    if (!this.isEditingMode || !this.hasUnsavedChanges) return;
+    const positionsToSave: TablePosition[] = this.tablePositions.map(t => ({
+      diningTableId: t.diningTableId,
+      positionX: t.positionX,
+      positionY: t.positionY,
+      sector: t.sector,
+      tableShape: t.tableShape,
+      width: t.width,
+      height: t.height
+    }));
+    this.loungeService.saveAllTablePositions(positionsToSave).subscribe({
+      next: (persistedPositions: TablePositionResponse[]) => { // Tipado explícito
+        this.tablePositions = persistedPositions;
+        this.hasUnsavedChanges = false;
+        alert('Salón guardado exitosamente.');
+      },
+      error: (err) => console.error('Error al guardar el salón:', err)
+    });
+  }
+
+  endSession(): void {
+    const tableId = this.selectedTable?.diningTableId;
+    if (!tableId) return;
+
+    // 1. Finaliza la sesión (esto debería cambiar el estado de la mesa a WAITING_RESET en el backend)
+    this.tableSessionService.endSession(tableId).subscribe({
+      next: () => this.closeTableDetailModal(),
+      error: (err) => console.error('Error al finalizar la sesión:', err)
+    });
+  }
+
+  // =======================================================
+  // HANDLERS DE MODAL (Outputs)
+  // =======================================================
+
+  onSectorCreated(sectorName: string): void {
+    if (!this.sectors.includes(sectorName)) {
+      this.sectors.push(sectorName);
+    }
+    this.currentSector = sectorName;
+    this.hasUnsavedChanges = true;
+    this.closeSectorModal();
+  }
+
+  onTableCreated(tableData: any): void {
+    const tablePosition: TablePosition = {
+    diningTableId: tableData.diningTableId, // Asumimos que el modal lo genera o lo trae de una lista
+    positionX: 100,
+    positionY: 100,
+    sector: this.currentSector,
+    tableShape: tableData.shape,
+    width: tableData.shape === 'rect' ? 200 : 80,
+    height: 80
+    };
+    this.loungeService.addTablePosition(tablePosition).subscribe({
+    next: (newPosition) => {
+      this.tablePositions.push(newPosition);
+      this.hasUnsavedChanges = true;
+      this.closeTableModal();
+      },
+      error: (err) => console.error('Error adding table:', err)
+    });
+  }
+
+  handleTableDataUpdate(updatedTable: TablePositionResponse): void {
+    // Handler del Modal de Edición
+   this.updateTablePositionLocal(updatedTable.diningTableId, updatedTable);
+   this.selectedTable = null;
+ }
+
+  onTableSizeChanged(data: { tableId: string, width: number, height: number }): void {
+    // Handler del Modal de Edición
+    const table = this.tablePositions.find(t => t.diningTableId === data.tableId);
+    if (!table) return;
+    this.updateTablePositionLocal(data.tableId, {
+    width: data.width,
+    height: data.height
+    });
+  }
+
+  onTableRemoved(tableId: string): void {
+    this.loungeService.removeTablePosition(tableId).subscribe({
+      next: () => {
+        this.tablePositions = this.tablePositions.filter(t => t.diningTableId !== tableId);
+        this.hasUnsavedChanges = true;
+        this.closeTableDetailModal();
+      },
+      error: (err) => console.error('Error removing table:', err)
+    });
+  }
+
+  onTableStatusChanged(event: { tableId: string; newStatus: DiningTableStatus }): void {
+    // Usa tu DiningTableService.updateTableStatus
+    this.diningTableService.updateTableStatus(event.tableId, event.newStatus).subscribe({
+      next: () => this.closeTableDetailModal(),
+      error: (err) => console.error('Error al cambiar el estado de la mesa:', err)
+    });
+  }
+ 
+  onOrderStatusChanged(event: { orderId: string; newStatus: OrderStatus }): void {
+    // Asumo que OrderService tiene updateOrderStatus
+    this.orderService.updateOrderStatus(event.orderId, event.newStatus).subscribe({
+      next: () => {
+        // Recargar órdenes en el modal
+        if (this.selectedTable) {
+          this.loadTableSessionAndOrders(this.selectedTable);
+        }
+      },
+      error: (err) => console.error('Error al cambiar el estado de la orden:', err)
+    });
+  }
 }

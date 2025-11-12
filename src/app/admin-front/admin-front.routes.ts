@@ -10,6 +10,7 @@ import { TagPage } from "./pages/tag-page/tag-page";
 import { MyFoodVenuePage } from "./pages/my-food-venue-page/my-food-venue-page";
 import { EmployeeListPage } from "./pages/employee-pages/employee-list-page/employee-list-page";
 import { LoungeBuilderPage } from "./pages/lounge-pages/lounge-builder-page/lounge-builder-page";
+import { OrderPage } from "./pages/order-page/order-page";
 
 export const adminRoutes: Routes = [
   {
@@ -18,14 +19,17 @@ export const adminRoutes: Routes = [
     children: [
       {
         path: '',
-        component: AdminHomePage,
+        component: LoungeBuilderPage
       },
 
      {
-      path: 'lounge',
+      path: 'orders',
+      component: OrderPage
+     },
+    {
+      path: 'payments',
       component: LoungeBuilderPage
      },
-
 
       {
         path: 'products',
@@ -43,7 +47,6 @@ export const adminRoutes: Routes = [
         path: 'products/:id',
         component: ProductDetailPage
       },
-
 
       {
         path: 'categories',

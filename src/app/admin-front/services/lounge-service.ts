@@ -15,7 +15,7 @@ export class LoungeService {
   constructor(private http: HttpClient) {}
 
   // Obtiene o crea el lounge automáticamente
-  getOrCreateLounge(): Observable<LoungeResponse> {
+  getLounge(): Observable<LoungeResponse> {
     return this.http.get<LoungeResponse>(this.apiUrl);
   }
 

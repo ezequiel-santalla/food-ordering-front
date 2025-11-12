@@ -1,15 +1,14 @@
 import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
-import { DiningTableRequest } from '../../models/dining-table';
-import { DiningTableService } from '../../services/dining-table-service';
+import { DiningTableService } from '../../../services/dining-table-service';
+import { DiningTableRequest } from '../../../models/dining-table';
 
 @Component({
   selector: 'app-table-modal',
   imports: [FormsModule],
-  templateUrl: './table-modal.html'
+  templateUrl: './table-create-modal.html'
 })
-export class TableModal {
+export class TableCreateModal {
   currentSector = input.required<string>();
 
   close = output<void>();

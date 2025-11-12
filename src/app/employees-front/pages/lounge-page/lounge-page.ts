@@ -99,7 +99,7 @@ export class LoungePage {
   initializeLounge(): void {
     this.isLoading.set(true);
 
-    this.loungeService.getOrCreateLounge().subscribe({
+    this.loungeService.getLounge().subscribe({
       next: () => {
         this.loadTablePositions();
         this.loadSectors();
@@ -204,10 +204,6 @@ export class LoungePage {
            t.diningTableStatus === 'WAITING_RESET'
     ).length;
   }
-
-  // ===================================
-  // Order Management
-  // ===================================
 
   getTableOrders(tableId: string): OrderResponse[] {
     // En tu backend, necesitas obtener las órdenes por tabla via table-session

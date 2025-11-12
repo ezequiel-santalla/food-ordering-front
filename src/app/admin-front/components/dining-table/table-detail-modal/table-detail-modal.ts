@@ -1,6 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { DiningTableStatus, TablePositionResponse } from '../../../admin-front/models/lounge';
-import { OrderResponse, OrderStatus } from '../../models/orders';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule,X,
   Ban,
@@ -8,6 +6,8 @@ import { LucideAngularModule,X,
   Clock,
   Users,
   ShoppingBag  } from 'lucide-angular';
+import { OrderResponse, OrderStatus } from '../../../models/order';
+import { DiningTableStatus, TablePositionResponse } from '../../../models/lounge';
 
 @Component({
   selector: 'app-table-detail-modal',
