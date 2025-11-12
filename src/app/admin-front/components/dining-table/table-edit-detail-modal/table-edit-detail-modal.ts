@@ -1,74 +1,60 @@
 import { Component, input, output, signal } from '@angular/core';
-import { DiningTableRequest } from '../../models/dining-table';
-import { DiningTableService } from '../../services/dining-table-service';
-import { TablePositionResponse } from '../../models/lounge';
+import { TablePositionResponse } from '../../../models/lounge';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EditTableModal } from "../edit-table-modal/edit-table-modal";
 
 @Component({
-  selector: 'app-table-detail-modal',
+  selector: 'app-table-edit-detail-modal',
   imports: [CommonModule, FormsModule, EditTableModal],
-  templateUrl: './table-detail-modal.html'
+  templateUrl: './table-edit-detail-modal.html'
 })
-export class TableDetailModal {
-
-
+export class TableEditDetailModal {
   table = input.required<TablePositionResponse>();
-
   close = output<void>();
   sizeChanged = output<{ tableId: string, width: number, height: number }>();
   removed = output<string>();
-
   dataUpdated = output<TablePositionResponse>();
   currentWidth: number = 200;
   currentHeight: number = 80;
   isEditing = signal(false);
 
-
   ngOnInit(): void {
     this.currentWidth = this.table().width || 200;
     this.currentHeight = this.table().height || 80;
   }
-
   onClose(): void {
     this.close.emit();
   }
-
   onBackdropClick(event: MouseEvent): void {
     if (event.target === event.currentTarget) {
       this.onClose();
     }
   }
-
   increaseWidth(): void {
     if (this.currentWidth < 400) {
       this.currentWidth += 20;
       this.onSizeChange();
     }
   }
-
   decreaseWidth(): void {
     if (this.currentWidth > 120) {
       this.currentWidth -= 20;
       this.onSizeChange();
     }
   }
-
   increaseHeight(): void {
     if (this.currentHeight < 120) {
       this.currentHeight += 10;
       this.onSizeChange();
     }
   }
-
   decreaseHeight(): void {
     if (this.currentHeight > 60) {
       this.currentHeight -= 10;
       this.onSizeChange();
     }
   }
-
   onSizeChange(): void {
     this.sizeChanged.emit({
       tableId: this.table().diningTableId,
@@ -76,13 +62,11 @@ export class TableDetailModal {
       height: this.currentHeight
     });
   }
-
   onRemove(): void {
     if (confirm(`¿Estás seguro que deseas eliminar la mesa ${this.table().diningTableNumber} del salón?`)) {
       this.removed.emit(this.table().diningTableId);
     }
   }
-
   getStatusLabel(): string {
     const statusMap: { [key: string]: string } = {
       'AVAILABLE': 'Disponible',
@@ -93,7 +77,6 @@ export class TableDetailModal {
     };
     return statusMap[this.table().diningTableStatus] || this.table().diningTableStatus;
   }
-
   getStatusBadgeClass(): string {
     const baseClasses = 'inline-flex px-3 py-1 rounded-full text-sm font-semibold';
     const statusColors: { [key: string]: string } = {
@@ -105,7 +88,6 @@ export class TableDetailModal {
     };
     return `${baseClasses} ${statusColors[this.table().diningTableStatus] || 'bg-gray-100 text-gray-800'}`;
   }
-
   getShapeLabel(): string {
     const shapeMap: { [key: string]: string } = {
       'round': 'Redonda',
@@ -114,28 +96,15 @@ export class TableDetailModal {
     };
     return shapeMap[this.table().tableShape] || this.table().tableShape;
   }
-
-
   onEdit(): void {
     this.isEditing.set(true);
   }
-
   onCloseEditModal(): void {
     this.isEditing.set(false);
   }
-
   onTableEdited(updatedTable: TablePositionResponse): void {
-    // 1. Emitir el evento para que el padre actualice el salón/lista
     this.dataUpdated.emit(updatedTable);
-
-    // 2. Opcionalmente: cerrar el modal de detalles *o* actualizar el signal 'table' si es un 'input' o reasignar si es un 'signal' en el componente padre.
-    // Si tu componente padre maneja la lista de mesas, el 'dataUpdated.emit' debería ser suficiente.
-    // Para simplificar, cerraremos el modal de edición y mantendremos abierto el de detalles con los datos ya actualizados.
     this.isEditing.set(false);
-
-    // Nota: Necesitas que el componente padre que usa table-detail-modal actualice la información de 'table()'
-    // al recibir 'dataUpdated' para que el modal de detalles refleje los cambios.
-    // Si table() es un 'input' (que no se puede cambiar dentro de este componente), debes actualizarlo en el padre.
-    this.onClose(); // Cerrar ambos modales después de la edición exitosa es una UX común
+    this.onClose();
   }
 }

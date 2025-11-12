@@ -1,0 +1,209 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+     (click)="onBackdropClick($event)">
+
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+       (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4">
+      <div class="flex justify-between items-start">
+        <div>
+          <h2 class="text-2xl font-bold">Mesa {{table.diningTableNumber}}</h2>
+          <p class="text-blue-100 text-sm mt-1">
+            Capacidad: {{table.diningTableCapacity}} personas | Sector: {{table.sector}}
+          </p>
+        </div>
+
+        <button
+          (click)="close.emit()"
+          class="btn btn-ghost btn-sm btn-circle text-white hover:bg-white/20">
+          <lucide-icon [img]="X" [size]="20"></lucide-icon>
+        </button>
+      </div>
+
+      <!-- Estado de la mesa -->
+      <div class="mt-3">
+        <span class="badge badge-lg" [ngClass]="getStatusBadgeClass(table.diningTableStatus)">
+          {{getStatusText(table.diningTableStatus)}}
+        </span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="overflow-y-auto max-h-[calc(90vh-200px)]">
+
+      <!-- Acciones rápidas -->
+      <div class="p-6 border-b border-gray-200">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">Acciones</h3>
+        <div class="flex flex-wrap gap-2">
+
+          @if (table.diningTableStatus === 'AVAILABLE') {
+            <button
+              class="btn btn-sm btn-outline btn-error gap-2"
+              (click)="markOutOfService()">
+              <lucide-icon [img]="Ban" [size]="16"></lucide-icon>
+              Fuera de Servicio
+            </button>
+          }
+          @if (table.diningTableStatus === 'IN_SESSION') {
+    <button
+        class="btn btn-sm btn-warning gap-2"
+        (click)="finishAndPay()">
+        <lucide-icon [img]="ShoppingBag" [size]="16"></lucide-icon>
+        Finalizar Sesión y Pagar
+    </button>
+}
+
+          @if (table.diningTableStatus === 'OUT_OF_SERVICE') {
+            <button
+              class="btn btn-sm btn-success gap-2"
+              (click)="markAvailable()">
+              <lucide-icon [img]="Check" [size]="16"></lucide-icon>
+              Marcar Disponible
+            </button>
+          }
+
+          @if (table.diningTableStatus === 'COMPLETE') {
+            <button
+              class="btn btn-sm btn-warning gap-2"
+              (click)="markWaitingReset()">
+              <lucide-icon [img]="Clock" [size]="16"></lucide-icon>
+              Esperando Limpieza
+            </button>
+          }
+
+          @if (table.diningTableStatus === 'WAITING_RESET') {
+            <button
+              class="btn btn-sm btn-success gap-2"
+              (click)="markAvailable()">
+              <lucide-icon [img]="Check" [size]="16"></lucide-icon>
+              Mesa Lista
+            </button>
+          }
+
+          @if (table.diningTableStatus === 'IN_SESSION') {
+            <button
+              class="btn btn-sm btn-info gap-2"
+              (click)="viewSessionDetails()">
+              <lucide-icon [img]="Users" [size]="16"></lucide-icon>
+              Ver Sesión
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Pedidos activos -->
+      @if (orders.length > 0) {
+        <div class="p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <lucide-icon [img]="ShoppingBag" [size]="20"></lucide-icon>
+            Pedidos Activos ({{orders.length}})
+          </h3>
+
+          <div class="space-y-3">
+            @for (order of orders; track order.publicId) {
+              <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <!-- Order Header -->
+                <div class="flex justify-between items-start mb-3">
+                  <div>
+                    <p class="font-semibold text-gray-900">Pedido #{{order.orderNumber}}</p>
+                    <p class="text-sm text-gray-500">Cliente: {{order.clientAlias}}</p>
+                  </div>
+
+                  <div class="text-right">
+                    <span class="badge badge-sm" [ngClass]="getOrderStatusBadgeClass(order.status)">
+                      {{getOrderStatusText(order.status)}}
+                    </span>
+                    <p class="text-lg font-bold text-gray-900 mt-1">
+                      ${{order.totalPrice | number:'1.2-2'}}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="space-y-1 mb-3">
+                  @for (detail of order.orderDetails; track detail.id) {
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600">
+                        <span class="font-semibold">{{detail.quantity}}x</span>
+                        {{detail.productName}}
+                      </span>
+                      <span class="text-gray-900 font-medium">
+                        ${{detail.subtotal | number:'1.2-2'}}
+                      </span>
+                    </div>
+                  }
+                </div>
+
+                @if (order.specialRequirements) {
+                  <div class="bg-amber-50 border border-amber-200 rounded-lg p-2 mb-3">
+                    <p class="text-xs font-semibold text-amber-800 mb-1">
+                      📝 Requisitos especiales:
+                    </p>
+                    <p class="text-sm text-amber-700">{{order.specialRequirements}}</p>
+                  </div>
+                }
+
+                <!-- Order Actions -->
+                <div class="flex gap-2 mt-3">
+                  @if (order.status === 'PENDING') {
+                    <button
+                      class="btn btn-sm btn-primary flex-1"
+                      (click)="updateOrderStatus(order.publicId, 'APPROVED')">
+                      Aprobar
+                    </button>
+                    <button
+                      class="btn btn-sm btn-error btn-outline"
+                      (click)="updateOrderStatus(order.publicId, 'CANCELLED')">
+                      <lucide-icon [img]="X" [size]="16"></lucide-icon>
+                    </button>
+                  }
+
+                  @if (order.status === 'APPROVED') {
+                    <button
+                      class="btn btn-sm btn-info flex-1"
+                      (click)="updateOrderStatus(order.publicId, 'IN_PROGRESS')">
+                      Iniciar Preparación
+                    </button>
+                  }
+
+                  @if (order.status === 'IN_PROGRESS') {
+                    <button
+                      class="btn btn-sm btn-success flex-1"
+                      (click)="updateOrderStatus(order.publicId, 'COMPLETED')">
+                      Marcar Completado
+                    </button>
+                  }
+
+                  @if (order.status === 'COMPLETED') {
+                    <button
+                      class="btn btn-sm btn-info flex-1"
+                      (click)="updateOrderStatus(order.publicId, 'SERVED')">
+                      Marcar Servido
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="p-6 text-center">
+          <lucide-icon [img]="ShoppingBag" [size]="48" class="text-gray-300 mx-auto mb-3"></lucide-icon>
+          <p class="text-gray-500">No hay pedidos activos en esta mesa</p>
+        </div>
+      }
+
+    </div>
+
+    <!-- Footer -->
+    <div class="border-t border-gray-200 px-6 py-4 bg-gray-50">
+      <button
+        class="btn btn-ghost w-full"
+        (click)="close.emit()">
+        Cerrar
+      </button>
+    </div>
+
+  </div>
+</div>
