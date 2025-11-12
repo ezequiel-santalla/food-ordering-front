@@ -19,9 +19,19 @@ export class AuthApiService {
     return this.http.post<any>(`${this.baseUrl}/auth/register`, data);
   }
 
+  resendVerificationEmail(email: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/forward-verification`, { email });
+  }
+
   requestPasswordReset(data: { email: string }): Observable<any> {
     const url = `${this.baseUrl}/auth/forgot-password`;
     return this.http.post<any>(url, data);
+  }
+
+  verifyEmail(token: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/validate-email`, token, {
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 
   performPasswordReset(data: { token: string, password: string }): Observable<any> {

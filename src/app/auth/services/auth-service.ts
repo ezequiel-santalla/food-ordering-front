@@ -95,6 +95,18 @@ export class AuthService {
     );
   }
 
+  resendVerificationEmail(email: string): Observable<void> {
+    return this.authApi.resendVerificationEmail(email).pipe(
+      tap(() => {
+        console.log('✅ Email de verificación reenviado');
+      }),
+      catchError((error) => {
+        console.error('❌ Error reenviando email:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   forgotPassword(data: any): Observable<LoginResponse> {
     return this.authApi.requestPasswordReset(data).pipe(
       catchError((error) => {
@@ -110,6 +122,18 @@ export class AuthService {
     return this.authApi.performPasswordReset(data).pipe(
       catchError((error) => {
         console.error('❌ Error en reseteo de contraseña:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  verifyEmail(token: string): Observable<void> {
+    return this.authApi.verifyEmail(token).pipe(
+      tap(() => {
+        console.log('✅ Email verificado');
+      }),
+      catchError((error) => {
+        console.error('❌ Error verificando email:', error);
         return throwError(() => error);
       })
     );

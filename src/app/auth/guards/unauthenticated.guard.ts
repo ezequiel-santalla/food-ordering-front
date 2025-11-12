@@ -16,11 +16,15 @@ export const UnauthenticatedGuard: CanActivateFn = (
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  const isPasswordResetFlow =
+  // Rutas públicas que NO requieren verificación de autenticación
+  const isPublicAuthFlow =
     state.url.includes('/forgot-password') ||
-    state.url.includes('/reset-password');
+    state.url.includes('/reset-password') ||
+    state.url.includes('/verify-email') ||
+    state.url.includes('/resend-verification');
 
-  if (isPasswordResetFlow) {
+  if (isPublicAuthFlow) {
+    console.log('✅ Ruta pública de auth, acceso permitido');
     return true;
   }
 

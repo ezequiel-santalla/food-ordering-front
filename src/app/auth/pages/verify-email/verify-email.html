@@ -1,0 +1,92 @@
+<section class="min-h-screen flex items-center justify-center px-4 py-4">
+  <div class="w-full max-w-md">
+
+    <!-- LOADING STATE -->
+    @if (verificationState === 'loading') {
+      <div class="text-center mb-6">
+        <div
+          class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br rounded-full mb-4"
+        >
+          <lucide-icon
+            [img]="LoaderCircle"
+            class="w-12 h-12 text-base-content/70 animate-spin"
+          ></lucide-icon>
+        </div>
+        <h1 class="text-3xl font-bold text-base-content mb-2">Verificando tu email...</h1>
+        <p class="text-base-content/70">Por favor espera mientras confirmamos tu cuenta</p>
+      </div>
+
+      <div class="card bg-base-100 shadow-2xl">
+        <div class="card-body"></div>
+      </div>
+    }
+
+    <!-- SUCCESS STATE -->
+    @if (verificationState === 'success') {
+      <div class="text-center mb-6">
+        <div
+          class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br rounded-full mb-4"
+        >
+          <lucide-icon
+            [img]="Check"
+            class="w-12 h-12 text-base-content/70"
+          ></lucide-icon>
+        </div>
+        <h1 class="text-3xl font-bold text-base-content mb-2">¡Email verificado!</h1>
+        <p class="text-base-content/70">Tu cuenta ha sido activada correctamente</p>
+      </div>
+
+      <div class="card bg-base-100 shadow-2xl">
+        <div class="card-body">
+          <div class="space-y-3 pt-6">
+            <button
+              routerLink="/auth/login"
+              class="btn btn-primary bg-gradient-to-r border-none text-white w-full hover:scale-105 transition-all duration-300 shadow-lg h-12"
+            >
+              <lucide-icon [img]="User" class="w-5 h-5" />
+              Ir al inicio de sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ERROR STATE -->
+    @if (verificationState === 'error') {
+      <div class="text-center mb-6">
+        <div
+          class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br rounded-full mb-4"
+        >
+          <lucide-icon
+            [img]="CircleAlert"
+            class="w-12 h-12 text-base-content/70"
+          ></lucide-icon>
+        </div>
+        <h1 class="text-3xl font-bold text-base-content mb-2">Error en la verificación</h1>
+        <p class="text-base-content/70">{{ errorMessage }}</p>
+      </div>
+
+      <div class="card bg-base-100 shadow-2xl">
+        <div class="card-body">
+          <div class="space-y-3 pt-6">
+            <button
+              routerLink="/auth/resend-verification"
+              class="btn btn-primary bg-gradient-to-r border-none text-white w-full hover:scale-105 transition-all duration-300 shadow-lg h-12"
+            >
+              <lucide-icon [img]="Send" class="w-5 h-5" />
+              Solicitar nuevo enlace
+            </button>
+            <button
+              routerLink="/auth/login"
+              class="btn btn-outline btn-secondary w-full hover:scale-105 transition-all duration-300 h-12"
+            >
+              <lucide-icon [img]="User" class="w-5 h-5"></lucide-icon>
+              Volver al inicio de sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+</section>
