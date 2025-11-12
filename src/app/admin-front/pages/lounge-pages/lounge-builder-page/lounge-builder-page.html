@@ -133,13 +133,13 @@
   <app-sector-modal *ngIf="showSectorModal && isEditingMode" (close)="closeSectorModal()" (sectorCreated)="onSectorCreated($event)"></app-sector-modal>
   <app-table-modal *ngIf="showTableModal && isEditingMode" [currentSector]="currentSector" (close)="closeTableModal()" (tableCreated)="onTableCreated($event)"></app-table-modal>
   <app-table-edit-detail-modal *ngIf="selectedTable && isEditingMode" [table]="selectedTable" (close)="closeTableDetailModal()" (sizeChanged)="onTableSizeChanged($event)" (removed)="onTableRemoved($event)"(dataUpdated)="handleTableDataUpdate($event)"></app-table-edit-detail-modal>
-  <app-table-detail-modal
-    *ngIf="selectedTable && !isEditingMode"
-    [table]="selectedTable"
-    [orders]="selectedTableOrders"
-    (close)="closeTableDetailModal()"
-    (statusChanged)="onTableStatusChanged($event)"
-    (orderStatusChanged)="onOrderStatusChanged($event)"
-    (endSession)="endSession()">
-  </app-table-detail-modal>
+ <app-table-detail-modal
+ *ngIf="selectedTable && !isEditingMode"
+ [table]="selectedTable"
+ [orders]="selectedTableOrders"
+ (close)="closeTableDetailModal()"
+ (statusChanged)="onTableStatusChanged($event)"
+ (orderStatusChanged)="onOrderStatusChanged($event)"
+ (endSession)="endSession()">
+</app-table-detail-modal>
 </div>

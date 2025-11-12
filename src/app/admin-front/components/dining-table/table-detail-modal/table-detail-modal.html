@@ -45,6 +45,14 @@
               Fuera de Servicio
             </button>
           }
+          @if (table.diningTableStatus === 'IN_SESSION') {
+    <button
+        class="btn btn-sm btn-warning gap-2"
+        (click)="finishAndPay()">
+        <lucide-icon [img]="ShoppingBag" [size]="16"></lucide-icon>
+        Finalizar Sesión y Pagar
+    </button>
+}
 
           @if (table.diningTableStatus === 'OUT_OF_SERVICE') {
             <button

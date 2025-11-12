@@ -18,6 +18,8 @@ export interface OrderResponse {
   totalPrice: number;
   status: OrderStatus;
   orderDetails: OrderDetailResponse[];
+  orderDate: string;
+  tableNumber: number;
 }
 
 export interface OrderDetailResponse {
@@ -40,8 +42,8 @@ export type OrderStatus =
   | 'CANCELLED';
 
 // Extended interface para la vista de empleados (calculado en frontend)
-export interface OrderResponseExtended extends OrderResponse {
-  tableNumber?: number;
-  tableSessionId?: string;
-  orderDate?: string | Date;
-}
+// export interface OrderResponseExtended extends OrderResponse {
+//   tableNumber?: number;
+//   tableSessionId?: string;
+//   orderDate?: string | Date;
+// }
