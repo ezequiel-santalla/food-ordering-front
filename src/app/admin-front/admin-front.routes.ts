@@ -11,6 +11,7 @@ import { MyFoodVenuePage } from "./pages/my-food-venue-page/my-food-venue-page";
 import { EmployeeListPage } from "./pages/employee-pages/employee-list-page/employee-list-page";
 import { LoungeBuilderPage } from "./pages/lounge-pages/lounge-builder-page/lounge-builder-page";
 import { OrderPage } from "./pages/order-page/order-page";
+import { PaymentPage } from "./pages/payment-page/payment-page";
 
 export const adminRoutes: Routes = [
   {
@@ -28,7 +29,7 @@ export const adminRoutes: Routes = [
      },
     {
       path: 'payments',
-      component: LoungeBuilderPage
+      component: PaymentPage
      },
 
       {
