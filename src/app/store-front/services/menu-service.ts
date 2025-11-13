@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Menu, MenuElement, Product } from '../models/menu.interface';
 import { catchError, map, Observable, of, tap } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 type MenuNode = {
   name: string;

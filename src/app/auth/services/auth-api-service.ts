@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, switchMap } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginResponse } from '../models/auth';
 import { TableSessionRequest, TableSessionResponse } from '../../shared/models/table-session';
 

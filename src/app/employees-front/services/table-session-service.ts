@@ -3,7 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { PaginatedResponse } from '../../shared/components/pagination/pagination.interface';
 import { TableSessionResponse } from '../../shared/models/table-session';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { OrderResponse, OrderStatus } from '../models/orders';
 
 @Injectable({

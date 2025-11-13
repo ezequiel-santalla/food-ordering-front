@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import CategoryResponse from '../models/response/category-response';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import CategoryRequest from '../models/request/category-request';
 
 @Injectable({

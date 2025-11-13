@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { PaginatedResponse } from '../../shared/components/pagination/pagination.interface';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { OrderRequest, OrderResponse, OrderStatus } from '../models/order';
 
 @Injectable({

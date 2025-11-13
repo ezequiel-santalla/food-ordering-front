@@ -3,7 +3,7 @@ import { OrderRequest, OrderResponse, OrderStatus } from '../models/orders';
 import { Observable, tap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { PaginatedResponse } from '../../shared/components/pagination/pagination.interface';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
