@@ -1,3 +1,5 @@
+import { PaymentResponseDto } from "./payment.interface";
+
 export interface OrderDetailRequest {
   productName: string;
   specialInstructions: string;
@@ -17,6 +19,9 @@ export interface OrderResponse {
   totalPrice: number;
   status: string;
   orderDetails: OrderDetailResponse[];
+  orderDate: string
+  tableNumber: number;
+  payment?: PaymentResponseDto | null;
 }
 
 export interface OrderDetailResponse {

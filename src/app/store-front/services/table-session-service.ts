@@ -4,21 +4,23 @@ import { ProfileService } from './profile-service';
 import { TableSessionInfo } from '../../shared/models/table-session';
 import { SessionUtils } from '../../utils/session-utils';
 import { ServerSentEventsService } from '../../shared/services/server-sent-events.service';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthStateManager } from '../../auth/services/auth-state-manager-service';
 import { TokenManager } from '../../utils/token-manager';
+import { Participant } from '../../shared/models/common';
+import { SweetAlertService } from '../../shared/services/sweet-alert.service';
 
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
-
   private authService = inject(AuthService);
   private authState = inject(AuthStateManager);
   private profileService = inject(ProfileService);
   private sseService = inject(ServerSentEventsService);
   private http = inject(HttpClient);
+  private sweetAlertService = inject(SweetAlertService);
 
   // Signals privados
   private _tableNumber = signal<number>(this.getStoredNumber('tableNumber'));
@@ -59,65 +61,57 @@ export class TableSessionService {
       }
     });
 
-    effect(
-      (onCleanup) => {
-        const tableSessionId = this.authService.tableSessionId();
+    effect((onCleanup) => {
+      const tableSessionId = this.authService.tableSessionId();
 
-        // ¿Hay una sesión activa y tenemos un ID de mesa?
-        if (this.hasActiveSession() && tableSessionId) {
-          // --- SÍ: Nos conectamos al SSE ---
-          console.log(`🔌 Conectando a SSE para mesa:`);
+      if (this.hasActiveSession() && tableSessionId) {
+        console.log(`🔌 Conectando a SSE para mesa:`);
 
-          // Usamos el SseService para suscribirnos
-          this.sseSubscription = this.sseService
-            .subscribeToSession()
-            .subscribe({
-              next: (event) => {
+        this.sseSubscription = this.sseService.subscribeToSession().subscribe({
+          next: (event) => {
+            console.log('Evento SSE recibido en TableSessionService:', event);
+
+            if (event.type === 'count-updated') {
+              const newCount = event.payload.count;
+              if (typeof newCount === 'number') {
                 console.log(
-                  'Evento SSE recibido en TableSessionService:',
-                  event
+                  `[SSE count-updated] Recibido conteo: ${newCount}. Actualizando signal...`
                 );
+                this._participantCount.set(newCount);
+              } else {
+                console.warn(
+                  '[SSE count-updated] Payload inválido:',
+                  event.payload
+                );
+              }
+            }
 
-                if (event.type === 'count-updated') {
-                  const newCount = event.payload.count;
-                  if (typeof newCount === 'number') {
-                    console.log(
-                      `[SSE count-updated] Recibido conteo: ${newCount}. Actualizando signal...`
-                    );
-                    this._participantCount.set(newCount);
-                  } else {
-                    console.warn(
-                      '[SSE count-updated] Payload inválido:',
-                      event.payload
-                    );
-                  }
-                }
+            if (event.type === 'user-joined') {
+              const newParticipant: Participant = event.payload.participant;
+              console.log('[SSE user-joined] ', newParticipant.nickname);
 
-                if (event.type === 'user-joined') {
-                  console.log('[SSE user-joined] Incrementando contador');
-                  this._participantCount.update((count) => count + 1);
-                }
-              },
-              error: (err) =>
-                console.error(
-                  `Error en conexión SSE para mesa ${tableSessionId}:`,
-                  err
-                ),
-            });
-        }
-
-        // --- Función de limpieza (se llama cuando el effect "muere") ---
-        // Esto se ejecutará cuando `hasActiveSession()` se vuelva `false`
-        onCleanup(() => {
-          if (this.sseSubscription) {
-            console.log(`🔌 Desconectando de SSE para mesa: ${tableSessionId}`);
-            this.sseSubscription.unsubscribe(); // Cerramos la conexión
-            this.sseSubscription = undefined;
-          }
+              this.sweetAlertService.showInfo(
+                'Nuevo Participante',
+                newParticipant.nickname + ' se unió a la mesa'
+              );
+            }
+          },
+          error: (err) =>
+            console.error(
+              `Error en conexión SSE para mesa ${tableSessionId}:`,
+              err
+            ),
         });
-      },
-      { allowSignalWrites: true }
-    ); // Permitir que este effect actualice signals
+      }
+
+      onCleanup(() => {
+        if (this.sseSubscription) {
+          console.log(`🔌 Desconectando de SSE para mesa: ${tableSessionId}`);
+          this.sseSubscription.unsubscribe();
+          this.sseSubscription = undefined;
+        }
+      });
+    });
   }
 
   /**
@@ -130,7 +124,6 @@ export class TableSessionService {
         const currentNickname = this._participantNickname();
         const profileName = profile.name || 'Usuario';
 
-        // Solo actualizar si cambió
         if (currentNickname !== profileName) {
           console.log('🔄 Sincronizando nickname desde perfil:', profileName);
           this._participantNickname.set(profileName);
@@ -181,7 +174,6 @@ export class TableSessionService {
       participantId,
     });
 
-    // Validar y guardar tableNumber
     if (tableNumber > 0) {
       this._tableNumber.set(tableNumber);
       localStorage.setItem('tableNumber', tableNumber.toString());
@@ -190,7 +182,6 @@ export class TableSessionService {
       localStorage.removeItem('tableNumber');
     }
 
-    // Validar y guardar participantNickname
     if (participantNickname && participantNickname.trim()) {
       this._participantNickname.set(participantNickname);
       localStorage.setItem('participantNickname', participantNickname);
@@ -199,7 +190,6 @@ export class TableSessionService {
       localStorage.removeItem('participantNickname');
     }
 
-    // Validar y guardar participantCount
     if (participantCount >= 0) {
       this._participantCount.set(participantCount);
       localStorage.setItem('participantCount', participantCount.toString());
@@ -221,7 +211,6 @@ export class TableSessionService {
       localStorage.setItem('participantId', participantId);
       console.log('💾 ParticipantId guardado:', participantId);
     } else {
-      // Intentar obtenerlo del token como fallback
       const tokenParticipantId = this.authService.participantId();
       if (tokenParticipantId) {
         this._participantId.set(tokenParticipantId);
@@ -280,37 +269,42 @@ export class TableSessionService {
   leaveSession(): void {
     console.log('Abandonando sesión de mesa');
 
+    // Lógica de limpieza que se ejecutará SIEMPRE
+    const cleanUp = () => {
+      console.log('Limpiando datos de la sesion y redirigiendo...');
+      this.clearSession();
+      this.router.navigate(['/food-venues']);
+    };
+
     this.http
-      .patch<any>(
-        `${environment.baseUrl}/participants/leave`,
-        null, // <--- ESTA ES LA CORRECCIÓN: el body es null
-        { observe: 'response' } // <--- Ahora SÍ es el objeto de opciones
+      .patch<any>(`${environment.baseUrl}/participants/leave`, null, {
+        observe: 'response',
+      })
+      .pipe(
+        finalize(() => {
+          cleanUp();
+        })
       )
       .subscribe({
         next: (response) => {
-          // 'response' AHORA SÍ es un HttpResponse
-
-          // Tu controller devuelve 200 (con body) o 204 (sin body)
-          // Esta lógica maneja ambos casos
           if (response.status === 200 && response.body) {
-            // Caso 1: Vino un 200 OK con el AuthResponse
             const processed = TokenManager.processAuthResponse(response.body);
             this.authState.applyAuthData(processed);
           } else {
-            // Caso 2: Vino un 204 No Content (o un 200 sin body)
             this.authState.clearState();
           }
-
-          this.clearSession();
-
           console.log('El participante dejó la sesión', response);
-          this.router.navigate(['/food-venues']);
         },
         error: (err) => {
-          console.error('Error al abandonar la sesión', err);
+          console.warn(
+            'Error al abandonar la sesión, limpiando estado local.',
+            err
+          );
+          this.authState.clearState();
         },
       });
   }
+
   private getStoredNumber(key: string): number {
     try {
       const stored = localStorage.getItem(key);

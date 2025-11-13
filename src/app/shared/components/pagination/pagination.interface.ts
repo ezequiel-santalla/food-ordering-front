@@ -8,3 +8,9 @@ export interface PaginatedResponse<T> {
   last: boolean;
   empty: boolean;
 }
+
+export interface PageableParams {
+  page?: number;
+  size?: number;
+  sort?: string | string[];
+}

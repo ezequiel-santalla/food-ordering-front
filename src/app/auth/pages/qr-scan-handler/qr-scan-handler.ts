@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
-import { QrProcessingService } from '../../../services/qr-processing-service';
+import { QrProcessingService } from '../../services/qr-processing-service';
 
 @Component({
   selector: 'app-qr-scan-handler',

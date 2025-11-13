@@ -1,57 +1,142 @@
-import { Component, inject, computed } from '@angular/core';
-import { OrderService } from '../../../services/order-service';
-import { CurrencyPipe, CommonModule } from '@angular/common'; // <-- 1. Importa CommonModule
+import { Component, inject, signal, computed, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
-  LucideAngularModule,
-  Clock,
-  CircleCheckBig,
-  CircleX,
-  Package,
+  LucideAngularModule,
+  Package,
+  CreditCard,
+  Banknote,
+  Smartphone,
 } from 'lucide-angular';
+
+import { OrderService } from '../../../services/order-service';
 import { TableSessionService } from '../../../services/table-session-service';
+import { PaymentService } from '../../../services/payment-service';
+import {
+  PaymentMethod,
+  PaymentOrderView,
+} from '../../../models/payment.interface';
+
 import { OrderCardComponent } from '../Order-card/order-card';
+import { PaymentModalComponent } from '../../payment/payment-modal';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
-  selector: 'app-table-orders',
-  standalone: true, // Asumo que es standalone
-  imports: [
-    CommonModule, // <-- 3. Añade CommonModule
+  selector: 'app-table-orders',
+  standalone: true,
+  imports: [
+    CommonModule,
     LucideAngularModule,
-    OrderCardComponent// <-- 4. Añade OrderCardComponent
+    OrderCardComponent,
+    PaymentModalComponent,
   ],
-  templateUrl: './table-orders.html',
+  templateUrl: './table-orders.html',
 })
 export class TableOrders {
-  readonly Clock = Clock;
-  readonly CircleCheckBig = CircleCheckBig;
-  readonly CircleX = CircleX;
-  readonly Package = Package;
+  readonly Package = Package;
+  readonly CreditCard = CreditCard;
+  readonly Banknote = Banknote;
+  readonly Smartphone = Smartphone;
 
-  private orderService = inject(OrderService);
-  private tableSessionService = inject(TableSessionService);
+  private orderService = inject(OrderService);
+  private tableSessionService = inject(TableSessionService);
+  private paymentService = inject(PaymentService);
+  private sweetAlertService = inject(SweetAlertService);
 
-  orders = this.orderService.tableOrders;
-  isLoading = this.orderService.isLoading;
-  error = this.orderService.error;
+  @ViewChild('payModalCmp') payModalCmp?: PaymentModalComponent;
 
-  tableNumber = computed(
-    () => this.tableSessionService.tableSessionInfo().tableNumber
-  );
+  orders = this.orderService.tableOrders;
+  isLoading = this.orderService.isLoading;
+  error = this.orderService.error;
 
-  getTotalTable(): number {
-    return this.orders().reduce((total, order) => total + order.totalPrice, 0);
-  }
+  isProcessingPayment = this.paymentService.isProcessing;
+  paymentError = this.paymentService.error;
 
-  // 5. Esta lógica ya no es necesaria aquí (se fue al OrderCardComponent)
-  /*
-  getStatusBadgeClass(status: string): string { ... }
-  getStatusText(status: string): string { ... }
-  getStatusIcon(status: string) { ... }
-  */
+  tableNumber = computed(
+    () => this.tableSessionService.tableSessionInfo().tableNumber
+  );
 
-  // 6. (Opcional) Puedes añadir el handler para la selección
-  onOrderSelected(event: {orderId: string, isSelected: boolean}) {
-    console.log(`Orden de mesa ${event.orderId} seleccionada: ${event.isSelected}`);
-    // Aquí puedes añadir los IDs a un array para acciones (ej. pagar seleccionados)
+  private selectedOrderIds = signal<Set<string>>(new Set());
+
+  selectedOrders = computed(() =>
+    this.orders().filter((o) => this.selectedOrderIds().has(o.publicId))
+  );
+
+  totalToPay = computed(() =>
+    this.selectedOrders().reduce((sum, o) => sum + o.totalPrice, 0)
+  );
+
+  hasSelectedOrders = computed(() => this.selectedOrderIds().size > 0);
+
+  selectedPaymentMethod = signal<PaymentMethod>(PaymentMethod.CASH);
+
+  paymentMethods = [
+    { value: PaymentMethod.CASH, label: 'Efectivo', icon: this.Banknote },
+    {
+      value: PaymentMethod.CREDIT_CARD,
+      label: 'Tarjeta de Crédito',
+      icon: this.CreditCard,
+    },
+    {
+      value: PaymentMethod.DEBIT_CARD,
+      label: 'Tarjeta de Débito',
+      icon: this.CreditCard,
+    },
+  ];
+
+  paymentOrdersView = computed<PaymentOrderView[]>(() =>
+    this.selectedOrders().map((o) => ({
+      publicId: o.publicId,
+      orderNumber: o.orderNumber,
+      items: o.orderDetails.map((d) => ({
+        quantity: d.quantity,
+        productName: d.productName,
+        subtotal: d.subtotal, // si después querés mostrar el precio
+      })),
+    }))
+  );
+
+  onOrderSelected(event: { orderId: string; isSelected: boolean }) {
+    this.selectedOrderIds.update((prev) => {
+      const next = new Set(prev);
+      event.isSelected ? next.add(event.orderId) : next.delete(event.orderId);
+      return next;
+    });
+  }
+
+  onPaymentMethodChange(method: PaymentMethod) {
+    this.selectedPaymentMethod.set(method);
+  }
+
+  confirmPayment() {
+    if (!this.hasSelectedOrders()) return;
+
+    const orderIds = Array.from(this.selectedOrderIds());
+    const total = this.totalToPay();
+    const paymentMethod = this.selectedPaymentMethod();
+
+    this.paymentService.createPayment({ paymentMethod, orderIds }).subscribe({
+      next: (response) => {
+        console.log('✅ Pago exitoso:', response);
+        this.payModalCmp?.close();
+        this.sweetAlertService.showConfirmableSuccess(
+          '¡Pago exitoso!',
+          `Pagaste $${total.toFixed(2)}`
+        );
+        this.selectedOrderIds.set(new Set());
+        this.selectedPaymentMethod.set(PaymentMethod.CASH);
+      },
+      error: (err) => {
+        console.error('❌ Error en el pago:', err);
+        this.payModalCmp?.close();
+        this.sweetAlertService.showError(
+          'Error Al Pagar',
+          'No se pudo procesar el Pago'
+        );
+      },
+    });
+  }
+
+  getTotalTable(): number {
+    return this.orders().reduce((t, o) => t + o.totalPrice, 0);
   }
 }
