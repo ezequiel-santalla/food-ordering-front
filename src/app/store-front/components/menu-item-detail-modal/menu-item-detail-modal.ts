@@ -11,6 +11,7 @@ import { CartService } from '../../services/cart-service';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
 import { LucideAngularModule, Star } from 'lucide-angular';
+import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-menu-item-detail-modal',
@@ -23,6 +24,7 @@ export class MenuItemDetailModal {
   close = output<void>();
 
   private cartService = inject(CartService);
+  private sweetAlert = inject(SweetAlertService);
 
   quantity = 1;
   specialInstructions = '';
@@ -67,7 +69,7 @@ export class MenuItemDetailModal {
   }
 
   addToCart() {
-    const prod = this.product();
+    const prod: Product = this.product();
     const instructions = prod.customizable ? this.specialInstructions : null;
 
     // Llama al nuevo método del servicio
@@ -78,5 +80,11 @@ export class MenuItemDetailModal {
     );
 
     this.close.emit();
+
+    this.sweetAlert.showSuccess(
+      '¡Agregado!',
+      `${this.product().name} fue añadido a tu orden.`,
+      1500 // 1.5 segundos
+    );
   }
 }

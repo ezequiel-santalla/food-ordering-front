@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { CommonModule } from '@angular/common';
-import { QrProcessingService } from '../../../services/qr-processing-service';
+import { QrProcessingService } from '../../services/qr-processing-service';
 import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({

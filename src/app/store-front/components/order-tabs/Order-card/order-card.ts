@@ -8,10 +8,11 @@ import {
   CircleX,
   Package,
   User,
+  CookingPot,
+  HandPlatter,
+  CheckCheck,
 } from 'lucide-angular';
 import { OrderResponse } from '../../../models/order.interface';
-
-type OrderStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED';
 
 @Component({
   selector: 'app-order-card',
@@ -33,6 +34,9 @@ export class OrderCardComponent {
   readonly CircleX = CircleX;
   readonly Package = Package;
   readonly User = User;
+  readonly CheckCheck = CheckCheck;
+  readonly CookingPot = CookingPot;
+  readonly HandPlatter = HandPlatter;
 
   // --- Estado Interno ---
   isExpanded = signal(false);
@@ -58,8 +62,14 @@ export class OrderCardComponent {
     switch (status) {
       case 'PENDING':
         return 'badge-warning';
+      case 'APPROVED':
+        return 'badge-accent';
+      case 'IN_PROGRESS':
+        return 'badge-primary';
       case 'COMPLETED':
         return 'badge-success';
+      case 'SERVED':
+        return 'badge-info';
       case 'CANCELLED':
         return 'badge-error';
       default:
@@ -71,8 +81,14 @@ export class OrderCardComponent {
     switch (status) {
       case 'PENDING':
         return 'Pendiente';
+      case 'APPROVED':
+        return 'Aprobado';
+      case 'IN_PROGRESS':
+        return 'En Preparación';
       case 'COMPLETED':
         return 'Completado';
+      case 'SERVED':
+        return 'Servido';
       case 'CANCELLED':
         return 'Cancelado';
       default:
@@ -84,8 +100,14 @@ export class OrderCardComponent {
     switch (status) {
       case 'PENDING':
         return this.Clock;
+      case 'APPROVED':
+        return this.CheckCheck;
+      case 'IN_PROGRESS':
+        return this.CookingPot;
       case 'COMPLETED':
         return this.CircleCheckBig;
+      case 'SERVED':
+        return this.HandPlatter;
       case 'CANCELLED':
         return this.CircleX;
       default:

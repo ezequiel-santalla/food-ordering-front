@@ -1,11 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { SweetAlertService } from '../shared/services/sweet-alert.service';
-import { TableSessionService } from '../store-front/services/table-session-service';
-import { ErrorHandlerService } from '../shared/services/error-handler.service';
-import { NavigationService } from '../shared/services/navigation.service';
-import { SessionUtils } from '../utils/session-utils';
-import { AuthService } from '../auth/services/auth-service';
-import { Participant } from '../shared/models/common';
+import { SweetAlertService } from '../../shared/services/sweet-alert.service';
+import { TableSessionService } from '../../store-front/services/table-session-service';
+import { ErrorHandlerService } from '../../shared/services/error-handler.service';
+import { NavigationService } from '../../shared/services/navigation.service';
+import { SessionUtils } from '../../utils/session-utils';
+import { AuthService } from '../../auth/services/auth-service';
+import { Participant } from '../../shared/models/common';
 import { finalize } from 'rxjs';
 
 @Injectable({
@@ -93,6 +93,9 @@ export class QrProcessingService {
             if (backendError.appCode === 'COMPLETE') {
               title = 'Mesa Llena';
               message = 'La mesa escaneada no admite mas participantes';
+            } else if (backendError.appCode === 'WAITING_RESET') {
+              title = 'Mesa En Espera';
+              message = 'Avisale al camarero que estás acá para que habilite la mesa';
             } else if (backendError.appCode === 'OUT_OF_SERVICE') {
               title = 'Mesa Fuera de Servicio';
               message = 'La mesa no se encuentra habilitada para iniciar sesión';

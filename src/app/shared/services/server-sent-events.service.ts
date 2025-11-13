@@ -11,7 +11,7 @@ export class ServerSentEventsService {
 
   private readonly EVENT_TYPES = [
     'new-order',
-    'order-confirmed',
+    'order-update-status',
     'order-served',
     'order-cancelled',
     'special-offer',

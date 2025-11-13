@@ -18,6 +18,7 @@ import { environment } from '../../../environments/environment.development';
 // 🛑 Importa tus servicios de estado y SSE
 import { TableSessionService } from './table-session-service'; // Asegúrate que la ruta sea correcta
 import { ServerSentEventsService } from '../../shared/services/server-sent-events.service';
+import { SweetAlertService } from '../../shared/services/sweet-alert.service';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
@@ -25,6 +26,7 @@ export class OrderService {
   private http = inject(HttpClient);
   private sseService = inject(ServerSentEventsService);
   private tableSessionService = inject(TableSessionService);
+  private sweetAlertService = inject(SweetAlertService);
 
   // --- Señales de Estado Privadas ---
   private _myOrders: WritableSignal<OrderResponse[]> = signal([]);
@@ -44,41 +46,36 @@ export class OrderService {
   constructor() {
     console.log('OrderService inicializado');
     // Este effect es el "motor" reactivo del servicio
-    effect(
-      (onCleanup) => {
-        // Observa la señal de sessionId desde el TableSessionService
-        const sessionId = this.tableSessionService.tableSessionInfo().sessionId;
+    effect((onCleanup) => {
+      // Observa la señal de sessionId desde el TableSessionService
+      const sessionId = this.tableSessionService.tableSessionInfo().sessionId;
 
-        if (sessionId) {
-          // 1. Hay sesión: Cargar datos iniciales
-          console.log(
-            `OrderService: Sesión ${sessionId} detectada. Cargando pedidos...`
-          );
-          this.loadInitialOrders(sessionId);
+      if (sessionId) {
+        // 1. Hay sesión: Cargar datos iniciales
+        console.log(
+          `OrderService: Sesión ${sessionId} detectada. Cargando pedidos...`
+        );
+        this.loadInitialOrders(sessionId);
 
-          // 2. Hay sesión: Suscribirse a eventos en tiempo real
-          this.subscribeToOrderEvents(sessionId);
+        // 2. Hay sesión: Suscribirse a eventos en tiempo real
+        this.subscribeToOrderEvents(sessionId);
+      }
+
+      // 3. (onCleanup) Se llama cuando el effect "muere" (ej: sessionId cambia a null)
+      onCleanup(() => {
+        console.log('OrderService: Limpiando estado y desuscribiendo de SSE.');
+        // Limpiar estado
+        this._myOrders.set([]);
+        this._tableOrders.set([]);
+        this._isLoading.set(false);
+        this._error.set(null);
+
+        // Desuscribirse de eventos SSE
+        if (this.sseSubscription) {
+          this.sseSubscription.unsubscribe();
         }
-
-        // 3. (onCleanup) Se llama cuando el effect "muere" (ej: sessionId cambia a null)
-        onCleanup(() => {
-          console.log(
-            'OrderService: Limpiando estado y desuscribiendo de SSE.'
-          );
-          // Limpiar estado
-          this._myOrders.set([]);
-          this._tableOrders.set([]);
-          this._isLoading.set(false);
-          this._error.set(null);
-
-          // Desuscribirse de eventos SSE
-          if (this.sseSubscription) {
-            this.sseSubscription.unsubscribe();
-          }
-        });
-      },
-      { allowSignalWrites: true }
-    ); // Necesario porque el effect escribe en signals
+      });
+    }); // Necesario porque el effect escribe en signals
   }
 
   // --- Métodos HTTP (Originales, ahora privados o llamados por el servicio) ---
@@ -157,51 +154,104 @@ export class OrderService {
    * Se suscribe a los eventos SSE de la mesa.
    */
   private subscribeToOrderEvents(tableSessionId: string): void {
-    // Si ya hay una suscripción, la cancela (aunque el effect ya debería hacer esto)
     if (this.sseSubscription) {
       this.sseSubscription.unsubscribe();
     }
 
     console.log(`OrderService: Suscribiendo a SSE para mesa`);
-    this.sseSubscription = this.sseService
-      .subscribeToSession()
-      .subscribe({
-        next: (event) => {
+    this.sseSubscription = this.sseService.subscribeToSession().subscribe({
+      next: (event) => {
+        console.log('OrderService: Evento SSE recibido:', event);
 
-          console.log('OrderService: Evento SSE recibido:', event);
+        if (event.type === 'new-order') {
+          const newOrder: OrderResponse = event.payload;
 
-          // order.service.ts (dentro de subscribeToOrderEvents → next:)
-          if (event.type === 'new-order') {
-            const newOrder: OrderResponse = event.payload;
+          this._tableOrders.update((curr) =>
+            [newOrder, ...curr].sort(this.sortOrders)
+          );
 
-            // 1) Agregar a "Pedidos de Mesa"
-            this._tableOrders.update((curr) =>
+          const myParticipantId =
+            this.tableSessionService.tableSessionInfo().participantId;
+          if (newOrder.participantId === myParticipantId) {
+            this._myOrders.update((curr) =>
               [newOrder, ...curr].sort(this.sortOrders)
             );
-
-            // 2) Agregar a "Mis Pedidos" si es mío (por ID)
-            const myParticipantId =
-              this.tableSessionService.tableSessionInfo().participantId;
-            if (newOrder.participantId === myParticipantId) {
-              this._myOrders.update((curr) =>
-                [newOrder, ...curr].sort(this.sortOrders)
-              );
-            }
+          } else {
+            this.sweetAlertService.showInfo(
+              'Pedido agregado',
+              newOrder.clientAlias + ' realizó un nuevo pedido'
+            );
           }
+        }
 
-          // --- (Futuro) ---
-          // if (event.type === 'updated-order') {
-          //   const updatedOrder: OrderResponse = event.payload;
-          //   // Lógica para actualizar una orden existente en las signals
-          //   // (ej. cambiar PENDING a COMPLETED)
-          // }
-        },
-        error: (err) =>
-          console.error(
-            `OrderService: Error en conexión SSE ${tableSessionId}`,
-            err
-          ),
-      });
+        if (event.type === 'order-update-status') {
+          const updatedOrder: OrderResponse = event.payload;
+
+          const messages: Record<string, { title: string; text: string }> = {
+            APPROVED: {
+              title: '✅ Pedido aprobado',
+              text: `El pedido ${updatedOrder.orderNumber} ha sido aprobado`,
+            },
+            IN_PROGRESS: {
+              title: '👨‍🍳 En preparación',
+              text: `El pedido ${updatedOrder.orderNumber} está siendo preparado`,
+            },
+            COMPLETED: {
+              title: '✨ Pedido listo',
+              text: `El pedido ${updatedOrder.orderNumber} está listo para servir`,
+            },
+            SERVED: {
+              title: '🍽️ Pedido servido',
+              text: `El pedido ${updatedOrder.orderNumber} ha sido servido`,
+            },
+            CANCELLED: {
+              title: '❌ Pedido cancelado',
+              text: `El pedido ${updatedOrder.orderNumber} fue cancelado`,
+            },
+          };
+
+          const notification = messages[updatedOrder.status];
+          if (notification) {
+            this.sweetAlertService.showInfo(
+              notification.title,
+              notification.text
+            );
+          }
+          this._tableOrders.update((curr) => {
+            const index = curr.findIndex(
+              (o) => o.publicId === updatedOrder.publicId
+            );
+            if (index !== -1) {
+              const updated = [...curr];
+              updated[index] = updatedOrder;
+              return updated.sort(this.sortOrders);
+            }
+            return curr;
+          });
+
+          const myParticipantId =
+            this.tableSessionService.tableSessionInfo().participantId;
+          if (updatedOrder.participantId === myParticipantId) {
+            this._myOrders.update((curr) => {
+              const index = curr.findIndex(
+                (o) => o.publicId === updatedOrder.publicId
+              );
+              if (index !== -1) {
+                const updated = [...curr];
+                updated[index] = updatedOrder;
+                return updated.sort(this.sortOrders);
+              }
+              return curr;
+            });
+          }
+        }
+      },
+      error: (err) =>
+        console.error(
+          `OrderService: Error en conexión SSE ${tableSessionId}`,
+          err
+        ),
+    });
   }
 
   /**

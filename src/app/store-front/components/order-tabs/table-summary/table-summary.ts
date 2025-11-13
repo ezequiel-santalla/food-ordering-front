@@ -49,7 +49,7 @@ export class TableSummaryComponent {
   restoAPagar = computed(() => {
     return this.orderService
       .tableOrders()
-      .filter((order) => order.status !== 'COMPLETED')
+      //.filter((order) => order.status !== 'COMPLETED')
       .reduce((sum, order) => sum + order.totalPrice, 0);
   });
 }
