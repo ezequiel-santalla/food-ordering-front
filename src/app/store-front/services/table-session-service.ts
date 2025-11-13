@@ -4,7 +4,7 @@ import { ProfileService } from './profile-service';
 import { TableSessionInfo } from '../../shared/models/table-session';
 import { SessionUtils } from '../../utils/session-utils';
 import { ServerSentEventsService } from '../../shared/services/server-sent-events.service';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -65,7 +65,6 @@ export class TableSessionService {
       const tableSessionId = this.authService.tableSessionId();
 
       if (this.hasActiveSession() && tableSessionId) {
-       
         console.log(`🔌 Conectando a SSE para mesa:`);
 
         this.sseSubscription = this.sseService.subscribeToSession().subscribe({
@@ -212,7 +211,6 @@ export class TableSessionService {
       localStorage.setItem('participantId', participantId);
       console.log('💾 ParticipantId guardado:', participantId);
     } else {
-      
       const tokenParticipantId = this.authService.participantId();
       if (tokenParticipantId) {
         this._participantId.set(tokenParticipantId);
@@ -271,35 +269,42 @@ export class TableSessionService {
   leaveSession(): void {
     console.log('Abandonando sesión de mesa');
 
+    // Lógica de limpieza que se ejecutará SIEMPRE
+    const cleanUp = () => {
+      console.log('Limpiando datos de la sesion y redirigiendo...');
+      this.clearSession();
+      this.router.navigate(['/food-venues']);
+    };
+
     this.http
-      .patch<any>(
-        `${environment.baseUrl}/participants/leave`,
-        null,
-        { observe: 'response' }
+      .patch<any>(`${environment.baseUrl}/participants/leave`, null, {
+        observe: 'response',
+      })
+      .pipe(
+        finalize(() => {
+          cleanUp();
+        })
       )
       .subscribe({
         next: (response) => {
-         
           if (response.status === 200 && response.body) {
-            
             const processed = TokenManager.processAuthResponse(response.body);
             this.authState.applyAuthData(processed);
           } else {
-            console.log('Limpiando estado')
             this.authState.clearState();
           }
-            console.log('Limpiando datos de la sesion')
-
-          this.clearSession();
-
           console.log('El participante dejó la sesión', response);
-          this.router.navigate(['/food-venues']);
         },
         error: (err) => {
-          console.error('Error al abandonar la sesión', err);
+          console.warn(
+            'Error al abandonar la sesión, limpiando estado local.',
+            err
+          );
+          this.authState.clearState();
         },
       });
   }
+
   private getStoredNumber(key: string): number {
     try {
       const stored = localStorage.getItem(key);

@@ -150,6 +150,34 @@ export class OrderService {
       });
   }
 
+  public reloadMyOrders(): void {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    this.getCurrentParticipantOrders()
+      .pipe(
+        catchError((err) => {
+          console.error('OrderService: Error cargando mis pedidos', err);
+          this._error.set('No se pudieron cargar mis pedidos.');
+          this._isLoading.set(false);
+          return EMPTY;
+        })
+      )
+      .subscribe((resp) => {
+        const mine = (resp.content ?? []).sort(this.sortOrders);
+        this._myOrders.set(mine);
+        this._isLoading.set(false);
+      });
+
+    const sessionId = this.tableSessionService.tableSessionInfo().sessionId;
+    if (!sessionId) {
+      console.warn('OrderService.reloadCurrentSessionOrders: no hay sessionId');
+      return;
+    }
+
+    this.loadInitialOrders(sessionId);
+  }
+
   /**
    * Se suscribe a los eventos SSE de la mesa.
    */

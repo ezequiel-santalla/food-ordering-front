@@ -80,7 +80,7 @@
 
 <div class="flex items-center justify-between">
           <span class="text-2xl font-bold text-primary"
-            >{{ product().price | currency }}</span
+            >{{ product().price | currency:'ARS' }}</span
           >
         </div>
       </div>
@@ -186,7 +186,7 @@
           />
         </svg>
         <span class="font-bold text-sm"
-          >Agregar • {{ (product().price * quantity) | currency }}</span
+          >Agregar • {{ (product().price * quantity) | currency:'ARS' }}</span
         >
       </button>
 

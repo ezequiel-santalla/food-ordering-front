@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { Component, Input, Output, EventEmitter, signal, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
   LucideAngularModule,
   ChevronDown,
@@ -11,8 +11,10 @@ import {
   CookingPot,
   HandPlatter,
   CheckCheck,
+  BanknoteArrowUp,
 } from 'lucide-angular';
 import { OrderResponse } from '../../../models/order.interface';
+import { PaymentStatus } from '../../../models/payment.interface';
 
 @Component({
   selector: 'app-order-card',
@@ -27,7 +29,6 @@ export class OrderCardComponent {
     isSelected: boolean;
   }>();
 
-  // --- Íconos ---
   readonly ChevronDown = ChevronDown;
   readonly Clock = Clock;
   readonly CircleCheckBig = CircleCheckBig;
@@ -37,10 +38,25 @@ export class OrderCardComponent {
   readonly CheckCheck = CheckCheck;
   readonly CookingPot = CookingPot;
   readonly HandPlatter = HandPlatter;
+  readonly BanknoteArrowUp = BanknoteArrowUp;
 
-  // --- Estado Interno ---
   isExpanded = signal(false);
   isSelected = signal(false);
+  isPaid = signal(false);
+
+
+   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['order']) {
+      const payment = this.order.payment;
+
+
+       const paid = !!payment;
+
+      //const paid = !!payment && payment.status === PaymentStatus.COMPLETED;
+
+      this.isPaid.set(paid);
+    }
+  }
 
   toggleExpand(): void {
     this.isExpanded.set(!this.isExpanded());

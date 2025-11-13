@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AlertCircle, Armchair, Check, ChefHat, Clock, LucideAngularModule, User, Utensils, X } from 'lucide-angular';
+import { AlertCircle, Armchair, Check, ChefHat, CircleAlert, Clock, LucideAngularModule, User, Utensils, X } from 'lucide-angular';
 import { OrderResponse, OrderStatus } from '../../models/orders';
 
 @Component({
@@ -22,7 +22,7 @@ export class OrderCard {
   readonly User = User;
   readonly Armchair = Armchair;
   readonly Clock = Clock;
-  readonly AlertCircle = AlertCircle;
+  readonly CircleAlert = CircleAlert;
   readonly ChefHat = ChefHat;
   readonly X = X;
   readonly Check = Check;

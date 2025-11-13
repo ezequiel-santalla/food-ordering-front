@@ -12,8 +12,7 @@ export class ServerSentEventsService {
   private readonly EVENT_TYPES = [
     'new-order',
     'order-update-status',
-    'order-served',
-    'order-cancelled',
+    'payment-update-status',
     'special-offer',
     'new-message',
     'user-joined',
@@ -81,18 +80,22 @@ export class ServerSentEventsService {
 
             const token = this.authService.accessToken();
             if (!token) {
-                console.error('SSE Error: No token found. Stopping retries.');
-                observer.error(new Error('SSE Auth Error: User is logged out.'));
-                return;
+              console.error('SSE Error: No token found. Stopping retries.');
+              observer.error(new Error('SSE Auth Error: User is logged out.'));
+              return;
             }
             setTimeout(() => {
-              retryCount ++;
+              retryCount++;
               retryDelay = Math.min(retryDelay * 2, 30000);
 
               if (retryCount > 10) {
-                 console.error('SSE Error: Too many retries. Stopping connection.');
-                 observer.error(new Error('SSE connection failed after 10 retries.'));
-                 return;
+                console.error(
+                  'SSE Error: Too many retries. Stopping connection.'
+                );
+                observer.error(
+                  new Error('SSE connection failed after 10 retries.')
+                );
+                return;
               }
 
               console.warn(`Reconnecting SSE in ${retryDelay / 1000}s`);

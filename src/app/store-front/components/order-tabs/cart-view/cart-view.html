@@ -5,111 +5,176 @@
   </h3>
 
   @if (cartService.items().length === 0) {
-    <div class="flex flex-col items-center justify-center text-center py-8">
-      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 mb-3">
-        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <path d="M16 10a4 4 0 0 1-8 0"></path>
-      </svg>
-      <p class="text-gray-500 font-medium">Tu orden está vacía.</p>
-      <p class="text-sm text-gray-400">Agrega productos para continuar.</p>
-    </div>
+  <div class="flex flex-col items-center justify-center text-center py-8">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="48"
+      height="48"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="text-gray-300 mb-3"
+    >
+      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <path d="M16 10a4 4 0 0 1-8 0"></path>
+    </svg>
+    <p class="text-gray-500 font-medium">Tu orden está vacía.</p>
+    <p class="text-sm text-gray-400">Agrega productos para continuar.</p>
+  </div>
   } @else {
 
-    <div class="divide-y divide-gray-100 max-h-[300px] overflow-y-auto pr-2">
+  <div class="divide-y divide-gray-100 max-h-[300px] overflow-y-auto pr-2">
+    @for (item of cartService.items(); track $index) {
+    <div class="flex items-start gap-3 py-4">
+      <!-- Imagen -->
+      <img
+        [src]="item.productImage"
+        alt="{{ item.productName }}"
+        class="w-14 h-14 rounded-xl object-cover border border-gray-100 flex-shrink-0"
+      />
 
-      @for (item of cartService.items(); track $index) {
-        <div class="flex items-center justify-between py-4 group">
+      <!-- COLUMNA DERECHA: texto + precio/tacho arriba + instrucciones/contador abajo -->
+      <div class="flex-1 min-w-0">
+        <!-- Primera línea: nombre + precio + tacho -->
+        <div class="flex justify-between items-start gap-2">
+          <!-- Nombre -->
+          <p class="font-medium text-gray-800 truncate flex-1">
+            {{ item.productName }}
+          </p>
 
-          <div class="flex items-center gap-3 flex-1 min-w-0">
-            <img
-              [src]="item.productImage"
-              alt="{{ item.productName }}"
-              class="w-14 h-14 rounded-xl object-cover border border-gray-100"
-            />
-            <div class="flex-1 min-w-0">
-              <p class="font-medium text-gray-800 truncate">{{ item.productName }}</p>
-              <p class="text-sm text-gray-500 italic truncate">
-                {{ item.specialInstructions || 'Sin instrucciones especiales' }}
-              </p>
-            </div>
-          </div>
+          <!-- Precio -->
+          <span class="font-semibold text-gray-800 whitespace-nowrap">
+            {{ (item.productPrice * item.quantity) | currency:'ARS' }}
+          </span>
 
-          <div class="flex items-center gap-2">
+          <!-- Tacho -->
+          <button
+            class="btn btn-ghost btn-circle btn-xs text-error hover:bg-error/10 hover:scale-110 transition"
+            (click)="removeItem($index, item.productName)"
+            title="Eliminar"
+          >
+            <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
+          </button>
+        </div>
 
+        <!-- Segunda línea: instrucciones + contador -->
+        <div class="flex justify-between items-center mt-1">
+          <!-- Instrucciones -->
+          <p class="text-sm text-gray-500 italic truncate flex-1">
+            {{ item.specialInstructions || 'Sin instrucciones...' }}
+          </p>
+
+          <!-- Contador -->
+          <div class="flex items-center gap-2 ml-3">
             <button
-              class="btn btn-ghost btn-circle btn-sm"
+              class="btn btn-ghost btn-circle btn-xs"
               (click)="cartService.updateQuantity($index, item.quantity - 1)"
-              [disabled]="item.quantity === 1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              [disabled]="item.quantity === 1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
             </button>
 
-            <span class="min-w-[24px] text-center font-bold text-lg text-gray-800">{{ item.quantity }}</span>
+            <span
+              class="min-w-[20px] text-center font-bold text-gray-800 text-sm"
+            >
+              {{ item.quantity }}
+            </span>
 
             <button
-              class="btn btn-ghost btn-circle btn-sm"
-              (click)="cartService.updateQuantity($index, item.quantity + 1)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </button>
-
-            <div class="w-24 text-right font-semibold text-gray-800">
-              {{ (item.productPrice * item.quantity) | currency:'ARS' }}
-            </div>
-
-            <button
-              class="btn btn-ghost btn-circle btn-sm text-error hover:bg-error/10 hover:scale-110 transition-transform ml-1"
-              (click)="removeItem($index, item.productName)"
-              title="Eliminar producto">
-              <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+              class="btn btn-ghost btn-circle btn-xs"
+              (click)="cartService.updateQuantity($index, item.quantity + 1)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
             </button>
           </div>
         </div>
-      }
-    </div>
-
-    <div>
-      <p class="font-semibold text-gray-800 mb-2">
-        Requisitos especiales (opcional):
-      </p>
-      <textarea
-        [(ngModel)]="generalInstructions"
-        class="w-full border border-gray-300 rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        rows="3"
-        placeholder="Alergías, intolerancias, cubiertos, etc..."
-        [disabled]="isSubmitting()">
-      </textarea>
-    </div>
-
-    @if (error()) {
-      <div class="alert alert-error my-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>{{ error() }}</span>
       </div>
+    </div>
     }
+  </div>
 
-    <footer class="border-t border-gray-200 pt-4 mt-4 space-y-4">
-      <div class="flex justify-between items-center">
-        <span class="font-bold text-xl text-gray-900">
-          Total:
-        </span>
-         <span class="font-bold text-xl text-gray-900">
-          {{ cartService.total() | currency:'ARS' }}
-        </span>
-      </div>
+  <div>
+    <p class="font-semibold text-gray-800 mb-2">
+      Requisitos especiales (opcional):
+    </p>
+    <textarea
+      [(ngModel)]="generalInstructions"
+      class="w-full border border-gray-300 rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      rows="3"
+      placeholder="Alergías, intolerancias, cubiertos, etc..."
+      [disabled]="isSubmitting()"
+    >
+    </textarea>
+  </div>
 
-      <button
-        class="btn btn-primary btn-block btn-lg"
-        (click)="confirmOrder()"
-        [disabled]="isSubmitting()">
-        @if (isSubmitting()) {
-          <span class="loading loading-spinner loading-md"></span>
-          <span>Procesando...</span>
-        } @else {
-          <span class="text-base font-bold">Confirmar Pedido</span>
-        }
-      </button>
-    </footer>
+  @if (error()) {
+  <div class="alert alert-error my-2">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="stroke-current shrink-0 h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+    <span>{{ error() }}</span>
+  </div>
+  }
+
+  <footer class="border-t border-gray-200 pt-4 mt-4 space-y-4">
+    <div class="flex justify-between items-center">
+      <span class="font-bold text-xl text-gray-900"> Total: </span>
+      <span class="font-bold text-xl text-gray-900">
+        {{ cartService.total() | currency:'ARS' }}
+      </span>
+    </div>
+
+    <button
+      class="btn btn-primary btn-block btn-lg"
+      (click)="confirmOrder()"
+      [disabled]="isSubmitting()"
+    >
+      @if (isSubmitting()) {
+      <span class="loading loading-spinner loading-md"></span>
+      <span>Procesando...</span>
+      } @else {
+      <span class="text-base font-bold">Confirmar Pedido</span>
+      }
+    </button>
+  </footer>
   }
 </section>
