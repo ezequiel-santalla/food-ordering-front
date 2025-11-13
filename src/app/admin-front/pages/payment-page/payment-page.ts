@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { PaymentCard } from "../../components/payments/payment-card/payment-card";
 import { PaginationComponent } from "../../../shared/components/pagination/pagination.component";
 import { PaginationService } from '../../../shared/components/pagination/pagination.service';
+import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 interface PaymentStats {
   total: number;
   completed: number;
@@ -24,6 +25,7 @@ export class PaymentPage {
   // Services
   paymentService = inject(PaymentService);
   paginationService = inject(PaginationService);
+  sweetAlertService = inject(SweetAlertService);
 
   // Icons
   readonly DollarSign = DollarSign;
@@ -68,13 +70,10 @@ export class PaymentPage {
     });
   }
 
-  // ngOnInit(): void {
-  //   this.loadPayments();
-  // }
+   ngOnInit(): void {
+     this.loadPayments();
+   }
 
-  // ===================================
-  // Data Loading
-  // ===================================
 
   loadPayments(page: number = 1): void {
     this.isLoading = true;
@@ -116,10 +115,11 @@ export class PaymentPage {
       );
     }
 
-    // Filter by status
     if (this.selectedStatus) {
       filtered = filtered.filter(payment => payment.status === this.selectedStatus);
     }
+
+    filtered.sort((a, b) => b.publicId.localeCompare(a.publicId));
 
     this.filteredPayments = filtered;
   }
