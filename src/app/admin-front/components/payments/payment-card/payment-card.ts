@@ -61,14 +61,14 @@ export class PaymentCard {
 
   getPaymentMethodText(method: string): string {
     switch (method) {
-      case 'EFECTIVO':
+      case 'CASH':
         return 'Efectivo';
-      case 'TARJETA_DEBITO':
+      case 'DEBIT_CARD':
         return 'Tarjeta de Débito';
-      case 'TARJETA_CREDITO':
+      case 'CREDIT_CARD':
         return 'Tarjeta de Crédito';
-      case 'TRANSFERENCIA':
-        return 'Transferencia';
+      case 'MOBILE_PAYMENT':
+        return 'Billetera Móvil';
       default:
         return method;
     }
@@ -76,12 +76,12 @@ export class PaymentCard {
 
   getPaymentMethodIcon(method: string): string {
     switch (method) {
-      case 'EFECTIVO':
+      case 'CASH':
         return '💵';
-      case 'TARJETA_DEBITO':
-      case 'TARJETA_CREDITO':
+      case 'DEBIT_CARD':
+      case 'CREDIT_CARD':
         return '💳';
-      case 'TRANSFERENCIA':
+      case 'MOBILE_PAYMENT':
         return '🏦';
       default:
         return '💰';
