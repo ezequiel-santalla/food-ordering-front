@@ -10,7 +10,7 @@
       <div class="flex-1">
         <div class="flex items-center gap-2 mb-2">
           <h3 class="font-bold text-lg text-gray-900">
-            Pago #AYMENT-{{getPaymentId()}}
+            Pago - Orden #{{payment.orderNumbers.join(', ')}}
           </h3>
           <span class="badge badge-sm" [ngClass]="getStatusBadgeClass(payment.status)">
             {{getStatusText(payment.status)}}
@@ -18,9 +18,9 @@
         </div>
 
         <div class="flex items-center gap-3 text-sm text-gray-600">
-          @if (tableNumber) {
+          @if (payment.tableNumber) {
             <div class="flex items-center gap-1">
-              <span class="font-semibold">Mesa {{tableNumber}}</span>
+              <span class="font-semibold">Mesa {{payment.tableNumber}}</span>
             </div>
           }
         </div>

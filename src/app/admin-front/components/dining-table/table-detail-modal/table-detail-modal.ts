@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule,X,
   Ban,
@@ -9,6 +9,7 @@ import { LucideAngularModule,X,
   Utensils} from 'lucide-angular';
 import { OrderResponse, OrderStatus } from '../../../models/order';
 import { DiningTableStatus, TablePositionResponse } from '../../../models/lounge';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-table-detail-modal',
@@ -16,6 +17,8 @@ import { DiningTableStatus, TablePositionResponse } from '../../../models/lounge
   templateUrl: './table-detail-modal.html',
 })
 export class TableDetailModal {
+
+ private sweetAlertService = inject(SweetAlertService);
 
   @Input({ required: true }) table!: TablePositionResponse;
   @Input({ required: true }) orders: OrderResponse[] = [];
@@ -39,6 +42,18 @@ export class TableDetailModal {
   readonly Users = Users;
   readonly ShoppingBag = ShoppingBag;
   readonly Utensils = Utensils;
+
+
+  get sortedOrders(): OrderResponse[] {
+
+return [...this.orders].sort((a, b) => {
+ // Opción más robusta: ordenar por fecha (el más reciente es el "último")
+ const dateA = new Date(a.orderDate).getTime();
+ const dateB = new Date(b.orderDate).getTime();
+ return dateB - dateA;
+ });
+ }
+
 
   onBackdropClick(event: MouseEvent): void {
     this.close.emit();
@@ -154,10 +169,22 @@ export class TableDetailModal {
     }
   }
 
-  finishAndPay(): void {
- if (confirm('¿Estás seguro de que quieres finalizar la sesión y liberar la mesa? Esta acción no se puede deshacer.')) {
- this.endSession.emit();
- }
- }
+ async finishAndPay(): Promise<void> {
+    const title = '⚠️ Finalizar Sesión';
+    const text = '¿Estás seguro de que quieres finalizar la sesión y liberar la mesa? Esta acción no se puede deshacer.';
+    const confirmButtonText = 'Sí, finalizar sesión';
+    const cancelButtonText = 'Cancelar';
+
+    const confirmed = await this.sweetAlertService.confirmCustomAction(
+      title,
+      text,
+      confirmButtonText,
+      cancelButtonText,
+      'warning' // Usamos 'warning' porque es una acción irreversible
+    );
+
+    if (confirmed) {
+      this.endSession.emit();
+    }}
 
 }

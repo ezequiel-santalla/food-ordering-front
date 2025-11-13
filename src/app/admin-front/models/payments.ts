@@ -8,6 +8,8 @@ export interface PaymentResponse {
   status: PaymentStatus;
   paymentDate: string;
   paymentMethod: PaymentMethod;
+  orderNumbers: number[];
+  tableNumber: number;
 }
 
 export interface PaymentRequest {

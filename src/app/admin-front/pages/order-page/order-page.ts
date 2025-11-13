@@ -71,7 +71,7 @@ export class OrderPage {
 
   ngOnInit(): void {
     this.loadOrders();
-    this.startAutoRefresh();
+  //  this.startAutoRefresh();
   }
 
   ngOnDestroy(): void {
@@ -174,6 +174,12 @@ export class OrderPage {
     } else if (this.activeView() === 'inProgress') {
       orders = orders.filter(o => o.status === 'IN_PROGRESS' || o.status === 'APPROVED');
     }
+
+    orders = [...orders].sort((a, b) => {
+      const dateA = new Date(a.orderDate).getTime();
+      const dateB = new Date(b.orderDate).getTime();
+      return dateB - dateA;
+    });
 
     // Pagination
     const start = this.currentPage() * this.pageSize;
