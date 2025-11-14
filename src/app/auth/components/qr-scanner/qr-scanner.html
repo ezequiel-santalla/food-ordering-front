@@ -1,13 +1,13 @@
 @if (showScanner()) {
   <div class="scanner-wrapper">
-    <h2>Apunta la camara al codigo QR de la mesa</h2>
-    
+    <h2>Apunta la cámara al código QR de la mesa</h2>
+
     <zxing-scanner
       (scanSuccess)="onScanSuccess($event)"
       (scanError)="onScanError($event)"
       [enable]="true"
     ></zxing-scanner>
-    
+
     <button class="cancel-btn" (click)="cancelScan()">Cancelar</button>
   </div>
 } @else if (processing()) {
