@@ -10,13 +10,13 @@ import { SweetAlertService } from '../../../../shared/services/sweet-alert.servi
   templateUrl: './employee-detail-page.html'
 })
 export class EmployeeDetailPage {
- @Input() isOpen = false;
+  @Input() isOpen = false;
   @Input() employee: EmploymentContent | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() employeeUpdated = new EventEmitter<void>();
 
   private employeeService = inject(EmployeeService);
-  private sweetAlertService= inject(SweetAlertService)
+  private sweetAlertService = inject(SweetAlertService);
 
   // Exponer RoleType para el template
   RoleType = RoleType;
@@ -65,7 +65,9 @@ export class EmployeeDetailPage {
     if (!this.employee || !this.hasChanges()) {
       return;
     }
+
     console.log("ID del Empleado para actualizar:", this.employee.publicId);
+
     const updateData: EmployeeRequest = {
       userEmail: this.employee.user.email,
       role: this.selectedRole,
@@ -74,30 +76,54 @@ export class EmployeeDetailPage {
 
     this.employeeService.updateEmployee(this.employee.publicId, updateData).subscribe({
       next: () => {
-        this.sweetAlertService.showSuccess('Empleado actualizado exitosamente');
+        this.sweetAlertService.showSuccess(
+          'Empleado actualizado',
+          'Los datos del empleado se actualizaron correctamente.'
+        );
         this.employeeUpdated.emit();
+        this.onClose();
       },
       error: (e) => {
         console.error(e);
-        this.sweetAlertService.showError('Error al actualizar el empleado con el email: ', updateData.userEmail);
+        this.sweetAlertService.showError(
+          'Error al actualizar',
+          `No se pudo actualizar el empleado con email: ${updateData.userEmail}`
+        );
       }
     });
   }
 
-  deactivateEmployee(): void {
+  async deactivateEmployee(): Promise<void> {
     if (!this.employee) {
       return;
     }
 
-    if (confirm('¿Estás seguro de que deseas dar de baja a este empleado?')) {
+    const employeeName = `${this.employee.user.name} ${this.employee.user.lastName}`;
+
+    const confirmed = await this.sweetAlertService.confirmCustomAction(
+      '¿Dar de baja empleado?',
+      `El empleado ${employeeName} será dado de baja. Esta acción no se puede deshacer.`,
+      'Sí, dar de baja',
+      'Cancelar',
+      'warning'
+    );
+
+    if (confirmed) {
       this.employeeService.deleteEmployee(this.employee.publicId).subscribe({
         next: () => {
-          alert('Empleado dado de baja exitosamente');
+          this.sweetAlertService.showSuccess(
+            'Empleado dado de baja',
+            'El empleado ha sido dado de baja exitosamente.'
+          );
           this.employeeUpdated.emit();
+          this.onClose();
         },
         error: (e) => {
           console.error(e);
-          alert('Error al dar de baja el empleado');
+          this.sweetAlertService.showError(
+            'Error al dar de baja',
+            'No se pudo dar de baja al empleado. Por favor, intenta nuevamente.'
+          );
         }
       });
     }

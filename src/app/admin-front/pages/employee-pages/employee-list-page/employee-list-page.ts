@@ -15,7 +15,7 @@ import { SweetAlertService } from '../../../../shared/services/sweet-alert.servi
   templateUrl: './employee-list-page.html'
 })
 export class EmployeeListPage {
-openMenuIndex: number | null = null;
+  openMenuIndex: number | null = null;
   totalPages = 1;
   showAssignModal = false;
   showDetailModal = false;
@@ -26,7 +26,7 @@ openMenuIndex: number | null = null;
   public employeeService = inject(EmployeeService);
   private paginationService = inject(PaginationService);
   private eRef = inject(ElementRef);
-  private sweetAlertService=  inject(SweetAlertService)
+  private sweetAlertService = inject(SweetAlertService);
 
   currentPage = this.paginationService.currentPage;
 
@@ -51,7 +51,13 @@ openMenuIndex: number | null = null;
         this.employeeService.contents = data.content;
         this.totalPages = data.totalPages;
       },
-      error: (e) => console.error(e),
+      error: (e) => {
+        console.error(e);
+        this.sweetAlertService.showError(
+          'Error al cargar empleados',
+          'No se pudieron cargar los empleados. Por favor, intenta nuevamente.'
+        );
+      }
     });
   }
 
@@ -134,21 +140,37 @@ openMenuIndex: number | null = null;
     }
   }
 
-  deleteEmployee(id: string): void {
+  async deleteEmployee(id: string): Promise<void> {
     this.openMenuIndex = null;
 
-    if (confirm('¿Estás seguro de que deseas eliminar este empleado?')) {
+    // Buscar el empleado para mostrar su nombre en la confirmación
+    const employee = this.employeeService.contents.find(emp => emp.publicId === id);
+    const employeeName = employee
+      ? `${employee.user.name} ${employee.user.lastName}`
+      : 'este empleado';
+
+    const confirmed = await this.sweetAlertService.confirmDelete(
+      employeeName,
+      'empleado'
+    );
+
+    if (confirmed) {
       this.employeeService.deleteEmployee(id).subscribe({
         next: () => {
-          this.sweetAlertService.showSuccess('Empleado eliminado exitosamente');
+          this.sweetAlertService.showSuccess(
+            'Empleado eliminado',
+            'El empleado ha sido eliminado exitosamente.'
+          );
           this.getEmployees(this.currentPage());
         },
         error: (e) => {
           console.error(e);
-          alert('Error al eliminar el empleado');
+          this.sweetAlertService.showError(
+            'Error al eliminar',
+            'No se pudo eliminar al empleado. Por favor, intenta nuevamente.'
+          );
         }
       });
     }
   }
-
 }

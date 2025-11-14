@@ -9,6 +9,7 @@ import { PaymentCard } from "../../components/payments/payment-card/payment-card
 import { PaginationComponent } from "../../../shared/components/pagination/pagination.component";
 import { PaginationService } from '../../../shared/components/pagination/pagination.service';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
+
 interface PaymentStats {
   total: number;
   completed: number;
@@ -70,10 +71,9 @@ export class PaymentPage {
     });
   }
 
-   ngOnInit(): void {
-     this.loadPayments();
-   }
-
+  ngOnInit(): void {
+    this.loadPayments();
+  }
 
   loadPayments(page: number = 1): void {
     this.isLoading = true;
@@ -90,6 +90,10 @@ export class PaymentPage {
         console.error('Error loading payments:', err);
         this.error = 'Error al cargar los pagos. Por favor, intenta nuevamente.';
         this.isLoading = false;
+        this.sweetAlertService.showError(
+          'Error al cargar pagos',
+          'No se pudieron cargar los pagos. Por favor, intenta nuevamente.'
+        );
       }
     });
   }
@@ -136,26 +140,51 @@ export class PaymentPage {
   // Payment Actions
   // ===================================
 
-  onPaymentStatusChanged(event: { paymentId: string; newStatus: PaymentStatus }): void {
-    const confirmMessage = event.newStatus === 'COMPLETED'
-      ? '¿Confirmar que el pago ha sido completado?'
-      : '¿Estás seguro de cancelar este pago?';
+  async onPaymentStatusChanged(event: { paymentId: string; newStatus: PaymentStatus }): Promise<void> {
+    const isCompleting = event.newStatus === 'COMPLETED';
 
-    if (!confirm(confirmMessage)) {
+    const title = isCompleting ? '¿Confirmar pago completado?' : '¿Cancelar pago?';
+    const text = isCompleting
+      ? 'El pago será marcado como completado.'
+      : 'El pago será cancelado. Esta acción no se puede deshacer.';
+    const confirmText = isCompleting ? 'Sí, completar' : 'Sí, cancelar';
+    const icon = isCompleting ? 'question' : 'warning';
+
+    const confirmed = await this.sweetAlertService.confirmCustomAction(
+      title,
+      text,
+      confirmText,
+      'Cancelar',
+      icon
+    );
+
+    if (!confirmed) {
       return;
     }
 
-    const action$ = event.newStatus === 'COMPLETED'
+    const action$ = isCompleting
       ? this.paymentService.completePayment(event.paymentId)
       : this.paymentService.cancelPayment(event.paymentId);
 
     action$.subscribe({
       next: () => {
+        const successMessage = isCompleting
+          ? 'Pago completado exitosamente'
+          : 'Pago cancelado exitosamente';
+
+        this.sweetAlertService.showSuccess(
+          successMessage,
+          'El estado del pago ha sido actualizado.'
+        );
         this.refreshPayments();
       },
       error: (err) => {
         console.error('Error updating payment status:', err);
         this.error = 'Error al actualizar el estado del pago.';
+        this.sweetAlertService.showError(
+          'Error al actualizar pago',
+          'No se pudo actualizar el estado del pago. Por favor, intenta nuevamente.'
+        );
       }
     });
   }
