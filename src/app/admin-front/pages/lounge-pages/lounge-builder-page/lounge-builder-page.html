@@ -1,0 +1,145 @@
+<div class="p-8 lounge-container">
+  <header class="mb-6 flex justify-between items-start">
+    <div>
+      <h1 class="text-3xl font-semibold text-gray-900">
+        {{ isEditingMode ? 'Armado de Salón (Modo Edición)' : 'Estado del Salón' }}
+      </h1>
+      <p class="text-sm text-gray-500">
+        {{ isEditingMode ? 'Organiza las mesas en el espacio del restaurante' : 'Visualiza el estado actual de las mesas' }}
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <button (click)="toggleEditingMode()"
+        class="flex items-center px-4 py-2 text-white text-sm font-medium rounded-md cursor-pointer shadow-lg transition duration-150"
+        [class.bg-red-600]="isEditingMode"
+        [class.hover:bg-red-700]="isEditingMode"
+        [class.bg-blue-600]="!isEditingMode"
+        [class.hover:bg-blue-700]="!isEditingMode">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+        {{ isEditingMode ? 'Salir de Edición' : 'Editar Salón' }}
+      </button>
+
+      <div *ngIf="isEditingMode" class="flex gap-2">
+        <button (click)="openSectorModal()" class="flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md cursor-pointer shadow-lg hover:bg-gray-700 transition duration-150">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Agregar Sector
+        </button>
+        <button (click)="openTableModal()" class="flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md cursor-pointer shadow-lg hover:bg-indigo-700 transition duration-150">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Agregar Mesa
+        </button>
+        <button (click)="saveLoungeChanges()" [disabled]="!hasUnsavedChanges"
+          class="flex items-center px-4 py-2 text-white text-sm font-medium rounded-md cursor-pointer shadow-lg transition duration-150"
+          [class.bg-green-600]="hasUnsavedChanges"
+          [class.bg-green-400]="!hasUnsavedChanges"
+          [class.cursor-not-allowed]="!hasUnsavedChanges"
+          [class.hover\:bg-green-700]="hasUnsavedChanges">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-4 0V4a2 2 0 00-2-2H9a2 2 0 00-2 2v3m4 0h.01"/>
+          </svg>
+          Guardar Salón
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mb-6 pt-4 border-t border-gray-200 flex justify-between items-center">
+    <div>
+      <label class="text-sm font-medium text-gray-700 mr-2">Sector Actual:</label>
+      <select [(ngModel)]="currentSector" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 text-sm">
+        <option *ngFor="let sector of sectors" [value]="sector">{{sector}}</option>
+      </select>
+    </div>
+    <div class="text-sm text-gray-600">
+      <span class="font-medium">Mesas en {{currentSector}}:</span> {{tablesInCurrentSector.length}} |
+      <span class="font-medium ml-4">Capacidad Total:</span> {{getTotalCapacity()}} personas
+    </div>
+  </div>
+
+  <div class="bg-white shadow-md rounded-lg overflow-visible border border-gray-200 relative flex justify-center p-8">
+    <div class="relative border-2 border-dashed rounded-lg overflow-hidden"
+      [class.border-green-300]="isEditingMode"
+      [class.border-gray-300]="!isEditingMode"
+      [style.height.px]="viewportHeight"
+      [style.width.px]="viewportWidth"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)">
+
+      <div *ngIf="isEditingMode" class="absolute inset-0 opacity-10"
+        [style.backgroundImage]="'repeating-linear-gradient(0deg, #ccc, #ccc 1px, transparent 1px, transparent ' + (50 * scaleRatio) + 'px), repeating-linear-gradient(90deg, #ccc, #ccc 1px, transparent 1px, transparent ' + (50 * scaleRatio) + 'px)'"
+        [style.backgroundSize]="(50 * scaleRatio) + 'px ' + (50 * scaleRatio) + 'px'">
+      </div>
+
+      <div *ngFor="let table of scaledTablesInCurrentSector"
+        [style.left.px]="table.displayX"
+        [style.top.px]="table.displayY"
+        [style.width.px]="table.displayWidth"
+        [style.height.px]="table.displayHeight"
+        class="absolute table-item"
+        [class.cursor-pointer]="!isEditingMode"
+        [class.cursor-move]="isEditingMode"
+        [class.table-available]="table.diningTableStatus === 'AVAILABLE'"
+        [class.table-in-session]="table.diningTableStatus === 'IN_SESSION'"
+        [class.table-complete]="table.diningTableStatus === 'COMPLETE'"
+        [class.table-waiting]="table.diningTableStatus === 'WAITING_RESET'"
+        [class.table-disabled]="table.diningTableStatus === 'OUT_OF_SERVICE'"
+        [class.table-round]="table.tableShape === 'round'"
+        [class.table-square]="table.tableShape === 'square'"
+        [class.table-rect]="table.tableShape === 'rect'"
+        [draggable]="isEditingMode"
+        (dragstart)="onDragStart($event, table)"
+        (click)="selectTable(table)">
+        <div class="table-content">
+          <div class="table-number" [style.fontSize.px]="30 * scaleRatio">
+            {{table.diningTableNumber}}
+          </div>
+          <div class="table-capacity" [style.fontSize.px]="16 * scaleRatio">
+            {{table.diningTableCapacity}}p
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="scaledTablesInCurrentSector.length === 0" class="absolute inset-0 flex items-center justify-center">
+        <div class="text-center text-gray-400">
+          <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+          </svg>
+          <p class="text-lg font-medium">No hay mesas en este sector</p>
+          <p class="text-sm mt-1" *ngIf="isEditingMode">Haz clic en "Agregar Mesa" para comenzar</p>
+          <p class="text-sm mt-1" *ngIf="!isEditingMode">El sector está vacío.</p>
+        </div>
+      </div>
+    </div>
+    <div class="absolute bottom-2 right-2 text-xs text-gray-500 bg-white px-2 py-1 rounded shadow">
+      Escala: {{(scaleRatio * 100).toFixed(0)}}%
+    </div>
+  </div>
+
+  <div class="mt-4 flex justify-center gap-6 text-sm text-gray-600">
+    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-green-500 rounded"></div><span>Disponible</span></div>
+    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-blue-500 rounded"></div><span>En Sesión</span></div>
+    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-yellow-500 rounded"></div><span>Completa</span></div>
+    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-orange-500 rounded"></div><span>Esperando Reset</span></div>
+    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-gray-800 rounded"></div><span>Fuera de Servicio</span></div>
+  </div>
+
+  <app-sector-modal *ngIf="showSectorModal && isEditingMode" (close)="closeSectorModal()" (sectorCreated)="onSectorCreated($event)"></app-sector-modal>
+  <app-table-modal *ngIf="showTableModal && isEditingMode" [currentSector]="currentSector" (close)="closeTableModal()" (tableCreated)="onTableCreated($event)"></app-table-modal>
+  <app-table-edit-detail-modal *ngIf="selectedTable && isEditingMode" [table]="selectedTable" (close)="closeTableDetailModal()" (sizeChanged)="onTableSizeChanged($event)" (removed)="onTableRemoved($event)"(dataUpdated)="handleTableDataUpdate($event)"></app-table-edit-detail-modal>
+ <app-table-detail-modal
+ *ngIf="selectedTable && !isEditingMode"
+ [table]="selectedTable"
+ [orders]="selectedTableOrders"
+ (close)="closeTableDetailModal()"
+ (statusChanged)="onTableStatusChanged($event)"
+ (orderStatusChanged)="onOrderStatusChanged($event)"
+ (endSession)="endSession()">
+</app-table-detail-modal>
+</div>

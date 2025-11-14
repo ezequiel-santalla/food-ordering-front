@@ -1,0 +1,271 @@
+<section class="max-w-6xl mx-auto p-6">
+  <!-- Loading State -->
+  @if (profileResource.isLoading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <p class="ml-4 text-lg">Cargando perfil...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (profileResource.error()) {
+    <div class="alert alert-error">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>Error al cargar el perfil. Por favor intenta nuevamente.</span>
+    </div>
+  }
+
+  <!-- Profile Content -->
+  @else if (profileResource.value(); as profile) {
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      <!-- Header con botón de editar -->
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h1 class="text-xl font-bold">{{profile.name}} {{profile.lastName}}</h1>
+          <p class="text-base-content/60 text-sm mt-1">{{profile.email}}</p>
+        </div>
+        @if (!isEditing) {
+          <button type="button" (click)="toggleEdit()" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </button>
+        }
+      </div>
+
+      <!-- Información Personal -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h3 class="card-title text-lg mb-4">Información Personal</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Nombre -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Nombre <span class="text-error">*</span></span>
+              </label>
+              @if (isEditing) {
+                <input
+                  type="text"
+                  formControlName="name"
+                  placeholder="Juan"
+                  class="input input-bordered w-full"
+                  [class.input-error]="hasError('name')" />
+                @if (hasError('name')) {
+                  <label class="label">
+                    <span class="label-text-alt text-error">{{getErrorMessage('name')}}</span>
+                  </label>
+                }
+              } @else {
+                <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.name}}</p>
+              }
+            </div>
+
+            <!-- Apellido -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Apellido <span class="text-error">*</span></span>
+              </label>
+              @if (isEditing) {
+                <input
+                  type="text"
+                  formControlName="lastName"
+                  placeholder="Pérez"
+                  class="input input-bordered w-full"
+                  [class.input-error]="hasError('lastName')" />
+                @if (hasError('lastName')) {
+                  <label class="label">
+                    <span class="label-text-alt text-error">{{getErrorMessage('lastName')}}</span>
+                  </label>
+                }
+              } @else {
+                <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.lastName}}</p>
+              }
+            </div>
+
+            <!-- Teléfono -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Teléfono <span class="text-error">*</span></span>
+              </label>
+              @if (isEditing) {
+                <input
+                  type="tel"
+                  formControlName="phone"
+                  placeholder="+54 11 1234-5678"
+                  class="input input-bordered w-full"
+                  [class.input-error]="hasError('phone')" />
+                @if (hasError('phone')) {
+                  <label class="label">
+                    <span class="label-text-alt text-error">{{getErrorMessage('phone')}}</span>
+                  </label>
+                }
+              } @else {
+                <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.phone}}</p>
+              }
+            </div>
+
+            <!-- Fecha de Nacimiento -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Fecha de Nacimiento <span class="text-error">*</span></span>
+              </label>
+              @if (isEditing) {
+                <input
+                  type="date"
+                  formControlName="birthDate"
+                  class="input input-bordered w-full"
+                  [class.input-error]="hasError('birthDate')" />
+                @if (hasError('birthDate')) {
+                  <label class="label">
+                    <span class="label-text-alt text-error">{{getErrorMessage('birthDate')}}</span>
+                  </label>
+                }
+              } @else {
+                <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.birthDate | date: 'dd/MM/yyyy'}}</p>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dirección -->
+      <div class="card bg-base-100 shadow-xl" formGroupName="address">
+        <div class="card-body">
+          <h3 class="card-title text-lg mb-4">Dirección</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Calle -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Calle <span class="text-error">*</span></span>
+              </label>
+              @if (isEditing) {
+                <input
+                  type="text"
+                  formControlName="street"
+                  placeholder="Av. Corrientes"
+                  class="input input-bordered w-full"
+                  [class.input-error]="hasError('address.street')" />
+              } @else {
+                <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.street || '-'}}</p>
+              }
+            </div>
+
+            <!-- Número -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Número <span class="text-error">*</span></span>
+              </label>
+              @if (isEditing) {
+                <input
+                  type="text"
+                  formControlName="number"
+                  placeholder="1234"
+                  class="input input-bordered w-full"
+                  [class.input-error]="hasError('address.number')" />
+              } @else {
+                <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.number || '-'}}</p>
+              }
+            </div>
+
+            <!-- Ciudad -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Ciudad <span class="text-error">*</span></span>
+              </label>
+              @if (isEditing) {
+                <input
+                  type="text"
+                  formControlName="city"
+                  placeholder="Buenos Aires"
+                  class="input input-bordered w-full"
+                  [class.input-error]="hasError('address.city')" />
+              } @else {
+                <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.city || '-'}}</p>
+              }
+            </div>
+
+            <!-- Provincia -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Provincia <span class="text-error">*</span></span>
+              </label>
+              @if (isEditing) {
+                <input
+                  type="text"
+                  formControlName="province"
+                  placeholder="Buenos Aires"
+                  class="input input-bordered w-full"
+                  [class.input-error]="hasError('address.province')" />
+              } @else {
+                <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.province || '-'}}</p>
+              }
+            </div>
+
+            <!-- País -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">País <span class="text-error">*</span></span>
+              </label>
+              @if (isEditing) {
+                <input
+                  type="text"
+                  formControlName="country"
+                  placeholder="Argentina"
+                  class="input input-bordered w-full"
+                  [class.input-error]="hasError('address.country')" />
+              } @else {
+                <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.country || '-'}}</p>
+              }
+            </div>
+
+            <!-- Código Postal -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Código Postal <span class="text-error">*</span></span>
+              </label>
+              @if (isEditing) {
+                <input
+                  type="text"
+                  formControlName="postalCode"
+                  placeholder="1234"
+                  class="input input-bordered w-full"
+                  [class.input-error]="hasError('address.postalCode')" />
+                @if (hasError('address.postalCode')) {
+                  <label class="label">
+                    <span class="label-text-alt text-error">{{getErrorMessage('address.postalCode')}}</span>
+                  </label>
+                }
+              } @else {
+                <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.postalCode || '-'}}</p>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de acción (solo en modo edición) -->
+      @if (isEditing) {
+        <div class="flex justify-end gap-3 pb-6">
+          <button type="button" (click)="toggleEdit()" class="btn btn-ghost" [disabled]="isSaving">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="profileForm.invalid || isSaving" class="btn btn-primary">
+            @if (isSaving) {
+              <span class="loading loading-spinner loading-sm"></span>
+              Guardando...
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Guardar cambios
+            }
+          </button>
+        </div>
+      }
+    </form>
+  }
+</section>

@@ -1,0 +1,82 @@
+<!-- src/app/components/payments/payment-card/payment-card.html -->
+
+<div
+  class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200 overflow-hidden cursor-pointer"
+  (click)="viewDetails.emit(payment.publicId)">
+
+  <div class="p-4">
+    <!-- Header -->
+    <div class="flex justify-between items-start mb-3">
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-2">
+          <h3 class="font-bold text-lg text-gray-900">
+            Pago - Orden #{{payment.orderNumbers.join(', ')}}
+          </h3>
+          <span class="badge badge-sm" [ngClass]="getStatusBadgeClass(payment.status)">
+            {{getStatusText(payment.status)}}
+          </span>
+        </div>
+
+        <div class="flex items-center gap-3 text-sm text-gray-600">
+          @if (payment.tableNumber) {
+            <div class="flex items-center gap-1">
+              <span class="font-semibold">Mesa {{payment.tableNumber}}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div class="text-right ml-4">
+        <p class="text-2xl font-bold text-gray-900">
+          ${{payment.amount | number:'1.2-2'}}
+        </p>
+      </div>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="mb-3">
+      <div class="flex items-center gap-2 bg-gray-50 rounded-lg p-3">
+        <span class="text-2xl">{{getPaymentMethodIcon(payment.paymentMethod)}}</span>
+        <div class="flex-1">
+          <p class="text-xs text-gray-500">Método de Pago</p>
+          <p class="font-semibold text-gray-800">
+            {{getPaymentMethodText(payment.paymentMethod)}}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Date -->
+    @if (payment.status === 'COMPLETED' && payment.paymentDate) {
+      <div class="mb-3 text-sm text-gray-600">
+        <span class="font-medium">Completado el:</span>
+        <span class="ml-1">{{formatDate(payment.paymentDate)}}</span>
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="flex gap-2 pt-3 border-t border-gray-100">
+      @if (payment.status === 'PENDING') {
+        <button
+          class="btn btn-sm btn-success flex-1"
+          (click)="changeStatus($event, 'COMPLETED')">
+          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
+          Marcar como Completado
+        </button>
+        <button
+          class="btn btn-sm btn-error btn-outline"
+          (click)="changeStatus($event, 'CANCELLED')">
+          <lucide-icon [img]="X" [size]="16"></lucide-icon>
+          Cancelar
+        </button>
+      }
+
+      @if (payment.status === 'COMPLETED' || payment.status === 'CANCELLED') {
+        <button class="btn btn-sm btn-ghost flex-1" disabled>
+          {{getStatusText(payment.status)}}
+        </button>
+      }
+    </div>
+  </div>
+</div>

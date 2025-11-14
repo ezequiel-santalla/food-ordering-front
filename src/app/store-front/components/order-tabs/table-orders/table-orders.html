@@ -1,0 +1,58 @@
+<section class="space-y-4 pb-10">
+  @if (isLoading()) {
+    <div class="flex flex-col items-center justify-center py-12">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="text-gray-500 mt-4">Cargando pedidos de la mesa...</p>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-error">
+      <span>{{ error() }}</span>
+    </div>
+  } @else if (orders().length === 0) {
+    <div class="bg-base-100 rounded-2xl shadow-lg p-8">
+      <div class="flex flex-col items-center justify-center text-center py-8">
+        <lucide-icon [img]="Package" [size]="64" class="text-gray-300 mb-4"></lucide-icon>
+        <p class="text-gray-500 font-medium text-lg mb-2">No hay pedidos en esta mesa</p>
+        <p class="text-sm text-gray-400">
+          Los pedidos de todos los comensales aparecerán aquí
+        </p>
+      </div>
+    </div>
+  } @else {
+    <div class="flex flex-col gap-4">
+      @for (order of orders(); track order.publicId) {
+        <app-order-card
+          [order]="order"
+          (selected)="onOrderSelected($event)"
+        ></app-order-card>
+      }
+    </div>
+  }
+
+  <!-- Modal reutilizable -->
+  <app-payment-modal
+    #payModalCmp
+    [totalToPay]="totalToPay()"
+    [selectedOrders]="paymentOrdersView()"
+    [paymentMethods]="paymentMethods"
+    [selectedPaymentMethod]="selectedPaymentMethod()"
+    [isProcessingPayment]="isProcessingPayment()"
+    (paymentMethodChange)="onPaymentMethodChange($event)"
+    (confirm)="confirmPayment()"
+  >
+  </app-payment-modal>
+
+  <!-- Barra de pago abajo -->
+  <div
+    class="sticky bottom-0 bg-base-100 border-t border-gray-200 px-4 py-3 shadow-lg"
+  >
+    <button
+      class="btn btn-primary w-full"
+      [class.loading]="isProcessingPayment()"
+      [disabled]="isLoading() || !!error() || orders().length === 0 || !hasSelectedOrders()"
+      (click)="payModalCmp.open()"
+    >
+      Pagar seleccionados
+    </button>
+  </div>
+</section>

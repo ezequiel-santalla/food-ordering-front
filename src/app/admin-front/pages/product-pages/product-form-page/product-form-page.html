@@ -1,0 +1,733 @@
+@if (!isEditingMode) {
+<div class="p-8 bg-gray-50 min-h-screen">
+  <header class="mb-8">
+    <a
+      routerLink="/admin/products"
+      class="text-gray-500 hover:text-gray-700 mb-2 inline-block"
+    >
+      <svg
+        class="w-6 h-6 inline-block mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        ></path>
+      </svg>
+    </a>
+    <h1 class="text-3xl font-semibold text-gray-900">Nuevo Producto</h1>
+    <p class="text-gray-500">Agrega un nuevo producto al menú</p>
+  </header>
+
+  <form [formGroup]="productForm" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-8">
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">
+          Información Básica
+        </h2>
+
+        <div class="mb-4">
+          <label for="nombre" class="block text-sm font-medium text-gray-700"
+            >Nombre del Producto <span class="text-red-500">*</span></label
+          >
+          <input
+            id="nombre"
+            type="text"
+            formControlName="name"
+            placeholder="Ej: Hamburguesa Clásica"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+          />
+          <p class="text-xs text-gray-500 mt-1">0/100 caracteres</p>
+        </div>
+
+        <div class="mb-6">
+          <label
+            for="descripcion"
+            class="block text-sm font-medium text-gray-700"
+            >Descripción</label
+          >
+          <textarea
+            id="descripcion"
+            formControlName="description"
+            placeholder="Describe el producto, ingredientes, preparación..."
+            rows="4"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-1">0/255 caracteres</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label for="precio" class="block text-sm font-medium text-gray-700"
+              >Precio <span class="text-red-500">*</span></label
+            >
+            <input
+              id="precio"
+              type="number"
+              formControlName="price"
+              value="850.00"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+            />
+          </div>
+          <div>
+            <label for="stock" class="block text-sm font-medium text-gray-700"
+              >Stock</label
+            >
+            <input
+              id="stock"
+              type="number"
+              formControlName="stock"
+              value="45"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Categorización</h2>
+
+        <div class="mb-6">
+          <label
+            for="categoria"
+            class="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Categoría
+          </label>
+          <select
+            id="categoria"
+            formControlName="categoryId"
+            class="mt-1 block w-full border border-gray-300 bg-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm cursor-pointer"
+          >
+            <option value="">Selecciona una categoría</option>
+            @for (category of leafCategories; track category.publicId) {
+            <option [value]="category.publicId">{{ category.path }}</option>
+            }
+          </select>
+          <p class="text-xs text-gray-500 mt-1">
+            Selecciona la categoría más específica para tu producto
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Tags
+          </label>
+
+          <div class="relative mb-3">
+            <input
+              type="text"
+              [value]="tagInput"
+              (input)="onTagInputChange($event)"
+              (focus)="onTagInputFocus()"
+              (keydown)="onTagInputKeydown($event)"
+              [disabled]="isCreatingTag"
+              placeholder="Escribe para buscar o crear un tag..."
+              class="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+
+            @if (isCreatingTag) {
+            <div class="absolute right-3 top-2.5">
+              <svg
+                class="animate-spin h-5 w-5 text-indigo-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            </div>
+            } @if (isTagDropdownOpen && tagInput.length > 0) {
+            <div
+              class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
+            >
+              @if (filteredTags.length > 0) {
+              <div class="py-1">
+                <div
+                  class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                >
+                  Tags existentes
+                </div>
+                @for (tag of filteredTags; track tag.label) {
+                <button
+                  type="button"
+                  (click)="selectExistingTag(tag)"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 focus:outline-none focus:bg-indigo-50 transition-colors flex items-center gap-2"
+                >
+                  <svg
+                    class="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                    ></path>
+                  </svg>
+                  {{ tag.label }}
+                </button>
+                }
+              </div>
+              } @if (canCreateNewTag()) {
+              <div class="border-t border-gray-200">
+                <button
+                  type="button"
+                  (click)="createAndSelectTag()"
+                  class="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50 focus:outline-none focus:bg-indigo-50 transition-colors flex items-center gap-2 font-medium"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  Crear "{{ tagInput }}"
+                </button>
+              </div>
+              } @if (filteredTags.length === 0 && !canCreateNewTag() &&
+              tagInput.length > 0) {
+              <div class="px-4 py-3 text-sm text-gray-500 text-center">
+                @if (tagExists) { Este tag ya existe y está seleccionado } @else
+                { No hay tags que coincidan }
+              </div>
+              }
+            </div>
+            }
+          </div>
+
+          @if (selectedTags.length > 0) {
+          <div class="flex flex-wrap gap-2 mb-2">
+            @for (tag of selectedTags; track tag) {
+            <span
+              class="inline-flex items-center px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 font-medium group"
+            >
+              {{ tag }}
+              <button
+                type="button"
+                (click)="removeTag(tag)"
+                class="ml-2 hover:text-blue-900 focus:outline-none transition-colors"
+                aria-label="Eliminar tag"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+              </button>
+            </span>
+            }
+          </div>
+          } @else {
+          <div
+            class="px-4 py-3 text-sm text-gray-500 bg-gray-50 rounded-md border border-dashed border-gray-300 text-center"
+          >
+            No hay tags seleccionados
+          </div>
+          }
+
+          <p class="text-xs text-gray-500 mt-2">
+            <span class="font-medium">Tip:</span> Escribe para buscar tags
+            existentes o crear uno nuevo. Presiona Enter para seleccionar.
+          </p>
+        </div>
+      </div>
+
+      @if (isTagDropdownOpen) {
+      <div class="fixed inset-0 z-0" (click)="isTagDropdownOpen = false"></div>
+      }
+    </div>
+
+    <div class="lg:col-span-1 space-y-8">
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">
+          Imagen del Producto
+        </h2>
+
+        <input
+          type="file"
+          #fileInput
+          (change)="onImageSelected($event)"
+          accept="image/*"
+          class="hidden"
+        />
+
+        <div
+          (click)="fileInput.click()"
+          class="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center cursor-pointer hover:border-gray-400 transition duration-150"
+        >
+          @if (imagePreview) {
+          <img
+            [src]="imagePreview"
+            alt="Preview"
+            class="max-h-48 mx-auto rounded-lg mb-2"
+          />
+          <p class="text-sm text-gray-600">Click para cambiar imagen</p>
+          } @else {
+          <svg
+            class="w-12 h-12 text-gray-400 mx-auto"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+            ></path>
+          </svg>
+          <p class="mt-2 text-sm text-gray-600">Subir imagen</p>
+          <p class="mt-1 text-xs text-gray-400">(Opcional)</p>
+          }
+        </div>
+
+        <p class="mt-4 text-xs text-gray-500">
+          Formatos: JPG, PNG. Tamaño recomendado: 800x800px (Opcional)
+        </p>
+      </div>
+
+      <div
+        class="bg-white p-6 rounded-lg shadow-md border border-gray-200 sticky top-4"
+      >
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Disponibilidad</h2>
+
+        <div class="flex items-center justify-between mb-6">
+          <div class="text-sm">
+            <p class="font-medium text-gray-700">Producto disponible</p>
+            <p class="text-xs text-gray-500">
+              Los productos no disponibles no se mostrarán en el menú del
+              cliente
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              formControlName="available"
+              class="sr-only peer"
+            />
+            <div
+              class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 transition-colors duration-200"
+            ></div>
+            <div
+              class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-5"
+            ></div>
+          </label>
+        </div>
+
+        <div class="flex justify-end space-x-3 border-t pt-4 mt-4">
+          <button
+            routerLink="/admin/products"
+            type="button"
+            class="px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 transition duration-150 cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="onSubmit()"
+            type="submit"
+            [disabled]="productForm.invalid"
+            class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md shadow-md hover:bg-gray-700 disabled:opacity-50 transition duration-150 cursor-pointer"
+          >
+            Crear Producto
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+} @else {
+<div class="p-8 bg-gray-50 min-h-screen">
+  <header class="mb-8">
+    <a
+      routerLink="/admin/products"
+      class="text-gray-500 hover:text-gray-700 mb-2 inline-block"
+    >
+      <svg
+        class="w-6 h-6 inline-block mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        ></path>
+      </svg>
+    </a>
+    <h1 class="text-3xl font-semibold text-gray-900">Editar Producto</h1>
+    <p class="text-gray-500">Edita el producto en el menú</p>
+  </header>
+
+  <form [formGroup]="productForm" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-8">
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">
+          Información Básica
+        </h2>
+
+        <div class="mb-4">
+          <label for="nombre" class="block text-sm font-medium text-gray-700"
+            >Nombre del Producto <span class="text-red-500">*</span></label
+          >
+          <input
+            id="nombre"
+            type="text"
+            formControlName="name"
+            placeholder="Ej: Hamburguesa Clásica"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+          />
+          <p class="text-xs text-gray-500 mt-1">0/100 caracteres</p>
+        </div>
+
+        <div class="mb-6">
+          <label
+            for="descripcion"
+            class="block text-sm font-medium text-gray-700"
+            >Descripción</label
+          >
+          <textarea
+            id="descripcion"
+            formControlName="description"
+            placeholder="Describe el producto, ingredientes, preparación..."
+            rows="4"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-1">0/255 caracteres</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label for="precio" class="block text-sm font-medium text-gray-700"
+              >Precio <span class="text-red-500">*</span></label
+            >
+            <input
+              id="precio"
+              type="number"
+              formControlName="price"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+            />
+          </div>
+          <div>
+            <label for="stock" class="block text-sm font-medium text-gray-700"
+              >Stock</label
+            >
+            <input
+              id="stock"
+              type="number"
+              formControlName="stock"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Categorización</h2>
+
+        <div class="mb-6">
+          <label
+            for="categoria"
+            class="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Categoría
+          </label>
+          <select
+            id="categoria"
+            formControlName="categoryId"
+            class="mt-1 block w-full border border-gray-300 bg-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm cursor-pointer"
+          >
+            <option value="">Selecciona una categoría</option>
+            @for (category of leafCategories; track category.publicId) {
+            <option [value]="category.publicId">{{ category.path }}</option>
+            }
+          </select>
+          <p class="text-xs text-gray-500 mt-1">
+            Selecciona la categoría más específica para tu producto
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Tags
+          </label>
+
+          <div class="relative mb-3">
+            <input
+              type="text"
+              [value]="tagInput"
+              (input)="onTagInputChange($event)"
+              (focus)="onTagInputFocus()"
+              (keydown)="onTagInputKeydown($event)"
+              [disabled]="isCreatingTag"
+              placeholder="Escribe para buscar o crear un tag..."
+              class="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+
+            @if (isCreatingTag) {
+            <div class="absolute right-3 top-2.5">
+              <svg
+                class="animate-spin h-5 w-5 text-indigo-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            </div>
+            } @if (isTagDropdownOpen && tagInput.length > 0) {
+            <div
+              class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
+            >
+              @if (filteredTags.length > 0) {
+              <div class="py-1">
+                <div
+                  class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                >
+                  Tags existentes
+                </div>
+                @for (tag of filteredTags; track tag.label) {
+                <button
+                  type="button"
+                  (click)="selectExistingTag(tag)"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 focus:outline-none focus:bg-indigo-50 transition-colors flex items-center gap-2"
+                >
+                  <svg
+                    class="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                    ></path>
+                  </svg>
+                  {{ tag.label }}
+                </button>
+                }
+              </div>
+              } @if (canCreateNewTag()) {
+              <div class="border-t border-gray-200">
+                <button
+                  type="button"
+                  (click)="createAndSelectTag()"
+                  class="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50 focus:outline-none focus:bg-indigo-50 transition-colors flex items-center gap-2 font-medium"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  Crear "{{ tagInput }}"
+                </button>
+              </div>
+              } @if (filteredTags.length === 0 && !canCreateNewTag() &&
+              tagInput.length > 0) {
+              <div class="px-4 py-3 text-sm text-gray-500 text-center">
+                @if (tagExistsOrSelected) { Este tag ya existe o está
+                seleccionado } @else { No hay tags que coincidan }
+              </div>
+              }
+            </div>
+            }
+          </div>
+
+          @if (selectedTags.length > 0) {
+          <div class="flex flex-wrap gap-2 mb-2">
+            @for (tag of selectedTags; track tag) {
+            <span
+              class="inline-flex items-center px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 font-medium group"
+            >
+              {{ tag }}
+              <button
+                type="button"
+                (click)="removeTag(tag)"
+                class="ml-2 hover:text-blue-900 focus:outline-none transition-colors"
+                aria-label="Eliminar tag"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+              </button>
+            </span>
+            }
+          </div>
+          } @else {
+          <div
+            class="px-4 py-3 text-sm text-gray-500 bg-gray-50 rounded-md border border-dashed border-gray-300 text-center"
+          >
+            No hay tags seleccionados
+          </div>
+          }
+
+          <p class="text-xs text-gray-500 mt-2">
+            <span class="font-medium">Tip:</span> Escribe para buscar tags
+            existentes o crear uno nuevo. Presiona Enter para seleccionar.
+          </p>
+        </div>
+      </div>
+
+      @if (isTagDropdownOpen) {
+      <div class="fixed inset-0 z-0" (click)="isTagDropdownOpen = false"></div>
+      }
+    </div>
+
+    <div class="lg:col-span-1 space-y-8">
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">
+          Imagen del Producto
+        </h2>
+
+        <input
+          type="file"
+          #fileInput
+          (change)="onImageSelected($event)"
+          accept="image/*"
+          class="hidden"
+        />
+
+        <div
+          (click)="fileInput.click()"
+          class="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center cursor-pointer hover:border-gray-400 transition duration-150"
+        >
+          @if (imagePreview) {
+          <img
+            [src]="imagePreview"
+            alt="Preview"
+            class="max-h-48 mx-auto rounded-lg mb-2"
+          />
+          <p class="text-sm text-gray-600">Click para cambiar imagen</p>
+          } @else {
+          <svg
+            class="w-12 h-12 text-gray-400 mx-auto"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+            ></path>
+          </svg>
+          <p class="mt-2 text-sm text-gray-600">Subir imagen</p>
+          <p class="mt-1 text-xs text-gray-400">(Opcional)</p>
+          }
+        </div>
+
+        <p class="mt-4 text-xs text-gray-500">
+          Formatos: JPG, PNG. Tamaño recomendado: 800x800px (Opcional)
+        </p>
+      </div>
+      <div
+        class="bg-white p-6 rounded-lg shadow-md border border-gray-200 sticky top-4"
+      >
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Disponibilidad</h2>
+
+        <div class="flex items-center justify-between mb-6">
+          <div class="text-sm">
+            <p class="font-medium text-gray-700">Producto disponible</p>
+            <p class="text-xs text-gray-500">
+              Los productos no disponibles no se mostrarán en el menú del
+              cliente
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              formControlName="available"
+              class="sr-only peer"
+            />
+            <div
+              class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 transition-colors duration-200"
+            ></div>
+            <div
+              class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-5"
+            ></div>
+          </label>
+        </div>
+
+        <div class="flex justify-end space-x-3 border-t pt-4 mt-4">
+          <button
+            routerLink="/admin/products"
+            type="button"
+            class="px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 transition duration-150 cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="onSubmit()"
+            type="submit"
+            [disabled]="productForm.invalid"
+            class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md shadow-md hover:bg-gray-700 disabled:opacity-50 transition duration-150 cursor-pointer"
+          >
+            Actualizar Producto
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+}

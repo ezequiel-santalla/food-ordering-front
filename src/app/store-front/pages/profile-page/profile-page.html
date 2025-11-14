@@ -1,3 +1,15 @@
-<section class="mx-auto py-8 space-y-8">
-  <h2 class="text-xl font-bold text-base-content mb-4 px-6">Perfil</h2>
-</section>
+<div class="relative max-w-2xl mx-auto p-4">
+  <button
+    (click)="onExit()"
+    class="btn btn-ghost btn-circle btn-sm absolute top-3 right-3 z-10 text-base-content/50 hover:text-base-content"
+    aria-label="Cerrar y volver"
+  >
+    <lucide-icon [img]="X" class="w-6 h-6"></lucide-icon>
+  </button>
+
+  <div class="mx-auto py-8 space-y-8">
+    <h2 class="text-xl font-bold text-base-content mb-4 px-6">Perfil</h2>
+
+    <app-profile-form />
+  </div>
+</div>

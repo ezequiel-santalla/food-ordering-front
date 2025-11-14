@@ -1,0 +1,194 @@
+<div class="p-8">
+  <header class="mb-6 flex justify-between items-start">
+    <div>
+      <h1 class="text-3xl font-semibold text-gray-900">Gestión de Empleados</h1>
+      <p class="text-sm text-gray-500">Administra el personal de tu restaurante</p>
+    </div>
+
+    <button (click)="openAssignModal()"
+      class="flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md shadow-lg hover:bg-gray-700 transition duration-150 cursor-pointer">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      Asignar Empleado
+    </button>
+  </header>
+
+  <div class="mb-4 pt-4 border-t border-gray-200">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-medium text-gray-700">Empleados</h2>
+
+      <div class="relative">
+        <input type="text" placeholder="Buscar empleados..." [(ngModel)]="searchEmail" (keyup.enter)="searchEmployees()"
+          class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 text-sm">
+        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
+          stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div class="flex gap-2 mb-4">
+      <button (click)="filterByStatus(null)"
+        [class.bg-indigo-600]="activeFilter === null"
+        [class.text-white]="activeFilter === null"
+        [class.bg-gray-200]="activeFilter !== null"
+        [class.text-gray-700]="activeFilter !== null"
+        class="px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer">
+        Todos
+      </button>
+      <button (click)="filterByStatus(true)"
+        [class.bg-indigo-600]="activeFilter === true"
+        [class.text-white]="activeFilter === true"
+        [class.bg-gray-200]="activeFilter !== true"
+        [class.text-gray-700]="activeFilter !== true"
+        class="px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer">
+        Activos
+      </button>
+      <button (click)="filterByStatus(false)"
+        [class.bg-indigo-600]="activeFilter === false"
+        [class.text-white]="activeFilter === false"
+        [class.bg-gray-200]="activeFilter !== false"
+        [class.text-gray-700]="activeFilter !== false"
+        class="px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer">
+        Inactivos
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white shadow-md rounded-lg overflow-visible border border-gray-200 relative">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Empleado
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Email
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Teléfono
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Rol
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Estado
+          </th>
+          <th scope="col" class="relative px-6 py-3 w-4">
+            <span class="sr-only">Acciones</span>
+          </th>
+        </tr>
+      </thead>
+
+      <tbody class="bg-white divide-y divide-gray-200">
+        @for (employee of employeeService.contents; track $index) {
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10">
+                <div class="h-10 w-10 rounded-full bg-gray-900 flex items-center justify-center text-white font-semibold">
+                  {{ getInitials(employee.user.name, employee.user.lastName) }}
+                </div>
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">
+                  {{ employee.user.name }} {{ employee.user.lastName }}
+                </div>
+                <div class="text-xs text-gray-500">
+                  {{ employee.user.address.city }}, {{ employee.user.address.province }}
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            {{ employee.user.email }}
+          </td>
+
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            {{ employee.user.phone }}
+          </td>
+
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <span [class]="getRoleBadgeClass(employee.role)">
+              {{ getRoleLabel(employee.role) }}
+            </span>
+          </td>
+
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+           <span [class]="employee.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+              @if (employee.active) {
+              Activo
+              } @else {
+                Inactivo
+              }
+           </span>
+          </td>
+
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
+            <button (click)="toggleMenu($index, $event)"
+              class="text-gray-400 hover:text-gray-800 focus:outline-none p-1 rounded-full hover:bg-gray-100 cursor-pointer"
+              aria-expanded="false" [attr.aria-controls]="'menu-' + $index">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zM13 12a1 1 0 11-2 0 1 1 0 012 0zM20 12a1 1 0 11-2 0 1 1 0 012 0z">
+                </path>
+              </svg>
+            </button>
+
+            @if (openMenuIndex === $index) {
+            <div [id]="'menu-' + $index"
+              class="absolute right-6 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-10 z-20 origin-top-right focus:outline-none">
+              <div class="py-1" role="menu" aria-orientation="vertical">
+                <button (click)="openEmployeeDetailModal(employee)"
+                  class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right cursor-pointer"
+                  role="menuitem">
+                  Ver detalle
+                </button>
+
+                <button (click)="deleteEmployee(employee.publicId)"
+                  class="block w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-100 text-right cursor-pointer"
+                  role="menuitem">
+                  Eliminar
+                </button>
+              </div>
+            </div>
+            }
+          </td>
+        </tr>
+        }
+        @empty {
+        <tr>
+          <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+            No hay empleados cargados. Utilice el botón "Asignar Empleado" para empezar.
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="flex justify-center mt-4">
+  <app-pagination [pages]="totalPages" [currentPage]="currentPage()" />
+</div>
+
+<!-- Modal Asignar Empleado -->
+<app-employee-form-page
+  [isOpen]="showAssignModal"
+  (close)="closeAssignModal()"
+  (employeeAssigned)="onEmployeeAssigned()">
+</app-employee-form-page>
+
+<!-- Modal Detalle Empleado -->
+<app-employee-detail-page
+  [isOpen]="showDetailModal"
+  [employee]="selectedEmployee"
+  (close)="closeDetailModal()"
+  (employeeUpdated)="onEmployeeUpdated()">
+</app-employee-detail-page>

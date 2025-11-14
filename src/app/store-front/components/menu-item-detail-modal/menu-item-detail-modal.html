@@ -1,0 +1,201 @@
+<div
+  class="fixed inset-0 bg-black/40 z-[60] backdrop-blur-[2px] animate-[fade-in_0.15s_ease-out]"
+  (click)="close.emit()"
+></div>
+
+<div
+  class="fixed top-0 left-0 right-0 bottom-0 z-[70] flex items-center justify-center p-4 pointer-events-none"
+>
+  <div
+    class="bg-base-100 rounded-3xl shadow-2xl max-w-lg w-full max-h-full overflow-hidden pointer-events-auto animate-[slide-up_0.3s_cubic-bezier(0.16,1,0.3,1)] flex flex-col"
+    (click)="$event.stopPropagation()"
+  >
+    <figure class="relative flex-shrink-0">
+      <div
+        class="h-48 w-full bg-gradient-to-br from-base-200 to-base-300 flex items-center justify-center overflow-hidden"
+      >
+        <img
+          [src]="product().imageUrl || 'https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp'"
+          [alt]="product().name"
+          class="w-full h-full object-cover"
+        />
+      </div>
+
+      <button
+        class="absolute top-4 right-4 btn btn-circle btn-sm bg-base-100/90 backdrop-blur-sm border-0 shadow-lg hover:bg-base-100 hover:scale-110 transition-transform"
+        (click)="close.emit()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+
+      @if (product().category) {
+      <div class="absolute bottom-4 left-4">
+        <span class="badge badge-primary badge-lg shadow-lg font-semibold"
+          >{{ product().category }}</span
+        >
+      </div>
+      }
+
+      <div
+        class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-base-100 to-transparent"
+      ></div>
+    </figure>
+
+    <div class="overflow-y-auto flex-1 px-6 pt-1 pb-4 space-y-3">
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+  <h2 class="text-2xl font-bold text-base-content leading-tight">
+    {{ product().name }}
+  </h2>
+
+  <button 
+    class="btn btn-ghost btn-circle ml-2 hover:bg-base-200 transition-transform hover:scale-110" 
+    (click)="toggleFavorite($event)"
+    [attr.aria-pressed]="isFavorite()"
+    title="Marcar como favorito">
+    <lucide-icon 
+      [img]="Star" 
+      class="w-6 h-6 transition-all duration-300"
+      [class.text-yellow-400]="isFavorite()"
+      [class.text-base-content/30]="!isFavorite()"
+      [class.fill-current]="isFavorite()"  
+      [class.fill-none]="!isFavorite()"
+    ></lucide-icon>
+  </button>
+</div>
+
+
+<div class="flex items-center justify-between">
+          <span class="text-2xl font-bold text-primary"
+            >{{ product().price | currency:'ARS' }}</span
+          >
+        </div>
+      </div>
+
+      <div>
+        <p class="text-sm text-base-content/70 leading-relaxed line-clamp-2">
+          {{ product().description }}
+        </p>
+      </div>
+
+      <div class="divider my-2"></div>
+
+      <div class="flex items-center justify-between">
+        <label class="label-text font-bold text-sm">Cantidad</label>
+        <div
+          class="flex items-center justify-center gap-3 bg-base-200/50 rounded-2xl py-1 px-2"
+        >
+          <button
+            class="btn btn-circle btn-sm btn-primary shadow-md hover:scale-110 transition-transform"
+            (click)="decreaseQuantity()"
+            [disabled]="quantity === 1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M20 12H4"
+              />
+            </svg>
+          </button>
+          <span class="text-lg font-bold min-w-[2.5rem] text-center"
+            >{{ quantity }}</span
+          >
+          <button
+            class="btn btn-circle btn-sm btn-primary shadow-md hover:scale-110 transition-transform"
+            (click)="increaseQuantity()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      @if (product().customizable) {
+      <div class="space-y-1">
+        <label class="label pb-0 pt-0">
+          <span class="label-text font-bold text-sm"
+            >Instrucciones especiales</span
+          >
+          <span class="label-text-alt text-base-content/50 font-medium text-xs"
+            >{{ specialInstructions.length }}/255</span
+          >
+        </label>
+        <textarea
+          class="textarea textarea-bordered w-full focus:textarea-primary text-sm"
+          [(ngModel)]="specialInstructions"
+          placeholder="Ej: Sin cebolla, extra salsa..."
+          maxlength="255"
+          rows="1"
+        >
+        </textarea>
+      </div>
+      }
+    </div>
+
+    <div
+      class="flex-shrink-0 bg-base-100 border-t border-base-200 px-6 py-3 space-y-2"
+    >
+      <button
+        class="btn btn-primary btn-block btn-md gap-2 shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform"
+        (click)="addToCart()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+          />
+        </svg>
+        <span class="font-bold text-sm"
+          >Agregar • {{ (product().price * quantity) | currency:'ARS' }}</span
+        >
+      </button>
+
+      <button
+        class="btn btn-ghost btn-block btn-sm hover:bg-base-200"
+        (click)="close.emit()"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>

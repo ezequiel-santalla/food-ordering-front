@@ -1,0 +1,99 @@
+
+
+<div class="p-8 bg-white min-h-screen">
+
+  <header class="mb-6 flex justify-between items-start">
+    <div>
+      <h1 class="text-3xl font-semibold text-gray-900">Gestión de Tags</h1>
+      <p class="text-sm text-gray-500">Etiquetas para clasificar tus productos</p>
+    </div>
+
+    @if (!isCreatingNewTag) {
+      <button
+        (click)="switchToCreate()"
+        class="flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md shadow-lg hover:bg-indigo-700 transition duration-150 cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        Nuevo Tag
+      </button>
+    }
+  </header>
+
+  <div class="mb-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+    <h2 class="text-xl font-medium text-gray-700">Tags Disponibles</h2>
+  </div>
+
+  @if (isLoading && !isCreatingNewTag) {
+    <div class="text-center py-8 text-gray-500">Cargando etiquetas...</div>
+  }
+
+  @if (!isCreatingNewTag && !isLoading) {
+    <section>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+        @for (tag of availableTags; track tag.label) {
+          <div
+            class="bg-white p-4 rounded-lg shadow border border-gray-200 flex justify-between items-center
+            hover:bg-gray-100 transition duration-150 cursor-pointer">
+            <div>
+              <p class="text-lg font-medium text-gray-800">{{ tag.label }}</p>
+            </div>
+            </div>
+        } @empty {
+            <p class="text-gray-500 p-4 bg-gray-50 rounded-md shadow border border-gray-200">No hay etiquetas disponibles.</p>
+        }
+      </div>
+    </section>
+  }
+</div>
+
+
+@if (isCreatingNewTag) {
+  <div
+    class="fixed inset-0 bg-gray-900/50 flex justify-center items-center z-50 p-4"> <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+
+      <header class="p-6 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-xl font-semibold text-gray-900">Nuevo Tag</h2>
+        <button (click)="switchToTagsList()" class="text-gray-400 hover:text-gray-600" [disabled]="isLoading">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </header>
+
+      <div class="p-6">
+        <p class="text-sm text-gray-500 mb-4">Crea un nuevo tag para clasificar tus productos</p>
+
+        <label for="tagLabel" class="block text-sm font-medium text-gray-700 mb-2">Nombre del Tag</label>
+        <input
+          id="tagLabel"
+          type="text"
+          [(ngModel)]="newTagLabel"
+          placeholder="Ej: Popular"
+          [disabled]="isLoading"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 disabled:bg-gray-100 disabled:text-gray-500"
+          (keyup.enter)="createNewTag()">
+      </div>
+
+      <footer class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+        <button
+          (click)="switchToTagsList()"
+          [disabled]="isLoading"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition duration-150">
+          Cancelar
+        </button>
+        <button
+          (click)="createNewTag()"
+          [disabled]="!newTagLabel.trim() || isLoading"
+          class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150">
+          @if (isLoading) {
+            Creando...
+          } @else {
+            Crear
+          }
+        </button>
+      </footer>
+    </div>
+  </div>
+}

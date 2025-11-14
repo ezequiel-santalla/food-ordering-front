@@ -1,0 +1,19 @@
+<div class="flex">
+
+  <div>
+     <app-employees-dashboard
+            [isCollapsed]="isSidebarCollapsed"
+            (toggleRequest)="isSidebarCollapsed = !isSidebarCollapsed"></app-employees-dashboard>
+  </div>
+
+  <div  class="flex-grow p-4 min-h-screen transition-all duration-300 w-full"
+      [ngClass]="{
+              'ml-64': !isSidebarCollapsed,
+              'ml-20': isSidebarCollapsed
+                }">
+     <router-outlet />
+  </div>
+
+</div>
+
+

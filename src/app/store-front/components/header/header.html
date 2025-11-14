@@ -1,72 +1,82 @@
-<header class="fixed top-0 left-0 right-0 h-auto bg-base-100/70 backdrop-blur-md z-50">
-  <div class="max-w-6xl mx-auto px-6 py-5 pt-safe space-y-5">
-
-    <!-- Fila 1: Logo + acciones -->
-    <div class="flex items-center justify-between">
-      <!-- Logo y título -->
-      <a routerLink="/" class="flex items-center gap-3">
-        <img src="#" alt="Burger House" class="h-8 w-8 object-contain" />
-        <h1 class="text-xl font-bold text-base-content">Burger House</h1>
-      </a>
-
-      <!-- Botones de acción -->
-      <div class="flex items-center gap-1">
-        <!-- Notificaciones -->
-        <a routerLink="/notifications"
-          class="relative p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer">
-          <lucide-icon [img]="Bell" class="w-6 h-6 text-base-content/70"></lucide-icon>
-          <div
-            class="absolute -top-1 -right-1 bg-error text-error-content text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold text-[10px] shadow-sm">
-            3
-          </div>
-        </a>
-
-        <!-- Perfil -->
-        <a routerLink="/profile"
-          class="p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer">
-          <lucide-icon [img]="User" class="w-6 h-6 text-base-content/70"></lucide-icon>
-        </a>
-      </div>
-    </div>
-
-    <!-- Fila 2: Info QR + mesa -->
-    <div class="flex items-center justify-between rounded-2xl border border-base-300 px-4 py-2 bg-base-100 shadow-sm">
-      <!-- QR + mesa info -->
-      <div class="flex items-center gap-4">
-        <!-- Fondo circular para el ícono -->
-        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-primary/10">
-          <lucide-icon [img]="QrCode" class="w-6 h-6"></lucide-icon>
+<header
+  class="bg-base-100 border-b border-base-300 sticky top-0 z-50 shadow-sm"
+>
+  <div class="navbar max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16">
+    <div class="navbar-start">
+      <div class="flex items-center gap-3">
+        <div class="avatar">
+          <a routerLink="/food-venues">
+            <div
+              class="w-10 h-10 rounded-lg bg-base-200 flex items-center justify-center"
+            >
+              @if(venueImageUrl()) {
+              <img [src]="venueImageUrl()" [alt]="venueName()" />
+              } @else {
+              <span class="text-xl font-bold">?</span>
+              }
+            </div>
+          </a>
         </div>
 
-        <!-- Texto -->
-        <div class="flex flex-col leading-tight">
-          <p class="text-sm font-semibold text-base-content">Mesa #5</p>
-          <p class="text-xs text-base-content/70">Sesión Activa</p>
+        <div class="flex flex-col min-w-0">
+          <span class="font-bold text-base leading-tight truncate"
+            >{{ venueName() }}</span
+          >
+
+          <span class="text-sm text-base-content/70 leading-tight truncate"
+            >Hola, {{ participantNickname() }}</span
+          >
         </div>
       </div>
-
-      <!-- Personas -->
-      <div>
-        <p class="text-sm font-medium text-base-content">3 personas</p>
-      </div>
     </div>
 
-    <!-- Fila 3: Categorías compactas -->
-    <div class="overflow-x-auto scrollbar-hide -mx-6 px-6">
-      <div class="flex gap-2">
-        @for (category of categories(); track category.id) {
-        <button (click)="selectCategory(category.id)"
-          class="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 cursor-pointer"
-          [class.bg-primary]="selectedCategory() === category.id"
-          [class.text-primary-content]="selectedCategory() === category.id"
-          [class.shadow-sm]="selectedCategory() === category.id"
-          [class.bg-base-200]="selectedCategory() !== category.id"
-          [class.text-base-content]="selectedCategory() !== category.id">
-          {{ category.name }}
-        </button>
-        }
+    <div class="navbar-end flex items-center gap-1">
+      <button class="btn btn-ghost btn-circle">
+        <div class="indicator">
+          <lucide-icon [img]="Bell" class="w-5 h-5"></lucide-icon>
+        </div>
+      </button>
+
+      <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+          <lucide-icon [img]="User" class="w-6 h-6"></lucide-icon>
+        </div>
+
+        <ul
+          tabindex="0"
+          class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-56"
+        >
+          @if (isAuthenticated()) {
+          <li>
+            <a routerLink="/profile">
+              <lucide-icon [img]="UserCog" class="w-4 h-4"></lucide-icon>
+              Ver perfil
+            </a>
+          </li>
+          } @if (hasActiveSession()) {
+          <li>
+            <a (click)="onLeaveSession()">
+              <lucide-icon [img]="UtensilsCrossed" class="w-4 h-4"></lucide-icon>
+              Abandonar Mesa
+            </a>
+          </li>
+          } @if (isAuthenticated()) {
+          <li>
+            <a (click)="onLogout()">
+              <lucide-icon [img]="Power" class="w-4 h-4"></lucide-icon>
+              Cerrar Sesión
+            </a>
+          </li>
+          } @if (!isAuthenticated()) {
+          <li>
+            <a routerLink="/auth/login">
+              <lucide-icon [img]="LogIn" class="w-4 h-4"></lucide-icon>
+              Iniciar Sesión
+            </a>
+          </li>
+          }
+        </ul>
       </div>
     </div>
-
   </div>
 </header>

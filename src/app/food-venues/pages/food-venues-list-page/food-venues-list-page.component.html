@@ -1,0 +1,9 @@
+<section class="mx-auto py-8 space-y-8">
+  <h1 class="text-3xl font-bold text-center">Restaurantes adheridos a la App</h1>
+
+  <app-food-venue-list
+    [foodVenues]="foodVenueResource.value() ?? []"
+    [isLoading]="foodVenueResource.status() === 'loading' || foodVenueResource.status() === 'reloading'"
+    [errorMessage]="foodVenueResource.error()?.message"
+  />
+</section>

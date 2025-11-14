@@ -1,0 +1,162 @@
+<div class="p-4 sm:p-8 min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Vista del Salón</h1>
+        <p class="text-sm text-gray-500 mt-1">Gestiona el estado de las mesas y visualiza pedidos</p>
+      </div>
+
+      <div class="flex gap-2">
+        <button
+          (click)="refreshLounge()"
+          [disabled]="isLoading()"
+          class="btn btn-sm btn-outline gap-2">
+          <lucide-icon [img]="RefreshCw" [size]="16" [class.animate-spin]="isLoading()"></lucide-icon>
+          <span class="hidden sm:inline">Actualizar</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sector Selector & Stats -->
+  <div class="mb-6 bg-white rounded-xl shadow-sm p-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div class="flex items-center gap-3">
+        <label class="text-sm font-medium text-gray-700">Sector:</label>
+        <select
+          [(ngModel)]="currentSector"
+          (change)="onSectorChange()"
+          class="select select-bordered select-sm w-full max-w-xs">
+          @for (sector of sectors; track sector) {
+            <option [value]="sector">{{sector}}</option>
+          }
+        </select>
+      </div>
+
+      <div class="flex gap-4 text-sm">
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-gray-700">Mesas:</span>
+          <span class="badge badge-lg">{{tablesInCurrentSector.length}}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-gray-700">Capacidad:</span>
+          <span class="badge badge-lg badge-primary">{{getTotalCapacity()}}p</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-gray-700">Ocupadas:</span>
+          <span class="badge badge-lg badge-info">{{getOccupiedCount()}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas del Salón -->
+  <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
+    <div class="relative flex justify-center p-8">
+      <div
+        class="relative border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50"
+        [style.height.px]="viewportHeight"
+        [style.width.px]="viewportWidth">
+
+        <!-- Grid Background -->
+        <div
+          class="absolute inset-0 opacity-10"
+          [style.backgroundImage]="'repeating-linear-gradient(0deg, #ccc, #ccc 1px, transparent 1px, transparent ' + (50 * scaleRatio) + 'px), repeating-linear-gradient(90deg, #ccc, #ccc 1px, transparent 1px, transparent ' + (50 * scaleRatio) + 'px)'"
+          [style.backgroundSize]="(50 * scaleRatio) + 'px ' + (50 * scaleRatio) + 'px'">
+        </div>
+
+        <!-- Tables -->
+        @for (table of scaledTablesInCurrentSector; track table.diningTableId) {
+          <div
+            [style.left.px]="table.displayX"
+            [style.top.px]="table.displayY"
+            [style.width.px]="table.displayWidth"
+            [style.height.px]="table.displayHeight"
+            class="absolute cursor-pointer table-item transition-all duration-200 hover:scale-105 hover:shadow-xl hover:z-10"
+            [class.table-available]="table.diningTableStatus === 'AVAILABLE'"
+            [class.table-in-session]="table.diningTableStatus === 'IN_SESSION'"
+            [class.table-complete]="table.diningTableStatus === 'COMPLETE'"
+            [class.table-waiting]="table.diningTableStatus === 'WAITING_RESET'"
+            [class.table-disabled]="table.diningTableStatus === 'OUT_OF_SERVICE'"
+            [class.table-round]="table.tableShape === 'round'"
+            [class.table-square]="table.tableShape === 'square'"
+            [class.table-rect]="table.tableShape === 'rect'"
+            (click)="selectTable(table)">
+
+            <div class="table-content">
+              <div class="table-number" [style.fontSize.px]="30 * scaleRatio">
+                {{table.diningTableNumber}}
+              </div>
+              <div class="table-capacity" [style.fontSize.px]="16 * scaleRatio">
+                {{table.diningTableCapacity}}p
+              </div>
+
+              <!-- Badge con conteo de pedidos pendientes -->
+              @if (table.diningTableStatus === 'IN_SESSION' && getPendingOrdersCount(table.diningTableId) > 0) {
+                <div
+                  class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-lg"
+                  [style.fontSize.px]="12 * scaleRatio">
+                  {{getPendingOrdersCount(table.diningTableId)}}
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Empty State -->
+        @if (scaledTablesInCurrentSector.length === 0) {
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center text-gray-400">
+              <lucide-icon [img]="Armchair" [size]="64" class="mx-auto mb-4"></lucide-icon>
+              <p class="text-lg font-medium">No hay mesas en este sector</p>
+              <p class="text-sm mt-1">Contacta al administrador para configurar el salón</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Scale indicator -->
+      <div class="absolute bottom-2 right-2 text-xs text-gray-500 bg-white px-2 py-1 rounded shadow">
+        Escala: {{(scaleRatio * 100).toFixed(0)}}%
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="mt-6 bg-white rounded-xl shadow-sm p-4">
+    <div class="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm">
+      <div class="flex items-center gap-2">
+        <div class="w-5 h-5 bg-green-500 rounded"></div>
+        <span class="text-gray-700">Disponible</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-5 h-5 bg-blue-500 rounded"></div>
+        <span class="text-gray-700">En Sesión</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-5 h-5 bg-yellow-500 rounded"></div>
+        <span class="text-gray-700">Completa</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-5 h-5 bg-orange-500 rounded"></div>
+        <span class="text-gray-700">Esperando Reset</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-5 h-5 bg-gray-800 rounded"></div>
+        <span class="text-gray-700">Fuera de Servicio</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de detalle de mesa -->
+  @if (selectedTable()) {
+    <app-table-detail-modal
+      [table]="selectedTable()!"
+      [orders]="getTableOrders(selectedTable()!.diningTableId)"
+      (close)="closeTableModal()"
+      (statusChanged)="onTableStatusChanged($event)"
+      (orderStatusChanged)="onOrderStatusChanged($event)">
+    </app-table-detail-modal>
+  }
+</div>

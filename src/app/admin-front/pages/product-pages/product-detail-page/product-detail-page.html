@@ -1,0 +1,113 @@
+@if (selectedProduct) {
+<div class="p-8 bg-gray-50 min-h-screen">
+  <header class="mb-8 flex justify-between items-center">
+    <div class="flex items-center">
+      <a routerLink="/admin/products" class="text-gray-500 hover:text-gray-700 mr-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+      </a>
+      <div>
+        <h1 class="text-3xl font-semibold text-gray-900">{{selectedProduct.name}}</h1>
+        <p class="text-sm text-gray-500 mt-1">{{selectedProduct.category?.name}}</p>
+      </div>
+    </div>
+
+    <div class="flex space-x-3">
+      <a [routerLink]="['/admin/products/edit', selectedProduct.publicId]"
+        class="flex items-center px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-100 transition duration-150">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+        </svg>
+        Editar
+      </a>
+      <button (click)="deleteProduct(selectedProduct.publicId)"
+        class="flex items-center px-4 py-2 border border-red-500 bg-red-500 text-white text-sm font-medium rounded-md shadow-md hover:bg-red-600 transition duration-150 cursor-pointer">
+        Eliminar
+      </button>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <div class="lg:col-span-2 space-y-8">
+
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Información del Producto</h2>
+
+        <div class="mb-6">
+          <p class="text-xs font-medium text-gray-500 uppercase mb-1">Descripción</p>
+          <p class="text-base text-gray-700 leading-relaxed">
+            {{selectedProduct.description}}
+          </p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-6 pt-6 border-t border-gray-100">
+
+          <div>
+            <p class="text-xs font-medium text-gray-500 uppercase">Precio</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">{{selectedProduct.price}}</p>
+          </div>
+
+          <div>
+            <p class="text-xs font-medium text-gray-500 uppercase">Stock Disponible</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">{{selectedProduct.stock}}</p>
+          </div>
+
+          <div>
+            <p class="text-xs font-medium text-gray-500 uppercase">Estado</p>
+            <span
+              class="bg-green-100 text-green-800 px-3 py-1 text-sm leading-5 font-semibold rounded-full inline-block mt-1">
+              {{selectedProduct.available ? 'Disponible' : 'No Disponible'}}
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-6 border-t pt-6">
+          <p class="text-xs font-medium text-gray-500 uppercase mb-2">Tags</p>
+          <div class="flex flex-wrap gap-2">
+            @for (tag of selectedProduct.tags ; track $index){
+            <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700 font-medium">{{tag.label}}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Historial</h2>
+
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p class="text-gray-500">Fecha de creación:</p>
+          </div>
+          <div class="text-right">
+            <p class="text-gray-800">15/03/2024</p>
+          </div>
+
+          <div>
+            <p class="text-gray-500">Última actualización:</p>
+          </div>
+          <div class="text-right">
+            <p class="text-gray-800">20/03/2024</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-1 space-y-8">
+      <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200 sticky top-4">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4 px-2">Imagen del Producto</h2>
+
+        <div class="w-full rounded-lg overflow-hidden border border-gray-200">
+          <img src="{{selectedProduct.imageUrl}}" alt="Imagen" class="w-full h-auto object-cover">
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+} @else {
+<h2 class="">No existe el producto</h2>
+}

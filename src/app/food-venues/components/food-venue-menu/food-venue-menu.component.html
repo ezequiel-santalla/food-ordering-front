@@ -1,0 +1,178 @@
+<div class="min-h-screen bg-base-200">
+  <!-- Header del Menú - Minimalista -->
+  <div class="bg-base-100 shadow-sm sticky top-0 z-10 border-b border-base-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="flex items-center gap-3">
+        @if (menu().foodVenueImageUrl) {
+          <img
+            [src]="menu().foodVenueImageUrl"
+            [alt]="menu().foodVenueName"
+            class="w-10 h-10 rounded object-cover"
+          />
+        }
+        <div>
+          <h1 class="text-xl font-semibold text-base-content">{{ menu().foodVenueName }}</h1>
+          <p class="text-xs text-base-content/60">Menú completo</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido del Menú -->
+  <div class="max-w-7xl mx-auto py-6 space-y-10">
+
+    @for (category of menu().menu; track category.category) {
+      <section class="space-y-4">
+
+        <!-- Título de Categoría Principal - Minimalista -->
+        <h2 class="text-lg font-bold text-base-content uppercase tracking-wide border-b-2 border-primary pb-2">
+          {{ category.category }}
+        </h2>
+
+        <!-- Productos del Nivel 1 -->
+        @if (category.products && category.products.length > 0) {
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            @for (product of category.products; track product.publicId) {
+              <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+                <figure class="h-40 bg-base-300">
+                  <img
+                    [src]="product.imageUrl"
+                    [alt]="product.name"
+                    class="w-full h-full object-cover"
+                  />
+                </figure>
+                <div class="card-body p-3">
+                  <div class="flex justify-between items-start gap-2 mb-1">
+                    <h3 class="font-semibold text-sm leading-tight">{{ product.name }}</h3>
+                    <span class="badge badge-primary badge-sm font-bold whitespace-nowrap">
+                      ${{ product.price | number:'1.2-2' }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-base-content/60 line-clamp-2">
+                    {{ product.description }}
+                  </p>
+                  @if (product.tags && product.tags.length > 0) {
+                    <div class="flex flex-wrap gap-1 mt-2">
+                      @for (tag of product.tags; track tag.id) {
+                        <span class="badge badge-xs badge-outline">
+                          {{ tag.label }}
+                        </span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Subcategorías Nivel 2 -->
+        @if (category.subcategory && category.subcategory.length > 0) {
+          @for (subcategory of category.subcategory; track subcategory.category) {
+            <div class="mt-6 space-y-3">
+
+              <!-- Título de Subcategoría - Minimalista -->
+              <h3 class="text-base font-semibold text-base-content pl-3 border-l-2 border-secondary">
+                {{ subcategory.category }}
+              </h3>
+
+              <!-- Productos del Nivel 2 -->
+              @if (subcategory.products && subcategory.products.length > 0) {
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  @for (product of subcategory.products; track product.publicId) {
+                    <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+                      <figure class="h-40 bg-base-300">
+                        <img
+                          [src]="product.imageUrl"
+                          [alt]="product.name"
+                          class="w-full h-full object-cover"
+                        />
+                      </figure>
+                      <div class="card-body p-3">
+                        <div class="flex justify-between items-start gap-2 mb-1">
+                          <h3 class="font-semibold text-sm leading-tight">{{ product.name }}</h3>
+                          <span class="badge badge-primary badge-sm font-bold whitespace-nowrap">
+                            ${{ product.price | number:'1.2-2' }}
+                          </span>
+                        </div>
+                        <p class="text-xs text-base-content/60 line-clamp-2">
+                          {{ product.description }}
+                        </p>
+                        @if (product.tags && product.tags.length > 0) {
+                          <div class="flex flex-wrap gap-1 mt-2">
+                            @for (tag of product.tags; track tag.id) {
+                              <span class="badge badge-xs badge-outline">
+                                {{ tag.label }}
+                              </span>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Subcategorías Nivel 3 -->
+              @if (subcategory.subcategory && subcategory.subcategory.length > 0) {
+                @for (subSubcategory of subcategory.subcategory; track subSubcategory.category) {
+                  <div class="mt-4 space-y-3 ml-3">
+
+                    <!-- Título de Sub-subcategoría - Minimalista -->
+                    <h4 class="text-sm font-medium text-base-content/80 pl-2 border-l border-accent">
+                      {{ subSubcategory.category }}
+                    </h4>
+
+                    <!-- Productos del Nivel 3 -->
+                    @if (subSubcategory.products && subSubcategory.products.length > 0) {
+                      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        @for (product of subSubcategory.products; track product.publicId) {
+                          <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+                            <figure class="h-40 bg-base-300">
+                              <img
+                                [src]="product.imageUrl"
+                                [alt]="product.name"
+                                class="w-full h-full object-cover"
+                              />
+                            </figure>
+                            <div class="card-body p-3">
+                              <div class="flex justify-between items-start gap-2 mb-1">
+                                <h3 class="font-semibold text-sm leading-tight">{{ product.name }}</h3>
+                                <span class="badge badge-primary badge-sm font-bold whitespace-nowrap">
+                                  ${{ product.price | number:'1.2-2' }}
+                                </span>
+                              </div>
+                              <p class="text-xs text-base-content/60 line-clamp-2">
+                                {{ product.description }}
+                              </p>
+                              @if (product.tags && product.tags.length > 0) {
+                                <div class="flex flex-wrap gap-1 mt-2">
+                                  @for (tag of product.tags; track tag.id) {
+                                    <span class="badge badge-xs badge-outline">
+                                      {{ tag.label }}
+                                    </span>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          }
+        }
+      </section>
+    }
+
+    <!-- Mensaje si no hay productos -->
+    @if (!menu().menu || menu().menu.length === 0) {
+      <div class="text-center py-16">
+        <p class="text-base text-base-content/50">No hay productos disponibles</p>
+      </div>
+    }
+  </div>
+</div>

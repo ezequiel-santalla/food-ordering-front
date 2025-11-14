@@ -1,40 +1,90 @@
-<footer class="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-300 shadow-lg z-50">
+<footer
+  class="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-300 shadow-lg z-50"
+>
   <nav class="px-4 py-2 safe-area-pb">
     <div class="flex justify-around items-center max-w-md mx-auto">
-      <!-- Home -->
-      <a routerLink="/" routerLinkActive="bg-base-200/90" [routerLinkActiveOptions]="{ exact: true }" class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group">
-        <div class="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors">
-          <lucide-icon [img]="House"></lucide-icon>
+      <!-- inicio -->
+      <a
+        [routerLink]="sessionRoutesService.homeRoute()"
+        routerLinkActive="bg-base-200/90"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group"
+      >
+        <div
+          class="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
+        >
+          <lucide-icon [img]="Store"></lucide-icon>
         </div>
-        <span class="text-xs font-medium text-base-content/70 group-hover:text-primary transition-colors">Inicio</span>
+        <span
+          class="text-xs font-medium text-base-content/70 group-hover:text-primary transition-colors"
+          >Inicio</span
+        >
       </a>
 
       <!-- Menú -->
-      <a routerLink="/menu" routerLinkActive="bg-base-200/90" [routerLinkActiveOptions]="{ exact: true }" class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group">
-        <div class="p-2 rounded-lg bg-success/10 hover:bg-success/20 transition-colors">
+      <a
+        [routerLink]="sessionRoutesService.menuRoute()"
+        routerLinkActive="bg-base-200/90"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group"
+      >
+        <div
+          class="p-2 rounded-lg bg-success/10 hover:bg-success/20 transition-colors"
+        >
           <lucide-icon [img]="Menu" class="w-5 h-5 text-success"></lucide-icon>
         </div>
-        <span class="text-xs font-medium text-base-content/70 group-hover:text-success router-link-active:text-success router-link-active:font-semibold transition-colors">Menú</span>
+        <span
+          class="text-xs font-medium text-base-content/70 group-hover:text-success router-link-active:text-success router-link-active:font-semibold transition-colors"
+          >Menú</span
+        >
       </a>
 
       <!-- Pedidos -->
-      <a routerLink="/orders" routerLinkActive="bg-base-200/90" class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group relative">
-        <div class="p-2 rounded-lg bg-warning/10 hover:bg-warning/20 transition-colors relative">
-          <lucide-icon [img]="ShoppingCart" class="w-5 h-5 text-warning"></lucide-icon>
-          <!-- Notificación -->
-          <div class="absolute -top-2 -right-2 bg-error text-error-content text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
-            2
+      <a
+        [routerLink]="sessionRoutesService.ordersRoute()"
+        routerLinkActive="bg-base-200/90"
+        class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group relative"
+      >
+        <div
+          class="p-2 rounded-lg bg-warning/10 hover:bg-warning/20 transition-colors relative"
+        >
+          <lucide-icon
+            [img]="HandPlatter"
+            class="w-5 h-5 text-warning"
+          ></lucide-icon>
+
+          @if (itemsInCartCount() > 0) {
+          <div
+            class="absolute -top-2 -right-2 bg-error text-error-content text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg"
+          >
+            {{ itemsInCartCount() }}
           </div>
+          }
         </div>
-        <span class="text-xs font-medium text-base-content/70 group-hover:text-warning router-link-active:text-warning router-link-active:font-semibold transition-colors">Pedidos</span>
+        <span
+          class="text-xs font-medium text-base-content/70 group-hover:text-warning router-link-active:text-warning router-link-active:font-semibold transition-colors"
+          >Pedidos</span
+        >
       </a>
 
-      <!-- Pagar -->
-      <a routerLink="/payment" routerLinkActive="bg-base-200/90" class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group">
-        <div class="p-2 rounded-lg bg-secondary/10 hover:bg-secondary/20 transition-colors">
-          <lucide-icon [img]="CreditCard" class="w-5 h-5 text-secondary"></lucide-icon>
+      <!-- Pagos -->
+      <a
+        [routerLink]="sessionRoutesService.paymentsRoute()"
+        routerLinkActive="bg-base-200/90"
+        class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group"
+      >
+        <div
+          class="p-2 rounded-lg bg-secondary/10 hover:bg-secondary/20 transition-colors"
+        >
+          <lucide-icon
+            [img]="CreditCard"
+            class="w-5 h-5 text-secondary"
+          ></lucide-icon>
         </div>
-        <span class="text-xs font-medium text-base-content/70 group-hover:text-secondary router-link-active:text-secondary router-link-active:font-semibold transition-colors">Pagar</span>
+        <span
+          class="text-xs font-medium text-base-content/70 group-hover:text-secondary router-link-active:text-secondary router-link-active:font-semibold transition-colors"
+          >Pagos</span
+        >
       </a>
     </div>
   </nav>

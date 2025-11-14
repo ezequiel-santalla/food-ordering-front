@@ -1,0 +1,98 @@
+<dialog #dialog class="modal">
+  <div class="modal-box max-w-md">
+    <h3 class="font-bold text-xl mb-4">Confirmar pago</h3>
+
+    <!-- Total -->
+    <div class="mb-4">
+      <div class="text-xs text-gray-400 uppercase tracking-wide">
+        Total a pagar
+      </div>
+      <div class="mt-1 text-2xl font-semibold">
+        {{ totalToPay | currency:'ARS':'symbol-narrow' }}
+      </div>
+    </div>
+
+    <!-- Métodos de pago -->
+    <div class="mb-4">
+      <div class="text-sm font-medium mb-2">Método de pago</div>
+      <div class="flex flex-col gap-2">
+        @for (m of paymentMethods; track m.value) {
+          <label
+            class="flex items-center gap-3 rounded-xl border px-3 py-2 cursor-pointer transition
+                   hover:border-primary
+                  "
+            [class.border-primary]="selectedPaymentMethod === m.value"
+          >
+            <input
+              type="radio"
+              class="radio radio-primary"
+              name="paymentMethod"
+              [value]="m.value"
+              [checked]="selectedPaymentMethod === m.value"
+              (change)="onChangeMethod(m.value)"
+            />
+            <span class="flex flex-col">
+              <span class="text-sm font-medium">{{ m.label }}</span>
+            </span>
+          </label>
+        }
+      </div>
+    </div>
+
+    <!-- Resumen pedidos -->
+   <div class="mb-4">
+  <details class="collapse collapse-arrow bg-base-200">
+    <summary class="collapse-title text-sm">
+      Ver pedidos seleccionados ({{ selectedOrders.length }})
+    </summary>
+
+    <div class="collapse-content">
+      <ul class="space-y-3 text-sm">
+        @for (o of selectedOrders; track o.publicId) {
+          <li class="border rounded-lg p-3 bg-base-100">
+            <div class="font-medium mb-2">
+              Orden {{ o.orderNumber }}
+            </div>
+
+            <ul class="ml-2 space-y-1 text-xs">
+              @for (item of o.items; track item.productName) {
+                <li>
+                  • {{ item.quantity }} × {{ item.productName }}
+                  <!-- si querés, podés sumar el precio: -->
+                  <!-- <span class="text-gray-500">
+                    — {{ item.subtotal | currency:'ARS':'symbol-narrow' }}
+                  </span> -->
+                </li>
+              }
+            </ul>
+          </li>
+        }
+      </ul>
+    </div>
+  </details>
+</div>
+
+    <!-- Acciones -->
+    <div class="modal-action">
+      <button
+        class="btn btn-ghost"
+        (click)="onCancel()"
+        [disabled]="isProcessingPayment"
+      >
+        Cancelar
+      </button>
+      <button
+        class="btn btn-primary"
+        (click)="onConfirm()"
+        [class.loading]="isProcessingPayment"
+        [disabled]="isProcessingPayment || !selectedOrders.length"
+      >
+        Confirmar pago
+      </button>
+    </div>
+  </div>
+
+  <form method="dialog" class="modal-backdrop">
+    <button aria-label="Cerrar modal">close</button>
+  </form>
+</dialog>

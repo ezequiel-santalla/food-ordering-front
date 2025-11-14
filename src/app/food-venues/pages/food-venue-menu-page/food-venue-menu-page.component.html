@@ -1,0 +1,18 @@
+@if (foodVenueResource.error()) {
+  <app-not-found-page />
+}
+
+@if (foodVenueResource.isLoading()) {
+  <div class="flex flex-col items-center mt-10 gap-2">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
+    <p class="text-primary text-lg font-medium">Cargando el Menú del Local</p>
+  </div>
+}
+
+@if (foodVenueResource.hasValue() && foodVenueResource.value()) {
+  @if (isRootRoute()) {
+    <app-food-venue-menu [menu]="foodVenueResource.value()!" />
+  } @else {
+    <router-outlet />
+  }
+}

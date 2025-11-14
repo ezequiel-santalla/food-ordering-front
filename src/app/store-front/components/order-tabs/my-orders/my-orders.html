@@ -1,0 +1,64 @@
+<section class="space-y-4 pb-10">
+  @if (isLoadingOrders()) {
+    <div class="flex flex-col items-center justify-center py-12">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="text-gray-500 mt-4">Cargando tus pedidos...</p>
+    </div>
+  } @else if (paymentError() || orderError()) {
+    <div class="alert alert-error">
+      <span>{{ paymentError() || orderError() }}</span>
+    </div>
+  } @else if (orders().length === 0) {
+    <div class="bg-base-100 rounded-2xl shadow-lg p-8">
+      <div class="flex flex-col items-center justify-center text-center py-8">
+        <lucide-icon [img]="Package" [size]="64" class="text-gray-300 mb-4"></lucide-icon>
+        <p class="text-gray-500 font-medium text-lg mb-2">No tenés pedidos aún</p>
+        <p class="text-sm text-gray-400">
+          Acá verás tus órdenes y su estado de preparación
+        </p>
+      </div>
+    </div>
+  } @else {
+    <!-- tarjetas -->
+    <div class="flex flex-col gap-4">
+      @for (order of orders(); track order.publicId) {
+        <app-order-card
+          [order]="order"
+          (selected)="onOrderSelected($event)"
+        ></app-order-card>
+      }
+    </div>
+  }
+
+  <!-- 🔹 Modal de pago reutilizable (declarado ANTES de usar #payModalCmp en el botón) -->
+  <app-payment-modal
+    #payModalCmp
+    [totalToPay]="totalToPay()"
+    [selectedOrders]="paymentOrdersView()"
+    [paymentMethods]="paymentMethods"
+    [selectedPaymentMethod]="selectedPaymentMethod()"
+    [isProcessingPayment]="isProcessingPayment()"
+    (paymentMethodChange)="selectedPaymentMethod.set($event)"
+    (confirm)="confirmPayment()"
+  >
+  </app-payment-modal>
+
+  <!-- 🔹 Barra de pago “pegada abajo” dentro de esta sección -->
+  <div
+    class="sticky bottom-0 bg-base-100 border-t border-gray-200 px-4 py-3 shadow-lg"
+  >
+    <button
+      class="btn btn-primary w-full"
+      [class.loading]="isProcessingPayment()"
+      [disabled]="
+        isLoadingOrders() ||
+        !!orderError() ||
+        orders().length === 0 ||
+        !hasSelectedOrders()
+      "
+      (click)="payModalCmp.open()"
+    >
+      Pagar seleccionados
+    </button>
+  </div>
+</section>

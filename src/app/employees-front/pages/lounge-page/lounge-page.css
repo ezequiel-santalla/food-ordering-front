@@ -1,0 +1,87 @@
+.table-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  user-select: none;
+  position: relative;
+}
+
+.table-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+}
+
+.table-content {
+  text-align: center;
+  color: white;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.table-number {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.table-capacity {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+/* Table Status Colors */
+.table-available {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: 2px solid #059669;
+}
+
+.table-in-session {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: 2px solid #2563eb;
+}
+
+.table-complete {
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+  border: 2px solid #ca8a04;
+}
+
+.table-waiting {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border: 2px solid #ea580c;
+}
+
+.table-disabled {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border: 2px solid #111827;
+  opacity: 0.7;
+}
+
+/* Table Shapes */
+.table-round {
+  border-radius: 50%;
+}
+
+.table-square {
+  border-radius: 8px;
+}
+
+.table-rect {
+  border-radius: 8px;
+}
+
+/* Pulse animation for pending orders */
+.table-in-session {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.6);
+  }
+}

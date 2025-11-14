@@ -1,0 +1,185 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+     (click)="close.emit()">
+
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+       (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-5">
+      <div class="flex justify-between items-start">
+        <div>
+          <h2 class="text-2xl font-bold">Pedido #{{order.orderNumber}}</h2>
+          <div class="flex items-center gap-3 mt-2 text-indigo-100 text-sm">
+            <div class="flex items-center gap-1">
+              <lucide-icon [img]="User" [size]="14"></lucide-icon>
+              <span>{{order.clientAlias}}</span>
+            </div>
+             @if (order.tableNumber) {
+              <div class="flex items-center gap-1">
+                <lucide-icon [img]="Armchair" [size]="14"></lucide-icon>
+                <span>Mesa {{order.tableNumber}}</span>
+              </div>
+            }
+             <div class="flex items-center gap-1">
+              <lucide-icon [img]="Clock" [size]="14"></lucide-icon>
+              <span>{{formatOrderDate(order.orderDate)}}</span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          (click)="close.emit()"
+          class="btn btn-ghost btn-sm btn-circle text-white hover:bg-white/20">
+          <lucide-icon [img]="X" [size]="20"></lucide-icon>
+        </button>
+      </div>
+
+      <!-- Status Badge -->
+      <div class="mt-4">
+        <span class="badge badge-lg" [ngClass]="getStatusBadgeClass(order.status)">
+          {{getStatusText(order.status)}}
+        </span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="overflow-y-auto max-h-[calc(90vh-280px)] p-6">
+
+      <!-- Order Items -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <lucide-icon [img]="ShoppingBag" [size]="20"></lucide-icon>
+          Productos del pedido
+        </h3>
+
+        <div class="space-y-3">
+          @for (detail of order.orderDetails; track detail.id) {
+            <div class="bg-gray-50 rounded-lg p-4 flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-start gap-3">
+                  <span class="badge badge-primary badge-lg">
+                    {{detail.quantity}}x
+                  </span>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-900 mb-1">
+                      {{detail.productName}}
+                    </p>
+                    <p class="text-sm text-gray-500">
+                      {{detail.category}}
+                    </p>
+                    @if (detail.specialInstructions) {
+                      <div class="mt-2 bg-blue-50 border border-blue-200 rounded px-3 py-2">
+                        <p class="text-xs font-semibold text-blue-800 mb-1">
+                          📝 Instrucciones:
+                        </p>
+                        <p class="text-sm text-blue-700">
+                          {{detail.specialInstructions}}
+                        </p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+              <div class="text-right ml-4">
+                <p class="text-lg font-bold text-gray-900">
+                  ${{detail.subtotal | number:'1.2-2'}}
+                </p>
+                <p class="text-xs text-gray-500">
+                  ${{detail.unitPrice | number:'1.2-2'}} c/u
+                </p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Special Requirements -->
+      @if (order.specialRequirements) {
+        <div class="mb-6">
+          <div class="bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
+            <h4 class="text-sm font-bold text-amber-900 mb-2 flex items-center gap-2">
+              <lucide-icon [img]="AlertCircle" [size]="18"></lucide-icon>
+              Requisitos especiales de la orden
+            </h4>
+            <p class="text-sm text-amber-800">
+              {{order.specialRequirements}}
+            </p>
+          </div>
+        </div>
+      }
+
+      <!-- Total -->
+      <div class="bg-gray-100 rounded-xl p-4">
+        <div class="flex justify-between items-center">
+          <span class="text-lg font-semibold text-gray-900">Total:</span>
+          <span class="text-2xl font-bold text-gray-900">
+            ${{order.totalPrice | number:'1.2-2'}}
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Actions Footer -->
+    <div class="border-t border-gray-200 px-6 py-4 bg-gray-50">
+      <div class="flex gap-3">
+
+        @if (order.status === 'PENDING') {
+          <button
+            class="btn btn-primary flex-1"
+            (click)="updateStatus('APPROVED')">
+            <lucide-icon [img]="ChefHat" [size]="18"></lucide-icon>
+            Iniciar Preparación
+          </button>
+
+          <button
+            class="btn btn-error btn-outline"
+            (click)="confirmCancel()">
+            <lucide-icon [img]="Ban" [size]="18"></lucide-icon>
+            Cancelar
+          </button>
+        }
+        @if (order.status === 'APPROVED') {
+          <button
+            class="btn btn-primary flex-1"
+            (click)="updateStatus('IN_PROGRESS')">
+            <lucide-icon [img]="ChefHat" [size]="18"></lucide-icon>
+            Iniciar Preparación
+          </button>
+
+          <button
+            class="btn btn-error btn-outline"
+            (click)="confirmCancel()">
+            <lucide-icon [img]="Ban" [size]="18"></lucide-icon>
+            Cancelar
+          </button>
+        }
+
+        @if (order.status === 'IN_PROGRESS') {
+          <button
+            class="btn btn-success flex-1"
+            (click)="updateStatus('COMPLETED')">
+            <lucide-icon [img]="CheckCircle2" [size]="18"></lucide-icon>
+            Marcar Completado
+          </button>
+        }
+
+        @if (order.status === 'COMPLETED') {
+          <button
+            class="btn btn-info flex-1"
+            (click)="updateStatus('SERVED')">
+            <lucide-icon [img]="Utensils" [size]="18"></lucide-icon>
+            Marcar como Servido
+          </button>
+        }
+
+        <button
+          class="btn btn-ghost"
+          (click)="close.emit()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
