@@ -14,19 +14,14 @@ export class TagPage {
 
   isCreatingNewTag: boolean = false;
 
-
   availableTags: TagResponse[] = [];
   newTagLabel: string = '';
 
-
   isLoading: boolean = true;
 
- constructor (private tagService: TagService) {}
+  constructor(private tagService: TagService) { }
 
-
-
-
-ngOnInit(): void {
+  ngOnInit(): void {
     this.loadTags();
   }
 
@@ -44,28 +39,23 @@ ngOnInit(): void {
     });
   }
 
-
   switchToCreate(): void {
     this.isCreatingNewTag = true;
     this.newTagLabel = '';
   }
-
 
   switchToTagsList(): void {
     this.isCreatingNewTag = false;
     this.newTagLabel = '';
   }
 
-
   createNewTag(): void {
     const trimmedLabel = this.newTagLabel.trim();
-
 
     if (!trimmedLabel) {
       alert('El nombre del Tag no puede estar vacío.');
       return;
     }
-
 
     this.isLoading = true;
 
@@ -76,7 +66,6 @@ ngOnInit(): void {
         this.availableTags.push(newTag);
         this.availableTags.sort((a, b) => a.label.localeCompare(b.label));
         this.isLoading = false;
-        // this.loadTags();
         this.switchToTagsList();
       },
       error: (err) => {

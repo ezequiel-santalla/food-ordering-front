@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CategoryItem } from '../../../components/category-item/category-item';
 import CategoryResponse from '../../../models/response/category-response';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-category-list-page',
@@ -12,10 +13,12 @@ import CategoryResponse from '../../../models/response/category-response';
 })
 export class CategoryListPage {
 
-  constructor( public categoryService: CategoryService,
-              private router: Router){
+  constructor(
+    public categoryService: CategoryService,
+    private router: Router,
+    private sweetAlertService: SweetAlertService
+  ) { }
 
-              }
   ngOnInit(): void {
     this.loadCategories();
   }
@@ -23,24 +26,36 @@ export class CategoryListPage {
   loadCategories(): void {
 
     this.categoryService.getCategories().subscribe({
-      next: (data) => { this.categoryService.categories = data;
-                      console.log(data);
+      next: (data) => {
+        this.categoryService.categories = data;
+        console.log(data);
       },
-      error: (e) => { console.log(e)}
+      error: (e) => { console.log(e) }
     });
   }
 
-  handleDelete(category: CategoryResponse): void {
-    if (confirm(`¿Estás seguro de que quieres eliminar la categoría "${category.name}"? Esta acción es irreversible.`)) {
+  async handleDelete(category: CategoryResponse): Promise<void> {
+    const confirmed = await this.sweetAlertService.confirmDelete(
+      category.name,
+      'categoría'
+    );
 
+    if (confirmed) {
       this.categoryService.deleteProduct(category.publicId).subscribe({
         next: () => {
           console.log(`Categoría ${category.name} eliminada con éxito.`);
+          this.sweetAlertService.showSuccess(
+            'Categoría eliminada',
+            `La categoría "${category.name}" ha sido eliminada correctamente.`
+          );
           this.loadCategories();
         },
         error: (err) => {
           console.error('Error al eliminar la categoría:', err);
-          alert(`Hubo un error al eliminar la categoría: ${err.message || 'Error desconocido'}`);
+          this.sweetAlertService.showError(
+            'Error al eliminar',
+            err.message || 'No se pudo eliminar la categoría. Por favor, intenta nuevamente.'
+          );
         }
       });
     }
