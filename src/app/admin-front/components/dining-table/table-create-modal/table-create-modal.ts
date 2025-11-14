@@ -48,6 +48,7 @@ export class TableCreateModal {
 
     this.diningTableService.createTable(tableRequest).subscribe({
       next: (createdTable) => {
+        this.sweetAlertService.showSuccess('Mesa Creada', `La mesa N° ${createdTable.number || 'automático'} fue creada exitosamente.`);
         this.tableCreated.emit({
           diningTableId: createdTable.publicId,
           shape: this.selectedShape

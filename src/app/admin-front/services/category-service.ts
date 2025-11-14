@@ -34,6 +34,6 @@ export class CategoryService {
   }
 
   updateCategory(id: string, category: CategoryRequest){
-    return this.http.patch<CategoryResponse>(`${this.API_URL}/${id}`, category);
+    return this.http.put<CategoryResponse>(`${this.API_URL}/${id}`, category);
   }
 }
