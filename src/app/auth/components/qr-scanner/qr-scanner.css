@@ -5,7 +5,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.95);
   z-index: 9999;
-  
+
   /* Centra el contenido (wrapper o spinner) */
   display: flex;
   align-items: center;
@@ -26,18 +26,12 @@ h2 {
   font-weight: 600;
 }
 
-/* ::ng-deep sigue siendo necesario para estilizar 
+/* ::ng-deep sigue siendo necesario para estilizar
    el <video> dentro de <zxing-scanner> */
 :host ::ng-deep video {
   width: 100%;
   height: auto;
   border-radius: 1rem; /* Esquinas redondeadas se ve muy bien */
-
-  /* Corrección del modo espejo (con prefijos para compatibilidad) */
-  transform: scaleX(-1);
-  -webkit-transform: scaleX(-1);
-  -moz-transform: scaleX(-1);
-  -ms-transform: scaleX(-1);
 }
 
 .cancel-btn {
@@ -51,7 +45,7 @@ h2 {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  
+
   /* Efecto hover sutil */
   transition: background-color 0.2s ease;
 }
