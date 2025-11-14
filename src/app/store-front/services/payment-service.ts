@@ -2,7 +2,7 @@
 import { Injectable, inject, signal, computed, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, tap } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { PaymentRequest, PaymentResponseDto } from '../models/payment.interface';
 
 @Injectable({ providedIn: 'root' })

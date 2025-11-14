@@ -13,7 +13,7 @@ import { EMPTY, Observable, Subscription, forkJoin } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { OrderRequest, OrderResponse } from '../models/order.interface';
 import { PaginatedResponse } from '../../shared/components/pagination/pagination.interface';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 // 🛑 Importa tus servicios de estado y SSE
 import { TableSessionService } from './table-session-service'; // Asegúrate que la ruta sea correcta

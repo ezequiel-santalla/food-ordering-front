@@ -5,7 +5,7 @@ import { TableSessionInfo } from '../../shared/models/table-session';
 import { SessionUtils } from '../../utils/session-utils';
 import { ServerSentEventsService } from '../../shared/services/server-sent-events.service';
 import { finalize, Subscription } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthStateManager } from '../../auth/services/auth-state-manager-service';
