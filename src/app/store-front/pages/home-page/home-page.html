@@ -1,5 +1,5 @@
 <div class="max-w-3xl mx-auto">
-    <figure
+  <figure
     class="h-32 sm:h-40 bg-gradient-to-br from-primary/20 to-secondary/20"
   >
     @if (venue().styles?.logoUrl || venue().styles?.bannerUrl) {
@@ -27,28 +27,32 @@
     </div>
     }
   </figure>
+
+  <!-- Recomendaciones -->
   <h2 class="text-xl font-bold text-base-content my-4 px-4 sm:px-6">
     Recomendaciones
   </h2>
-  <div class="mx-auto py-4 space-y-8">
+  <div class="px-4 sm:px-6 py-4">
     <app-highlights-section />
   </div>
 
   <div class="divider"></div>
 
+  <!-- Favoritos -->
   <h2 class="text-xl font-bold text-base-content my-4 px-4 sm:px-6">
     Favoritos
   </h2>
-  <div class="mx-auto py-4 space-y-8">
+  <div class="px-4 sm:px-6 py-4">
     <app-highlights-section />
   </div>
 
   <div class="divider"></div>
 
+  <!-- Más vendidos -->
   <h2 class="text-xl font-bold text-base-content my-4 px-4 sm:px-6">
-    Mas vendidos
+    Más vendidos
   </h2>
-  <div class="mx-auto py-4 space-y-8">
+  <div class="px-4 sm:px-6 py-4">
     <app-highlights-section />
   </div>
 </div>
