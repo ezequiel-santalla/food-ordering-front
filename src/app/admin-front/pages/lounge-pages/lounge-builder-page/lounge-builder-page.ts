@@ -46,6 +46,7 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
  // State (TU CÓDIGO)
  hasUnsavedChanges: boolean = false;
  isEditingMode: boolean = false;
+ isLoading: boolean = true;
 
  // Modal/Drag (TU CÓDIGO)
  gridWidth = 1200;
@@ -221,7 +222,8 @@ next: (lounge: LoungeResponse) => { // Tipado explícito
  this.loadSectors();
 this.loadTablePositions();
  },
- error: (err) => console.error('Error initializing lounge:', err)
+ error: (err) => {console.error('Error initializing lounge:', err);
+ this.isLoading = false;}
 });
  }
 
@@ -230,8 +232,10 @@ this.loadTablePositions();
  next: (positions: TablePositionResponse[]) => {
  this.tablePositions = positions;
  this.hasUnsavedChanges = false;
+ this.isLoading = false;
  },
- error: (err) => console.error('Error loading table positions:', err)
+ error: (err) =>{ console.error('Error loading table positions:', err)
+ this.isLoading = false;}
  });
  }
 
