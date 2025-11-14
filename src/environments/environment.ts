@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  baseUrl: 'https://tu-dominio.com/api/v1'
+  baseUrl: 'https://food-ordering-api-backend.onrender.com/api/v1'
 };
