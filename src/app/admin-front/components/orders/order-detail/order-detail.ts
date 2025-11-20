@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { AlertCircle, Armchair, Ban, CheckCircle2, ChefHat, Clock, LucideAngularModule, ShoppingBag, User, Utensils, X } from 'lucide-angular';
 import { OrderResponse, OrderStatus } from '../../../models/order';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 
 @Component({
@@ -29,6 +30,8 @@ export class OrderDetail {
   readonly CheckCircle2 = CheckCircle2;
   readonly Utensils = Utensils;
 
+  private sweetAlertService = inject(SweetAlertService);
+
   updateStatus(newStatus: OrderStatus): void {
     this.statusChanged.emit({
       orderId: this.order.publicId,
@@ -37,8 +40,16 @@ export class OrderDetail {
     this.close.emit();
   }
 
-  confirmCancel(): void {
-    if (confirm('¿Estás seguro de que deseas cancelar este pedido?')) {
+  async confirmCancel(): Promise<void> {
+    const confirmed = await this.sweetAlertService.confirmCustomAction(
+      '¿Cancelar pedido?',
+      '¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.',
+      'Sí, cancelar',
+      'No, mantener',
+      'warning'
+    );
+
+    if (confirmed) {
       this.updateStatus('CANCELLED');
     }
   }
