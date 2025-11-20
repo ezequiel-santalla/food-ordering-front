@@ -15,7 +15,7 @@
         <div>
           <p class="text-xs sm:text-sm font-medium text-gray-600">Total Pagos</p>
           <p class="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
-            ${{stats().total | number:'1.2-2'}}
+            {{stats().total | currency:'ARS'}}
           </p>
         </div>
         <lucide-icon [img]="DollarSign" [size]="32" class="text-gray-400"></lucide-icon>
@@ -28,7 +28,7 @@
         <div>
           <p class="text-xs sm:text-sm font-medium text-gray-600">Pagos Completados</p>
           <p class="text-xl sm:text-2xl font-bold text-green-600 mt-1">
-            ${{stats().completed | number:'1.2-2'}}
+            {{stats().completed | currency:'ARS'}}
           </p>
         </div>
         <lucide-icon [img]="CheckCircle2" [size]="32" class="text-green-400"></lucide-icon>

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { LucideAngularModule,X,
   Ban,
   Check,
@@ -13,7 +13,7 @@ import { SweetAlertService } from '../../../../shared/services/sweet-alert.servi
 
 @Component({
   selector: 'app-table-detail-modal',
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, CurrencyPipe],
   templateUrl: './table-detail-modal.html',
 })
 export class TableDetailModal {
@@ -139,7 +139,9 @@ return [...this.orders].sort((a, b) => {
     switch (status) {
       case 'PENDING':
         return 'badge-warning';
-      case 'IN_PREPARATION':
+      case 'APPROVED':
+        return 'badge-primary';
+      case 'IN_PROGRESS':
         return 'badge-info';
       case 'COMPLETED':
         return 'badge-success';
@@ -156,7 +158,9 @@ return [...this.orders].sort((a, b) => {
     switch (status) {
       case 'PENDING':
         return 'Pendiente';
-      case 'IN_PREPARATION':
+      case 'APPROVED':
+        return 'Aprobado';
+      case 'IN_PROGRESS':
         return 'En Preparación';
       case 'COMPLETED':
         return 'Completado';
