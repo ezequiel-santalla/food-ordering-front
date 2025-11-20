@@ -23,8 +23,8 @@ import { SweetAlertService } from '../../../../shared/services/sweet-alert.servi
   styleUrl: './lounge-builder-page.css'
 })
 export class LoungeBuilderPage implements OnInit, OnDestroy {
-  
-  virtualGridWidth = 1600;
+
+  virtualGridWidth = 1800;
   virtualGridHeight = 800;
   gridStep = 50;
   collisionBuffer = 5;
@@ -60,12 +60,16 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeLounge();
     this.calculateViewportDimensions();
-    window.addEventListener('resize', () => this.calculateViewportDimensions());
+    window.addEventListener('resize', this.onResize);
   }
 
   ngOnDestroy(): void {
-    window.removeEventListener('resize', () => this.calculateViewportDimensions());
+    window.removeEventListener('resize', this.onResize);
   }
+
+  private onResize = () => {
+    this.calculateViewportDimensions();
+  };
 
   // =======================================================
   // UTILS Y GETTERS
@@ -91,6 +95,16 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
     );
   }
 
+  getTableNumberFontSize(scale: number): string {
+    const size = Math.max(12, 30 * scale);
+    return `${size}px`;
+  }
+
+  getTableCapacityFontSize(scale: number): string {
+    const size = Math.max(8, 16 * scale);
+    return `${size}px`;
+  }
+
   private updateTablePositionLocal(tableId: string, updates: Partial<TablePositionResponse>): void {
     const index = this.tablePositions.findIndex(t => t.diningTableId === tableId);
     if (index !== -1) {
@@ -104,17 +118,35 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
   // =======================================================
 
   calculateViewportDimensions(): void {
-    const containerElement = document.querySelector('.lounge-container');
-    if (!containerElement) return;
-    const availableWidth = containerElement.clientWidth - 64;
-    const availableHeight = window.innerHeight - 250;
+    setTimeout(() => {
+      const containerElement = document.querySelector('.lounge-container');
 
-    const scaleX = availableWidth / this.virtualGridWidth;
-    const scaleY = availableHeight / this.virtualGridHeight;
+      if (!containerElement) return;
 
-    this.scaleRatio = Math.min(scaleX, scaleY, 1);
-    this.viewportWidth = this.virtualGridWidth * this.scaleRatio;
-    this.viewportHeight = this.virtualGridHeight * this.scaleRatio;
+      const viewportWidth = document.documentElement.clientWidth;
+
+      const sidebarWidth = 200;
+      const headerHeight = 200;
+      const legendHeight = 80;
+      const horizontalPadding = 80;
+
+      const availableWidth = Math.max(
+        viewportWidth - sidebarWidth - horizontalPadding,
+        400
+      );
+
+      const availableHeight = Math.max(
+        window.innerHeight - headerHeight - legendHeight,
+        300
+      );
+
+      const scaleX = availableWidth / this.virtualGridWidth;
+      const scaleY = availableHeight / this.virtualGridHeight;
+
+      this.scaleRatio = Math.min(scaleX, scaleY, 1);
+      this.viewportWidth = Math.floor(this.virtualGridWidth * this.scaleRatio);
+      this.viewportHeight = Math.floor(this.virtualGridHeight * this.scaleRatio);
+    }, 100);
   }
 
   toVirtualCoords(viewportX: number, viewportY: number): { x: number, y: number } {
@@ -344,9 +376,9 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
     }
     this.isEditingMode = !this.isEditingMode;
     this.closeTableDetailModal();
-    if (this.isEditingMode) {
-      setTimeout(() => this.calculateViewportDimensions(), 0);
-    }
+
+    // Recalcular dimensiones después del cambio de modo
+    this.calculateViewportDimensions();
   }
 
   selectTable(table: TablePositionResponse): void {

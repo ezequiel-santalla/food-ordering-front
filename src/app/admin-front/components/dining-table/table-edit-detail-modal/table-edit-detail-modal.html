@@ -1,9 +1,9 @@
-<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="onBackdropClick($event)">
+<div class="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50" (click)="onBackdropClick($event)">
   <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6" (click)="$event.stopPropagation()">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-2xl font-bold text-gray-800">Mesa Seleccionada</h2>
-      <button (click)="onClose()" class="text-gray-400 hover:text-gray-600 transition-colors">
+      <button (click)="onClose()" class="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
         </svg>
@@ -46,13 +46,13 @@
             <!-- Width Control -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                Ancho: {{currentWidth}}px
+                Ancho: {{currentWidth}}cm
               </label>
               <div class="flex items-center gap-2">
                 <button
                   (click)="decreaseWidth()"
                   [disabled]="currentWidth <= 120"
-                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                   </svg>
@@ -64,11 +64,11 @@
                   min="120"
                   max="400"
                   step="20"
-                  class="flex-1">
+                  class="flex-1 cursor-pointer">
                 <button
                   (click)="increaseWidth()"
                   [disabled]="currentWidth >= 400"
-                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                   </svg>
@@ -79,13 +79,13 @@
             <!-- Height Control -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                Alto: {{currentHeight}}px
+                Alto: {{currentHeight}}cm
               </label>
               <div class="flex items-center gap-2">
                 <button
                   (click)="decreaseHeight()"
                   [disabled]="currentHeight <= 60"
-                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                   </svg>
@@ -97,11 +97,11 @@
                   min="60"
                   max="120"
                   step="10"
-                  class="flex-1">
+                  class="flex-1 cursor-pointer">
                 <button
                   (click)="increaseHeight()"
                   [disabled]="currentHeight >= 120"
-                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                   </svg>
@@ -130,17 +130,17 @@
     <div class="flex gap-3 pt-4 border-t">
       <button
         (click)="onEdit()"
-        class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium cursor-pointer">
         Editar Mesa
       </button>
       <button
         (click)="onRemove()"
-        class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+        class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium cursor-pointer">
         Eliminar Mesa del Salón
       </button>
       <button
         (click)="onClose()"
-        class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+        class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer">
         Cerrar
       </button>
     </div>

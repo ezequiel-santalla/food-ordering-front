@@ -3,7 +3,7 @@ import { PaymentPageResponse, PaymentResponse, PaymentStatus } from '../../model
 import { PaymentService } from '../../services/payment-service';
 
 import { AlertCircle, CheckCircle2, CreditCard, DollarSign, LucideAngularModule, RefreshCw, Search, XCircle } from 'lucide-angular';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaymentCard } from "../../components/payments/payment-card/payment-card";
 import { PaginationComponent } from "../../../shared/components/pagination/pagination.component";
@@ -18,7 +18,7 @@ interface PaymentStats {
 
 @Component({
   selector: 'app-payment-page',
-  imports: [LucideAngularModule, CommonModule, FormsModule, PaymentCard, PaginationComponent],
+  imports: [LucideAngularModule, CommonModule, FormsModule, PaymentCard, PaginationComponent, CurrencyPipe],
   templateUrl: './payment-page.html',
   styleUrl: './payment-page.css'
 })
