@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  baseUrl: 'https://food-ordering-api-backend.onrender.com/api/v1'
+  baseUrl: 'https://api.dinno.com.ar/api/v1'
 };
