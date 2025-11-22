@@ -116,8 +116,8 @@ export class AuthService {
     );
   }
 
-  resetPassword(token: string, password: string): Observable<any> {
-    const data = { token, password };
+  resetPassword(recoveryToken: string, newPassword: string): Observable<any> {
+    const data = { recoveryToken, newPassword };
 
     return this.authApi.performPasswordReset(data).pipe(
       catchError((error) => {

@@ -34,11 +34,8 @@ export class AuthApiService {
     });
   }
 
-  performPasswordReset(data: { token: string, password: string }): Observable<any> {
-    // Asegúrate que esta sea la URL correcta de tu backend
-    const url = `${this.baseUrl}/reset-password`;
-
-    // Enviamos { token: "...", password: "..." } como JSON
+  performPasswordReset(data: { recoveryToken: string, newPassword: string }): Observable<any> {
+    const url = `${this.baseUrl}/auth/reset-password`;
     return this.http.post<any>(url, data);
   }
 
@@ -57,10 +54,7 @@ export class AuthApiService {
   }
 
   refreshToken(token: string): Observable<AuthResponse> {
-    // Asegúrate que esta sea la URL correcta de tu backend
     const url = `${this.baseUrl}/auth/refresh`;
-
-    // El backend espera el refresh token en el body
     return this.http.post<AuthResponse>(url, { refreshToken: token });
   }
 
