@@ -12,6 +12,7 @@ import { AuthStateManager } from '../../auth/services/auth-state-manager-service
 import { TokenManager } from '../../utils/token-manager';
 import { Participant } from '../../shared/models/common';
 import { SweetAlertService } from '../../shared/services/sweet-alert.service';
+import { OrderService } from './order-service';
 
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
@@ -33,10 +34,7 @@ export class TableSessionService {
   private _participantId = signal<string>(
     this.getStoredString('participantId')
   );
-
-  private _tableCapacity = signal<number | null>(
-    this.getStoredNumber('tableCapacity')
-  );
+  private _tableCapacity = signal<number | null>(this.getStoredCapacity());
 
   private sseSubscription: Subscription | undefined;
 
@@ -235,7 +233,7 @@ export class TableSessionService {
     this._participantNickname.set('');
     this._participantCount.set(0);
     this._participantId.set('');
-    this._tableCapacity.set(0);
+    this._tableCapacity.set(null);
 
     localStorage.removeItem('tableNumber');
     localStorage.removeItem('participantNickname');
@@ -328,6 +326,20 @@ export class TableSessionService {
     } catch (error) {
       console.error(`Error leyendo string de localStorage para ${key}:`, error);
       return '';
+    }
+  }
+
+  private getStoredCapacity(): number | null {
+    try {
+      const stored = localStorage.getItem('tableCapacity');
+      if (!stored) return null;
+
+      if (stored === 'null') return null;
+
+      const parsed = parseInt(stored, 10);
+      return isNaN(parsed) ? null : parsed;
+    } catch {
+      return null;
     }
   }
 }
