@@ -34,7 +34,7 @@ export class TableSessionService {
     this.getStoredString('participantId')
   );
 
-  private _tableCapacity = signal<number>(
+  private _tableCapacity = signal<number | null>(
     this.getStoredNumber('tableCapacity')
   );
 
@@ -163,7 +163,7 @@ export class TableSessionService {
     tableNumber: number,
     participantNickname: string,
     participantCount: number,
-    tableCapacity: number,
+    tableCapacity: number | null,
     participantId?: string
   ): void {
     console.log('📝 Guardando info de mesa:', {
@@ -198,11 +198,14 @@ export class TableSessionService {
       localStorage.removeItem('participantCount');
     }
 
-    if (tableCapacity >= 0) {
+    if (tableCapacity === null) {
+      this._tableCapacity.set(null);
+      localStorage.removeItem('tableCapacity');
+    } else if (typeof tableCapacity === 'number' && tableCapacity >= 0) {
       this._tableCapacity.set(tableCapacity);
       localStorage.setItem('tableCapacity', tableCapacity.toString());
     } else {
-      this._tableCapacity.set(0);
+      this._tableCapacity.set(null);
       localStorage.removeItem('tableCapacity');
     }
 

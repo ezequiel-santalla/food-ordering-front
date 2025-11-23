@@ -28,7 +28,7 @@ import { SweetAlertService } from '../../../../shared/services/sweet-alert.servi
     tableUpdated = output<TablePositionResponse>();
 
     tableNumber!: number;
-    capacity!: number;
+    capacity!: number | null;
     selectedStatus!: DiningTableStatus;
     isLoading: boolean = false;
 
