@@ -12,7 +12,7 @@ export interface TableSessionRequest {
 export interface TableSessionResponse extends BaseAuthResponse {
   publicId: string;
   tableNumber: number;
-  tableCapacity: number;
+  tableCapacity: number | null
   numberOfParticipants?: number;
   tableSessionId?: string;
   startTime: string;
@@ -32,5 +32,5 @@ export interface TableSessionInfo {
   participantNickname: string;
   participantCount: number;
   sessionId: string | null;
-  tableCapacity: number;
+  tableCapacity: number | null
 }
