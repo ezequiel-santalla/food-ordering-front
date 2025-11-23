@@ -6,6 +6,7 @@ import { registerLocaleData } from '@angular/common';
 
 import localeEs from '@angular/common/locales/es-AR';
 import { authInterceptor } from './auth/interceptors/auth.interceptor';
+import { networkErrorInterceptor } from './auth/interceptors/network-error.interceptor';
 
 registerLocaleData(localeEs, 'es-AR');
 
@@ -14,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, networkErrorInterceptor])),
     {
       provide: LOCALE_ID,
       useValue: 'es-AR'

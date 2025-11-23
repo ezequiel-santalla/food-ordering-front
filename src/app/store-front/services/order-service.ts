@@ -178,6 +178,42 @@ export class OrderService {
     this.loadInitialOrders(sessionId);
   }
 
+  public loadOrders() {
+    const sessionId = this.tableSessionService.tableSessionInfo().sessionId;
+
+    if (!sessionId) {
+      console.warn('OrderService.loadOrders: no hay sessionId activo');
+      return EMPTY;
+    }
+
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    return this.getCurrentSessionOrders().pipe(
+      catchError((err) => {
+        console.error('OrderService: Error recargando pedidos de mesa', err);
+        this._error.set('No se pudieron recargar los pedidos de la mesa.');
+        this._isLoading.set(false);
+        return EMPTY;
+      }),
+      tap((tableOrdersResponse) => {
+        const tableOrders = (tableOrdersResponse.content ?? []).sort(
+          this.sortOrders
+        );
+        this._tableOrders.set(tableOrders);
+
+        const myParticipantId =
+          this.tableSessionService.tableSessionInfo().participantId;
+        const mine = tableOrders.filter(
+          (o) => o.participantId === myParticipantId
+        );
+        this._myOrders.set(mine);
+
+        this._isLoading.set(false);
+      })
+    );
+  }
+
   /**
    * Se suscribe a los eventos SSE de la mesa.
    */
@@ -272,6 +308,22 @@ export class OrderService {
               return curr;
             });
           }
+        }
+
+        if (event.type === 'payment-updated') {
+          console.log('[SSE] payment-updated recibido:', event.payload);
+
+          this.loadOrders().subscribe({
+            next: () => {
+              console.log('🔄 Pedidos recargados tras payment-updated');
+            },
+            error: (err) => {
+              console.error(
+                '❌ Error recargando pedidos tras payment-updated:',
+                err
+              );
+            },
+          });
         }
       },
       error: (err) =>
