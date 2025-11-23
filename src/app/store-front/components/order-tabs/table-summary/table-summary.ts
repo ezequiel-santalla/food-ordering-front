@@ -51,8 +51,8 @@ export class TableSummaryComponent {
   );
   tableCapacity = computed(() => {
     const capacity = this.tableSessionService.tableSessionInfo().tableCapacity;
-    return capacity > 0 ? capacity : this.participantCount();
-  });
+    return capacity ?? null;  
+});
 
   // Total gastado (Suma de TODOS los pedidos)
   totalSpent = computed(() => {

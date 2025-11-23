@@ -68,7 +68,7 @@ export class QrProcessingService {
             response.tableNumber,
             nickname,
             response.numberOfParticipants || 0,
-            response.tableCapacity || 0,
+            response.tableCapacity ?? null,
             participantId || undefined
           );
 

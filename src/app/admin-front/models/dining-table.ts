@@ -1,6 +1,6 @@
 export interface DiningTableRequest {
   number: number;
-  capacity: number;
+  capacity: number | null;
   status?: string;
 }
 

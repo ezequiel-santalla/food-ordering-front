@@ -28,7 +28,7 @@ export interface TablePositionResponse {
   publicId: string;
   diningTableId: string;
   diningTableNumber: number;
-  diningTableCapacity: number;
+  diningTableCapacity: number | null;
   diningTableStatus: DiningTableStatus;
   positionX: number;
   positionY: number;
