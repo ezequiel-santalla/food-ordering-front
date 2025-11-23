@@ -6,7 +6,6 @@ import { registerLocaleData } from '@angular/common';
 
 import localeEs from '@angular/common/locales/es-AR';
 import { authInterceptor } from './auth/interceptors/auth.interceptor';
-import { networkErrorInterceptor } from './auth/interceptors/network-error.interceptor';
 
 registerLocaleData(localeEs, 'es-AR');
 
