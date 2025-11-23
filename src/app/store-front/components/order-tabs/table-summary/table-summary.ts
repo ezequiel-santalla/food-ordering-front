@@ -24,7 +24,7 @@ import { ServerSentEventsService } from '../../../../shared/services/server-sent
   templateUrl: './table-summary.html',
 })
 export class TableSummaryComponent {
-  private orderService = inject(OrderService);
+  readonly orderService = inject(OrderService);
   private tableSessionService = inject(TableSessionService);
   private sseEvent = inject(ServerSentEventsService);
 
