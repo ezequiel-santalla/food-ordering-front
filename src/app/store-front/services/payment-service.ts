@@ -3,7 +3,8 @@ import { Injectable, inject, signal, computed, WritableSignal } from '@angular/c
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PaymentRequest, PaymentResponseDto } from '../models/payment.interface';
+import { PaymentProcessRequest, PaymentProcessResponse, PaymentRequest, PaymentResponseDto } from '../models/payment.interface';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
@@ -18,9 +19,15 @@ export class PaymentService {
   public error = computed(() => this._error());
 
   createPayment(paymentRequest: PaymentRequest): Observable<PaymentResponseDto> {
-    
+
     this._isProcessing.set(true);
     this._error.set(null);
+
+    const idempotencyKey = uuidv4();
+    console.log('🔑 Generated idempotency key:', idempotencyKey);
+    paymentRequest.idempotencyKey = idempotencyKey;
+
+    console.log('📤 Creating payment:', paymentRequest);
 
     return this.http
       .post<PaymentResponseDto>(
@@ -36,19 +43,81 @@ export class PaymentService {
         catchError((error) => {
           console.error('❌ Error creando el pago:', error);
 
-          const errorMessage = 
-            error.error?.message || 
-            error.message || 
+          const errorMessage =
+            error.error?.message ||
+            error.message ||
             'Error al procesar el pago';
-          
+
           this._error.set(errorMessage);
           this._isProcessing.set(false);
-          
+
           throw error;
         })
       );
   }
 
+  processPayment(
+    paymentId: string,
+    processRequest: PaymentProcessRequest
+  ): Observable<PaymentProcessResponse> {
+
+    console.log('⚙️ Processing payment:', paymentId, processRequest);
+
+    return this.http
+      .post<PaymentProcessResponse>(
+        `${environment.baseUrl}/payments/${paymentId}/process`,
+        processRequest
+      )
+      .pipe(
+        tap((response) => {
+          console.log('✅ Payment processed:', response);
+        }),
+        catchError((error) => {
+          console.error('❌ Error processing payment:', error);
+          const errorMessage =
+            error.error?.message ||
+            error.message ||
+            'Error al procesar el pago';
+          this._error.set(errorMessage);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Consultar estado de un pago
+   */
+  getPaymentStatus(paymentId: string): Observable<PaymentProcessResponse> {
+    return this.http
+      .get<PaymentProcessResponse>(
+        `${environment.baseUrl}/payments/${paymentId}/status`
+      )
+      .pipe(
+        tap((response) => console.log('📊 Payment status:', response)),
+        catchError((error) => {
+          console.error('❌ Error getting payment status:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Cancelar un pago pendiente
+   */
+  cancelPayment(paymentId: string): Observable<PaymentProcessResponse> {
+    return this.http
+      .post<PaymentProcessResponse>(
+        `${environment.baseUrl}/payments/${paymentId}/cancel`,
+        {}
+      )
+      .pipe(
+        tap((response) => console.log('🚫 Payment cancelled:', response)),
+        catchError((error) => {
+          console.error('❌ Error cancelling payment:', error);
+          throw error;
+        })
+      );
+  }
   // getMyPayments(): Observable<PaymentResponse[]> {
   //   return this.http
   //     .get<PaymentResponse[]>(`${environment.baseUrl}/participants/payments`)

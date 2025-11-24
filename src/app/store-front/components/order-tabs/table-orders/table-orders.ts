@@ -114,7 +114,7 @@ export class TableOrders {
     const total = this.totalToPay();
     const paymentMethod = this.selectedPaymentMethod();
 
-    this.paymentService.createPayment({ paymentMethod, orderIds }).subscribe({
+    this.paymentService.createPayment({idempotencyKey: '', paymentMethod, orderIds }).subscribe({
       next: (response) => {
         console.log('✅ Pago exitoso:', response);
         this.payModalCmp?.close();
