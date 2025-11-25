@@ -40,6 +40,7 @@
     [isProcessingPayment]="isProcessingPayment()"
     (paymentMethodChange)="selectedPaymentMethod.set($event)"
     (confirm)="confirmPayment()"
+    (mercadoPagoSelected)="onMercadoPagoSelected()"
   >
   </app-payment-modal>
 

@@ -3,7 +3,7 @@ import { Injectable, inject, signal, computed, WritableSignal } from '@angular/c
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PaymentProcessRequest, PaymentProcessResponse, PaymentRequest, PaymentResponseDto } from '../models/payment.interface';
+import { CheckoutProResponse, PaymentProcessRequest, PaymentProcessResponse, PaymentRequest, PaymentResponseDto } from '../models/payment.interface';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({ providedIn: 'root' })
@@ -83,6 +83,24 @@ export class PaymentService {
         })
       );
   }
+
+createCheckoutProPreference(paymentId: string): Observable<CheckoutProResponse> {
+  console.log('🔧 Creating Checkout Pro preference for:', paymentId);
+
+  return this.http
+    .post<CheckoutProResponse>(
+      `${environment.baseUrl}/payments/${paymentId}/checkout-pro`,
+      {}
+    )
+    .pipe(
+      tap((response) => console.log('✅ Preference created:', response)),
+      catchError((error) => {
+        console.error('❌ Error creating preference:', error);
+        throw error;
+      })
+    );
+}
+
 
   /**
    * Consultar estado de un pago

@@ -77,3 +77,9 @@ export interface PaymentOrderView {
     subtotal?: number;
   }[];
 }
+
+export interface CheckoutProResponse {
+  preferenceId: string;
+  checkoutUrl: string;
+  paymentId: string;
+}

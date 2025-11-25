@@ -15,7 +15,8 @@ import {
   PaymentMethod,
   PaymentOrderView,
   PaymentStatus,
-  PaymentRequest,  // ⭐ AGREGAR
+  PaymentRequest,
+  CheckoutProResponse,  // ⭐ AGREGAR
 } from '../../../models/payment.interface';
 import { PaymentModalComponent } from '../../payment/payment-modal';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
@@ -314,4 +315,83 @@ export class MyOrders {
     this.currentPaymentId.set(null);
     this.selectedOrderIds.set(new Set());
   }
+
+
+  onMercadoPagoSelected() {
+  console.log('💙 MercadoPago selected, creating payment...');
+
+  if (!this.hasSelectedOrders()) return;
+
+  // Evitar órdenes ya pagadas
+  const selectableIds = Array.from(this.selectedOrderIds()).filter((id) => {
+    const order = this.orders().find((o) => o.publicId === id);
+    return (
+      !order?.payment || order.payment.status !== PaymentStatus.COMPLETED
+    );
+  });
+
+  if (selectableIds.length === 0) {
+    this.sweetAlertService.showError(
+      'Nada para pagar',
+      'Las órdenes seleccionadas ya fueron pagadas.'
+    );
+    this.selectedOrderIds.set(new Set());
+    this.payModalCmp?.close();
+    return;
+  }
+
+  // Construir PaymentRequest con MOBILE_PAYMENT
+  const paymentRequest: PaymentRequest = {
+    idempotencyKey: '',
+    paymentMethod: PaymentMethod.MOBILE_PAYMENT,
+    orderIds: selectableIds
+  };
+
+  console.log('📝 Creating payment for Checkout Pro:', paymentRequest);
+
+  // Crear Payment
+  this.paymentService.createPayment(paymentRequest).subscribe({
+    next: (payment) => {
+      console.log('✅ Payment created:', payment.publicId);
+
+      // Crear Preference y redirigir
+      this.paymentService.createCheckoutProPreference(payment.publicId).subscribe({
+        next: (preference: CheckoutProResponse) => {
+          console.log('✅ Preference created:', preference.preferenceId);
+          console.log('🔗 Redirecting to:', preference.checkoutUrl);
+
+          // Cerrar modal
+          this.payModalCmp?.close();
+
+          // Guardar paymentId para cuando vuelva (opcional)
+          localStorage.setItem('pendingCheckoutProPayment', payment.publicId);
+
+          // Mostrar mensaje y redirigir
+          this.sweetAlertService.showInfo(
+            'Redirigiendo a MercadoPago',
+            'Serás redirigido para completar el pago'
+          );
+
+          // Redirigir después de 1 segundo
+          setTimeout(() => {
+            window.location.href = preference.checkoutUrl;
+          }, 1000);
+        },
+        error: (error) => {
+          console.error('❌ Error creating Checkout Pro preference:', error);
+          this.payModalCmp?.close();
+          this.sweetAlertService.showError(
+            'Error',
+            'No se pudo iniciar el pago con MercadoPago'
+          );
+        }
+      });
+    },
+    error: (error) => {
+      console.error('❌ Error creating payment:', error);
+      this.payModalCmp?.close();
+      this.sweetAlertService.showError('Error', 'No se pudo crear el pago');
+    }
+  });
+}
 }
