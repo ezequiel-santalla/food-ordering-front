@@ -152,6 +152,17 @@ export class LoginPageComponent implements OnInit {
    * (ya sea un 200 OK o un 409 Conflict con datos de sesión)
    */
   private processSuccessfulLogin(response: LoginResponse): void {
+    const pendingTableId = this.authService.consumePendingTableScan();
+
+    if (pendingTableId) {
+      console.log('🔄 Reanudando flujo QR después de login:', pendingTableId);
+
+      setTimeout(() => {
+        this.navigation.navigateToScanHandler(pendingTableId);
+      }, 300);
+
+      return;
+    }
 
     // Comprueba y guarda la sesión SIEMPRE que exista.
     if (isTableSessionResponse(response)) {
@@ -206,9 +217,7 @@ export class LoginPageComponent implements OnInit {
       response.employments &&
       response.employments.length > 0
     ) {
-      console.log(
-        'PRIORIDAD 1: Roles detectados. Redirigiendo a selección...'
-      );
+      console.log('PRIORIDAD 1: Roles detectados. Redirigiendo a selección...');
       this.navigation.navigateToRoleSelection();
       this.resetForm();
       return;
@@ -219,8 +228,7 @@ export class LoginPageComponent implements OnInit {
     this.navigation.navigateBySessionState();
   }
 
-  onExit(){
+  onExit() {
     this.navigation.navigateBySessionState();
   }
 }
-

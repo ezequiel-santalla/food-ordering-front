@@ -3,6 +3,8 @@ import { Employment, Participant } from './common';
 
 export interface TableSessionRequest {
   tableId: string;
+  nickname?: string | null;
+
 }
 
 /**
