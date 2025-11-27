@@ -4,10 +4,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EditTableModal } from "../edit-table-modal/edit-table-modal";
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
+import { DiningTableService } from '../../../services/dining-table-service';
+import { QrCodeModal } from "../qr-code-modal/qr-code-modal";
 
 @Component({
   selector: 'app-table-edit-detail-modal',
-  imports: [CommonModule, FormsModule, EditTableModal],
+  imports: [CommonModule, FormsModule, EditTableModal, QrCodeModal],
   templateUrl: './table-edit-detail-modal.html'
 })
 export class TableEditDetailModal {
@@ -20,7 +22,13 @@ export class TableEditDetailModal {
   currentHeight: number = 80;
   isEditing = signal(false);
 
+  showQrModal = signal(false);
+  qrCodeUrl = signal<string | null>(null);
+  qrLoading = signal(false);
+  qrError = signal<string | null>(null);
+
   private sweetAlertService = inject(SweetAlertService);
+  private diningTableService = inject(DiningTableService);
 
   ngOnInit(): void {
     this.currentWidth = this.table().width || 200;
@@ -87,6 +95,44 @@ export class TableEditDetailModal {
     }
   }
 
+  async onShowQrCode(): Promise<void> {
+    this.showQrModal.set(true);
+    this.qrLoading.set(true);
+    this.qrError.set(null);
+
+    try {
+      const baseUrl = `${window.location.origin}/#/scan-qr`;
+
+      const response = await this.diningTableService.generateQrCode(
+        baseUrl,
+        this.table().diningTableNumber
+      ).toPromise();
+
+      if (response && response.qrCodeUrl) {
+        this.qrCodeUrl.set(response.qrCodeUrl);
+      } else {
+        throw new Error('No se recibió URL del código QR');
+      }
+    } catch (error: any) {
+      console.error('Error getting QR code:', error);
+      this.qrError.set('Error al obtener el código QR. Por favor, intenta nuevamente.');
+    } finally {
+      this.qrLoading.set(false);
+    }
+  }
+
+  onCloseQrModal(): void {
+    this.showQrModal.set(false);
+    this.qrCodeUrl.set(null);
+    this.qrError.set(null);
+  }
+
+  onRetryQr(): void {
+    this.onShowQrCode();
+  }
+
+
+
   getStatusLabel(): string {
     const statusMap: { [key: string]: string } = {
       'AVAILABLE': 'Disponible',
@@ -126,7 +172,7 @@ export class TableEditDetailModal {
   onCloseEditModal(): void {
     this.isEditing.set(false);
   }
-  
+
   onTableEdited(updatedTable: TablePositionResponse): void {
     this.dataUpdated.emit(updatedTable);
     this.isEditing.set(false);
