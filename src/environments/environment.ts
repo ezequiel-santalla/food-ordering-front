@@ -3,4 +3,8 @@ export const environment = {
   baseUrl: 'http://localhost:8080/api/v1'
 };
 
+<<<<<<< HEAD
 basesUrl: 'https://api.dinno.com.ar/api/v1'
+=======
+ baseUrl: 'https://api.dinno.com.ar/api/v1'
+>>>>>>> origin/feat/fv-images
