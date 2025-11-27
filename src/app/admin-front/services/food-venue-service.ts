@@ -18,12 +18,12 @@ export class FoodVenueService {
     return this.http.get<FoodVenueAdminResponse>(`${this.API_URL}/admin/current`);
   }
 
-  updateMyCurrentFoodVenue(data: Partial<FoodVenueRequest>): Observable<FoodVenueAdminResponse> {
-    return this.http.patch<FoodVenueAdminResponse>(`${this.API_URL}/admin/current`, data);
+  updateMyCurrentFoodVenue(formData: FormData): Observable<FoodVenueAdminResponse> {
+    return this.http.patch<FoodVenueAdminResponse>(`${this.API_URL}/admin/current`, formData);
   }
 
   getMyCurrentFoodVenue(): Observable<FoodVenuePublicResponse> {
-    
+
     return this.http.get<FoodVenuePublicResponse>(`${this.API_URL}/current`);
   }
 
