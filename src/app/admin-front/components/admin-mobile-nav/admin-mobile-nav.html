@@ -1,0 +1,139 @@
+<!-- Bottom Navigation Bar Fija -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-area-bottom">
+  <div class="grid grid-cols-4 h-16">
+
+    <!-- Salón -->
+    <a routerLink="/admin"
+       routerLinkActive="text-blue-600 bg-blue-50"
+       [routerLinkActiveOptions]="{exact: true}"
+       (click)="closeMenu()"
+       class="flex flex-col items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
+      <lucide-icon [img]="dashboardIcon" [size]="22"></lucide-icon>
+      <span class="text-xs mt-1">Salón</span>
+    </a>
+    
+
+    <!-- Pedidos -->
+    <a routerLink="/admin/orders"
+       routerLinkActive="text-blue-600 bg-blue-50"
+       (click)="closeMenu()"
+       class="flex flex-col items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
+      <lucide-icon [img]="clipboardIcon" [size]="22"></lucide-icon>
+      <span class="text-xs mt-1">Pedidos</span>
+    </a>
+
+    <!-- Pagos -->
+    <a routerLink="/admin/payments"
+       routerLinkActive="text-blue-600 bg-blue-50"
+       (click)="closeMenu()"
+       class="flex flex-col items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
+      <lucide-icon [img]="dollarIcon" [size]="22"></lucide-icon>
+      <span class="text-xs mt-1">Pagos</span>
+    </a>
+
+    <!-- Menú (toggle) -->
+    <button (click)="toggleMenu()"
+            [class.text-blue-600]="isMenuExpanded"
+            [class.bg-blue-50]="isMenuExpanded"
+            class="flex flex-col items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
+      <lucide-icon
+        [img]="isMenuExpanded ? closeIcon : menuIcon"
+        [size]="22">
+      </lucide-icon>
+      <span class="text-xs mt-1">{{ isMenuExpanded ? 'Cerrar' : 'Menú' }}</span>
+    </button>
+
+  </div>
+</nav>
+
+<!-- Menú Expandido (desliza desde abajo, arriba del bottom nav) -->
+<div
+  class="fixed left-0 right-0 bottom-16 bg-white border-t border-gray-200 shadow-2xl z-30 transition-all duration-300 ease-out overflow-y-auto"
+  [ngClass]="{
+    'max-h-[70vh] translate-y-0 opacity-100': isMenuExpanded,
+    'max-h-0 translate-y-8 opacity-0 pointer-events-none': !isMenuExpanded
+  }">
+
+  <div class="p-4">
+
+    <!-- Sección: Gestión -->
+    <div class="mb-6">
+      <!-- <p class="uppercase text-xs font-semibold text-gray-400 mb-3 px-2">
+        Gestión
+      </p> -->
+
+      <!-- Productos -->
+      <a routerLink="/admin/products"
+         routerLinkActive="!text-blue-600 !bg-blue-50"
+         (click)="onLinkClick()"
+         class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
+        <lucide-icon [img]="packageIcon" [size]="20" class="mr-3"></lucide-icon>
+        <span class="text-sm font-medium">Productos</span>
+      </a>
+
+      <!-- Categorías -->
+      <a routerLink="/admin/categories"
+         routerLinkActive="!text-blue-600 !bg-blue-50"
+         (click)="onLinkClick()"
+         class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
+        <lucide-icon [img]="gridIcon" [size]="20" class="mr-3"></lucide-icon>
+        <span class="text-sm font-medium">Categorías</span>
+      </a>
+
+      <!-- Tags -->
+      <a routerLink="/admin/tags"
+         routerLinkActive="!text-blue-600 !bg-blue-50"
+         (click)="onLinkClick()"
+         class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
+        <lucide-icon [img]="tagsIcon" [size]="20" class="mr-3"></lucide-icon>
+        <span class="text-sm font-medium">Tags</span>
+      </a>
+
+      <!-- Empleados -->
+      <a routerLink="/admin/employees"
+         routerLinkActive="!text-blue-600 !bg-blue-50"
+         (click)="onLinkClick()"
+         class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
+        <lucide-icon [img]="usersIcon" [size]="20" class="mr-3"></lucide-icon>
+        <span class="text-sm font-medium">Empleados</span>
+      </a>
+
+       <!-- Mi Local -->
+      <a routerLink="/admin/my-food-venue"
+         routerLinkActive="!text-blue-600 !bg-blue-50"
+         (click)="onLinkClick()"
+         class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
+        <lucide-icon [img]="settingsIcon" [size]="20" class="mr-3"></lucide-icon>
+        <span class="text-sm font-medium">Mi Local</span>
+      </a>
+    </div>
+
+    <!-- Sección: Configuración -->
+    <!-- <div class="mb-6"> -->
+      <!-- <p class="uppercase text-xs font-semibold text-gray-400 mb-3 px-2">
+        Configuración
+      </p> -->
+
+
+    <!-- </div> -->
+
+    <!-- Logout -->
+    <div class="border-t border-gray-200 pt-4">
+      <button (click)="logout()"
+              class="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+        <lucide-icon [img]="logOutIcon" [size]="20" class="mr-3"></lucide-icon>
+        <span class="text-sm font-medium">Cerrar Sesión</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Backdrop cuando el menú está abierto -->
+<div
+  *ngIf="isMenuExpanded"
+  (click)="closeMenu()"
+  class="fixed inset-0 bg-black/40 z-20 transition-opacity duration-300">
+</div>
+
+
