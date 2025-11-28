@@ -26,7 +26,7 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
 
   virtualGridWidth = 1800;
   virtualGridHeight = 800;
-  gridStep = 50;
+  gridStep = 25;
   collisionBuffer = 5;
   viewportWidth = 0;
   viewportHeight = 0;
@@ -42,6 +42,7 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
   hasUnsavedChanges: boolean = false;
   isEditingMode: boolean = false;
   isLoading: boolean = true;
+  isMobileView = false;
 
   gridWidth = 1200;
   gridHeight = 800;
@@ -60,6 +61,7 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeLounge();
     this.calculateViewportDimensions();
+    this.checkIfMobile();
     window.addEventListener('resize', this.onResize);
   }
 
@@ -69,8 +71,12 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
 
   private onResize = () => {
     this.calculateViewportDimensions();
+    this.checkIfMobile();
   };
 
+  private checkIfMobile(): void {
+  this.isMobileView = window.innerWidth < 768; // Tailwind 'md' breakpoint
+}
   // =======================================================
   // UTILS Y GETTERS
   // =======================================================
@@ -164,6 +170,31 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
       return;
     }
     this.draggedTable = table;
+
+    // 👇 Crear ghost image personalizada
+  const dragImage = document.createElement('div');
+  dragImage.style.width = `${(table.width || 80) * this.scaleRatio}px`;
+  dragImage.style.height = `${(table.height || 80) * this.scaleRatio}px`;
+  dragImage.style.backgroundColor = 'rgba(59, 130, 246, 0.5)';
+  dragImage.style.border = '2px dashed #3b82f6';
+  dragImage.style.borderRadius = table.tableShape === 'round' ? '50%' : '8px';
+  dragImage.style.display = 'flex';
+  dragImage.style.alignItems = 'center';
+  dragImage.style.justifyContent = 'center';
+  dragImage.style.color = 'white';
+  dragImage.style.fontWeight = 'bold';
+  dragImage.innerHTML = `${table.diningTableNumber}`;
+
+  document.body.appendChild(dragImage);
+  event.dataTransfer!.setDragImage(dragImage,
+    ((table.width || 80) * this.scaleRatio) / 2,
+    ((table.height || 80) * this.scaleRatio) / 2
+  );
+
+  // Limpiar después
+  setTimeout(() => document.body.removeChild(dragImage), 0);
+
+
     event.dataTransfer!.effectAllowed = 'move';
     event.dataTransfer!.setData('text/plain', table.diningTableId);
   }
@@ -542,4 +573,15 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
       }
     });
   }
+
+  getStatusLabelForCard(status: DiningTableStatus): string {
+  const statusMap: { [key: string]: string } = {
+    'AVAILABLE': 'Disponible',
+    'IN_SESSION': 'En Sesión',
+    'COMPLETE': 'Completa',
+    'WAITING_RESET': 'Esperando',
+    'OUT_OF_SERVICE': 'Fuera de Servicio'
+  };
+  return statusMap[status] || status;
+}
 }

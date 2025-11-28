@@ -1,4 +1,4 @@
-<div class="flex">
+<!-- <div class="flex">
 
 <div>
 <app-admin-dashboard
@@ -15,5 +15,36 @@
  >
 <router-outlet />
 </div>
+
+</div> -->
+
+
+<div class="min-h-screen bg-gray-50">
+
+  <!-- DESKTOP: Tu componente actual SIN TOCAR -->
+  <div *ngIf="!isMobile">
+    <app-admin-dashboard
+      [isCollapsed]="isSidebarCollapsed"
+      (toggleRequest)="toggleSidebar()">
+    </app-admin-dashboard>
+
+    <main
+      class="transition-all duration-300"
+      [ngClass]="{
+        'ml-64': !isSidebarCollapsed,
+        'ml-20': isSidebarCollapsed
+      }">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <!-- MOBILE: Componente nuevo independiente -->
+  <div *ngIf="isMobile">
+    <app-admin-mobile-nav></app-admin-mobile-nav>
+
+    <main class="pb-20">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
 
 </div>
