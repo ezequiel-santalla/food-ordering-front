@@ -19,7 +19,8 @@ import {
   Settings,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  TrendingUp
 } from 'lucide-angular';
 
 @Component({
@@ -29,7 +30,6 @@ import {
 })
 export class AdminDashboard implements OnInit {
 
-  // Iconos de Lucide
   readonly storeIcon = Store;
   readonly dashboardIcon = LayoutDashboard;
   readonly clipboardIcon = ClipboardList;
@@ -42,6 +42,7 @@ export class AdminDashboard implements OnInit {
   readonly logOutIcon = LogOut;
   readonly chevronLeftIcon = ChevronLeft;
   readonly chevronRightIcon = ChevronRight;
+  readonly trendingUpIcon = TrendingUp;
 
   @Input() isCollapsed: boolean = true;
   @Output() toggleRequest = new EventEmitter<void>();

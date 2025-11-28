@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import TagResponse from '../../models/response/tag-response';
 import { TagService } from '../../services/tag-service';
-import { Subcategory } from '../../../store-front/models/menu.interface';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
