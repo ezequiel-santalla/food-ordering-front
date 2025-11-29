@@ -1,8 +1,8 @@
-<div class="flex flex-col h-screen overflow-hidden lounge-container">
+<div class="p-4 sm:p-8 flex flex-col h-screen overflow-hidden lounge-container">
   <header
-    class="flex-none px-4 sm:px-8 py-2 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white border-b border-gray-200">
+    class="mb-4 md:mb-6 pb-1 flex flex-col md:flex-row md:justify-between md:items-start gap-4">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-semibold text-gray-900">
+      <h1 class="text-3xl sm:text-3xl font-semibold text-gray-900">
         {{ isEditingMode ? 'Armado de Salón (Modo Edición)' : 'Estado del Salón' }}
       </h1>
       <p class="text-xs sm:text-sm text-gray-500">
@@ -54,117 +54,195 @@
       }
     </div>
   </header>
-
-  @if (isLoading) {
-  <div
-    class="flex-1 mx-4 sm:mx-8 mb-4 sm:mb-8 bg-white shadow-md rounded-lg border border-gray-200 flex justify-center items-center">
+@if (isLoading) {
+  <div class="flex-1 mx-4 sm:mx-8 mb-4 sm:mb-8 bg-white shadow-md rounded-lg border border-gray-200 flex justify-center items-center">
     <div class="flex flex-col items-center justify-center text-indigo-600">
-      <svg class="animate-spin h-8 w-8 sm:h-10 sm:w-10 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-        viewBox="0 0 24 24">
+      <svg class="animate-spin h-8 w-8 sm:h-10 sm:w-10 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-        </path>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
       <p class="text-lg sm:text-xl font-semibold">Cargando Salón...</p>
       <p class="text-xs sm:text-sm text-gray-500 mt-1">Recuperando mesas y sectores.</p>
     </div>
   </div>
-  } @else {
-  <div
-    class="flex-none px-4 sm:px-8 pb-3 pt-3 sm:pb-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+} @else {
+  <div class="flex-none px-4 sm:px-8 pb-3 pt-3 sm:pb-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
     <div>
       <label class="text-xs sm:text-sm font-medium text-gray-700 mr-2">Sector Actual:</label>
-      <select [(ngModel)]="currentSector"
-        class="px-3 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 text-xs sm:text-sm cursor-pointer">
+      <select [(ngModel)]="currentSector" class="px-3 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 text-xs sm:text-sm cursor-pointer">
         @for (sector of sectors; track sector) {
-        <option [value]="sector">{{sector}}</option>
+          <option [value]="sector">{{sector}}</option>
         }
       </select>
     </div>
 
     <div class="flex items-center text-xs sm:text-sm text-gray-600">
-
       <span class="whitespace-nowrap">
         <span class="font-medium">Mesas:</span> {{tablesInCurrentSector.length}}
       </span>
-
       <span class="mx-3 text-gray-300 text-lg font-light">|</span>
-
       <span class="whitespace-nowrap">
         <span class="font-medium">Capacidad:</span> {{getTotalCapacity()}}p
       </span>
-
     </div>
   </div>
 
-  <div class="flex-1 mx-4 sm:mx-8 mb-3 sm:mb-4 overflow-hidden min-h-0">
-    <div
-      class="h-full bg-white shadow-md rounded-lg border border-gray-200 flex justify-center items-center p-3 sm:p-4 md:p-6 lg:p-8">
-      <div class="relative border-2 border-dashed rounded-lg overflow-hidden" [class.border-green-300]="isEditingMode"
-        [class.border-gray-300]="!isEditingMode" [style.width.px]="viewportWidth" [style.height.px]="viewportHeight"
-        (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+  <!-- VISTA DESKTOP: Canvas con Drag & Drop -->
+  @if (!isMobileView) {
+    <div class="flex-1 mx-4 sm:mx-8 mb-3 sm:mb-4 overflow-hidden min-h-0">
+      <div class="h-full bg-white shadow-md rounded-lg border border-gray-200 flex justify-center items-center p-3 sm:p-4 md:p-6 lg:p-8">
+        <div class="relative border-2 border-dashed rounded-lg overflow-hidden"
+             [class.border-green-300]="isEditingMode"
+             [class.border-gray-300]="!isEditingMode"
+             [style.width.px]="viewportWidth"
+             [style.height.px]="viewportHeight"
+             (drop)="onDrop($event)"
+             (dragover)="onDragOver($event)">
 
-        @if (isEditingMode) {
-        <div class="absolute inset-0 opacity-10"
-          [style.backgroundImage]="'repeating-linear-gradient(0deg, #ccc, #ccc 1px, transparent 1px, transparent ' + (50 * scaleRatio) + 'px), repeating-linear-gradient(90deg, #ccc, #ccc 1px, transparent 1px, transparent ' + (50 * scaleRatio) + 'px)'"
-          [style.backgroundSize]="(50 * scaleRatio) + 'px ' + (50 * scaleRatio) + 'px'">
-        </div>
-        }
+          @if (isEditingMode) {
+            <div class="absolute inset-0 opacity-10"
+              [style.backgroundImage]="'repeating-linear-gradient(0deg, #ccc, #ccc 1px, transparent 1px, transparent ' + (50 * scaleRatio) + 'px), repeating-linear-gradient(90deg, #ccc, #ccc 1px, transparent 1px, transparent ' + (50 * scaleRatio) + 'px)'"
+              [style.backgroundSize]="(50 * scaleRatio) + 'px ' + (50 * scaleRatio) + 'px'">
+            </div>
+          }
 
-        @for (table of scaledTablesInCurrentSector; track table.diningTableId) {
-        <div [style.left.px]="table.displayX" [style.top.px]="table.displayY" [style.width.px]="table.displayWidth"
-          [style.height.px]="table.displayHeight"
-          class="absolute flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 select-none hover:scale-105 hover:z-10"
-          [class.cursor-pointer]="!isEditingMode" [class.cursor-move]="isEditingMode" [class.bg-gradient-to-br]="true"
-          [class.from-green-500]="table.diningTableStatus === 'AVAILABLE'"
-          [class.to-green-600]="table.diningTableStatus === 'AVAILABLE'"
-          [class.from-blue-500]="table.diningTableStatus === 'IN_SESSION'"
-          [class.to-blue-600]="table.diningTableStatus === 'IN_SESSION'"
-          [class.from-yellow-500]="table.diningTableStatus === 'COMPLETE'"
-          [class.to-yellow-600]="table.diningTableStatus === 'COMPLETE'"
-          [class.from-orange-500]="table.diningTableStatus === 'WAITING_RESET'"
-          [class.to-orange-600]="table.diningTableStatus === 'WAITING_RESET'"
-          [class.from-gray-800]="table.diningTableStatus === 'OUT_OF_SERVICE'"
-          [class.to-gray-900]="table.diningTableStatus === 'OUT_OF_SERVICE'"
-          [class.rounded-full]="table.tableShape === 'round'"
-          [class.rounded-lg]="table.tableShape === 'square' || table.tableShape === 'rect'" [draggable]="isEditingMode"
-          (dragstart)="onDragStart($event, table)" (click)="selectTable(table)">
-          <div class="text-center text-white font-semibold pointer-events-none">
-            <div class="leading-none" [style.fontSize]="getTableNumberFontSize(scaleRatio)">
-              {{table.diningTableNumber}}
+          @for (table of scaledTablesInCurrentSector; track table.diningTableId) {
+            <div [style.left.px]="table.displayX"
+                 [style.top.px]="table.displayY"
+                 [style.width.px]="table.displayWidth"
+                 [style.height.px]="table.displayHeight"
+                 class="absolute flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 select-none hover:scale-105 hover:z-10"
+                [class.opacity-30]="draggedTable?.diningTableId === table.diningTableId"
+                 [class.cursor-pointer]="!isEditingMode"
+                 [class.cursor-move]="isEditingMode"
+                 [class.bg-gradient-to-br]="true"
+                 [class.from-green-500]="table.diningTableStatus === 'AVAILABLE'"
+                 [class.to-green-600]="table.diningTableStatus === 'AVAILABLE'"
+                 [class.from-blue-500]="table.diningTableStatus === 'IN_SESSION'"
+                 [class.to-blue-600]="table.diningTableStatus === 'IN_SESSION'"
+                 [class.from-yellow-500]="table.diningTableStatus === 'COMPLETE'"
+                 [class.to-yellow-600]="table.diningTableStatus === 'COMPLETE'"
+                 [class.from-orange-500]="table.diningTableStatus === 'WAITING_RESET'"
+                 [class.to-orange-600]="table.diningTableStatus === 'WAITING_RESET'"
+                 [class.from-gray-800]="table.diningTableStatus === 'OUT_OF_SERVICE'"
+                 [class.to-gray-900]="table.diningTableStatus === 'OUT_OF_SERVICE'"
+                 [class.rounded-full]="table.tableShape === 'round'"
+                 [class.rounded-lg]="table.tableShape === 'square' || table.tableShape === 'rect'"
+                 [draggable]="isEditingMode"
+                 (dragstart)="onDragStart($event, table)"
+                 (click)="selectTable(table)">
+              <div class="text-center text-white font-semibold pointer-events-none">
+                <div class="leading-none" [style.fontSize]="getTableNumberFontSize(scaleRatio)">
+                  {{table.diningTableNumber}}
+                </div>
+                <div class="opacity-90 mt-0.5" [style.fontSize]="getTableCapacityFontSize(scaleRatio)">
+                  {{table.diningTableCapacity}}p
+                </div>
+              </div>
             </div>
-            <div class="opacity-90 mt-0.5" [style.fontSize]="getTableCapacityFontSize(scaleRatio)">
-              {{table.diningTableCapacity}}p
+          }
+
+          @if (scaledTablesInCurrentSector.length === 0) {
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="text-center text-gray-400">
+                <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                <p class="text-base sm:text-lg font-medium">No hay mesas en este sector</p>
+                @if (isEditingMode) {
+                  <p class="text-xs sm:text-sm mt-1">Haz clic en "Agregar Mesa" para comenzar</p>
+                } @else {
+                  <p class="text-xs sm:text-sm mt-1">El sector está vacío.</p>
+                }
+              </div>
             </div>
+          }
+
+          <div class="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 text-[10px] sm:text-xs text-gray-500 bg-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded shadow">
+            Escala: {{(scaleRatio * 100).toFixed(0)}}%
           </div>
+
         </div>
+
+      </div>
+
+    </div>
+  }
+
+  <!-- VISTA MOBILE: Lista de Cards -->
+  @if (isMobileView) {
+    <div class="flex-1 mx-4 mb-4 overflow-y-auto">
+      <div class="space-y-3">
+        @if (tablesInCurrentSector.length === 0) {
+          <div class="bg-white rounded-lg shadow-md p-8 text-center text-gray-400">
+            <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+            <p class="text-lg font-medium">No hay mesas en este sector</p>
+          </div>
         }
 
-        @if (scaledTablesInCurrentSector.length === 0) {
-        <div class="absolute inset-0 flex items-center justify-center">
-          <div class="text-center text-gray-400">
-            <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
-            <p class="text-base sm:text-lg font-medium">No hay mesas en este sector</p>
-            @if (isEditingMode) {
-            <p class="text-xs sm:text-sm mt-1">Haz clic en "Agregar Mesa" para comenzar</p>
-            } @else {
-            <p class="text-xs sm:text-sm mt-1">El sector está vacío.</p>
+        @for (table of tablesInCurrentSector; track table.diningTableId) {
+          <div (click)="selectTable(table)"
+               class="bg-white rounded-lg shadow-md p-4 border-l-4 cursor-pointer active:scale-[0.98] transition-transform"
+               [class.border-green-500]="table.diningTableStatus === 'AVAILABLE'"
+               [class.border-blue-500]="table.diningTableStatus === 'IN_SESSION'"
+               [class.border-yellow-500]="table.diningTableStatus === 'COMPLETE'"
+               [class.border-orange-500]="table.diningTableStatus === 'WAITING_RESET'"
+               [class.border-gray-800]="table.diningTableStatus === 'OUT_OF_SERVICE'">
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                     [class.bg-green-500]="table.diningTableStatus === 'AVAILABLE'"
+                     [class.bg-blue-500]="table.diningTableStatus === 'IN_SESSION'"
+                     [class.bg-yellow-500]="table.diningTableStatus === 'COMPLETE'"
+                     [class.bg-orange-500]="table.diningTableStatus === 'WAITING_RESET'"
+                     [class.bg-gray-800]="table.diningTableStatus === 'OUT_OF_SERVICE'">
+                  {{table.diningTableNumber}}
+                </div>
+
+                <div>
+                  <p class="font-semibold text-gray-800">Mesa {{table.diningTableNumber}}</p>
+                  <p class="text-sm text-gray-500">{{table.diningTableCapacity}} personas</p>
+                </div>
+              </div>
+
+              <div>
+                <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold"
+                      [class.bg-green-100]="table.diningTableStatus === 'AVAILABLE'"
+                      [class.text-green-800]="table.diningTableStatus === 'AVAILABLE'"
+                      [class.bg-blue-100]="table.diningTableStatus === 'IN_SESSION'"
+                      [class.text-blue-800]="table.diningTableStatus === 'IN_SESSION'"
+                      [class.bg-yellow-100]="table.diningTableStatus === 'COMPLETE'"
+                      [class.text-yellow-800]="table.diningTableStatus === 'COMPLETE'"
+                      [class.bg-orange-100]="table.diningTableStatus === 'WAITING_RESET'"
+                      [class.text-orange-800]="table.diningTableStatus === 'WAITING_RESET'"
+                      [class.bg-gray-100]="table.diningTableStatus === 'OUT_OF_SERVICE'"
+                      [class.text-gray-800]="table.diningTableStatus === 'OUT_OF_SERVICE'">
+                  {{getStatusLabelForCard(table.diningTableStatus)}}
+                </span>
+              </div>
+            </div>
+
+            @if (table.diningTableStatus === 'IN_SESSION') {
+              <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                <span class="text-xs text-gray-500 flex items-center">
+                  <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Sesión activa
+                </span>
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
             }
           </div>
-        </div>
         }
-
-        <div
-          class="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 text-[10px] sm:text-xs text-gray-500 bg-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded shadow">
-          Escala: {{(scaleRatio * 100).toFixed(0)}}%
-        </div>
       </div>
     </div>
-  </div>
+  }
 
   <div
     class="flex-none px-4 sm:px-8 pb-4 sm:pb-6 flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-6 text-[10px] sm:text-xs md:text-sm text-gray-600">
@@ -184,7 +262,7 @@
       <div class="w-3 h-3 sm:w-4 sm:h-4 bg-gray-800 rounded flex-shrink-0"></div><span>Fuera de Servicio</span>
     </div>
   </div>
-  }
+}
 
   @if (showSectorModal && isEditingMode) {
   <app-sector-modal (close)="closeSectorModal()" (sectorCreated)="onSectorCreated($event)"></app-sector-modal>

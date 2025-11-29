@@ -53,14 +53,14 @@ export class TableEditDetailModal {
   }
 
   decreaseWidth(): void {
-    if (this.currentWidth > 120) {
+    if (this.currentWidth > 60) {
       this.currentWidth -= 20;
       this.onSizeChange();
     }
   }
 
   increaseHeight(): void {
-    if (this.currentHeight < 120) {
+    if (this.currentHeight < 400) {
       this.currentHeight += 10;
       this.onSizeChange();
     }
@@ -80,6 +80,12 @@ export class TableEditDetailModal {
       height: this.currentHeight
     });
   }
+  rotateBar(): void {
+  const temp = this.currentWidth;
+  this.currentWidth = this.currentHeight;
+  this.currentHeight = temp;
+  this.onSizeChange();
+}
 
   async onRemove(): Promise<void> {
     const confirmed = await this.sweetAlertService.confirmCustomAction(
@@ -178,4 +184,16 @@ export class TableEditDetailModal {
     this.isEditing.set(false);
     this.onClose();
   }
+
+  setPresetSize(size: 'small' | 'medium' | 'large'): void {
+  const presets = {
+    small: 80,
+    medium: 100,
+    large: 120
+  };
+
+  this.currentWidth = presets[size];
+  this.currentHeight = presets[size]; // Mantener proporción 1:1
+  this.onSizeChange();
+}
 }

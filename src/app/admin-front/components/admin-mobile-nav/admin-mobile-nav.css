@@ -1,0 +1,9 @@
+/* Safe area para dispositivos con notch */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Asegurar que el menú expandido no se vea cortado */
+:host {
+  display: contents;
+}
