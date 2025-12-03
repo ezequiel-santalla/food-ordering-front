@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { KeyRound, LucideAngularModule, Mail, RotateCcwIcon, User, Phone, MapPin } from 'lucide-angular';
 import { AuthService } from '../../services/auth-service';
 import { FormUtils } from '../../../utils/form-utils';
@@ -26,6 +26,7 @@ export class RegisterPageComponent {
   private authService = inject(AuthService);
   private sweetAlertService = inject(SweetAlertService);
   private errorHandler = inject(ErrorHandlerService);
+  private router = inject(Router);
 
   get pageTitle(): string {
     return 'Crear Cuenta';
@@ -101,6 +102,8 @@ export class RegisterPageComponent {
           html: `Revisa tu correo <strong>${formValue.email}</strong><br>para activar tu cuenta.`,
           icon: 'success',
           confirmButtonText: 'Entendido',
+        }).then(() => {
+          this.router.navigate(['/auth/login']);
         });
 
         this.resetForm();
