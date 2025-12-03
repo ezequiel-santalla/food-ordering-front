@@ -29,18 +29,20 @@ export const storeFrontRoutes: Routes = [
       },
       {
         path: 'orders',
-        loadChildren: () => import('./routes/orders.routes').then(m => m.Orders),
+        loadChildren: () =>
+          import('./routes/orders.routes').then((m) => m.Orders),
       },
       {
         path: 'payments',
-        loadChildren: () => import('./routes/payments.routes').then(m => m.Payments),
+        loadChildren: () =>
+          import('./routes/payments.routes').then((m) => m.Payments),
       },
       {
         path: '**',
         component: NotFoundPage,
-      }
+      },
     ],
-  }
+  },
 ];
 
 export default storeFrontRoutes;
