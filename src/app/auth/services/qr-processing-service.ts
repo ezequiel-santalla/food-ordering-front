@@ -7,6 +7,7 @@ import { SessionUtils } from '../../utils/session-utils';
 import { AuthService } from '../../auth/services/auth-service';
 import { Participant } from '../../shared/models/common';
 import { finalize } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root',
@@ -18,15 +19,39 @@ export class QrProcessingService {
   private errorHandler = inject(ErrorHandlerService);
   private navigation = inject(NavigationService);
 
-  // Signal interno para evitar procesar dos QR a la vez
   private isSubmitting = signal(false);
+  public isInQrFlow = signal(false);
 
   processTableId(tableId: string): void {
+    this.isInQrFlow.set(true);
+
+    const current = this.authService.tableSessionId();
+
+    if (SessionUtils.isValidSession(current)) {
+      this.sweetAlertService.showInfo(
+        'Sesión activa',
+        'Ya estás participando en una mesa. No es posible escanear otra.'
+      );
+      this.navigation.navigateToHome();
+      return;
+    }
+
     if (this.isSubmitting()) {
       console.warn('Procesamiento de QR ya en curso.');
       return;
     }
 
+    const isAuthenticated = this.authService.isAuthenticated();
+
+    if (isAuthenticated) {
+      this.processAuthenticatedUser(tableId);
+      return;
+    }
+
+    this.processGuestFlow(tableId);
+  }
+
+  private processAuthenticatedUser(tableId: string): void {
     const currentSession = this.authService.tableSessionId();
 
     if (SessionUtils.isValidSession(currentSession)) {
@@ -78,47 +103,103 @@ export class QrProcessingService {
           );
           this.navigation.navigateToHome();
         },
-        error: (errorResponse) => {
-          console.error('❌ Error procesando QR:', errorResponse);
-          this.isSubmitting.set(false);
-
-          const backendError = errorResponse.error;
-
-          let title = 'Error';
-          let message = 'No se pudo procesar el QR.';
-
-          if (backendError && backendError.message) {
-            message = backendError.message;
-
-            if (backendError.appCode === 'COMPLETE') {
-              title = 'Mesa Llena';
-              message = 'La mesa escaneada no admite mas participantes';
-            } else if (backendError.appCode === 'WAITING_RESET') {
-              title = 'Mesa En Espera';
-              message = 'Avisale al camarero que estás acá para que habilite la mesa';
-            } else if (backendError.appCode === 'OUT_OF_SERVICE') {
-              title = 'Mesa Fuera de Servicio';
-              message = 'La mesa no se encuentra habilitada para iniciar sesión';
-            } else {
-              title = 'No disponible';
-              message = 'Ocurrió un error al iniciar sesión';
-            }
-          } else if (errorResponse.status === 409) {
-            // Fallback por si algo falla en el JSON
-            title = 'Acción no permitida';
-            message = 'Ya existe un conflicto con esta acción.';
-          }
-
-          this.sweetAlertService.showError(title, message);
-
-          setTimeout(() => {
-            this.navigation.navigateToHome();
-          }, 2500);
-        },
+        error: (err) => this.handleScanError(err),
       });
   }
 
-  // --- Métodos privados de ayuda ---
+  private processGuestFlow(tableId: string): void {
+    this.sweetAlertService
+      .showChoice(
+        '¿Cómo querés continuar?',
+        'Podés ingresar como invitado o iniciar sesión.',
+        'Seguir como invitado',
+        'Iniciar sesión'
+      )
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.askGuestName(tableId);
+          return;
+        }
+
+        Swal.close();
+        
+        this.authService.setPendingTableScan(tableId);
+
+        queueMicrotask(() => this.navigation.navigateToLogin());
+      });
+  }
+
+  private askGuestName(tableId: string): void {
+    this.sweetAlertService
+      .inputText(
+        'Ingresá tu nombre',
+        'Este nombre aparecerá en la mesa',
+        'Nombre del invitado'
+      )
+      .then((res) => {
+        const nickname = res.value?.trim();
+
+        if (res.isDismissed) {
+          this.navigation.navigateToHome();
+          return;
+        }
+
+        if (!nickname) {
+          this.sweetAlertService.showError(
+            'Nombre inválido',
+            'Debés ingresar un nombre válido.'
+          );
+          return;
+        }
+
+        this.finishGuestScan(tableId, nickname);
+      });
+  }
+
+  private finishGuestScan(tableId: string, nickname: string): void {
+    this.sweetAlertService.showLoading(
+      'Uniéndote...',
+      'Conectando con la mesa'
+    );
+
+    this.isSubmitting.set(true);
+
+    this.authService
+      .scanQR(tableId, nickname)
+      .pipe(finalize(() => this.isSubmitting.set(false)))
+      .subscribe({
+        next: (response) => {
+          this.tableSessionService.setTableSessionInfo(
+            response.tableNumber,
+            nickname,
+            response.numberOfParticipants || 0,
+            response.tableCapacity ?? null,
+            this.authService.participantId()!
+          );
+
+          this.sweetAlertService.showSuccess(
+            `¡Bienvenido ${nickname}!`,
+            `Te has unido a la mesa ${response.tableNumber}`
+          );
+
+          this.navigation.navigateToHome();
+        },
+        error: (err) => this.handleScanError(err),
+      });
+  }
+
+  private handleScanError(errorResponse: any): void {
+    console.error('❌ Error procesando QR:', errorResponse);
+
+    this.isSubmitting.set(false);
+    this.sweetAlertService.closeAll();
+
+    const { title, message } = this.errorHandler.getQrScanError(errorResponse);
+
+    this.sweetAlertService.showError(title, message).then(() => {
+      this.navigation.navigateToHome();
+    });
+  }
 
   private getNicknameFromResponse(response: any): string {
     const participantId = this.authService.participantId();

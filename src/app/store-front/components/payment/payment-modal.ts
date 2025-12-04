@@ -17,6 +17,8 @@ import { PaymentMethod, PaymentOrderView } from '../../models/payment.interface'
   templateUrl: './payment-modal.html',
 })
 export class PaymentModalComponent {
+
+  readonly PaymentMethod = PaymentMethod;
   @ViewChild('dialog') dialog?: ElementRef<HTMLDialogElement>;
 
   // Datos que vienen del padre
@@ -30,6 +32,7 @@ export class PaymentModalComponent {
   @Output() paymentMethodChange = new EventEmitter<PaymentMethod>();
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
+  @Output() mercadoPagoSelected = new EventEmitter<void>();
 
   // Iconos (por si querés usar dentro del modal)
   readonly CreditCard = CreditCard;
@@ -56,5 +59,10 @@ export class PaymentModalComponent {
   onCancel() {
     this.cancel.emit();
     this.close();
+  }
+
+   onSelectMercadoPago() {
+    console.log('💙 User selected MercadoPago (Checkout Pro)');
+    this.mercadoPagoSelected.emit();
   }
 }

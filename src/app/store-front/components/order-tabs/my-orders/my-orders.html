@@ -19,7 +19,7 @@
       </div>
     </div>
   } @else {
-    <!-- tarjetas -->
+    <!-- Tarjetas de órdenes -->
     <div class="flex flex-col gap-4">
       @for (order of orders(); track order.publicId) {
         <app-order-card
@@ -30,7 +30,7 @@
     </div>
   }
 
-  <!-- 🔹 Modal de pago reutilizable (declarado ANTES de usar #payModalCmp en el botón) -->
+  <!-- ⭐ Modal de confirmación de pago (el actual) -->
   <app-payment-modal
     #payModalCmp
     [totalToPay]="totalToPay()"
@@ -40,10 +40,20 @@
     [isProcessingPayment]="isProcessingPayment()"
     (paymentMethodChange)="selectedPaymentMethod.set($event)"
     (confirm)="confirmPayment()"
+    (mercadoPagoSelected)="onMercadoPagoSelected()"
   >
   </app-payment-modal>
 
-  <!-- 🔹 Barra de pago “pegada abajo” dentro de esta sección -->
+  <!-- ⭐ NUEVO: Modal de MercadoPago Checkout Bricks -->
+  <app-mercado-pago-checkout
+    #mpCheckoutCmp
+    (onSuccess)="onMPCheckoutSuccess($event)"
+    (onError)="onMPCheckoutError($event)"
+    (onCancel)="onMPCheckoutCancel()"
+  >
+  </app-mercado-pago-checkout>
+
+  <!-- Barra de pago (sticky bottom) -->
   <div
     class="sticky bottom-0 bg-base-100 border-t border-gray-200 px-4 py-3 shadow-lg"
   >

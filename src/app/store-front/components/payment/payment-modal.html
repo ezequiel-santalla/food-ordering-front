@@ -12,6 +12,26 @@
       </div>
     </div>
 
+
+    <!-- ⭐ NUEVO: Botón de MercadoPago (ANTES de los métodos) -->
+    <button
+      type="button"
+      class="w-full btn btn-lg bg-[#009EE3] hover:bg-[#0084BE] text-white border-0 mb-4"
+      (click)="onSelectMercadoPago()"
+      [disabled]="isProcessingPayment"
+    >
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+      </svg>
+      <div class="text-left flex-1">
+        <div class="font-semibold">Pagar con MercadoPago</div>
+        <div class="text-xs opacity-80">Saldo, tarjetas guardadas o apps</div>
+      </div>
+    </button>
+
+    <!-- Separador -->
+    <div class="divider text-xs text-gray-400">o pagar con</div>
+
     <!-- Métodos de pago -->
     <div class="mb-4">
       <div class="text-sm font-medium mb-2">Método de pago</div>
@@ -72,6 +92,21 @@
   </details>
 </div>
 
+<!-- ⭐ Texto aclaratorio -->
+    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="flex items-start gap-2">
+        <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+        </svg>
+        <div class="text-xs text-blue-800">
+          <p class="font-medium">🔒 Pago seguro</p>
+          <p class="mt-1 opacity-90">
+            Procesado por MercadoPago. NO almacenamos datos de tarjetas.
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- Acciones -->
     <div class="modal-action">
       <button
@@ -81,6 +116,8 @@
       >
         Cancelar
       </button>
+
+      @if (selectedPaymentMethod === PaymentMethod.CASH) {
       <button
         class="btn btn-primary"
         (click)="onConfirm()"
@@ -89,7 +126,17 @@
       >
         Confirmar pago
       </button>
-    </div>
+      } @else if (selectedPaymentMethod === PaymentMethod.CREDIT_CARD || selectedPaymentMethod === PaymentMethod.DEBIT_CARD) {
+         <button
+          class="btn btn-primary"
+          (click)="onConfirm()"
+          [class.loading]="isProcessingPayment"
+          [disabled]="isProcessingPayment || !selectedOrders.length"
+        >
+          Continuar
+        </button>
+      }
+      </div>
   </div>
 
   <form method="dialog" class="modal-backdrop">

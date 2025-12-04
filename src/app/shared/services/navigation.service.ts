@@ -87,7 +87,7 @@ export class NavigationService {
    * Navega al login
    */
   navigateToLogin(): void {
-    this.router.navigate(['/login/'], { replaceUrl: true });
+    this.router.navigate(['/auth/login'], { replaceUrl: true });
   }
 
   /**
@@ -96,5 +96,9 @@ export class NavigationService {
   navigateToRoleSelection(): void {
     console.log('navigatig to /role-selection');
     this.router.navigate(['/role-selection'], { replaceUrl: true });
+  }
+
+  navigateToScanHandler(tableId: string) {
+    this.router.navigate(['/scan-qr', tableId]);
   }
 }
