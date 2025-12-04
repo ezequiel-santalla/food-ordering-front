@@ -60,4 +60,11 @@ export class DiningTableService {
   deleteTable(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  generateQrCode(baseUrl: string, tableNumber: number): Observable<{ qrCodeUrl: string }> {
+  return this.http.post<{ qrCodeUrl: string }>(`${this.apiUrl}/generate-qr-code`, {
+    baseUrl,
+    tableNumber
+  });
+}
 }
