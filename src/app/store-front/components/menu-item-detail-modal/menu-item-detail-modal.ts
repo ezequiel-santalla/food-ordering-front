@@ -33,7 +33,7 @@ export class MenuItemDetailModal {
   isFavorite = signal(false);
 
   constructor() {
-    // 9. Este 'effect' se ejecutará cuando el producto cambie.
+    
     effect(() => {
       const currentProduct = this.product();
       if (currentProduct) {

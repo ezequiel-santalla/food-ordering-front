@@ -10,10 +10,7 @@ import {
   PersonStanding,
   UsersRound,
 } from 'lucide-angular';
-import {
-  PaymentResponseDto,
-  PaymentStatus,
-} from '../../../models/payment.interface';
+
 import { Subscription } from 'rxjs';
 import { ServerSentEventsService } from '../../../../shared/services/server-sent-events.service';
 
@@ -36,16 +33,13 @@ export class TableSummaryComponent {
   readonly Coins = Coins;
   readonly BanknoteX = BanknoteX;
 
-  // --- Señales para el Resumen ---
-
   tableNumber = computed(
     () => this.tableSessionService.tableSessionInfo().tableNumber
   );
 
-  // Total de pedidos en la mesa (ej. "3")
+  isLoading = computed(() => this.orderService.tableOrders().length === 0);
   totalOrders = computed(() => this.orderService.tableOrders().length);
 
-  // Conteo de personas (ej. "3/4")
   participantCount = computed(
     () => this.tableSessionService.tableSessionInfo().participantCount
   );
@@ -54,7 +48,6 @@ export class TableSummaryComponent {
     return capacity ?? null;  
 });
 
-  // Total gastado (Suma de TODOS los pedidos)
   totalSpent = computed(() => {
     return this.orderService
       .tableOrders()

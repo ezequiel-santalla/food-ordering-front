@@ -6,6 +6,7 @@ import {
   RouterStateSnapshot,
 } from '@angular/router';
 import { AuthService } from '../services/auth-service';
+import { QrProcessingService } from '../services/qr-processing-service';
 
 export const UnauthenticatedGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
@@ -15,8 +16,8 @@ export const UnauthenticatedGuard: CanActivateFn = (
 
   const authService = inject(AuthService);
   const router = inject(Router);
+  const qrFlow = inject(QrProcessingService);
 
-  // Rutas públicas que NO requieren verificación de autenticación
   const isPublicAuthFlow =
     state.url.includes('/forgot-password') ||
     state.url.includes('/reset-password') ||
@@ -24,39 +25,31 @@ export const UnauthenticatedGuard: CanActivateFn = (
     state.url.includes('/resend-verification');
 
   if (isPublicAuthFlow) {
-    console.log('✅ Ruta pública de auth, acceso permitido');
+    return true;
+  }
+
+  if (qrFlow.isInQrFlow()) {
+    console.log('Permitiendo login porque viene del flujo QR');
     return true;
   }
 
   const isAuthenticated = authService.isAuthenticated();
 
   if (!isAuthenticated) {
-    console.log('✅ No autenticado, puede acceder a login');
     return true;
   }
 
-  const isGuest = authService.isGuest();
-
-  if (isGuest) {
-    console.log('👻 Guest detectado, permitiendo acceso a login');
+  if (authService.isGuest()) {
     return true;
   }
-
-  console.log('✅ Ya autenticado, verificando sesión de mesa...');
 
   const tableSessionId = authService.tableSessionId();
 
-  if (
-    tableSessionId &&
-    tableSessionId !== 'undefined' &&
-    tableSessionId !== 'null'
-  ) {
-    console.log('✅ Con sesión de mesa, redirigiendo a home');
+  if (tableSessionId) {
     router.navigate(['/']);
-  } else {
-    console.log('⚠️ Sin sesión de mesa, redirigiendo a scan-qr');
-    router.navigate(['/scan-qr']);
+    return false;
   }
 
+  router.navigate(['/scan-qr']);
   return false;
 };

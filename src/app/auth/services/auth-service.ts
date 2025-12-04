@@ -26,6 +26,7 @@ export class AuthService {
 
   private isRefreshingToken = false;
   private tokenRefreshed$ = new Subject<string>();
+  private pendingTableId: string | null = null;
 
   constructor() {
     this.authState.loadFromStorage();
@@ -72,9 +73,9 @@ export class AuthService {
       tap((response) => {
         const processed = SessionUtils.isTableSessionResponse(response)
           ? TokenManager.processTableSessionResponse(
-            response as TableSessionResponse,
-            this.authState.refreshToken()
-          )
+              response as TableSessionResponse,
+              this.authState.refreshToken()
+            )
           : TokenManager.processAuthResponse(response as AuthResponse);
 
         this.authState.applyAuthData(processed);
@@ -141,6 +142,7 @@ export class AuthService {
 
   scanQR(
     tableId: string,
+    nickname: string | null = null,
     forceChange = false
   ): Observable<TableSessionResponse> {
     const currentSessionId = this.authState.tableSessionId();
@@ -155,11 +157,11 @@ export class AuthService {
 
     if (hasValidSession && forceChange) {
       return this.closeCurrentSession().pipe(
-        switchMap(() => this.performScanQR(tableId))
+        switchMap(() => this.performScanQR(tableId, nickname))
       );
     }
 
-    return this.performScanQR(tableId);
+    return this.performScanQR(tableId, nickname);
   }
 
   checkAuthStatus(): Observable<boolean> {
@@ -247,8 +249,13 @@ export class AuthService {
 
   // ==================== MÉTODOS PRIVADOS ====================
 
-  private performScanQR(tableId: string): Observable<TableSessionResponse> {
-    return this.authApi.scanQR(tableId).pipe(
+  private performScanQR(
+    tableId: string,
+    nickname: string | null = null
+  ): Observable<TableSessionResponse> {
+    const nicknameOrUndefined = nickname ?? undefined;
+
+    return this.authApi.scanQR(tableId, nicknameOrUndefined).pipe(
       tap((response) => {
         const processed = TokenManager.processTableSessionResponse(
           response,
@@ -317,5 +324,19 @@ export class AuthService {
   logoutAndReload(): void {
     this.logout();
     location.reload();
+  }
+
+  setPendingTableScan(id: string) {
+    this.pendingTableId = id;
+  }
+
+  consumePendingTableScan(): string | null {
+    const id = this.pendingTableId;
+    this.pendingTableId = null;
+    return id;
+  }
+
+  hasPendingTableScan(): boolean {
+    return this.pendingTableId !== null;
   }
 }

@@ -157,13 +157,14 @@ export class PaymentsPage implements OnInit {
 
     this.paymentService
       .createPayment({
+        idempotencyKey: '',
         paymentMethod,
         orderIds,
       })
       .subscribe({
         next: (response) => {
           console.log('✅ Pago exitoso:', response);
-this.payModalCmp?.close(); 
+this.payModalCmp?.close();
           this.sweetAlertService.showConfirmableSuccess(
             '¡Pago exitoso!',
             `Pagaste $${total.toFixed(2)}`
@@ -177,7 +178,7 @@ this.payModalCmp?.close();
         error: (error) => {
           console.error('❌ Error en el pago:', error);
           const errorMessage = this.paymentError() || 'Error desconocido';
-          this.payModalCmp?.close(); 
+          this.payModalCmp?.close();
           this.sweetAlertService.showError(
             'Error al procesar el pago',
             errorMessage

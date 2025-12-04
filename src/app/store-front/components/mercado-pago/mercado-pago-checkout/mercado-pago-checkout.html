@@ -1,0 +1,56 @@
+<dialog #dialog class="modal">
+      <div class="modal-box max-w-2xl">
+        <h3 class="font-bold text-xl mb-4">Pagar con Tarjeta</h3>
+
+        <!-- Información del pago -->
+        <div class="bg-base-200 rounded-lg p-4 mb-6">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-500">Total a pagar</span>
+            <span class="text-2xl font-bold">
+              {{ formatAmount(amount) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        @if (isLoading()) {
+          <div class="flex flex-col items-center justify-center py-12">
+            <span class="loading loading-spinner loading-lg text-primary"></span>
+            <p class="text-gray-500 mt-4">Cargando formulario de pago...</p>
+          </div>
+        }
+
+        <!-- Error -->
+        @if (error()) {
+          <div class="alert alert-error mb-4">
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <!-- Contenedor de MercadoPago Bricks -->
+        <div #bricksContainer id="mp-bricks-container"></div>
+
+        <!-- Botones -->
+        <div class="modal-action">
+          <button
+            class="btn btn-ghost"
+            (click)="close()"
+            [disabled]="isProcessing()"
+          >
+            Cancelar
+          </button>
+         <button
+  id="mp-submit-button"
+  class="btn btn-primary"
+  [class.loading]="isProcessing()"
+  [disabled]="isProcessing() || isLoading()"
+>
+  Pagar $ {{ formatAmount(amount) }}
+</button>
+        </div>
+      </div>
+
+      <form method="dialog" class="modal-backdrop">
+        <button aria-label="Cerrar modal" (click)="close()">close</button>
+      </form>
+    </dialog>

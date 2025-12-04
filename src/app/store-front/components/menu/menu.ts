@@ -21,17 +21,14 @@ type Node = {
 export class Menu {
   private menuService = inject(MenuService);
 
-  // Modal
   selectedProduct = signal<Product | undefined>(undefined);
   openProduct(p: Product) { this.selectedProduct.set(p); }
   closeModal() { this.selectedProduct.set(undefined); }
 
-  // Carga del menú
   menuResource = rxResource({
     stream: () => this.menuService.getMenu(),
   });
 
-  // === Utils ===
   private norm = (s?: string) => (s ?? '').trim();
   private walkProducts = (n?: Node): Product[] => {
     if (!n) return [];
@@ -41,19 +38,16 @@ export class Menu {
   };
   private unique = <T>(arr: T[]) => Array.from(new Set(arr));
 
-  // Árbol base
   tree = computed<Node[]>(() => (this.menuResource.value()?.menu as any) ?? []);
 
-  // Nivel 1: nombres de categorías top
   level1 = computed<string[]>(() => this.tree().map(n => this.norm(n.category)).filter(Boolean));
 
-  // Selecciones
   selectedL1 = signal<'all' | string>('all');
   selectedL2 = signal<'all' | string>('all');
 
   selectL1(name: 'all' | string) {
     this.selectedL1.set(name);
-    this.selectedL2.set('all'); // reset cascada
+    this.selectedL2.set('all');
   }
   selectL2(name: 'all' | string) {
     this.selectedL2.set(name);

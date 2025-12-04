@@ -113,23 +113,20 @@ export class SweetAlertService {
     return result.isConfirmed ? result.value : null;
   }
 
-  showLoading(
-    title: string = 'Cargando...',
-    text: string = 'Por favor espera'
-  ) {
-    Swal.fire({
-      title,
-      text,
-      icon: 'info',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-      customClass: {
-        popup: 'rounded-lg',
-      },
-    });
-  }
+showLoading(title: string = 'Cargando...', text: string = 'Por favor espera') {
+  Swal.fire({
+    title,
+    text,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+      Swal.showLoading();
+    },
+    customClass: {
+      popup: 'rounded-lg',
+    },
+  });
+}
 
   showSuccess(title: string, text: string = '', timer: number = 2000) {
     Swal.fire({
@@ -145,15 +142,19 @@ export class SweetAlertService {
     });
   }
 
-  showError(title: string, message: string): Promise<any> {
-    // 👇 ¡AÑADE LA PALABRA 'return' AQUÍ!
-    return Swal.fire({
-      icon: 'error',
-      title: title,
-      text: message,
-      confirmButtonColor: '#d33',
-    });
-  }
+showError(title: string, message: string): Promise<any> {
+  Swal.close();
+
+  return Swal.fire({
+    title,
+    text: message,
+    icon: 'error',
+    confirmButtonText: 'Entendido',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    ...this.defaultConfig,
+  });
+}
 
   showInfo(title: string, text: string = '') {
     Swal.fire({
@@ -189,6 +190,65 @@ export class SweetAlertService {
     return result.isConfirmed;
   }
 
+  async showChoice(
+    title: string,
+    text: string = '',
+    confirmButtonText: string = 'Aceptar',
+    cancelButtonText: string = 'Cancelar'
+  ): Promise<SweetAlertResult<any>> {
+    return Swal.fire({
+      title,
+      text,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText,
+      cancelButtonText,
+      reverseButtons: false,
+      ...this.defaultConfig,
+    });
+  }
+
+  async inputText(
+    title: string,
+    text: string = '',
+    placeholder: string = 'Ingresá tu nombre'
+  ): Promise<SweetAlertResult<any>> {
+    return Swal.fire({
+      title,
+      text,
+      input: 'text',
+      inputPlaceholder: placeholder,
+      showCancelButton: true,
+      confirmButtonText: 'Continuar',
+      cancelButtonText: 'Cancelar',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      inputValidator: (value) => {
+        if (!value || !value.trim()) {
+          return 'Por favor ingresá un nombre válido';
+        }
+        return null;
+      },
+      ...this.defaultConfig,
+    });
+  }
+
+  closeLoading() {
+    Swal.close();
+  }
+
+  showGuestWelcome(name: string, table?: number) {
+    Swal.fire({
+      title: `¡Bienvenido ${name}!`,
+      text: table ? `Te uniste a la mesa ${table}.` : '',
+      icon: 'success',
+      timer: 1800,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      ...this.defaultConfig,
+    });
+  }
+
   showLogoutSuccess(userName?: string) {
     const message = userName ? `¡Hasta luego, ${userName}!` : '¡Hasta luego!';
 
@@ -208,6 +268,13 @@ export class SweetAlertService {
   close() {
     Swal.close();
   }
+
+  closeAll() {
+  try {
+    Swal.close();
+  } catch {}
+}
+
 
   showConfirmableSuccess(
     title: string,
