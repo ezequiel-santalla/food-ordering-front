@@ -4,8 +4,8 @@
          shadow-sm p-1 hover:shadow-md transition-all duration-200 cursor-pointer"
 >
 
-  <!-- ⭐ Imagen cuadrada mini -->
-  <figure class="w-20 aspect-square bg-base-200 rounded-lg overflow-hidden">
+  <!-- Imagen -->
+  <figure class="w-20 aspect-square bg-base-200 rounded-lg overflow-hidden flex-shrink-0">
     <img
       [src]="product.imageUrl || 'https://via.placeholder.com/160?text=Sin+Imagen'"
       [alt]="product.name"
@@ -13,16 +13,20 @@
     />
   </figure>
 
-  <!-- ⭐ Contenido super-compacto -->
-  <div class="flex-1 min-w-0">
+  <!-- Contenido con alturas fijas -->
+  <div class="flex-1 flex flex-col justify-between min-w-0">
+
+    <!-- Título -->
     <h2 class="text-sm font-semibold leading-snug mb-0.5 truncate">
       {{ product.name }}
     </h2>
 
-    <p class="text-xs text-base-content/60 leading-tight line-clamp-1 truncate">
+    <!-- Descripción con altura fija -->
+    <p class="text-[11px] text-base-content/60 leading-snug line-clamp-2 h-[30px] overflow-hidden">
       {{ product.description }}
     </p>
 
+    <!-- Precio + botón SIEMPRE abajo -->
     <div class="flex items-center justify-between mt-1">
       <span class="text-primary font-semibold text-sm">
         ${{ product.price | number:'1.2-2' }}
@@ -35,6 +39,7 @@
         <lucide-icon [img]="Plus" class="w-3 h-3"></lucide-icon>
       </button>
     </div>
+
   </div>
 
 </div>
