@@ -1,9 +1,20 @@
-// payment.service.ts
-import { Injectable, inject, signal, computed, WritableSignal } from '@angular/core';
+import {
+  Injectable,
+  inject,
+  signal,
+  computed,
+  WritableSignal,
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CheckoutProResponse, PaymentProcessRequest, PaymentProcessResponse, PaymentRequest, PaymentResponseDto } from '../models/payment.interface';
+import {
+  CheckoutProResponse,
+  PaymentProcessRequest,
+  PaymentProcessResponse,
+  PaymentRequest,
+  PaymentResponseDto,
+} from '../models/payment.interface';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({ providedIn: 'root' })
@@ -11,15 +22,17 @@ export class PaymentService {
   private http = inject(HttpClient);
 
   private _isProcessing: WritableSignal<boolean> = signal(false);
-  private _lastPayment: WritableSignal<PaymentResponseDto | null> = signal(null);
+  private _lastPayment: WritableSignal<PaymentResponseDto | null> =
+    signal(null);
   private _error: WritableSignal<string | null> = signal(null);
 
   public isProcessing = computed(() => this._isProcessing());
   public lastPayment = computed(() => this._lastPayment());
   public error = computed(() => this._error());
 
-  createPayment(paymentRequest: PaymentRequest): Observable<PaymentResponseDto> {
-
+  createPayment(
+    paymentRequest: PaymentRequest
+  ): Observable<PaymentResponseDto> {
     this._isProcessing.set(true);
     this._error.set(null);
 
@@ -60,7 +73,6 @@ export class PaymentService {
     paymentId: string,
     processRequest: PaymentProcessRequest
   ): Observable<PaymentProcessResponse> {
-
     console.log('⚙️ Processing payment:', paymentId, processRequest);
 
     return this.http
@@ -84,27 +96,24 @@ export class PaymentService {
       );
   }
 
-createCheckoutProPreference(paymentId: string): Observable<CheckoutProResponse> {
-  console.log('🔧 Creating Checkout Pro preference for:', paymentId);
+  createCheckoutProPreference(
+    paymentId: string
+  ): Observable<CheckoutProResponse> {
+    console.log('🔧 Creating Checkout Pro preference for:', paymentId);
 
-  return this.http
-    .post<CheckoutProResponse>(
-      `${environment.baseUrl}/payments/${paymentId}/checkout-pro`,
-      {}
-    )
-    .pipe(
-      tap((response) => console.log('✅ Preference created:', response)),
-      catchError((error) => {
-        console.error('❌ Error creating preference:', error);
-        throw error;
-      })
-    );
-}
-
-
-  /**
-   * Consultar estado de un pago
-   */
+    return this.http
+      .post<CheckoutProResponse>(
+        `${environment.baseUrl}/payments/${paymentId}/checkout-pro`,
+        {}
+      )
+      .pipe(
+        tap((response) => console.log('✅ Preference created:', response)),
+        catchError((error) => {
+          console.error('❌ Error creating preference:', error);
+          throw error;
+        })
+      );
+  }
   getPaymentStatus(paymentId: string): Observable<PaymentProcessResponse> {
     return this.http
       .get<PaymentProcessResponse>(
@@ -119,9 +128,6 @@ createCheckoutProPreference(paymentId: string): Observable<CheckoutProResponse> 
       );
   }
 
-  /**
-   * Cancelar un pago pendiente
-   */
   cancelPayment(paymentId: string): Observable<PaymentProcessResponse> {
     return this.http
       .post<PaymentProcessResponse>(
@@ -136,31 +142,6 @@ createCheckoutProPreference(paymentId: string): Observable<CheckoutProResponse> 
         })
       );
   }
-  // getMyPayments(): Observable<PaymentResponse[]> {
-  //   return this.http
-  //     .get<PaymentResponse[]>(`${environment.baseUrl}/participants/payments`)
-  //     .pipe(
-  //       tap((payments) => console.log('📜 Historial de pagos:', payments)),
-  //       catchError((error) => {
-  //         console.error('❌ Error obteniendo pagos:', error);
-  //         this._error.set('Error al cargar el historial de pagos');
-  //         throw error;
-  //       })
-  //     );
-  // }
-
-  // getPaymentById(paymentId: string): Observable<PaymentResponse> {
-  //   return this.http
-  //     .get<PaymentResponse>(`${environment.baseUrl}/payments/${paymentId}`)
-  //     .pipe(
-  //       tap((payment) => console.log('💳 Detalles del pago:', payment)),
-  //       catchError((error) => {
-  //         console.error('❌ Error obteniendo detalles del pago:', error);
-  //         this._error.set('Error al cargar los detalles del pago');
-  //         throw error;
-  //       })
-  //     );
-  // }
 
   clearError(): void {
     this._error.set(null);

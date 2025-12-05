@@ -7,29 +7,12 @@
       class="flex-grow grid grid-cols-[auto,1fr] gap-x-2 gap-y-1 items-center min-w-0"
     >
       <div class="flex items-center gap-3 min-w-0 flex-grow">
-        @if (!isPaid()) {
-          <input
-            type="checkbox"
-            class="checkbox checkbox-primary flex-shrink-0"
-            [checked]="isSelected()"
-            (change)="onSelectionChange($event)"
-            (click)="$event.stopPropagation()"
-          />
-        } @else {
-          <lucide-icon
-            [img]="BanknoteArrowUp"
-            class="text-success"
-          ></lucide-icon>
-        }
-
         <h3 class="font-semibold text-base-content whitespace-nowrap">
           Orden #{{ order.orderNumber }}
         </h3>
       </div>
 
-      <div></div>
-
-      <p class="text-xs text-base-content/70 flex items-center gap-1 truncate">
+      <p class="text-xs text-base-content/70 flex items-center gap-1 truncate col-span-2">
         <lucide-icon [img]="User" [size]="14"></lucide-icon>
         <span>{{ order.clientAlias }}</span>
       </p>

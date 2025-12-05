@@ -41,18 +41,4 @@
     (confirm)="confirmPayment()"
   >
   </app-payment-modal>
-
-  <!-- Barra de pago abajo -->
-  <div
-    class="sticky bottom-0 bg-base-100 border-t border-gray-200 px-4 py-3 shadow-lg"
-  >
-    <button
-      class="btn btn-primary w-full"
-      [class.loading]="isProcessingPayment()"
-      [disabled]="isLoading() || !!error() || orders().length === 0 || !hasSelectedOrders()"
-      (click)="payModalCmp.open()"
-    >
-      Pagar seleccionados
-    </button>
-  </div>
 </section>
