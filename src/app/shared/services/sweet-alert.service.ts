@@ -34,6 +34,36 @@ export class SweetAlertService {
     return result.isConfirmed;
   }
 
+  async confirmCancelPayment(): Promise<boolean> {
+    const result = await Swal.fire({
+      title: '¿Cancelar pago?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Cancelar pago',
+      cancelButtonText: 'Volver',
+      reverseButtons: true,
+      ...this.defaultConfig,
+      confirmButtonColor: '#dc2626',
+    });
+
+    return result.isConfirmed;
+  }
+
+  showPaymentCancelled() {
+    Swal.fire({
+      title: 'Pago cancelado',
+      text: 'El pago fue marcado como cancelado.',
+      icon: 'success',
+      timer: 1800,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      customClass: {
+        popup: 'rounded-lg',
+      },
+    });
+  }
+
   // Método genérico para confirmar acciones CRUD
   async confirmAction(
     isEditMode: boolean,
@@ -113,8 +143,11 @@ export class SweetAlertService {
     return result.isConfirmed ? result.value : null;
   }
 
-showLoading(title: string = 'Cargando...', text: string = 'Por favor espera') {
-  Swal.fire({
+  showLoading(
+  title: string = 'Cargando...',
+  text: string = 'Por favor espera'
+) {
+  return Swal.fire({
     title,
     text,
     allowOutsideClick: false,
@@ -127,6 +160,7 @@ showLoading(title: string = 'Cargando...', text: string = 'Por favor espera') {
     },
   });
 }
+
 
   showSuccess(title: string, text: string = '', timer: number = 2000) {
     Swal.fire({
@@ -142,19 +176,19 @@ showLoading(title: string = 'Cargando...', text: string = 'Por favor espera') {
     });
   }
 
-showError(title: string, message: string): Promise<any> {
-  Swal.close();
+  showError(title: string, message: string): Promise<any> {
+    Swal.close();
 
-  return Swal.fire({
-    title,
-    text: message,
-    icon: 'error',
-    confirmButtonText: 'Entendido',
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    ...this.defaultConfig,
-  });
-}
+    return Swal.fire({
+      title,
+      text: message,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      ...this.defaultConfig,
+    });
+  }
 
   showInfo(title: string, text: string = '') {
     Swal.fire({
@@ -270,11 +304,10 @@ showError(title: string, message: string): Promise<any> {
   }
 
   closeAll() {
-  try {
-    Swal.close();
-  } catch {}
-}
-
+    try {
+      Swal.close();
+    } catch {}
+  }
 
   showConfirmableSuccess(
     title: string,

@@ -11,7 +11,7 @@ export interface OrderRequest {
 
 export interface OrderResponse {
   publicId: string;
-  orderNumber: string;
+  orderNumber: number;
   specialRequirements?: string;
   clientAlias: string;
   participantId: string;
