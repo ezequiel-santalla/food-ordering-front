@@ -1,0 +1,104 @@
+<section class="space-y-4 pb-14">
+
+  @if (isLoading()) {
+    <div class="py-10 text-center text-gray-500">
+      <lucide-icon [img]="Clock" class="w-10 h-10 mx-auto mb-2 animate-pulse"></lucide-icon>
+      <p class="text-lg font-semibold">Cargando pagos...</p>
+    </div>
+  }
+
+  @if (!isLoading() && payments().length === 0) {
+    <div class="py-10 text-center text-gray-500">
+      <lucide-icon [img]="Clock" class="w-10 h-10 mx-auto mb-2"></lucide-icon>
+      <p class="text-lg font-semibold">No haz realizado pagos aún</p>
+      <p class="text-xs mt-1">Aparecerán aquí una vez completados.</p>
+    </div>
+  }
+
+  @for (p of payments(); track p.publicId) {
+
+    <div 
+      class="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden transition"
+      [class.opacity-60]="p.status === 'CANCELLED'"
+    >
+
+      <button 
+        class="w-full flex items-center justify-between px-4 py-3 text-left"
+        (click)="toggle(p.publicId)"
+      >
+        <div class="flex items-center gap-3">
+
+          <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+            <lucide-icon [img]="WalletCards" class="w-5 h-5 text-gray-700"></lucide-icon>
+          </div>
+
+          <div class="leading-tight">
+            <p class="font-semibold text-gray-900 text-[15px]">
+              {{ p.amount | currency:'ARS' }}
+            </p>
+
+            <p class="text-[11px] text-gray-500">
+              {{ p.paymentDate | date:'dd/MM HH:mm' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+
+          <span 
+            class="font-semibold text-sm"
+            [ngClass]="statusColor(p.status)"
+          >
+            {{ statusLabel(p.status) }}
+          </span>
+
+          @if (p.status === 'PENDING') {
+            <lucide-icon
+              [img]="Trash2"
+              class="w-5 h-5 text-red-500 hover:text-red-700 active:scale-90 transition"
+              (click)="onCancelPayment(p.publicId); $event.stopPropagation()"
+            ></lucide-icon>
+          }
+
+          <lucide-icon 
+            [img]="expanded() === p.publicId ? ChevronUp : ChevronDown"
+            class="w-5 h-5 text-gray-500"
+          ></lucide-icon>
+        </div>
+      </button>
+
+      @if (expanded() === p.publicId) {
+        <div class="px-4 pb-4 pt-1 space-y-3 text-sm">
+
+          <div class="text-gray-600">
+            Método de pago: 
+            <span class="font-medium">{{ paymentMethodLabel(p.paymentMethod) }}</span>
+          </div>
+
+          @if (p.participant) {
+            <div class="text-gray-600">
+              Pagado por: 
+              <span class="font-medium">
+                {{ p.participant.nickname || 'Invitado' }}
+              </span>
+            </div>
+          }
+
+          <div>
+            <p class="text-gray-600 font-medium mb-1">Órdenes incluidas:</p>
+
+            <ul class="space-y-1">
+              @for (id of p.orderNumbers; track id) {
+                <li class="px-3 py-1 bg-gray-100 rounded text-xs text-gray-700">
+                  Orden #{{ id }}
+                </li>
+              }
+            </ul>
+          </div>
+
+        </div>
+      }
+    </div>
+
+  }
+</section>

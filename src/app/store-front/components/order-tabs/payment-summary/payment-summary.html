@@ -1,0 +1,38 @@
+<div class="px-2 my-3">
+  <div
+    class="w-full rounded-2xl bg-gray-50 border border-gray-200
+           shadow-[0_4px_0_rgba(0,0,0,0.05)]
+           px-4 py-3 flex justify-between items-center
+           min-h-[64px]"
+  >
+
+    <div class="flex items-center gap-2">
+      <lucide-icon [img]="Coins" class="w-5 h-5 text-gray-700"></lucide-icon>
+      <div class="leading-tight">
+        <div class="text-[12px] text-gray-500">Total gastado</div>
+        <div class="text-lg font-semibold text-gray-900">
+          {{ totalSpent() | currency:'ARS' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <lucide-icon 
+        [img]="BanknoteX" 
+        class="w-5 h-5"
+        [ngClass]="remainingToPay() > 0 ? 'text-red-600' : 'text-gray-400'"
+      ></lucide-icon>
+
+      <div class="leading-tight">
+        <div class="text-[12px] text-gray-500">Resto a pagar</div>
+        <div 
+          class="text-lg font-semibold"
+          [ngClass]="remainingToPay() > 0 ? 'text-red-600' : 'text-gray-400'"
+        >
+          {{ remainingToPay() | currency:'ARS' }}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,52 @@
+<div class="flex justify-between items-center p-3 rounded-lg border border-base-300 bg-base-100 hover:bg-base-200 transition">
+
+  <!-- Checkbox solo si está pendiente -->
+  <div>
+    @if (!order.payment || order.payment.status === 'CANCELLED') {
+      <input
+        type="checkbox"
+        class="checkbox checkbox-primary mt-1"
+        [checked]="selected"
+        (change)="selectionChanged.emit({ orderId: order.publicId, selected: $event.target.checked })"
+      />
+    }
+  </div>
+
+  <!-- Info principal -->
+  <div class="flex flex-col min-w-0 flex-grow px-3">
+    <span class="font-semibold text-base-content">
+      Orden #{{ order.orderNumber }}
+    </span>
+
+    <!-- Mostramos quién pagó -->
+    @if (order.payment && order.payment.status !== 'CANCELLED') {
+      <p class="text-xs text-green-600 flex items-center gap-1 truncate">
+        Pagado por {{ order.payment.participant.nickname }}
+      </p>
+
+      <p class="text-[10px] text-gray-500">
+        {{ order.payment.paymentDate | date:'short' }}
+      </p>
+    }
+  </div>
+
+  <!-- Montos + Estado -->
+  <div class="flex flex-col items-end ml-3">
+
+    @if (order.payment && order.payment.status !== 'CANCELLED') {
+      <span
+        class="inline-flex items-center gap-1 font-semibold text-xs mb-1"
+        [ngClass]="{
+          'text-green-600': order.payment.status === 'COMPLETED',
+          'text-yellow-600': order.payment.status === 'PENDING'}"
+      >
+        {{ order.payment.status }}
+      </span>
+    }
+
+    <span class="font-bold text-lg text-base-content leading-none">
+      ${{ order.totalPrice | number:'1.2-2' }}
+    </span>
+
+  </div>
+</div>

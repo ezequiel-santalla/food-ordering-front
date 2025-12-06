@@ -1,21 +1,27 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CartService } from '../../../services/cart-service';
 import { CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../services/order-service';
 import { OrderRequest } from '../../../models/order.interface';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
-import { LucideAngularModule, ShoppingBasket, Trash2 } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  Pencil,
+  ShoppingBasket,
+  Trash2,
+} from 'lucide-angular';
+import { CartItem } from '../../../models/cart.interface';
 
 @Component({
   selector: 'app-cart-view',
   imports: [CurrencyPipe, FormsModule, LucideAngularModule],
   templateUrl: './cart-view.html',
 })
-export class CartView {
-
+export class CartView implements OnInit {
   readonly ShoppingBasket = ShoppingBasket;
   readonly Trash2 = Trash2;
+  readonly Pencil = Pencil;
 
   cartService = inject(CartService);
   orderService = inject(OrderService);
@@ -24,6 +30,21 @@ export class CartView {
   generalInstructions = '';
   isSubmitting = signal(false);
   error = signal<string | null>(null);
+  expandSpecial = signal(false);
+
+  ngOnInit() {
+    this.cartService.items().forEach((item) => {
+      item._expand = false;
+    });
+  }
+
+  toggleSpecial() {
+    this.expandSpecial.set(!this.expandSpecial());
+  }
+
+  toggleItemExpand(item: CartItem) {
+    item._expand = !item._expand;
+  }
 
   async removeItem(index: number, productName: string) {
     const confirmed = await this.sweetAlert.confirmCustomAction(
@@ -42,13 +63,18 @@ export class CartView {
 
   async confirmOrder() {
     if (this.cartService.items().length === 0) {
-      this.sweetAlert.showError('Orden vacía', 'Agrega productos antes de confirmar el pedido');
+      this.sweetAlert.showError(
+        'Orden vacía',
+        'Agrega productos antes de confirmar el pedido'
+      );
       return;
     }
 
     const confirmed = await this.sweetAlert.confirmCustomAction(
       '¿Confirmar pedido?',
-      `Total: $${this.cartService.total().toFixed(2)} - Se enviará tu pedido a la cocina`,
+      `Total: $${this.cartService
+        .total()
+        .toFixed(2)} - Se enviará tu pedido a la cocina`,
       'Sí, confirmar',
       'Cancelar',
       'question'
@@ -61,12 +87,12 @@ export class CartView {
     this.sweetAlert.showLoading('Procesando pedido...', 'Enviando tu orden');
 
     const orderRequest: OrderRequest = {
-      orderDetails: this.cartService.items().map(item => ({
+      orderDetails: this.cartService.items().map((item) => ({
         productName: item.productName,
         specialInstructions: item.specialInstructions || '',
-        quantity: item.quantity
+        quantity: item.quantity,
       })),
-      specialRequirements: this.generalInstructions.trim() || undefined
+      specialRequirements: this.generalInstructions.trim() || undefined,
     };
 
     this.orderService.createOrder(orderRequest).subscribe({
@@ -89,12 +115,13 @@ export class CartView {
         this.sweetAlert.close();
         this.isSubmitting.set(false);
 
-        const errorMessage = err.error?.message ||
+        const errorMessage =
+          err.error?.message ||
           'No se pudo procesar el pedido. Por favor, intenta nuevamente.';
 
         this.sweetAlert.showError('Error al confirmar', errorMessage);
         this.error.set(errorMessage);
-      }
+      },
     });
   }
 }

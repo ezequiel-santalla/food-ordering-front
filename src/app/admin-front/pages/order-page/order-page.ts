@@ -129,7 +129,7 @@ export class OrderPage {
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(order =>
-        order.orderNumber.toLowerCase().includes(term) ||
+        order.orderNumber.toString().includes(term) ||
         order.clientAlias.toLowerCase().includes(term) ||
         order.orderDetails.some(detail =>
           detail.productName.toLowerCase().includes(term)

@@ -4,6 +4,8 @@ export interface CartItem {
   productImage?: string;
   quantity: number;
   specialInstructions: string | null;
+
+  _expand?: boolean;
 }
 
 export interface Cart {
