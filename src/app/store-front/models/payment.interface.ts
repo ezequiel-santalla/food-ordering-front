@@ -1,3 +1,5 @@
+import { Participant } from "../../shared/models/common";
+
 export enum PaymentMethod {
   CASH = 'CASH',
   CREDIT_CARD = 'CREDIT_CARD',
@@ -26,11 +28,10 @@ export interface PaymentResponseDto {
   paymentMethod: PaymentMethod;
   status: PaymentStatus;
   idempotencyKey: string;
-  orderIds: string[];
+  orderNumbers: number[];
+  participant: Participant;
   tableSessionId?: string;
-  participantId?: string;
-  createdAt: string;
-  updatedAt?: string;
+  paymentDate: string;
 }
 
 export interface PaymentProcessRequest {
@@ -70,7 +71,7 @@ export interface PaginatedPayments {
 
 export interface PaymentOrderView {
   publicId: string;
-  orderNumber: string;
+  orderNumber: number;
   items: {
     quantity: number;
     productName: string;

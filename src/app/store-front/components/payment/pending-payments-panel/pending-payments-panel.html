@@ -9,7 +9,7 @@
     (paymentMethodChange)="selectedPaymentMethod.set($event)"
     (confirm)="confirmPayment()"
     (cancel)="payModalCmp.close()"
-    (mercadoPagoSelected)="selectedPaymentMethod.set(PaymentMethod.MOBILE_PAYMENT)"
+    (mercadoPagoSelected)="onMercadoPagoSelected()"
   ></app-payment-modal>
 
   <div class="grid grid-cols-2 gap-2 mb-2">
@@ -31,66 +31,94 @@
   </div>
 
   <div class="pb-32">
-    <!-- MIS ÓRDENES -->
     @if (active() === 'mine') {
-
-    <!-- IMPAGAS -->
     <h3 class="text-sm font-semibold text-gray-500 mt-2 mb-1">Pendientes</h3>
+
+    @if (unpaidMine().length === 0) {
+    <div
+      class="flex flex-col items-center justify-start text-center py-4 mt-2 text-green-600"
+    >
+      <svg
+        class="w-10 h-10 mb-1"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M5 13l4 4L19 7"
+        />
+      </svg>
+      <p class="text-base font-semibold">Todo pago</p>
+      <p class="text-xs text-gray-500 mt-0.5">No tenés pedidos pendientes.</p>
+    </div>
+    } @else {
     <div class="space-y-2">
       @for (order of unpaidMine(); track order.publicId) {
       <app-payable-order-card
         [order]="order"
-        [paid]="isPaid(order)"
         [selected]="selectedOrders().includes(order.publicId)"
         (selectionChanged)="toggleSelection($event)"
       />
       }
     </div>
+    }
 
     <div class="divider"></div>
 
-    <!-- PAGADAS -->
-    @if (paidMine().length > 0) {
+    @if (paidMine().length) {
     <h3 class="text-sm font-semibold text-gray-500 mt-4 mb-1">Pagadas</h3>
+
     <div class="space-y-2 opacity-60 pointer-events-none">
       @for (order of paidMine(); track order.publicId) {
-      <app-payable-order-card
-        [order]="order"
-        [paid]="isPaid(order)"
-        [selected]="false"
-      />
+      <app-payable-order-card [order]="order" [selected]="false" />
       }
     </div>
-    } }
-
-    <!-- MESA -->
-    @if (active() === 'table') {
-
-    <!-- IMPAGAS -->
+    } } @if (active() === 'table') {
     <h3 class="text-sm font-semibold text-gray-500 mt-2 mb-1">Pendientes</h3>
+
+    @if (unpaidTable().length === 0) {
+    <div
+      class="flex flex-col items-center justify-start text-center py-4 mt-2 text-green-600"
+    >
+      <svg
+        class="w-10 h-10 mb-1"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M5 13l4 4L19 7"
+        />
+      </svg>
+      <p class="text-base font-semibold">Todo pago</p>
+      <p class="text-xs text-gray-500 mt-0.5">No tenés pedidos pendientes.</p>
+    </div>
+    } @else {
     <div class="space-y-2">
       @for (order of unpaidTable(); track order.publicId) {
       <app-payable-order-card
         [order]="order"
-        [paid]="isPaid(order)"
         [selected]="selectedOrders().includes(order.publicId)"
         (selectionChanged)="toggleSelection($event)"
       />
       }
     </div>
+    }
 
     <div class="divider"></div>
 
-    <!-- PAGADAS -->
-    @if (paidTable().length > 0) {
+    @if (paidTable().length) {
     <h3 class="text-sm font-semibold text-gray-500 mt-4 mb-1">Pagadas</h3>
+
     <div class="space-y-2 opacity-60 pointer-events-none">
       @for (order of paidTable(); track order.publicId) {
-      <app-payable-order-card
-        [order]="order"
-        [paid]="isPaid(order)"
-        [selected]="false"
-      />
+      <app-payable-order-card [order]="order" [selected]="false" />
       }
     </div>
     } }
@@ -104,12 +132,14 @@
         <span>Total a pagar:</span>
         <span>${{ total() | number:'1.2-2' }}</span>
       </div>
+
       <button
         class="btn btn-primary w-full"
-        [disabled]="selectedOrders().length === 0"
+        [disabled]="selectedOrders().length === 0 || isProcessingPayment()"
         (click)="pay()"
       >
-        Pagar seleccionados
+        @if (isProcessingPayment()) { Procesando… } @else { Pagar seleccionados
+        }
       </button>
     </div>
   </div>

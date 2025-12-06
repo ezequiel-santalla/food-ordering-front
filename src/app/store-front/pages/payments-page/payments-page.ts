@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { PaymentsPanelComponent } from '../../components/payments-panel/payments-panel';
+import { PaymentsPanelComponent } from '../../components/payment/payments-panel/payments-panel';
 import { PaymenSummaryComponent } from '../../components/order-tabs/payment-summary/payment-summary';
 
 @Component({

@@ -11,7 +11,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import {
   PaymentMethod,
   PaymentOrderView,
-} from '../../models/payment.interface';
+} from '../../../models/payment.interface';
 
 @Component({
   selector: 'app-payment-modal',
@@ -26,11 +26,7 @@ export class PaymentModalComponent {
 
   @Input() totalToPay = 0;
   @Input() selectedOrders: PaymentOrderView[] = [];
-  @Input() paymentMethods: {
-    value: PaymentMethod;
-    label: string;
-    icon: any;
-  }[] = [];
+  @Input() paymentMethods: { value: PaymentMethod; label: string; icon: any }[] = [];
   @Input() selectedPaymentMethod: PaymentMethod = PaymentMethod.CASH;
   @Input() isProcessingPayment = false;
 
@@ -42,6 +38,7 @@ export class PaymentModalComponent {
   open() {
     this.dialog?.nativeElement.showModal();
   }
+
   close() {
     this.dialog?.nativeElement.close();
   }
@@ -60,7 +57,6 @@ export class PaymentModalComponent {
   }
 
   onSelectMercadoPago() {
-    console.log('💙 Usuario eligió MercadoPago Checkout Pro');
     this.paymentMethodChange.emit(PaymentMethod.MOBILE_PAYMENT);
     this.mercadoPagoSelected.emit();
   }

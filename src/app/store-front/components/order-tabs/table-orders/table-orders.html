@@ -28,17 +28,4 @@
       }
     </div>
   }
-
-  <!-- Modal reutilizable -->
-  <app-payment-modal
-    #payModalCmp
-    [totalToPay]="totalToPay()"
-    [selectedOrders]="paymentOrdersView()"
-    [paymentMethods]="paymentMethods"
-    [selectedPaymentMethod]="selectedPaymentMethod()"
-    [isProcessingPayment]="isProcessingPayment()"
-    (paymentMethodChange)="onPaymentMethodChange($event)"
-    (confirm)="confirmPayment()"
-  >
-  </app-payment-modal>
 </section>

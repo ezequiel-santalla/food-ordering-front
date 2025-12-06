@@ -13,23 +13,44 @@
 
     <button
       type="button"
-      class="w-full btn btn-lg bg-[#009EE3] hover:bg-[#0084BE] text-white border-0 mb-4"
+      class="w-full bg-[#009EE3] hover:bg-[#0084BE] text-white border-0 mb-4 rounded-xl flex items-center gap-3 px-3 py-2 transition cursor-pointer disabled:opacity-60"
       (click)="onSelectMercadoPago()"
       [disabled]="isProcessingPayment"
     >
-      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-        <path
-          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
-        />
-      </svg>
-      <div class="text-left flex-1">
-        <div class="font-semibold">Pagar con MercadoPago</div>
-        <div class="text-xs opacity-80">Saldo, tarjetas guardadas o apps</div>
+      <div class="flex items-center justify-center w-8 h-8 ml-1">
+        @if (!isProcessingPayment) {
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+        </svg>
+        } @else {
+        <span class="loading loading-spinner loading-sm text-white"></span>
+        }
+      </div>
+
+      <!-- Texto -->
+      <div class="flex flex-col text-left leading-tight flex-1">
+        <span class="font-semibold text-[15px]">
+          @if (!isProcessingPayment) { Pagar con MercadoPago } @else {
+          Redirigiendo… }
+        </span>
+
+        <span class="text-xs opacity-80 -mt-0.5">
+          @if (!isProcessingPayment) { Saldo, tarjetas guardadas o apps } @else
+          { Un momento por favor }
+        </span>
       </div>
     </button>
 
     <div class="divider text-xs text-gray-400">o pagar con</div>
 
+    <!-- MÉTODOS PRESENCIALES -->
     <div class="mb-4">
       <div class="text-sm font-medium mb-2">Método de pago</div>
       <div class="flex flex-col gap-2">
@@ -54,6 +75,7 @@
       </div>
     </div>
 
+    <!-- LISTA DE PEDIDOS -->
     <div class="mb-4">
       <details class="collapse collapse-arrow bg-base-200">
         <summary class="collapse-title text-sm">
@@ -65,7 +87,6 @@
             @for (o of selectedOrders; track o.publicId) {
             <li class="border rounded-lg p-3 bg-base-100">
               <div class="font-medium mb-2">Orden {{ o.orderNumber }}</div>
-
               <ul class="ml-2 space-y-1 text-xs">
                 @for (item of o.items; track item.productName) {
                 <li>• {{ item.quantity }} × {{ item.productName }}</li>
@@ -78,18 +99,15 @@
       </details>
     </div>
 
+    <!-- INFO SEGURA -->
     <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
       <div class="flex items-start gap-2">
         <svg
-          class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0"
+          class="w-4 h-4 text-blue-600 mt-0.5"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
-          <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-            clip-rule="evenodd"
-          />
+          <path fill-rule="evenodd" d="M18 10a8 8..." />
         </svg>
         <div class="text-xs text-blue-800">
           <p class="font-medium">🔒 Pago seguro</p>
@@ -100,6 +118,7 @@
       </div>
     </div>
 
+    <!-- ACCIONES PARA PAGOS PRESENCIALES -->
     <div class="modal-action">
       <button
         class="btn btn-ghost"
@@ -109,30 +128,25 @@
         Cancelar
       </button>
 
-      @if (selectedPaymentMethod === PaymentMethod.CASH) {
+      @if (selectedPaymentMethod === PaymentMethod.CASH || selectedPaymentMethod
+      === PaymentMethod.CREDIT_CARD || selectedPaymentMethod ===
+      PaymentMethod.DEBIT_CARD || selectedPaymentMethod === PaymentMethod.OTHER
+      ) {
       <button
         class="btn btn-primary"
         (click)="onConfirm()"
         [class.loading]="isProcessingPayment"
         [disabled]="isProcessingPayment || !selectedOrders.length"
       >
-        Confirmar pago
-      </button>
-      } @else if (selectedPaymentMethod === PaymentMethod.CREDIT_CARD ||
-      selectedPaymentMethod === PaymentMethod.DEBIT_CARD) {
-      <button
-        class="btn btn-primary"
-        (click)="onConfirm()"
-        [class.loading]="isProcessingPayment"
-        [disabled]="isProcessingPayment || !selectedOrders.length"
-      >
-        Continuar
+        Solicitar cobro
       </button>
       }
     </div>
   </div>
 
   <form method="dialog" class="modal-backdrop">
-    <button aria-label="Cerrar modal">close</button>
+    <button aria-label="Cerrar modal" [disabled]="isProcessingPayment">
+      close
+    </button>
   </form>
 </dialog>
