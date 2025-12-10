@@ -1,0 +1,11 @@
+<div class="min-h-screen bg-gray-50 p-8">
+  <app-metrics-header
+    (dateRangeChange)="onDateRangeChange($event)"
+    (refresh)="onRefresh()"
+    (export)="onExport()">
+  </app-metrics-header>
+
+  <app-live-metrics-bar />
+
+  <app-metrics-card [dateRange]="currentDateRange()" />
+</div>
