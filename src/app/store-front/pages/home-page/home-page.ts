@@ -8,30 +8,7 @@ import { HighlightsSection } from '../../components/highlights-section/highlight
   selector: 'app-home-page',
   standalone: true,
   imports: [CommonModule, HighlightsSection],
-  template: `
-
-    <div class="max-w-3xl mx-auto py-8 space-y-8">
-
-      <app-highlights-section
-        title="Recomendaciones"
-        [data$]="menuService.getRecommendations()"
-      />
-
-
-      <app-highlights-section
-        title="Destacados"
-        [data$]="menuService.getHighlights()"
-      />
-
-
-      <app-highlights-section
-        title="Favoritos"
-        [data$]="menuService.getMyFavorites()"
-      />
-
-    </div>
-
-  `,
+  templateUrl: './home-page.html'
 })
 export class HomePage {
   menuService = inject(MenuService);
@@ -39,4 +16,3 @@ export class HomePage {
     stream: () => this.menuService.getMenu(),
   });
 }
-

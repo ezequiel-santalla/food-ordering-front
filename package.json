@@ -16,6 +16,7 @@
     "@angular/forms": "^20.0.0",
     "@angular/platform-browser": "^20.0.0",
     "@angular/router": "^20.0.0",
+    "@mercadopago/sdk-js": "^0.0.3",
     "@tailwindcss/postcss": "^4.1.13",
     "@zxing/ngx-scanner": "^20.0.0",
     "daisyui": "^5.1.18",
@@ -25,6 +26,8 @@
     "sweetalert2": "^11.23.0",
     "tailwindcss": "^4.1.13",
     "tslib": "^2.3.0",
+    "uuid": "^13.0.0",
+    "uuidv4": "^6.2.13",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
@@ -32,7 +35,7 @@
     "@angular/cli": "^20.0.3",
     "@angular/compiler-cli": "^20.0.0",
     "@types/jasmine": "~5.1.0",
-    "baseline-browser-mapping": "^2.8.31",
+    "@types/uuid": "^10.0.0",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

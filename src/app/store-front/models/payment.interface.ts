@@ -1,3 +1,5 @@
+import { Participant } from "../../shared/models/common";
+
 export enum PaymentMethod {
   CASH = 'CASH',
   CREDIT_CARD = 'CREDIT_CARD',
@@ -10,10 +12,12 @@ export enum PaymentStatus {
 
     PENDING = 'PENDING',
     COMPLETED = 'COMPLETED',
-    CANCELLED = 'CANCELLED'
+    CANCELLED = 'CANCELLED',
+    FAILED = 'FAILED'
 }
 
 export interface PaymentRequest {
+  idempotencyKey: string;
   paymentMethod: PaymentMethod;
   orderIds: string[];
 }
@@ -23,11 +27,38 @@ export interface PaymentResponseDto {
   amount: number;
   paymentMethod: PaymentMethod;
   status: PaymentStatus;
-  orderIds: string[];
+  idempotencyKey: string;
+  orderNumbers: number[];
+  participant: Participant;
   tableSessionId?: string;
-  participantId?: string;
-  createdAt: string;
-  updatedAt?: string;
+  paymentDate: string;
+}
+
+export interface PaymentProcessRequest {
+  paymentMethod: PaymentMethod;
+  payerEmail: string;
+  payerName?: string;
+  cardToken?: string;  // Token de Checkout Bricks
+  providerMetadata?: {
+    payment_method_id?: string;
+    installments?: number;
+    issuer_id?: string;
+  };
+}
+
+
+export interface PaymentProcessResponse {
+  paymentId: string;
+  paymentIntentId: string;
+  paymentStatus: PaymentStatus;
+  intentStatus: string;
+  amount: number;
+  message: string;
+  requiresAction?: boolean;
+  approvalUrl?: string;
+  externalTransactionId?: string;
+  errorCode?: string;
+  errorMessage?: string;
 }
 
 export interface PaginatedPayments {
@@ -40,10 +71,16 @@ export interface PaginatedPayments {
 
 export interface PaymentOrderView {
   publicId: string;
-  orderNumber: string;
+  orderNumber: number;
   items: {
     quantity: number;
     productName: string;
     subtotal?: number;
   }[];
+}
+
+export interface CheckoutProResponse {
+  preferenceId: string;
+  checkoutUrl: string;
+  paymentId: string;
 }

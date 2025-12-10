@@ -17,7 +17,7 @@ import {
 } from '../../../models/payment.interface';
 
 import { OrderCardComponent } from '../Order-card/order-card';
-import { PaymentModalComponent } from '../../payment/payment-modal';
+import { PaymentModalComponent } from '../../payment/payment-modal/payment-modal';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
@@ -27,7 +27,6 @@ import { SweetAlertService } from '../../../../shared/services/sweet-alert.servi
     CommonModule,
     LucideAngularModule,
     OrderCardComponent,
-    PaymentModalComponent,
   ],
   templateUrl: './table-orders.html',
 })
@@ -47,9 +46,6 @@ export class TableOrders {
   orders = this.orderService.tableOrders;
   isLoading = this.orderService.isLoading;
   error = this.orderService.error;
-
-  isProcessingPayment = this.paymentService.isProcessing;
-  paymentError = this.paymentService.error;
 
   tableNumber = computed(
     () => this.tableSessionService.tableSessionInfo().tableNumber
@@ -114,7 +110,7 @@ export class TableOrders {
     const total = this.totalToPay();
     const paymentMethod = this.selectedPaymentMethod();
 
-    this.paymentService.createPayment({ paymentMethod, orderIds }).subscribe({
+    this.paymentService.createPayment({idempotencyKey: '', paymentMethod, orderIds }).subscribe({
       next: (response) => {
         console.log('✅ Pago exitoso:', response);
         this.payModalCmp?.close();

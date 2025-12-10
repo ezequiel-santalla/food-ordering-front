@@ -1,0 +1,33 @@
+<dialog #dialog class="modal">
+  <div class="modal-box max-w-2xl">
+    <h3 class="font-bold text-xl mb-4">Pagar con tarjeta</h3>
+
+    <div class="bg-base-200 rounded-lg p-4 mb-6">
+      <div class="flex justify-between">
+        <span class="text-sm text-gray-500">Total a pagar</span>
+        <span class="text-2xl font-bold">
+          {{ amount | currency:'ARS':'symbol-narrow' }}
+        </span>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading()" class="py-8 text-center">
+      <span class="loading loading-spinner text-primary"></span>
+      <p class="text-gray-500 mt-3">Cargando MercadoPago…</p>
+    </div>
+
+    <div *ngIf="error()" class="alert alert-error mb-4">
+      {{ error() }}
+    </div>
+
+    <div #bricksContainer id="mp-bricks-container"></div>
+
+    <div class="modal-action">
+      <button class="btn btn-ghost" (click)="close()">Cancelar</button>
+    </div>
+  </div>
+
+  <form method="dialog" class="modal-backdrop">
+    <button aria-label="Cerrar modal">close</button>
+  </form>
+</dialog>

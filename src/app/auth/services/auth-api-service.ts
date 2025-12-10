@@ -3,16 +3,24 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginResponse } from '../models/auth';
-import { TableSessionRequest, TableSessionResponse } from '../../shared/models/table-session';
+import {
+  TableSessionRequest,
+  TableSessionResponse,
+} from '../../shared/models/table-session';
 
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
-
   private http = inject(HttpClient);
   private readonly baseUrl = environment.baseUrl;
 
-  login(credentials: { email: string; password: string }): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, credentials);
+  login(credentials: {
+    email: string;
+    password: string;
+  }): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(
+      `${this.baseUrl}/auth/login`,
+      credentials
+    );
   }
 
   register(data: any): Observable<LoginResponse> {
@@ -20,7 +28,9 @@ export class AuthApiService {
   }
 
   resendVerificationEmail(email: string): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/auth/forward-verification`, { email });
+    return this.http.post<void>(`${this.baseUrl}/auth/forward-verification`, {
+      email,
+    });
   }
 
   requestPasswordReset(data: { email: string }): Observable<any> {
@@ -30,17 +40,25 @@ export class AuthApiService {
 
   verifyEmail(token: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/auth/validate-email`, token, {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  performPasswordReset(data: { recoveryToken: string, newPassword: string }): Observable<any> {
+  performPasswordReset(data: {
+    recoveryToken: string;
+    newPassword: string;
+  }): Observable<any> {
     const url = `${this.baseUrl}/auth/reset-password`;
     return this.http.post<any>(url, data);
   }
 
-  scanQR(tableId: string): Observable<TableSessionResponse> {
+  scanQR(tableId: string, nickname?: string): Observable<TableSessionResponse> {
     const body: TableSessionRequest = { tableId };
+
+    if (typeof nickname === "string" && nickname.trim().length > 0) {
+      body.nickname = nickname;
+    }
+
     return this.http.post<TableSessionResponse>(`${this.baseUrl}/table-sessions/scan-qr`, body);
   }
 
@@ -60,6 +78,9 @@ export class AuthApiService {
 
   selectRole(employmentId: string): Observable<LoginResponse> {
     const body = { employmentId };
-    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/switch-roles/select`, body);
+    return this.http.post<LoginResponse>(
+      `${this.baseUrl}/auth/switch-roles/select`,
+      body
+    );
   }
 }
