@@ -16,7 +16,7 @@ import {
   PaymentOrderView,
 } from '../../../models/payment.interface';
 
-import { OrderCardComponent } from '../Order-card/order-card';
+import { OrderCardComponent } from '../order-card/order-card';
 import { PaymentModalComponent } from '../../payment/payment-modal/payment-modal';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 

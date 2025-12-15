@@ -9,7 +9,7 @@ import {
 } from 'lucide-angular';
 
 import { OrderService } from '../../../services/order-service';
-import { OrderCardComponent } from '../Order-card/order-card';
+import { OrderCardComponent } from '../order-card/order-card';
 import { PaymentModalComponent } from '../../payment/payment-modal/payment-modal';
 import { MercadoPagoCheckout } from '../../mercado-pago/mercado-pago-checkout/mercado-pago-checkout';
 

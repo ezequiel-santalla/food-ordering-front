@@ -6,12 +6,12 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { Product } from '../../models/menu.interface';
-import { CartService } from '../../services/cart-service';
+import { Product } from '../../../models/menu.interface';
+import { CartService } from '../../../services/cart-service';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
 import { LucideAngularModule, Star } from 'lucide-angular';
-import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-menu-item-detail-modal',

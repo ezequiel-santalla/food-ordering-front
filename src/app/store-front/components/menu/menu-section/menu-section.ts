@@ -1,10 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { MenuService } from '../../services/menu-service';
-import { MenuItemCard } from '../menu-item-card/menu-item-card';
+import { MenuService } from '../../../services/menu-service';
+import { MenuItemCard } from '../../menu/menu-item-card/menu-item-card';
 import { MenuItemDetailModal } from '../menu-item-detail-modal/menu-item-detail-modal';
-import { Product } from '../../models/menu.interface';
+import { Product } from '../../../models/menu.interface';
 
 type Node = {
   category: string;
@@ -13,10 +13,10 @@ type Node = {
 };
 
 @Component({
-  selector: 'app-menu',
+  selector: 'app-menu-section',
   standalone: true,
   imports: [CommonModule, MenuItemCard, MenuItemDetailModal],
-  templateUrl: './menu.html',
+  templateUrl: './menu-section.html',
 })
 export class Menu {
   private menuService = inject(MenuService);

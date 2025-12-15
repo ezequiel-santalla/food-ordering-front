@@ -1,9 +1,9 @@
 import { Component, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { Product } from '../../models/menu.interface';
-import { CartService } from '../../services/cart-service';
-import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
+import { Product } from '../../../models/menu.interface';
+import { CartService } from '../../../services/cart-service';
+import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-menu-highlight-card',

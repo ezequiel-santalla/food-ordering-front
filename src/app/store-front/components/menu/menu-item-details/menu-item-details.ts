@@ -1,11 +1,11 @@
 import { Component, computed, inject, Input } from '@angular/core';
-import { MenuService } from '../../services/menu-service';
+import { MenuService } from '../../../services/menu-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { map, of, switchMap } from 'rxjs';
+import { map, of } from 'rxjs';
 import { MenuItemCard } from '../menu-item-card/menu-item-card';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Product } from '../../models/menu.interface';
+import { Product } from '../../../models/menu.interface';
 
 @Component({
   selector: 'app-menu-item-details',

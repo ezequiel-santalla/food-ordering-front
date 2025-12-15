@@ -2,7 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MenuService } from '../../services/menu-service';
-import { HighlightsSection } from '../../components/highlights-section/highlights-section';
+import { HighlightsSection } from '../../components/highlights/highlights-section/highlights-section';
 
 @Component({
   selector: 'app-home-page',

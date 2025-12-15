@@ -1,10 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CartView } from "./cart-view/cart-view";
-import { MyOrders } from "./my-orders/my-orders";
-import { TableOrders } from "./table-orders/table-orders";
-import { CartService } from '../../services/cart-service';
-import { OrderService } from '../../services/order-service';
+import { CartView } from '../cart-view/cart-view';
+import { MyOrders } from "../my-orders/my-orders";
+import { TableOrders } from "../table-orders/table-orders";
+import { CartService } from '../../../services/cart-service';
+import { OrderService } from '../../../services/order-service';
 
 type OrderView = 'cart' | 'mine' | 'table';
 

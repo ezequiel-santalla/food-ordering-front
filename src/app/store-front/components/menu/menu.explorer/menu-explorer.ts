@@ -4,7 +4,7 @@ import {
   Subcategory,
   SubcategoryNested,
   Product,
-} from '../../models/menu.interface';
+} from '../../../models/menu.interface';
 
 export type MenuNode = {
   name: string;

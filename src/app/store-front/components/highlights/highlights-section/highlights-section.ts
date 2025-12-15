@@ -4,8 +4,8 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MenuHighlightCard } from '../menu-highlight-card/menu-highlight-card';
-import { MenuItemDetailModal } from '../menu-item-detail-modal/menu-item-detail-modal';
-import { Product } from '../../models/menu.interface';
+import { MenuItemDetailModal } from '../../menu/menu-item-detail-modal/menu-item-detail-modal';
+import { Product } from '../../../models/menu.interface';
 
 @Component({
   selector: 'app-highlights-section',
