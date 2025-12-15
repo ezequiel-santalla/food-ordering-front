@@ -54,18 +54,22 @@
   }
 
   @if (!resource.isLoading() && items().length > 0) {
-  <div class="overflow-x-auto scrollbar-hide -mx-4 px-4 py-1">
-    <div class="flex gap-4 items-stretch snap-x snap-mandatory">
+  <div class="overflow-x-auto scrollbar-hide -mx-4 sm:-mx-6 px-4 sm:px-6 py-1">
+    <div class="grid grid-flow-col
+           auto-cols-[8.5rem] sm:auto-cols-[9rem] md:auto-cols-[10rem]
+           gap-3 items-stretch snap-x snap-mandatory">
       @for (p of items(); track p.publicId) {
-      <div class="w-40 md:w-44 snap-start">
+      <div class="snap-start">
         <app-menu-highlight-card class="w-full" [product]="p" [variant]="variant()" (select)="openProduct(p)"
           (add)="add.emit(p)" />
       </div>
       }
-      <div class="w-1 flex-shrink-0"></div>
+      <div class="w-1"></div>
     </div>
   </div>
+
   }
+
 
   @if (selected()) {
   <app-menu-item-detail-modal [product]="selected()!" (close)="selected.set(undefined)" />
