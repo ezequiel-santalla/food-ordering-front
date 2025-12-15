@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Menu, MenuElement, Product } from '../models/menu.interface';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { AuthStateManager } from '../../auth/services/auth-state-manager-service';
 
 type MenuNode = {
   name: string;
@@ -15,8 +16,10 @@ type MenuNode = {
 })
 export class MenuService {
   private http = inject(HttpClient);
+  private authState = inject(AuthStateManager);
 
   private CACHE_KEY = 'dinno-menu-cache-v1';
+  private VENUE_KEY = 'dinno-menu-venue-id';
   private CACHE_TTL = 10 * 60 * 1000;
 
   private saveCache(data: any) {
@@ -25,27 +28,44 @@ export class MenuService {
       expiresAt: Date.now() + this.CACHE_TTL,
     };
     localStorage.setItem(this.CACHE_KEY, JSON.stringify(payload));
+
+    const currentVenueId = this.authState.foodVenueId();
+    if (currentVenueId) {
+      localStorage.setItem(this.VENUE_KEY, currentVenueId);
+    }
   }
 
   private loadCache(): Menu | null {
+    const currentVenueId = this.authState.foodVenueId();
+    const cachedVenueId = localStorage.getItem(this.VENUE_KEY);
+
+    if (currentVenueId && cachedVenueId && currentVenueId !== cachedVenueId) {
+      console.warn(
+        `Cambio de FoodVenue detectado (${cachedVenueId} -> ${currentVenueId}). Cache invalidado.`
+      );
+      this.clearCache();
+      return null;
+    }
+
     const raw = localStorage.getItem(this.CACHE_KEY);
     if (!raw) return null;
 
     try {
       const parsed = JSON.parse(raw);
       if (Date.now() > parsed.expiresAt) {
-        localStorage.removeItem(this.CACHE_KEY);
+        this.clearCache();
         return null;
       }
       return parsed.value as Menu;
     } catch {
-      localStorage.removeItem(this.CACHE_KEY);
+        this.clearCache();
       return null;
     }
   }
 
-  private clearCache() {
+  clearCache() {
     localStorage.removeItem(this.CACHE_KEY);
+    localStorage.removeItem(this.VENUE_KEY);
   }
 
   getMenu(): Observable<Menu> {
@@ -55,9 +75,9 @@ export class MenuService {
       return of(cached);
     }
 
-    return this.http.get<Menu>(`${environment.baseUrl}/menus`).pipe(
-      tap((data) => this.saveCache(data))
-    );
+    return this.http
+      .get<Menu>(`${environment.baseUrl}/menus`)
+      .pipe(tap((data) => this.saveCache(data)));
   }
 
   getMenuNodes(): Observable<{

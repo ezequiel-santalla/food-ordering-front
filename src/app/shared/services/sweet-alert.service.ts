@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import Swal, { SweetAlertResult } from 'sweetalert2';
+import Swal, { SweetAlertIcon, SweetAlertPosition, SweetAlertResult } from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root',
@@ -48,6 +48,45 @@ export class SweetAlertService {
     });
 
     return result.isConfirmed;
+  }
+
+  showToast(position: SweetAlertPosition, icon: SweetAlertIcon, title: string) {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: position,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      }
+    });
+
+    Toast.fire({
+      icon: icon,
+      title: title
+    });
+  }
+
+  async confirm(
+    title: string,
+    text: string,
+    confirmButtonText: string = 'Confirmar',
+    icon: SweetAlertIcon = 'warning'
+  ): Promise<SweetAlertResult> {
+    return Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      showCancelButton: true,
+      confirmButtonText: confirmButtonText,
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      focusCancel: true,
+      ...this.defaultConfig,
+      confirmButtonColor: '#f59e0b'
+    });
   }
 
   showPaymentCancelled() {

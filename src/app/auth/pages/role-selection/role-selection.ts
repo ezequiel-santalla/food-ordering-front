@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { SessionUtils } from '../../../utils/session-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
+import { TableSessionService } from '../../../store-front/services/table-session-service';
 
 @Component({
   selector: 'app-role-selection',
@@ -26,6 +27,7 @@ export class RoleSelectionComponent {
   private router = inject(Router);
   private navigationService = inject(NavigationService);
   private sweetAlertService = inject(SweetAlertService);
+  private tableSessionService = inject(TableSessionService);
 
   protected readonly User = User;
   protected readonly Briefcase = Briefcase;
@@ -80,18 +82,13 @@ export class RoleSelectionComponent {
     this.authService.selectRole(employment.publicId).subscribe({
       next: () => {
         console.log(`Rol de ${employment.role} seleccionado. Redirigiendo...`);
-       const role = employment.role;
+        const role = employment.role;
 
-
-      if (role === 'ROLE_ADMIN') {
-
-        this.router.navigate(['admin']);
-
-      } else if (role === 'ROLE_MANAGER' || role === 'ROLE_STAFF') {
-
-        this.router.navigate(['employee']);
-
-      }
+        if (role === 'ROLE_ADMIN') {
+          this.router.navigate(['admin']);
+        } else if (role === 'ROLE_MANAGER' || role === 'ROLE_STAFF') {
+          this.router.navigate(['employee']);
+        }
       },
       error: (err) => {
         console.error('Error al seleccionar el rol', err);
@@ -108,19 +105,36 @@ export class RoleSelectionComponent {
 
     const tableSessionId = this.authService.tableSessionId();
 
-    // Verificar si ya tiene una sesión de mesa válida
     if (SessionUtils.isValidSession(tableSessionId)) {
-      console.log('✅ Ya tiene sesión de mesa, navegando a home');
+      console.log('Ya tiene sesión de mesa, navegando a home');
       this.sweetAlertService.showInfo(
         'Sesión Activa',
         'Ya tenías una sesión de mesa activa. Te redirigiremos allí.'
       );
 
-      setTimeout(() => {
-        this.navigationService.navigateToHome();
-      }, 2000);
+      this.tableSessionService.recoverActiveSession().subscribe({
+        next: (info) => {
+          this.sweetAlertService.close();
+          this.sweetAlertService.showInfo(
+            'Sesión Restaurada',
+            `Estás en la mesa ${info.tableNumber}`
+          );
+
+          setTimeout(() => {
+            this.navigationService.navigateToHome();
+          }, 2000);
+        },
+        error: (err) => {
+          console.error(
+            ' No se pudieron recuperar los detalles de la mesa:',
+            err
+          );
+          this.sweetAlertService.close();
+          this.navigationService.navigateToHome();
+        },
+      });
     } else {
-      console.log('⚠️ Sin sesión de mesa, navegando a food-venues');
+      console.log('Sin sesión de mesa, navegando a food-venues');
       this.navigationService.navigateToFoodVenues();
     }
   }

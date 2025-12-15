@@ -86,7 +86,7 @@ export class TableOrders {
       items: o.orderDetails.map((d) => ({
         quantity: d.quantity,
         productName: d.productName,
-        subtotal: d.subtotal, // si después querés mostrar el precio
+        subtotal: d.subtotal,
       })),
     }))
   );
