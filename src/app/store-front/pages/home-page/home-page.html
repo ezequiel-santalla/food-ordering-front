@@ -4,7 +4,7 @@
     <div class="px-4 sm:px-6">
       <app-highlights-section
         title="Recomendados"
-        [data$]="menuService.getRecommendations()"
+        [data$]="menuService.getRecommended()"
         variant="premium"
       />
     </div>
@@ -14,7 +14,7 @@
     <div class="px-4 sm:px-6">
       <app-highlights-section
         title="Los más pedidos"
-        [data$]="menuService.getHighlights()"
+        [data$]="menuService.getTopSelling()"
         variant="pop"
       />
     </div>
@@ -24,7 +24,7 @@
     <div class="px-4 sm:px-6">
       <app-highlights-section
         title="Tus Favoritos"
-        [data$]="menuService.getMyFavorites()"
+        [data$]="favoritesService.favoritesList$"
         variant="minimal"
       />
     </div>

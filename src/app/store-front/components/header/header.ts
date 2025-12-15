@@ -170,7 +170,7 @@ export class Header {
       next: () => {
         this.sweetAlert.close();
         this.sweetAlert.showSuccess('Listo', successMessage);
-        this.router.navigate(['/food-venues']);
+        this.router.navigate(['/']);
       },
       error: () => {
         this.sweetAlert.showError('Error', 'No se pudo completar la acción.');

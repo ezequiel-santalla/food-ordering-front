@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import Swal, { SweetAlertIcon, SweetAlertPosition, SweetAlertResult } from 'sweetalert2';
+import Swal, {
+  SweetAlertIcon,
+  SweetAlertPosition,
+  SweetAlertResult,
+} from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root',
@@ -60,12 +64,12 @@ export class SweetAlertService {
       didOpen: (toast) => {
         toast.onmouseenter = Swal.stopTimer;
         toast.onmouseleave = Swal.resumeTimer;
-      }
+      },
     });
 
     Toast.fire({
       icon: icon,
-      title: title
+      title: title,
     });
   }
 
@@ -85,7 +89,7 @@ export class SweetAlertService {
       reverseButtons: true,
       focusCancel: true,
       ...this.defaultConfig,
-      confirmButtonColor: '#f59e0b'
+      confirmButtonColor: '#f59e0b',
     });
   }
 
@@ -183,23 +187,22 @@ export class SweetAlertService {
   }
 
   showLoading(
-  title: string = 'Cargando...',
-  text: string = 'Por favor espera'
-) {
-  return Swal.fire({
-    title,
-    text,
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    didOpen: () => {
-      Swal.showLoading();
-    },
-    customClass: {
-      popup: 'rounded-lg',
-    },
-  });
-}
-
+    title: string = 'Cargando...',
+    text: string = 'Por favor espera'
+  ) {
+    return Swal.fire({
+      title,
+      text,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+      customClass: {
+        popup: 'rounded-lg',
+      },
+    });
+  }
 
   showSuccess(title: string, text: string = '', timer: number = 2000) {
     Swal.fire({
@@ -237,6 +240,16 @@ export class SweetAlertService {
       confirmButtonText: 'Entendido',
       ...this.defaultConfig,
     });
+  }
+
+  async promptLoginForFavorites(): Promise<boolean> {
+    const res = await this.showChoice(
+      'Guardá tus favoritos',
+      'Registrate o iniciá sesión para guardar tus favoritos y verlos en cada visita.',
+      'Iniciar sesión',
+      'Más tarde'
+    );
+    return res.isConfirmed;
   }
 
   async confirmLogout(userName?: string): Promise<boolean> {

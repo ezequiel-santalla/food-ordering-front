@@ -22,6 +22,7 @@ import { TokenManager } from '../../utils/token-manager';
 import { Participant } from '../../shared/models/common';
 import { SweetAlertService } from '../../shared/services/sweet-alert.service';
 import { FoodVenueService } from '../../food-venues/services/food-venue.service';
+import { MenuService } from './menu-service';
 
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
@@ -29,6 +30,7 @@ export class TableSessionService {
   private authState = inject(AuthStateManager);
   private profileService = inject(ProfileService);
   private sseService = inject(ServerSentEventsService);
+  private menuService = inject(MenuService);
   private http = inject(HttpClient);
   private sweetAlertService = inject(SweetAlertService);
   private foodVenueService = inject(FoodVenueService);
@@ -350,6 +352,13 @@ export class TableSessionService {
     );
   }
 
+  private clearAllClientState() {
+    this.clearSession();
+    this.authState.clearSessionData();
+    this.foodVenueService.clearAll();
+    this.menuService.clearCache();
+  }
+
   clearSession(): void {
     console.log('🧹 Limpiando sesión de mesa');
 
@@ -382,9 +391,7 @@ export class TableSessionService {
             this.authState.clearState();
           }
 
-          this.clearSession();
-          this.authState.clearSessionData();
-          this.foodVenueService.clearAll();
+          this.clearAllClientState();
 
           console.log('Sesión cerrada exitosamente en datos locales');
         })
@@ -402,9 +409,7 @@ export class TableSessionService {
         tap((response) => {
           console.log('Respuesta leave:', response.status);
 
-          this.clearSession();
-          this.authState.clearSessionData();
-          this.foodVenueService.clearAll();
+          this.clearAllClientState();
         })
       );
   }

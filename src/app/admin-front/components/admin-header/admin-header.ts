@@ -16,12 +16,12 @@ constructor (private authService : AuthService,
     this.authService.logout().subscribe({
       next: () => {
         console.log('✅ Logout completado, redirigiendo...');
-        this.router.navigate(['/food-venues']);
+        this.router.navigate(['/']);
       },
       error: (error) => {
         console.error('❌ Error durante logout:', error);
 
-        this.router.navigate(['/food-venues']);
+        this.router.navigate(['/']);
       },
     });
   }

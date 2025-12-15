@@ -9,13 +9,15 @@ import {
 import { Product } from '../../../models/menu.interface';
 import { CartService } from '../../../services/cart-service';
 import { FormsModule } from '@angular/forms';
-import { CurrencyPipe } from '@angular/common';
-import { LucideAngularModule, Star } from 'lucide-angular';
+import { CurrencyPipe, NgClass } from '@angular/common';
+import { Heart, LucideAngularModule } from 'lucide-angular';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
+import { FavoritesService } from '../../../services/favorite-service';
+import { AuthStateManager } from '../../../../auth/services/auth-state-manager-service'; 
 
 @Component({
   selector: 'app-menu-item-detail-modal',
-  imports: [FormsModule, CurrencyPipe, LucideAngularModule],
+  imports: [FormsModule, CurrencyPipe, LucideAngularModule, NgClass],
   templateUrl: './menu-item-detail-modal.html',
   styleUrl: './menu-item-detail-modal.css',
 })
@@ -25,39 +27,59 @@ export class MenuItemDetailModal {
 
   private cartService = inject(CartService);
   private sweetAlert = inject(SweetAlertService);
+  private favoritesService = inject(FavoritesService);
+  private authState = inject(AuthStateManager);
 
   quantity = 1;
   specialInstructions = '';
 
-  readonly Star = Star;
+  readonly Heart = Heart;
   isFavorite = signal(false);
 
   constructor() {
-    
-    effect(() => {
-      const currentProduct = this.product();
-      if (currentProduct) {
-        // --- TODO Implementar logica para productos favoritos ---
-        console.log('TODO: Comprobar si', currentProduct.name, 'es favorito');
-        // const isFav = this.favoriteService.isFavorite(currentProduct.id);
-        // this.isFavorite.set(isFav);
+  effect(() => {
+    const p = this.product();
+    if (!p) return;
 
-        this.isFavorite.set(false);
-      }
+    if (!this.authState.isAuthenticated()) {
+      this.isFavorite.set(false);
+      return;
+    }
+
+    this.favoritesService.loadFavoriteIds().subscribe((set) => {
+      this.isFavorite.set(set.has(p.publicId));
     });
-  }
+  });
+}
+
 
   toggleFavorite(event: Event) {
     event.stopPropagation();
-    this.isFavorite.set(!this.isFavorite());
 
-    console.log('TODO: Llamar al backend para guardar favorito:', this.product().name, this.isFavorite());
-    // --- Lógica futura ---
-    // if (this.isFavorite()) {
-    //   this.favoriteService.addFavorite(this.product().id).subscribe();
-    // } else {
-    //   this.favoriteService.removeFavorite(this.product().id).subscribe();
-    // }
+    // ✅ Invitado / no logueado: enganche
+    if (!this.authState.isAuthenticated()) {
+      this.sweetAlert.promptLoginForFavorites();
+      return;
+    }
+
+    // ✅ Llamar back y usar el estado final real
+    const p = this.product();
+
+    this.favoritesService.toggle(p.publicId).subscribe({
+      next: (res) => {
+        this.isFavorite.set(res.isFavorite);
+
+        // opcional: feedback mini
+        // this.sweetAlert.showSuccess(
+        //   res.isFavorite ? 'Agregado a favoritos' : 'Quitado de favoritos',
+        //   p.name,
+        //   1200
+        // );
+      },
+      error: () => {
+        this.sweetAlert.promptLoginForFavorites();
+      },
+    });
   }
 
   increaseQuantity() {
@@ -72,19 +94,13 @@ export class MenuItemDetailModal {
     const prod: Product = this.product();
     const instructions = prod.customizable ? this.specialInstructions : null;
 
-    // Llama al nuevo método del servicio
-    this.cartService.addItem(
-      prod,
-      this.quantity,
-      instructions
-    );
-
+    this.cartService.addItem(prod, this.quantity, instructions);
     this.close.emit();
 
     this.sweetAlert.showSuccess(
       '¡Agregado!',
       `${this.product().name} fue añadido a tu orden.`,
-      1500 // 1.5 segundos
+      1500
     );
   }
 }

@@ -1,6 +1,6 @@
 import { Component, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, Star, Flame, Heart } from 'lucide-angular';
 import { Product } from '../../../models/menu.interface';
 import { CartService } from '../../../services/cart-service';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
@@ -18,6 +18,10 @@ export class MenuHighlightCard {
 
   private cartService = inject(CartService);
   private sweetAlert = inject(SweetAlertService);
+
+  readonly Star = Star;
+  readonly Flame = Flame;
+  readonly Heart = Heart;
 
   select = output<Product>();
   add = output<Product>();

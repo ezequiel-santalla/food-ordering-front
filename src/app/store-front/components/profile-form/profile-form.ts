@@ -13,6 +13,7 @@ import { SweetAlertService } from '../../../shared/services/sweet-alert.service'
 
 @Component({
   selector: 'app-profile-form',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './profile-form.html',
 })
@@ -241,9 +242,9 @@ export class ProfileForm {
       return `Mínimo ${control.errors['minlength'].requiredLength} caracteres`;
     }
     if (control.hasError('pattern')) {
-      if (field === 'phone') return 'Formato: +54 11 1234-5678';
+      if (field === 'phone') return 'Formato inválido';
       if (field === 'address.postalCode')
-        return 'Solo números, entre 4 y 10 dígitos';
+        return 'Formato inválido';
     }
     return 'Campo inválido';
   }
