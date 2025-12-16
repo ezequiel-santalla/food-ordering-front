@@ -10,7 +10,7 @@ export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
-    title: 'Dinno - Escanea, Pide, Disfruta',
+    title: 'Dinno - Escaneá, Pedí, Disfrutá',
   },
 
   // 🔐 Rutas de autenticación (solo para usuarios NO autenticados)
