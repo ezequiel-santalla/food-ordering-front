@@ -108,6 +108,9 @@ export class FavoritesService {
   }
 
   getFavorites(page = 0, size = 20) {
+    if (!this.authState.isAuthenticated()) {
+      return of([] as Product[]);
+    }
     return this.http
       .get<any>(`${environment.baseUrl}/products/favorites`, {
         params: { page: String(page), size: String(size) },

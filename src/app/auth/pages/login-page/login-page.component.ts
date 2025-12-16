@@ -229,6 +229,6 @@ export class LoginPageComponent implements OnInit {
   }
 
   onExit() {
-    this.navigation.navigateBySessionState();
+    this.navigation.navigateToHome();
   }
 }

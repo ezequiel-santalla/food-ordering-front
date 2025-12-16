@@ -2,31 +2,20 @@
 
   <div>
     <div class="px-4 sm:px-6">
-      <app-highlights-section
-        title="Recomendados"
-        [data$]="menuService.getRecommended()"
-        variant="premium"
-      />
+      <app-highlights-section title="Recomendados" [data$]="menuService.getRecommended()" variant="premium" />
     </div>
   </div>
 
   <div>
     <div class="px-4 sm:px-6">
-      <app-highlights-section
-        title="Los más pedidos"
-        [data$]="menuService.getTopSelling()"
-        variant="pop"
-      />
+      <app-highlights-section title="Los más pedidos" [data$]="menuService.getTopSelling()" variant="pop" />
     </div>
   </div>
 
   <div>
     <div class="px-4 sm:px-6">
-      <app-highlights-section
-        title="Tus Favoritos"
-        [data$]="favoritesService.favoritesList$"
-        variant="minimal"
-      />
+      <app-highlights-section title="Tus Favoritos" emptyMessage="Aún no agregaste ningún favorito"
+        [data$]="favoritesData$()" variant="minimal" />
     </div>
   </div>
 </div>

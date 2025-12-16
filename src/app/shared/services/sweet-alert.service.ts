@@ -204,8 +204,8 @@ export class SweetAlertService {
     });
   }
 
-  showSuccess(title: string, text: string = '', timer: number = 2000) {
-    Swal.fire({
+  showSuccess(title: string, text: string = '', timer: number = 2000): Promise<SweetAlertResult> {
+    return Swal.fire({
       title,
       text,
       icon: 'success',

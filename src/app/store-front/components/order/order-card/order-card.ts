@@ -1,4 +1,11 @@
-import { Component, Input, Output, EventEmitter, signal, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  signal,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   LucideAngularModule,
@@ -14,8 +21,11 @@ import {
   BanknoteArrowUp,
 } from 'lucide-angular';
 import { OrderResponse } from '../../../models/order.interface';
-import { PaymentStatus } from '../../../models/payment.interface';
-
+import {
+  ORDER_STATUS_UI,
+  OrderStatus,
+  toneToBadgeClass,
+} from '../../../../shared/models/status-ui';
 @Component({
   selector: 'app-order-card',
   standalone: true,
@@ -44,13 +54,11 @@ export class OrderCardComponent {
   isSelected = signal(false);
   isPaid = signal(false);
 
-
-   ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes['order']) {
       const payment = this.order.payment;
 
-
-       const paid = !!payment;
+      const paid = !!payment;
 
       //const paid = !!payment && payment.status === PaymentStatus.COMPLETED;
 
@@ -74,60 +82,12 @@ export class OrderCardComponent {
     });
   }
 
-  getStatusBadgeClass(status: string): string {
-    switch (status) {
-      case 'PENDING':
-        return 'badge-warning';
-      case 'APPROVED':
-        return 'badge-accent';
-      case 'IN_PROGRESS':
-        return 'badge-primary';
-      case 'COMPLETED':
-        return 'badge-success';
-      case 'SERVED':
-        return 'badge-info';
-      case 'CANCELLED':
-        return 'badge-error';
-      default:
-        return 'badge-ghost';
-    }
+  get orderUi() {
+    const st = this.order.status as OrderStatus;
+    return ORDER_STATUS_UI[st] ?? { label: this.order.status, tone: 'neutral' as const };
   }
 
-  getStatusText(status: string): string {
-    switch (status) {
-      case 'PENDING':
-        return 'Pendiente';
-      case 'APPROVED':
-        return 'Aprobado';
-      case 'IN_PROGRESS':
-        return 'En Preparación';
-      case 'COMPLETED':
-        return 'Completado';
-      case 'SERVED':
-        return 'Servido';
-      case 'CANCELLED':
-        return 'Cancelado';
-      default:
-        return status;
-    }
-  }
-
-  getStatusIcon(status: string) {
-    switch (status) {
-      case 'PENDING':
-        return this.Clock;
-      case 'APPROVED':
-        return this.CheckCheck;
-      case 'IN_PROGRESS':
-        return this.CookingPot;
-      case 'COMPLETED':
-        return this.CircleCheckBig;
-      case 'SERVED':
-        return this.HandPlatter;
-      case 'CANCELLED':
-        return this.CircleX;
-      default:
-        return this.Package;
-    }
+  badgeClass(): string {
+    return 'badge badge-sm ' + toneToBadgeClass(this.orderUi.tone);
   }
 }

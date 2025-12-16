@@ -27,7 +27,7 @@ export class NavigationService {
         this.navigateToHome();
       } else {
         console.log('⚠️ Sin sesión de mesa, navegando a food-venues');
-        this.router.navigate(['/food-venues'], { replaceUrl: true });
+        this.navigateToHome();
       }
     }, delay);
   }

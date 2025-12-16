@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
   LucideAngularModule,
@@ -18,6 +18,7 @@ import { AuthStateManager } from '../../../auth/services/auth-state-manager-serv
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { finalize } from 'rxjs';
 import Swal from 'sweetalert2';
+import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({
   selector: 'app-header',
@@ -30,7 +31,7 @@ export class Header {
   tableSessionService = inject(TableSessionService);
   authService = inject(AuthService);
   private authState = inject(AuthStateManager);
-  private router = inject(Router);
+  private navigation = inject(NavigationService);
   private sweetAlert = inject(SweetAlertService);
 
   readonly Bell = Bell;
@@ -45,7 +46,8 @@ export class Header {
   hasActiveSession = this.tableSessionService.hasActiveSession;
 
   participantNickname = computed(() => {
-    const nick = this.tableSessionService.tableSessionInfo().participantNickname;
+    const nick =
+      this.tableSessionService.tableSessionInfo().participantNickname;
     return nick || 'Invitado';
   });
 
@@ -54,7 +56,9 @@ export class Header {
   });
 
   venueImageUrl = computed(() => this.menuResource.value()?.foodVenueImageUrl);
-  venueName = computed(() => this.menuResource.value()?.foodVenueName || 'Cargando...');
+  venueName = computed(
+    () => this.menuResource.value()?.foodVenueName || 'Cargando...'
+  );
 
   onLogout(): void {
     const hasActiveSession = this.tableSessionService.hasActiveSession();
@@ -70,17 +74,16 @@ export class Header {
       icon: 'question',
       showCancelButton: true,
       showDenyButton: true,
-      
+
       confirmButtonText: 'Abandonar mesa y salir',
-      confirmButtonColor: '#d33', 
+      confirmButtonColor: '#d33',
 
       denyButtonText: 'Solo salir (Mantener mesa)',
       denyButtonColor: '#3085d6',
-      
+
       cancelButtonText: 'Cancelar',
-      allowOutsideClick: false
+      allowOutsideClick: false,
     }).then((result) => {
-      
       if (result.isConfirmed) {
         this.handleLeaveAndLogout();
       } else if (result.isDenied) {
@@ -109,18 +112,21 @@ export class Header {
     actionObservable.subscribe({
       next: () => {
         console.log('✅ Acción de mesa completada. Procediendo al logout...');
-        this.executeLogout(false); 
+        this.executeLogout(false);
       },
       error: (err) => {
         console.error('⚠️ Error en acción de mesa, forzando logout...', err);
         this.executeLogout(false);
-      }
+      },
     });
   }
 
   private executeLogout(showLoading: boolean) {
     if (showLoading) {
-      this.sweetAlert.showLoading('Cerrando sesión...', 'Limpiando datos seguros');
+      this.sweetAlert.showLoading(
+        'Cerrando sesión...',
+        'Limpiando datos seguros'
+      );
     }
 
     this.authService
@@ -132,10 +138,10 @@ export class Header {
       )
       .subscribe({
         next: () => {
-          this.router.navigate(['/auth/login']);
+          this.navigation.navigateToHome();
         },
         error: (err) => {
-          this.router.navigate(['/auth/login']);
+          this.navigation.navigateToHome();
         },
       });
   }
@@ -144,23 +150,35 @@ export class Header {
     const count = this.tableSessionService.tableSessionInfo().participantCount;
 
     if (count <= 1) {
-      this.sweetAlert.showChoice(
-        '¿Cerrar la mesa?',
-        'Sos el último participante. La mesa se cerrará para todos.',
-        'Sí, cerrar mesa',
-        'Cancelar'
-      ).then((res) => {
-        if (res.isConfirmed) this.performTableAction(this.tableSessionService.closeSession(), 'Mesa cerrada');
-      });
+      this.sweetAlert
+        .showChoice(
+          '¿Cerrar la mesa?',
+          'Sos el último participante. La mesa se cerrará para todos.',
+          'Sí, cerrar mesa',
+          'Cancelar'
+        )
+        .then((res) => {
+          if (res.isConfirmed)
+            this.performTableAction(
+              this.tableSessionService.closeSession(),
+              'Mesa cerrada'
+            );
+        });
     } else {
-      this.sweetAlert.showChoice(
-        '¿Abandonar la mesa?',
-        'Dejarás de participar, pero la mesa sigue abierta para el resto.',
-        'Sí, abandonar',
-        'Cancelar'
-      ).then((res) => {
-        if (res.isConfirmed) this.performTableAction(this.tableSessionService.leaveSession(), 'Has abandonado la mesa');
-      });
+      this.sweetAlert
+        .showChoice(
+          '¿Abandonar la mesa?',
+          'Dejarás de participar, pero la mesa sigue abierta para el resto.',
+          'Sí, abandonar',
+          'Cancelar'
+        )
+        .then((res) => {
+          if (res.isConfirmed)
+            this.performTableAction(
+              this.tableSessionService.leaveSession(),
+              'Has abandonado la mesa'
+            );
+        });
     }
   }
 
@@ -170,11 +188,11 @@ export class Header {
       next: () => {
         this.sweetAlert.close();
         this.sweetAlert.showSuccess('Listo', successMessage);
-        this.router.navigate(['/']);
+        this.navigation.navigateToHome();
       },
       error: () => {
         this.sweetAlert.showError('Error', 'No se pudo completar la acción.');
-      }
+      },
     });
   }
 }

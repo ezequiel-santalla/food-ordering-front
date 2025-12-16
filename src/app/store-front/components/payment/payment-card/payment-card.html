@@ -8,29 +8,27 @@
 
     <div class="text-right">
       <div class="font-bold">${{ payment.amount | number:'1.2-2' }}</div>
-      <div
-        class="text-xs flex items-center justify-end"
-        [ngClass]="getStatusLabel(payment.status).color"
-      >
-        {{ getStatusLabel(payment.status).label }}
+      <div class="text-xs flex items-center justify-end gap-1" [class]="statusTextClass()">
+        <lucide-icon [img]="ui().icon" class="w-3.5 h-3.5"></lucide-icon>
+        {{ ui().label }}
       </div>
     </div>
   </div>
 
   <!-- BODY -->
   @if (isOpen) {
-    <div class="mt-3 border-t pt-3 space-y-1 text-sm">
-      <div class="font-medium mb-2">Órdenes incluidas:</div>
+  <div class="mt-3 border-t pt-3 space-y-1 text-sm">
+    <div class="font-medium mb-2">Órdenes incluidas:</div>
 
-      @for (id of payment.orderNumbers; track id) {
-        <div class="text-xs">• Orden {{ id }}</div>
-      }
+    @for (id of payment.orderNumbers; track id) {
+    <div class="text-xs">• Orden {{ id }}</div>
+    }
 
-      @if (payment.status === 'PENDING') {
-        <button class="btn btn-xs btn-error mt-2" (click)="cancel.emit(payment.publicId)">
-          Cancelar pago
-        </button>
-      }
-    </div>
+    @if (payment.status === 'PENDING') {
+    <button class="btn btn-xs btn-error mt-2" (click)="cancel.emit(payment.publicId)">
+      Cancelar pago
+    </button>
+    }
+  </div>
   }
 </div>

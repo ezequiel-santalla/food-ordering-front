@@ -3,7 +3,6 @@
     <div class="navbar-start">
       <div class="flex items-center gap-3">
         <div class="avatar">
-          <a routerLink="/">
             <div class="w-10 h-10 rounded-lg bg-base-200 flex items-center justify-center">
               @if(venueImageUrl()) {
               <img [src]="venueImageUrl()" [alt]="venueName()" />
@@ -11,7 +10,6 @@
               <span class="text-xl font-bold">?</span>
               }
             </div>
-          </a>
         </div>
 
         <div class="flex flex-col min-w-0">
@@ -45,7 +43,7 @@
           <li>
             <a routerLink="/profile">
               <lucide-icon [img]="UserCog" class="w-4 h-4"></lucide-icon>
-              Ver perfil
+              Mi cuenta
             </a>
           </li>
           } 

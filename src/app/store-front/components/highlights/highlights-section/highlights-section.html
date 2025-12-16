@@ -53,7 +53,7 @@
   </div>
   }
 
-  @if (!resource.isLoading() && items().length > 0) {
+  @if (items().length > 0) {
   <div class="overflow-x-auto scrollbar-hide -mx-4 sm:-mx-6 px-4 sm:px-6 py-1">
     <div class="grid grid-flow-col
            auto-cols-[8.5rem] sm:auto-cols-[9rem] md:auto-cols-[10rem]
@@ -67,9 +67,23 @@
       <div class="w-1"></div>
     </div>
   </div>
-
   }
 
+  @if (!resource.isLoading() && items().length === 0 && emptyMessage()) {
+  <div class="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6 py-1">
+    <div class="rounded-2xl border bg-white shadow-sm px-4 py-3 text-sm"
+         [ngClass]="{
+           'border-violet-100 text-violet-700': variant() === 'premium',
+           'border-orange-100 text-orange-700': variant() === 'pop',
+           'border-gray-200 text-gray-700': variant() === 'minimal'
+         }">
+      <div class="flex items-center gap-2">
+        <lucide-icon [img]="Heart" class="w-4 h-4"></lucide-icon>
+        <span>{{ emptyMessage() }}</span>
+      </div>
+    </div>
+  </div>
+}
 
   @if (selected()) {
   <app-menu-item-detail-modal [product]="selected()!" (close)="selected.set(undefined)" />

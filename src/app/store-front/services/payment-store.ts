@@ -118,16 +118,27 @@ export class PaymentsStore {
   onPaymentUpdatedFromSse(payment: PaymentResponseDto, myId: string) {
     if (payment.participant.publicId !== myId) return;
 
-    if (!this._page()) return;
-
     this._page.update((prev) => {
       if (!prev) return prev;
 
+      const list = prev.content ?? [];
+      const idx = list.findIndex((p) => p.publicId === payment.publicId);
+
+      if (idx >= 0) {
+        const updated = [...list];
+        updated[idx] = { ...updated[idx], ...payment };
+        return { ...prev, content: updated };
+      }
+
+      const inserted = [payment, ...list];
+
+      const size = prev.pageSize ?? inserted.length;
+      const trimmed = inserted.slice(0, size);
+
       return {
         ...prev,
-        content: prev.content.map((p) =>
-          p.publicId === payment.publicId ? { ...p, ...payment } : p
-        ),
+        content: trimmed,
+        totalElements: (prev.totalElements ?? list.length) + 1,
       };
     });
   }

@@ -65,7 +65,9 @@ export function authInterceptor(
         return next(requestWithNewToken);
       }),
       catchError(() => {
-        console.error('❌ Falló el refresh proactivo, intentando con token actual...');
+        console.error(
+          '❌ Falló el refresh proactivo, intentando con token actual...'
+        );
         // Si falla el refresh, intentamos con el token actual de todos modos
         const authReq = req.clone({
           headers: req.headers.set('Authorization', `Bearer ${token}`),
@@ -83,7 +85,6 @@ export function authInterceptor(
   // 8. LÓGICA DE MANEJO DE ERRORES (COMPLETA)
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-
       // CASO 0: Ignorar 401 en /login
       if (error.status === 401 && req.url.includes('/auth/login')) {
         return throwError(() => error);
@@ -91,7 +92,6 @@ export function authInterceptor(
 
       // CASO 1: Es un error 401 en cualquier otra ruta
       if (error.status === 401) {
-
         if (authState.isHandlingAuthError) {
           return EMPTY;
         }
@@ -101,6 +101,15 @@ export function authInterceptor(
 
         if (authState.isGuest()) {
           // --- LÓGICA PARA INVITADOS (CON AVISO) ---
+          if (!isJwtExpired(token)) {
+            // opcional: log más honesto
+            console.warn(
+              '⚠️ 401 en modo guest pero token NO expirado. No se cierra sesión.',
+              req.url
+            );
+            authState.isHandlingAuthError = false; // importantísimo si devolvés EMPTY
+            return EMPTY;
+          }
           console.warn('🚫 Token de Invitado expirado. Mostrando aviso...');
 
           const alertPromise = sweetAlertService.showError(
@@ -114,16 +123,20 @@ export function authInterceptor(
               return EMPTY;
             })
           );
-
         } else {
           // --- LÓGICA PARA CLIENTES (CON REFRESH TOKEN) ---
           console.warn('🚫 Token de Cliente expirado. Iniciando refresco...');
 
           return authService.refreshAccessToken().pipe(
             switchMap((newAccessToken: string) => {
-              console.log('✅ Token refrescado, reintentando petición original...');
+              console.log(
+                '✅ Token refrescado, reintentando petición original...'
+              );
               const requestWithNewToken = req.clone({
-                headers: req.headers.set('Authorization', `Bearer ${newAccessToken}`),
+                headers: req.headers.set(
+                  'Authorization',
+                  `Bearer ${newAccessToken}`
+                ),
               });
               return next(requestWithNewToken);
             }),
@@ -158,9 +171,9 @@ function isScanQrRoute(url: string): boolean {
 
 function isExcludedFromRefresh(url: string): boolean {
   const excludedRoutes = [
-    '/auth/refresh',    // No refrescar cuando estamos refrescando
-    '/auth/logout',     // No refrescar cuando estamos cerrando sesión
-    '/auth/login',      // No refrescar en login
+    '/auth/refresh', // No refrescar cuando estamos refrescando
+    '/auth/logout', // No refrescar cuando estamos cerrando sesión
+    '/auth/login', // No refrescar en login
   ];
 
   return excludedRoutes.some((route) => url.includes(route));
@@ -168,18 +181,26 @@ function isExcludedFromRefresh(url: string): boolean {
 
 function willExpireSoon(jwt: string, msBefore: number): boolean {
   try {
-    const decoded = JwtUtils.decodeJWT(jwt);
+    const decoded: any = JwtUtils.decodeJWT(jwt);
+    const expSec = decoded?.exp;
+    if (!expSec) return true;
 
-    if (!decoded.exp) {
-      return true;
-    }
+    const expMs = expSec * 1000;
+    return Date.now() >= expMs - msBefore;
+  } catch {
+    return true;
+  }
+}
 
-    const expirationTime = decoded.exp * 1000;
-    const warningTime = expirationTime - msBefore;
+function isJwtExpired(jwt: string, clockSkewMs = 15_000): boolean {
+  try {
+    const decoded: any = JwtUtils.decodeJWT(jwt);
+    const expSec = decoded?.exp;
+    if (!expSec) return true; // sin exp = tratamos como inválido
 
-    return Date.now() >= warningTime;
-  } catch (e) {
-    console.error('Error decoding JWT:', e);
+    const expMs = expSec * 1000;
+    return Date.now() >= expMs - clockSkewMs;
+  } catch {
     return true;
   }
 }

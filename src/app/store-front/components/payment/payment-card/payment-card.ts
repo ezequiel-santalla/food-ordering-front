@@ -1,11 +1,13 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PaymentResponseDto, PaymentStatus } from '../../../models/payment.interface';
+import { getPaymentStatusUi, toneToTextClass } from '../../../../shared/models/status-ui';
+import { LucideAngularModule } from 'lucide-angular';
+import { PaymentResponseDto } from '../../../models/payment.interface';
 
 @Component({
   selector: 'app-payment-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './payment-card.html'
 })
 export class PaymentCardComponent {
@@ -19,12 +21,7 @@ export class PaymentCardComponent {
     this.isOpen = !this.isOpen;
   }
 
-  getStatusLabel(status: PaymentStatus) {
-    return {
-      PENDING: { label: 'Pendiente', color: 'text-amber-600' },
-      COMPLETED: { label: 'Completado', color: 'text-green-600' },
-      CANCELLED: { label: 'Cancelado', color: 'text-gray-500' },
-      FAILED: { label: 'Fallido', color: 'text-red-600' }
-    }[status];
-  }
+  ui = computed(() => getPaymentStatusUi(this.payment.status));
+
+  statusTextClass = computed(() => toneToTextClass(this.ui().tone));
 }

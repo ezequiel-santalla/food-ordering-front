@@ -21,6 +21,7 @@ export class HighlightsSection {
 
   title = input.required<string>();
   emptyText = input<string>('No hay productos para mostrar.');
+  emptyMessage = input<string | null>(null);
   data$ = input.required<Observable<Product[]>>();
 
   variant = input<'premium' | 'pop' | 'minimal'>('premium');

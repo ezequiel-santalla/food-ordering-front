@@ -18,4 +18,8 @@ export class ProfileService {
   updateUserProfile(profile: UpdateUserProfileRequest): Observable<UserProfile> {
     return this.http.patch<UserProfile>(`${environment.baseUrl}/me/profile`, profile);
   }
+
+  deleteUser(): Observable<UserProfile> {
+    return this.http.delete<UserProfile>(`${environment.baseUrl}/me/profile`);
+  }
 }

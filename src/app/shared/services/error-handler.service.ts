@@ -28,7 +28,7 @@ export class ErrorHandlerService {
       case 404:
         return {
           title: 'Usuario no encontrado',
-          message: 'No existe una cuenta asociada a este email.'
+          message: 'Email o contaseña incorrectos.'
         };
       case 0:
         return {

@@ -1,12 +1,27 @@
 import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { KeyRound, LucideAngularModule, Mail, RotateCcwIcon, User, Phone, MapPin } from 'lucide-angular';
+import {
+  KeyRound,
+  LucideAngularModule,
+  Mail,
+  RotateCcwIcon,
+  User,
+  Phone,
+  MapPin,
+  X,
+} from 'lucide-angular';
 import { AuthService } from '../../services/auth-service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import Swal from 'sweetalert2';
+import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({
   selector: 'app-register-page',
@@ -14,19 +29,20 @@ import Swal from 'sweetalert2';
   templateUrl: './register-page.component.html',
 })
 export class RegisterPageComponent {
-
   readonly User = User;
   readonly Mail = Mail;
   readonly KeyRound = KeyRound;
   readonly RotateCcwIcon = RotateCcwIcon;
   readonly Phone = Phone;
   readonly MapPin = MapPin;
+  readonly X = X;
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private sweetAlertService = inject(SweetAlertService);
   private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
+  private navigation = inject(NavigationService)
 
   get pageTitle(): string {
     return 'Crear Cuenta';
@@ -114,7 +130,7 @@ export class RegisterPageComponent {
 
         const { title, message } = this.errorHandler.getAuthError(error);
         this.sweetAlertService.showError(title, message);
-      }
+      },
     });
   }
 
@@ -147,7 +163,8 @@ export class RegisterPageComponent {
     }
 
     // Agregar dirección solo si tiene al menos un campo
-    const hasAddress = formValue.street?.trim() ||
+    const hasAddress =
+      formValue.street?.trim() ||
       formValue.city?.trim() ||
       formValue.country?.trim();
 
@@ -164,5 +181,9 @@ export class RegisterPageComponent {
 
     console.log('📤 Datos a enviar:', data);
     return data;
+  }
+
+    onExit() {
+    this.navigation.navigateToHome();
   }
 }

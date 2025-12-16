@@ -10,12 +10,14 @@ import {
   KeyRound,
   LucideAngularModule,
   Mail,
-  Send, // Ícono para "Enviar"
+  Send,
+  X, // Ícono para "Enviar"
 } from 'lucide-angular';
 import { AuthService } from '../../services/auth-service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
+import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({
   selector: 'app-forgot-password-page',
@@ -29,6 +31,7 @@ export class ForgotPasswordPageComponent {
   readonly KeyRound = KeyRound;
   readonly Mail = Mail;
   readonly Send = Send;
+  readonly X = X;
 
   // Servicios
   private fb = inject(FormBuilder);
@@ -36,6 +39,7 @@ export class ForgotPasswordPageComponent {
   private sweetAlertService = inject(SweetAlertService);
   private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
+  private navigation = inject(NavigationService);
 
   formUtils = FormUtils;
   isSubmitting = false;
@@ -78,5 +82,9 @@ export class ForgotPasswordPageComponent {
         this.sweetAlertService.showError(title, message);
       },
     });
+  }
+
+  onExit() {
+    this.navigation.navigateToHome();
   }
 }

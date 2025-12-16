@@ -1,5 +1,5 @@
 import { Component, inject, effect } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -10,11 +10,15 @@ import { ProfileService } from '../../services/profile-service';
 import { TableSessionService } from '../../../store-front/services/table-session-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
+import { LucideAngularModule, Pencil, UserRoundX } from 'lucide-angular';
+import { AuthService } from '../../../auth/services/auth-service';
+import { lastValueFrom } from 'rxjs';
+import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({
   selector: 'app-profile-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
   templateUrl: './profile-form.html',
 })
 export class ProfileForm {
@@ -22,6 +26,11 @@ export class ProfileForm {
   private tableSessionService = inject(TableSessionService);
   private fb = inject(FormBuilder);
   private sweetAlert = inject(SweetAlertService);
+  private authService = inject(AuthService);
+  private navigation = inject(NavigationService)
+
+  readonly Pencil = Pencil;
+  readonly UserRoundX = UserRoundX;
 
   profileForm!: FormGroup;
   isEditing = false;
@@ -148,6 +157,81 @@ export class ProfileForm {
     });
   }
 
+async deleteAccount() {
+    const confirmedDelete = await this.sweetAlert.confirmCustomAction(
+      'Eliminar cuenta',
+      '¿Estás seguro? Esta acción es permanente y no se puede deshacer.'
+    );
+
+    if (!confirmedDelete) return;
+
+    if (this.tableSessionService.hasActiveSession()) {
+      
+      const confirmedSession = await this.sweetAlert.confirmCustomAction(
+        'Tenés una sesión activa',
+        'Para eliminar tu cuenta, primero debés salir de la mesa. Si sos el último, la mesa se cerrará. ¿Continuar?'
+      );
+
+      if (!confirmedSession) return;
+
+      this.sweetAlert.showLoading('Gestionando mesa...', 'Verificando estado de la sesión');
+
+      try {
+        const info = this.tableSessionService.tableSessionInfo();
+        const isLastPerson = info && info.participantCount <= 1;
+
+        if (isLastPerson) {
+          await lastValueFrom(this.tableSessionService.closeSession()); 
+        } else {
+          await lastValueFrom(this.tableSessionService.leaveSession());
+        }
+
+      } catch (error: any) {
+        console.error('Error al salir de la mesa:', error);
+        const msg = error?.error?.message || 'No se pudo cerrar la sesión. La cuenta NO fue eliminada.';
+        this.sweetAlert.showError('No se pudo eliminar', msg);
+        return; 
+      }
+    }
+
+    this.performDeleteAccount();
+  }
+
+  private performDeleteAccount() {
+    this.sweetAlert.showLoading('Eliminando cuenta...', 'Por favor esperá');
+
+    this.profileService.deleteUser().subscribe({
+      next: () => {
+        this.sweetAlert.showSuccess(
+          'Cuenta eliminada', 
+          'Tu usuario fue eliminado correctamente.', 
+          2000
+        ).then(() => {
+          this.executeCleanLogout();
+        });
+      },
+      error: (err) => {
+        console.error('Error eliminando user:', err);
+        this.sweetAlert.showError(
+          'Error', 
+          'Ocurrió un error al intentar borrar tu usuario.'
+        );
+      }
+    });
+  }
+
+  private executeCleanLogout() {
+    
+    this.authService.logout().subscribe({
+      next: () => {
+        this.navigation.navigateToHome();
+      },
+      error: (err) => {
+        console.error('Error en logout post-delete', err);
+        this.navigation.navigateToHome();
+      }
+    });
+  }
   private showValidationErrors(): void {
     const errors: string[] = [];
 
@@ -155,15 +239,17 @@ export class ProfileForm {
       const control = this.profileForm.get(key);
       if (control?.invalid && key !== 'address') {
         if (control.hasError('required')) {
-          errors.push(`${ this.getFieldName(key) } es requerido`);
+          errors.push(`${this.getFieldName(key)} es requerido`);
         }
         if (control.hasError('minlength')) {
           errors.push(
-            `${ this.getFieldName(key) } debe tener al menos ${ control.errors?.['minlength'].requiredLength } caracteres`
+            `${this.getFieldName(key)} debe tener al menos ${
+              control.errors?.['minlength'].requiredLength
+            } caracteres`
           );
         }
         if (control.hasError('pattern')) {
-          errors.push(`${ this.getFieldName(key) } tiene un formato inválido`);
+          errors.push(`${this.getFieldName(key)} tiene un formato inválido`);
         }
       }
     });
@@ -174,13 +260,11 @@ export class ProfileForm {
         const control = address.get(key);
         if (control?.invalid) {
           if (control.hasError('required')) {
-            errors.push(
-              `${ this.getFieldName(key) }(en dirección) es requerido`
-            );
+            errors.push(`${this.getFieldName(key)}(en dirección) es requerido`);
           }
           if (control.hasError('pattern')) {
             errors.push(
-              `${ this.getFieldName(key) }(en dirección) tiene formato inválido`
+              `${this.getFieldName(key)}(en dirección) tiene formato inválido`
             );
           }
         }
@@ -190,7 +274,7 @@ export class ProfileForm {
     if (errors.length > 0) {
       const htmlErrors = `
         <ul class="list-disc list-inside text-left text-sm -ml-4">
-          ${errors.map((e) => `<li>${ e }</li>`).join('')}
+          ${errors.map((e) => `<li>${e}</li>`).join('')}
         </ul>
       `;
       this.sweetAlert.showError('Campos incompletos', htmlErrors);
@@ -243,8 +327,7 @@ export class ProfileForm {
     }
     if (control.hasError('pattern')) {
       if (field === 'phone') return 'Formato inválido';
-      if (field === 'address.postalCode')
-        return 'Formato inválido';
+      if (field === 'address.postalCode') return 'Formato inválido';
     }
     return 'Campo inválido';
   }
