@@ -4,13 +4,7 @@ import { TableSessionResponse } from '../shared/models/table-session';
 import { JwtUtils } from './jwt-utils';
 import { SessionUtils } from './session-utils';
 
-/**
- * Maneja toda la lógica relacionada con tokens y datos de sesión
- */
 export class TokenManager {
-  /**
-   * Procesa una respuesta de autenticación simple (login sin sesión de mesa)
-   */
   static processAuthResponse(authResponse: AuthResponse): ProcessedAuthData {
     console.log('🔑 Procesando AuthResponse simple');
 
@@ -18,7 +12,7 @@ export class TokenManager {
       authResponse;
     const sessionData = this.extractSessionDataFromToken(accessToken);
 
-    console.log("Roles disponibles: ", employments);
+    console.log('Roles disponibles: ', employments);
 
     return {
       accessToken,
@@ -31,9 +25,6 @@ export class TokenManager {
     };
   }
 
-  /**
-   * Procesa una respuesta de sesión de mesa (login con mesa o scan QR)
-   */
   static processTableSessionResponse(
     response: TableSessionResponse,
     fallbackRefreshToken: string | null
@@ -58,15 +49,11 @@ export class TokenManager {
     };
   }
 
-  /**
-   * Valida que los tokens sean válidos antes de guardarlos
-   */
   static validateTokens(accessToken: string, refreshToken: string): void {
     if (!accessToken) {
       throw new Error('AccessToken inválido recibido del servidor');
     }
 
-    // Para invitados (refreshToken = 'guest'), solo validar accessToken
     if (refreshToken !== 'guest' && !refreshToken) {
       throw new Error('RefreshToken inválido recibido del servidor');
     }
@@ -80,9 +67,6 @@ export class TokenManager {
     });
   }
 
-  /**
-   * Guarda tokens en localStorage
-   */
   static saveTokens(
     accessToken: string,
     refreshToken: string,
@@ -110,28 +94,15 @@ export class TokenManager {
     });
   }
 
-  /**
-   * Guarda datos de sesión en localStorage
-   */
   static saveSessionData(data: SessionData): void {
-    const {
-      tableSessionId,
-      foodVenueId,
-      tableNumber,
-      participantCount,
-      employments,
-    } = data;
+    const { tableSessionId, foodVenueId, tableNumber, employments } = data;
 
     SessionUtils.setStorageValue('tableSessionId', tableSessionId);
     SessionUtils.setStorageValue('foodVenueId', foodVenueId);
     SessionUtils.setStorageValue('tableNumber', tableNumber);
-    SessionUtils.setStorageValue('participantCount', participantCount);
     SessionUtils.setStorageValue('employments', JSON.stringify(employments));
   }
 
-  /**
-   * Carga todos los datos de autenticación desde localStorage
-   */
   static loadAuthData(): LoadedAuthData {
     const employmentString = SessionUtils.getCleanStorageValue('employments');
 
@@ -145,13 +116,9 @@ export class TokenManager {
     };
   }
 
-  /**
-   * Extrae información de sesión desde una respuesta de login
-   */
   static getSessionInfoFromResponse(
     response: LoginResponse
   ): { tableNumber?: number; participants?: any[] } | null {
-    // Si es TableSessionResponse, extraer directamente
     if (SessionUtils.isTableSessionResponse(response)) {
       const tsResponse = response as TableSessionResponse;
       return {
@@ -160,7 +127,6 @@ export class TokenManager {
       };
     }
 
-    // Si es AuthResponse, intentar extraer del token
     const authResponse = response as AuthResponse;
     const decoded = JwtUtils.decodeJWT(authResponse.accessToken);
 
@@ -174,11 +140,6 @@ export class TokenManager {
     return null;
   }
 
-  // ==================== MÉTODOS PRIVADOS ====================
-
-  /**
-   * Extrae tableSessionId y foodVenueId del token
-   */
   private static extractSessionDataFromToken(accessToken: string): {
     tableSessionId: string | null;
     foodVenueId: string | null;
@@ -206,34 +167,25 @@ export class TokenManager {
   public static getEmploymentsFromResponse(
     response: AuthResponse
   ): Employment[] {
-    // Lee directamente la propiedad 'employments' del objeto de respuesta.
-    console.log("Roles disponibles por empleo: ",
-      response?.employments
-    );
+    console.log('Roles disponibles por empleo: ', response?.employments);
     return response?.employments || [];
   }
 
-  /**
-   * Resuelve el refreshToken con lógica de fallback
-   */
   private static resolveRefreshToken(
     responseToken: string | undefined | null,
     fallbackToken: string | null
   ): string {
-    // 1. Token de la respuesta (tiene prioridad)
     if (responseToken) {
       console.log('✅ Usando refreshToken de la respuesta');
       return responseToken;
     }
 
-    // 2. Token del fallback (usuario ya logueado)
     const cleanFallback = SessionUtils.cleanSessionValue(fallbackToken);
     if (cleanFallback) {
       console.log('✅ Usando refreshToken del fallback (usuario ya logueado)');
       return cleanFallback;
     }
 
-    // 3. Guest (invitado)
     console.log('👻 Sin refreshToken, usando "guest" (invitado)');
     return 'guest';
   }
@@ -241,10 +193,6 @@ export class TokenManager {
 
 // ==================== INTERFACES ====================
 
-/**
- * Datos extraídos y procesados desde cualquier respuesta de auth
- * Listo para guardar en localStorage
- */
 export interface ProcessedAuthData {
   accessToken: string;
   refreshToken: string;
@@ -256,9 +204,6 @@ export interface ProcessedAuthData {
   employments: Employment[];
 }
 
-/**
- * Datos de auth cargados desde localStorage
- */
 export interface LoadedAuthData {
   accessToken: string | null;
   refreshToken: string | null;
@@ -268,9 +213,6 @@ export interface LoadedAuthData {
   employments: Employment[] | null;
 }
 
-/**
- * Datos de sesión para guardar en localStorage
- */
 export interface SessionData {
   tableSessionId: string | null;
   foodVenueId: string | null;

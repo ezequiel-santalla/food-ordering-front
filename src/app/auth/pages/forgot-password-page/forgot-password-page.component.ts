@@ -5,37 +5,39 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import {
   KeyRound,
   LucideAngularModule,
   Mail,
-  Send, // Ícono para "Enviar"
+  Send,
+  X,
 } from 'lucide-angular';
 import { AuthService } from '../../services/auth-service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
+import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({
   selector: 'app-forgot-password-page',
-  // Asumo que sigues el patrón de 'standalone' e 'imports' del login
   standalone: true,
   imports: [RouterLink, ReactiveFormsModule, LucideAngularModule],
   templateUrl: './forgot-password-page.component.html',
 })
 export class ForgotPasswordPageComponent {
-  // Íconos
+ 
   readonly KeyRound = KeyRound;
   readonly Mail = Mail;
   readonly Send = Send;
+  readonly X = X;
 
-  // Servicios
+ 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private sweetAlertService = inject(SweetAlertService);
   private errorHandler = inject(ErrorHandlerService);
-  private router = inject(Router);
+  private navigation = inject(NavigationService);
 
   formUtils = FormUtils;
   isSubmitting = false;
@@ -58,9 +60,6 @@ export class ForgotPasswordPageComponent {
       'Por favor espera un momento'
     );
 
-    // --- IMPORTANTE ---
-    // Asumo que tu AuthService tiene un método `forgotPassword(email: string)`
-    // que devuelve un Observable.
     this.authService.forgotPassword({ email: email }).subscribe({
       next: () => {
         this.isSubmitting = false;
@@ -68,15 +67,18 @@ export class ForgotPasswordPageComponent {
           'Email Enviado',
           'Revisa tu bandeja de entrada (y spam) para ver las instrucciones.'
         );
-        // Redirigimos al login
-        this.router.navigate(['/auth/login']);
+        
+        this.navigation.navigateToLogin();
       },
       error: (error) => {
         this.isSubmitting = false;
-        // Reutilizamos tu manejador de errores
         const { title, message } = this.errorHandler.getAuthError(error);
         this.sweetAlertService.showError(title, message);
       },
     });
+  }
+
+  onExit() {
+    this.navigation.navigateToHome();
   }
 }

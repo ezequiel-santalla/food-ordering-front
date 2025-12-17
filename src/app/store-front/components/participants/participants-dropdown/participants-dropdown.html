@@ -1,0 +1,94 @@
+<div class="dropdown dropdown-end group">
+  <div tabindex="0" role="button"
+    class="btn btn-ghost btn-sm h-auto py-1 px-2 -mr-2 flex items-center gap-2 text-gray-700 font-medium hover:bg-gray-200/50 relative z-50">
+    <lucide-icon [img]="UsersRound" class="w-5 h-5"></lucide-icon>
+    <span class="text-base flex items-center gap-2">
+      @if (isLoading()) {
+      <div class="h-4 w-14 rounded bg-gray-200 animate-pulse"></div>
+      } @else {
+      @if (tableCapacity() === null) {
+      {{ participantCount() }} {{ participantCount() === 1 ? 'Persona' : 'Personas' }}
+      } @else {
+      {{ participantCount() }}/{{ tableCapacity() }}
+      }
+      }
+    </span>
+
+
+  </div>
+
+  <div class="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] transition-all duration-200 
+              invisible opacity-0 group-focus-within:visible group-focus-within:opacity-100 cursor-default">
+  </div>
+
+  <ul tabindex="0"
+    class="menu dropdown-content z-50 mt-2 p-2 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] bg-white rounded-xl w-72 border border-gray-100">
+
+    <li class="menu-title flex flex-row justify-between items-center px-3 py-2">
+      <span class="font-bold text-sm text-gray-500">En la mesa</span>
+      <span class="badge badge-sm badge-outline">{{ sortedParticipants().length }}</span>
+    </li>
+
+    @for (user of sortedParticipants(); track user.publicId) {
+    <li>
+      <div role="button" class="flex items-center gap-3 py-2 px-2 rounded-lg transition-colors w-full relative
+           hover:bg-gray-50" [class.cursor-pointer]="amIHost() && user.publicId !== myParticipantId()"
+        [class.bg-blue-50]="user.publicId === myParticipantId()"
+        [class.text-blue-500]="user.publicId === myParticipantId()" (click)="
+      amIHost() && user.publicId !== myParticipantId()
+        ? openParticipantActions(user)
+        : null
+    ">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors"
+          [class.bg-blue-500]="user.publicId === myParticipantId()"
+          [class.text-white]="user.publicId === myParticipantId()"
+          [class.bg-gray-100]="user.publicId !== myParticipantId()"
+          [class.text-gray-500]="user.publicId !== myParticipantId()">
+          <lucide-icon [img]="UserRound" class="w-5 h-5"></lucide-icon>
+        </div>
+
+        <div class="flex flex-col flex-1 min-w-0">
+          <div class="flex items-center gap-1 flex-wrap">
+            <span class="text-sm truncate max-w-[170px]" [class.font-bold]="user.publicId === myParticipantId()"
+              [class.font-semibold]="user.publicId !== myParticipantId()">
+              {{ user.nickname }}
+            </span>
+
+            @if (user.publicId === hostParticipantId()) {
+            <span class="badge badge-[10px] badge-warning badge-outline px-1 h-5 gap-0.5 ml-auto" title="Anfitrión">
+              <lucide-icon [img]="Crown" class="w-3 h-3"></lucide-icon>
+              Host
+            </span>
+            }
+          </div>
+        </div>
+
+        @if (amIHost() && user.publicId !== myParticipantId()) {
+        <span class="ml-auto text-xs text-gray-400">⋯</span>
+        }
+      </div>
+    </li>
+    }
+
+
+    @if (previousParticipants().length > 0) {
+    <div class="h-px bg-gray-100 my-1 mx-2"></div>
+    <li class="menu-title px-3 py-2">
+      <span class="text-sm font-bold text-gray-500">Salieron</span>
+    </li>
+    @for (user of previousParticipants(); track user.publicId) {
+    <li>
+      <a class="flex items-center gap-3 py-1.5 opacity-60 hover:opacity-100 hover:bg-gray-50 cursor-default">
+        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 shrink-0">
+          <lucide-icon [img]="UserMinus" class="w-4 h-4"></lucide-icon>
+        </div>
+        <span class="text-sm line-through text-gray-500">{{ user.nickname }}</span>
+      </a>
+    </li>
+    }
+    }
+  </ul>
+  <app-participant-actions-modal #participantModal [participant]="selectedParticipant" [amIHost]="amIHost()"
+    [myParticipantId]="myParticipantId()" (transferHost)="onTransferHost($event)"
+    (removeFromTable)="onRemoveFromTable($event)"></app-participant-actions-modal>
+</div>

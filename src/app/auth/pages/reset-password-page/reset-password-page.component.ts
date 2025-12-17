@@ -5,7 +5,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   KeyRound,
   LockKeyhole, // Ícono nuevo
@@ -17,6 +17,7 @@ import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import { first } from 'rxjs';
+import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({
   selector: 'app-reset-password-page',
@@ -35,35 +36,35 @@ export class ResetPasswordPageComponent implements OnInit {
   private authService = inject(AuthService);
   private sweetAlertService = inject(SweetAlertService);
   private errorHandler = inject(ErrorHandlerService);
-  private router = inject(Router);
-  private activatedRoute = inject(ActivatedRoute); // <-- Para leer la URL
+  private navigation = inject(NavigationService);
+  private activatedRoute = inject(ActivatedRoute);
 
   formUtils = FormUtils;
   isSubmitting = false;
-  private token: string | null = null; // <-- Para almacenar el token
+  private token: string | null = null;
 
   resetForm: FormGroup = this.fb.group({
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required]],
   }, {
-    // Validador a nivel de formulario para comparar contraseñas
+    
     validators: [ FormUtils.passwordsMatchValidator ]
   });
 
   ngOnInit(): void {
-    // Leemos el token de la URL (ej: ?token=...)
+    
     this.activatedRoute.queryParamMap
-      .pipe(first()) // Solo nos interesa la primera vez
+      .pipe(first())
       .subscribe((params) => {
         this.token = params.get('token');
 
         if (!this.token) {
-          // Si no hay token, no pueden estar aquí
+          
           this.sweetAlertService.showError(
             'Token Inválido',
             'No se encontró un token de reseteo. Serás redirigido.'
           );
-          this.router.navigate(['/auth/login']);
+          this.navigation.navigateToLogin();
         }
       });
   }
@@ -74,7 +75,6 @@ export class ResetPasswordPageComponent implements OnInit {
       return;
     }
 
-    // Doble chequeo por si acaso
     if (!this.token) {
        this.sweetAlertService.showError('Error Inesperado', 'No se encontró el token.');
        return;
@@ -88,7 +88,6 @@ export class ResetPasswordPageComponent implements OnInit {
       'Por favor espera un momento'
     );
 
-    // Llamamos al nuevo método del servicio
     this.authService.resetPassword(this.token, password).subscribe({
       next: () => {
         this.isSubmitting = false;
@@ -96,11 +95,11 @@ export class ResetPasswordPageComponent implements OnInit {
           '¡Éxito!',
           'Tu contraseña ha sido actualizada. Ya puedes iniciar sesión.'
         );
-        this.router.navigate(['/auth/login']);
+        this.navigation.navigateToLogin();
       },
       error: (error) => {
         this.isSubmitting = false;
-        // El manejador de errores de auth debería servir
+        
         const { title, message } = this.errorHandler.getAuthError(error);
         this.sweetAlertService.showError(title, message);
       },

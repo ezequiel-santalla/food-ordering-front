@@ -1,31 +1,20 @@
-<header
-  class="bg-base-100 border-b border-base-300 sticky top-0 z-50 shadow-sm"
->
+<header class="bg-base-100 border-b border-base-300 sticky top-0 z-100 shadow-sm">
   <div class="navbar max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16">
     <div class="navbar-start">
       <div class="flex items-center gap-3">
         <div class="avatar">
-          <a routerLink="/food-venues">
-            <div
-              class="w-10 h-10 rounded-lg bg-base-200 flex items-center justify-center"
-            >
+            <div class="w-10 h-10 rounded-lg bg-base-200 flex items-center justify-center">
               @if(venueImageUrl()) {
               <img [src]="venueImageUrl()" [alt]="venueName()" />
               } @else {
               <span class="text-xl font-bold">?</span>
               }
             </div>
-          </a>
         </div>
 
         <div class="flex flex-col min-w-0">
-          <span class="font-bold text-base leading-tight truncate"
-            >{{ venueName() }}</span
-          >
-
-          <span class="text-sm text-base-content/70 leading-tight truncate"
-            >Hola, {{ participantNickname() }}</span
-          >
+          <span class="font-bold text-base leading-tight truncate">{{ venueName() }}</span>
+          <span class="text-sm text-base-content/70 leading-tight truncate">Hola, {{ participantNickname() }}</span>
         </div>
       </div>
     </div>
@@ -37,37 +26,47 @@
         </div>
       </button>
 
-      <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+      <div class="dropdown dropdown-end group">
+        
+        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar relative z-50">
           <lucide-icon [img]="User" class="w-6 h-6"></lucide-icon>
         </div>
 
-        <ul
-          tabindex="0"
-          class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-56"
-        >
+        <div class="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] transition-all duration-200 
+                    invisible opacity-0 group-focus-within:visible group-focus-within:opacity-100 cursor-default">
+        </div>
+
+        <ul tabindex="0"
+          class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow bg-base-100 rounded-box w-56 border border-base-200">
+          
           @if (isAuthenticated()) {
           <li>
             <a routerLink="/profile">
               <lucide-icon [img]="UserCog" class="w-4 h-4"></lucide-icon>
-              Ver perfil
+              Mi cuenta
             </a>
           </li>
-          } @if (hasActiveSession()) {
+          } 
+          
+          @if (hasActiveSession()) {
           <li>
             <a (click)="onLeaveSession()">
               <lucide-icon [img]="UtensilsCrossed" class="w-4 h-4"></lucide-icon>
               Abandonar Mesa
             </a>
           </li>
-          } @if (isAuthenticated()) {
+          } 
+          
+          @if (isAuthenticated()) {
           <li>
             <a (click)="onLogout()">
               <lucide-icon [img]="Power" class="w-4 h-4"></lucide-icon>
               Cerrar Sesión
             </a>
           </li>
-          } @if (!isAuthenticated()) {
+          } 
+          
+          @if (!isAuthenticated()) {
           <li>
             <a routerLink="/auth/login">
               <lucide-icon [img]="LogIn" class="w-4 h-4"></lucide-icon>

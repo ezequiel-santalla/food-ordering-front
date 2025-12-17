@@ -21,7 +21,7 @@ export interface OrderResponse {
   clientAlias: string;
   participantId: string;
   totalPrice: number;
-  status: string;
+  status: OrderStatus;
   orderDetails: OrderDetailResponse[];
   orderDate: string;
   tableNumber: number;
@@ -38,4 +38,13 @@ export interface OrderDetailResponse {
   specialInstructions?: string;
 }
 
-export type OrderStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED';
+export enum OrderStatus {
+
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    IN_PROGRESS = 'IN_PROGRESS',
+    COMPLETED = 'COMPLETED',
+    SERVED = 'SERVED',
+    CANCELLED = 'CANCELLED'
+    
+}

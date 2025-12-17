@@ -84,8 +84,6 @@ export class QrProcessingService {
             return;
           }
 
-          const participantId = this.authService.participantId();
-
           const nickname = this.getNicknameFromResponse(response);
           console.log('📝 Nickname final:', nickname);
 
@@ -94,7 +92,6 @@ export class QrProcessingService {
             nickname,
             response.numberOfParticipants || 0,
             response.tableCapacity ?? null,
-            participantId || undefined
           );
 
           this.sweetAlertService.showSuccess(
@@ -174,7 +171,6 @@ export class QrProcessingService {
             nickname,
             response.numberOfParticipants || 0,
             response.tableCapacity ?? null,
-            this.authService.participantId()!
           );
 
           this.sweetAlertService.showSuccess(

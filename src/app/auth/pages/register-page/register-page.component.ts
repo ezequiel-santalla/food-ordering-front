@@ -1,12 +1,27 @@
 import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { KeyRound, LucideAngularModule, Mail, RotateCcwIcon, User, Phone, MapPin } from 'lucide-angular';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import {
+  KeyRound,
+  LucideAngularModule,
+  Mail,
+  RotateCcwIcon,
+  User,
+  Phone,
+  MapPin,
+  X,
+} from 'lucide-angular';
 import { AuthService } from '../../services/auth-service';
 import { FormUtils } from '../../../utils/form-utils';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import Swal from 'sweetalert2';
+import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({
   selector: 'app-register-page',
@@ -14,19 +29,19 @@ import Swal from 'sweetalert2';
   templateUrl: './register-page.component.html',
 })
 export class RegisterPageComponent {
-
   readonly User = User;
   readonly Mail = Mail;
   readonly KeyRound = KeyRound;
   readonly RotateCcwIcon = RotateCcwIcon;
   readonly Phone = Phone;
   readonly MapPin = MapPin;
+  readonly X = X;
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private sweetAlertService = inject(SweetAlertService);
   private errorHandler = inject(ErrorHandlerService);
-  private router = inject(Router);
+  private navigation = inject(NavigationService);
 
   get pageTitle(): string {
     return 'Crear Cuenta';
@@ -49,17 +64,14 @@ export class RegisterPageComponent {
   showOptionalFields = false;
 
   registerForm: FormGroup = this.fb.group({
-    // Campos requeridos
     name: ['', [Validators.required, Validators.minLength(2)]],
     lastName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
 
-    // Campos opcionales
     phone: [''],
     birthDate: [''],
 
-    // Dirección (opcional)
     street: [''],
     number: [''],
     city: [''],
@@ -90,7 +102,6 @@ export class RegisterPageComponent {
       'Por favor espera mientras registramos tu cuenta'
     );
 
-    // Preparar datos del registro
     const registerData = this.buildRegisterData(formValue);
 
     this.authService.register(registerData).subscribe({
@@ -103,7 +114,7 @@ export class RegisterPageComponent {
           icon: 'success',
           confirmButtonText: 'Entendido',
         }).then(() => {
-          this.router.navigate(['/auth/login']);
+          this.navigation.navigateToLogin();
         });
 
         this.resetForm();
@@ -114,7 +125,7 @@ export class RegisterPageComponent {
 
         const { title, message } = this.errorHandler.getAuthError(error);
         this.sweetAlertService.showError(title, message);
-      }
+      },
     });
   }
 
@@ -123,10 +134,7 @@ export class RegisterPageComponent {
     this.showOptionalFields = false;
   }
 
-  // ==================== MÉTODOS PRIVADOS ====================
-
   private buildRegisterData(formValue: any) {
-    // Campos requeridos
     const data: any = {
       name: formValue.name.trim(),
       lastName: formValue.lastName.trim(),
@@ -134,7 +142,6 @@ export class RegisterPageComponent {
       password: formValue.password,
     };
 
-    // Agregar teléfono solo si está presente y es válido
     if (formValue.phone?.trim()) {
       const phone = FormUtils.formatPhoneNumber(formValue.phone.trim());
       if (phone) {
@@ -146,8 +153,8 @@ export class RegisterPageComponent {
       data.birthDate = formValue.birthDate;
     }
 
-    // Agregar dirección solo si tiene al menos un campo
-    const hasAddress = formValue.street?.trim() ||
+    const hasAddress =
+      formValue.street?.trim() ||
       formValue.city?.trim() ||
       formValue.country?.trim();
 
@@ -164,5 +171,9 @@ export class RegisterPageComponent {
 
     console.log('📤 Datos a enviar:', data);
     return data;
+  }
+
+  onExit() {
+    this.navigation.navigateToHome();
   }
 }
