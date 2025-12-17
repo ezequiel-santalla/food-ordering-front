@@ -1,5 +1,5 @@
-import { Component, inject, computed, OnInit, signal } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { Component, inject, computed, signal } from '@angular/core';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { PaymentsStore } from '../../../services/payment-store';
 import {
   LucideAngularModule,
@@ -11,6 +11,7 @@ import {
 } from 'lucide-angular';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 import Swal from 'sweetalert2';
+import { getPaymentStatusUi, toneToTextClass } from '../../../../shared/models/status-ui';
 
 @Component({
   selector: 'app-payment-history-panel',
@@ -55,26 +56,12 @@ export class PaymentHistoryPanelComponent {
   readonly ChevronDown = ChevronDown;
   readonly ChevronUp = ChevronUp;
 
-  statusLabel(status: string): string {
-    return (
-      {
-        PENDING: 'Pendiente',
-        COMPLETED: 'Completado',
-        CANCELLED: 'Cancelado',
-        FAILED: 'Fallido',
-      }[status] ?? status
-    );
+  paymentUi(status: string) {
+    return getPaymentStatusUi(status);
   }
 
-  statusColor(status: string): string {
-    return (
-      {
-        PENDING: 'text-yellow-600',
-        COMPLETED: 'text-green-600',
-        CANCELLED: 'text-red-600',
-        FAILED: 'text-red-600',
-      }[status] ?? 'text-gray-600'
-    );
+  paymentStatusClass(status: string) {
+    return toneToTextClass(this.paymentUi(status).tone);
   }
 
   paymentMethodLabel(method: string): string {

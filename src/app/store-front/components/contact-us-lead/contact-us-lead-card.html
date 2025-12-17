@@ -1,0 +1,52 @@
+<div class="max-w-4xl mx-auto px-4 py-12">
+  <div class="rounded-3xl border border-primary/20 bg-primary/5 p-6 text-center">
+    <h3 class="font-bold text-lg mb-2">¿Tenés un restaurante?</h3>
+    <p class="text-sm text-base-content/70 mb-4">
+      Digitalizá tu menú, pedidos y pagos con Dinno.
+    </p>
+
+    <form class="max-w-md mx-auto space-y-3" (ngSubmit)="submit()">
+      <label class="input input-bordered w-full flex items-center gap-2 rounded-2xl">
+        <span class="text-base-content/50 text-sm">📞</span>
+        <input type="tel" class="grow" placeholder="Dejanos tu teléfono y te contactamos" [(ngModel)]="phoneNumber"
+          name="phoneNumber" required maxlength="20" />
+      </label>
+
+      <button type="button" class="btn btn-ghost btn-sm rounded-2xl" (click)="expanded = !expanded">
+        {{ expanded ? 'Ocultar detalles' : 'Agregar más info (opcional)' }}
+      </button>
+
+      @if (expanded) {
+      <div class="space-y-2 text-left">
+        <input class="input input-bordered w-full rounded-2xl" placeholder="Nombre (opcional)" [(ngModel)]="name"
+          name="name" maxlength="100" />
+
+        <input class="input input-bordered w-full rounded-2xl" placeholder="Restaurante (opcional)"
+          [(ngModel)]="restaurantName" name="restaurantName" maxlength="120" />
+
+        <input class="input input-bordered w-full rounded-2xl" placeholder="Email (opcional)" [(ngModel)]="email"
+          name="email" maxlength="120" />
+
+        <input class="input input-bordered w-full rounded-2xl" placeholder="Dirección / zona (opcional)"
+          [(ngModel)]="address" name="address" maxlength="255" />
+
+        <textarea class="textarea textarea-bordered w-full rounded-2xl" placeholder="Notas (opcional)"
+          [(ngModel)]="notes" name="notes" maxlength="500" rows="3"></textarea>
+      </div>
+      }
+
+      <button class="btn btn-primary rounded-2xl w-full" [disabled]="isLoading || !phoneNumber.trim()">
+        @if (!isLoading) { Pedir que me llamen }
+        @else { Enviando... }
+      </button>
+
+      @if (successMessage) {
+      <div class="text-sm text-success mt-2">{{ successMessage }}</div>
+      }
+
+      @if (errorMessage) {
+      <div class="text-sm text-error mt-2">{{ errorMessage }}</div>
+      }
+    </form>
+  </div>
+</div>

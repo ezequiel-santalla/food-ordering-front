@@ -27,7 +27,7 @@ export class NavigationService {
         this.navigateToHome();
       } else {
         console.log('⚠️ Sin sesión de mesa, navegando a food-venues');
-        this.router.navigate(['/food-venues'], { replaceUrl: true });
+        this.navigateToHome();
       }
     }, delay);
   }
@@ -55,8 +55,8 @@ export class NavigationService {
     const tableSessionId = this.authService.tableSessionId();
 
     if (!tableSessionId) {
-      console.warn('⚠️ No hay tableSessionId, redirigiendo a /food-venues');
-      this.router.navigate(['/food-venues']);
+      console.warn('⚠️ No hay tableSessionId, redirigiendo a /home');
+      this.router.navigate(['/']);
       return;
     }
 
@@ -100,5 +100,9 @@ export class NavigationService {
 
   navigateToScanHandler(tableId: string) {
     this.router.navigate(['/scan-qr', tableId]);
+  }
+
+  navigateToScanner() {
+    this.router.navigate(['/scan-camera']);
   }
 }

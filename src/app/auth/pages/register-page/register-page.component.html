@@ -2,7 +2,8 @@
   <div class="w-full max-w-2xl">
     <!-- Header -->
     <div class="text-center mb-6">
-      <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-accent to-success rounded-full mb-4">
+      <div
+        class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-accent to-success rounded-full mb-4">
         <lucide-icon [img]="User" class="w-12 h-12 text-white"></lucide-icon>
       </div>
       <h1 class="text-3xl font-bold text-base-content mb-2">Crear Cuenta</h1>
@@ -11,6 +12,11 @@
 
     <!-- Form Card -->
     <div class="card bg-base-100 shadow-2xl">
+      <button (click)="onExit()"
+        class="btn btn-ghost btn-circle btn-sm absolute right-3 z-10 text-base-content/50 hover:text-base-content"
+        aria-label="Cerrar y volver">
+        <lucide-icon [img]="X" class="w-6 h-6"></lucide-icon>
+      </button>
       <div class="card-body">
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
 
@@ -26,7 +32,8 @@
                 <label class="label">
                   <span class="label-text font-semibold">Nombre <span class="text-error">*</span></span>
                 </label>
-                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                <label
+                  class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
                   <lucide-icon [img]="User" class="w-4 h-4 text-base-content/70"></lucide-icon>
                   <input type="text" placeholder="Ej: Juan" formControlName="name"
                     class="grow placeholder-gray-400 placeholder:italic" required />
@@ -44,7 +51,8 @@
                 <label class="label">
                   <span class="label-text font-semibold">Apellido <span class="text-error">*</span></span>
                 </label>
-                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                <label
+                  class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
                   <lucide-icon [img]="User" class="w-4 h-4 text-base-content/70"></lucide-icon>
                   <input type="text" placeholder="Ej: Pérez" formControlName="lastName"
                     class="grow placeholder-gray-400 placeholder:italic" required />
@@ -71,7 +79,8 @@
                 <label class="label">
                   <span class="label-text font-semibold">Email <span class="text-error">*</span></span>
                 </label>
-                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                <label
+                  class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
                   <lucide-icon [img]="Mail" class="w-4 h-4 text-base-content/70"></lucide-icon>
                   <input type="email" placeholder="Ej: juan.perez@example.com" formControlName="email"
                     class="grow placeholder-gray-400 placeholder:italic" required />
@@ -89,9 +98,10 @@
                 <label class="label">
                   <span class="label-text font-semibold">Contraseña <span class="text-error">*</span></span>
                 </label>
-                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                <label
+                  class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
                   <lucide-icon [img]="KeyRound" class="w-4 h-4 text-base-content/70"></lucide-icon>
-                  <input type="password" placeholder="Mínimo 6 caracteres" formControlName="password"
+                  <input type="password" placeholder="Mínimo 8 caracteres" formControlName="password"
                     class="grow placeholder-gray-400 placeholder:italic" required />
                 </label>
 
@@ -121,7 +131,8 @@
                 <label class="label">
                   <span class="label-text font-semibold">Teléfono</span>
                 </label>
-                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                <label
+                  class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
                   <lucide-icon [img]="Phone" class="w-4 h-4 text-base-content/70"></lucide-icon>
                   <input type="tel" placeholder="+54 9 223 555-1234" formControlName="phone"
                     class="grow placeholder-gray-400 placeholder:italic" />
@@ -139,9 +150,9 @@
                 <label class="label">
                   <span class="label-text font-semibold">Fecha de Nacimiento</span>
                 </label>
-                <label class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
-                  <input type="date" formControlName="birthDate"
-                    class="grow" />
+                <label
+                  class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
+                  <input type="date" formControlName="birthDate" class="grow" />
                 </label>
 
                 @if (formUtils.isValidField(registerForm, 'birthDate')) {
@@ -243,7 +254,8 @@
         <div class="text-center">
           <p class="text-base-content/70">
             ¿Ya tienes una cuenta?
-            <a routerLink="/auth/login" class="text-accent hover:text-accent-focus font-semibold transition-colors duration-300">
+            <a routerLink="/auth/login"
+              class="text-accent hover:text-accent-focus font-semibold transition-colors duration-300">
               Inicia sesión aquí
             </a>
           </p>

@@ -21,8 +21,8 @@ export const HasTableSessionGuard: CanActivateFn = (route, state) => {
   console.log('🛡️ HasTableSessionGuard:', { tableSessionId });
 
   if (!tableSessionId || tableSessionId === 'undefined' || tableSessionId === 'null') {
-    console.log('❌ No hay sesión de mesa válida, redirigiendo a /food-venues');
-    router.navigate(['/food-venues'], { replaceUrl: true });
+    console.log('❌ No hay sesión de mesa válida, redirigiendo a /home');
+    router.navigate(['/'], { replaceUrl: true });
     return false;
   }
 

@@ -104,7 +104,6 @@ export class AuthStateManager {
       tableSessionId: data.tableSessionId,
       foodVenueId: data.foodVenueId,
       tableNumber: data.tableNumber,
-      participantCount: data.participantCount,
     });
 
     // Actualizar estado

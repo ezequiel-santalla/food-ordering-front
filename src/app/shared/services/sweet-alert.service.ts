@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import Swal, { SweetAlertResult } from 'sweetalert2';
+import Swal, {
+  SweetAlertIcon,
+  SweetAlertPosition,
+  SweetAlertResult,
+} from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root',
@@ -48,6 +52,45 @@ export class SweetAlertService {
     });
 
     return result.isConfirmed;
+  }
+
+  showToast(position: SweetAlertPosition, icon: SweetAlertIcon, title: string) {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: position,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
+
+    Toast.fire({
+      icon: icon,
+      title: title,
+    });
+  }
+
+  async confirm(
+    title: string,
+    text: string,
+    confirmButtonText: string = 'Confirmar',
+    icon: SweetAlertIcon = 'warning'
+  ): Promise<SweetAlertResult> {
+    return Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      showCancelButton: true,
+      confirmButtonText: confirmButtonText,
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      focusCancel: true,
+      ...this.defaultConfig,
+      confirmButtonColor: '#f59e0b',
+    });
   }
 
   showPaymentCancelled() {
@@ -144,26 +187,25 @@ export class SweetAlertService {
   }
 
   showLoading(
-  title: string = 'Cargando...',
-  text: string = 'Por favor espera'
-) {
-  return Swal.fire({
-    title,
-    text,
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    didOpen: () => {
-      Swal.showLoading();
-    },
-    customClass: {
-      popup: 'rounded-lg',
-    },
-  });
-}
+    title: string = 'Cargando...',
+    text: string = 'Por favor espera'
+  ) {
+    return Swal.fire({
+      title,
+      text,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+      customClass: {
+        popup: 'rounded-lg',
+      },
+    });
+  }
 
-
-  showSuccess(title: string, text: string = '', timer: number = 2000) {
-    Swal.fire({
+  showSuccess(title: string, text: string = '', timer: number = 2000): Promise<SweetAlertResult> {
+    return Swal.fire({
       title,
       text,
       icon: 'success',
@@ -198,6 +240,16 @@ export class SweetAlertService {
       confirmButtonText: 'Entendido',
       ...this.defaultConfig,
     });
+  }
+
+  async promptLoginForFavorites(): Promise<boolean> {
+    const res = await this.showChoice(
+      'Guardá tus favoritos',
+      'Registrate o iniciá sesión para guardar tus favoritos y verlos en cada visita.',
+      'Iniciar sesión',
+      'Más tarde'
+    );
+    return res.isConfirmed;
   }
 
   async confirmLogout(userName?: string): Promise<boolean> {

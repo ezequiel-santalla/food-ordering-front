@@ -22,6 +22,7 @@ import { NavigationService } from '../../../shared/services/navigation.service';
 import { TableSessionService } from '../../../store-front/services/table-session-service';
 import { isTableSessionResponse, LoginResponse } from '../../models/auth';
 import { JwtUtils } from '../../../utils/jwt-utils';
+import { AuthStateManager } from '../../services/auth-state-manager-service';
 
 @Component({
   selector: 'app-login-page',
@@ -37,6 +38,7 @@ export class LoginPageComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private authState = inject(AuthStateManager);
   private sweetAlertService = inject(SweetAlertService);
   private tableSessionService = inject(TableSessionService);
   private errorHandler = inject(ErrorHandlerService);
@@ -168,8 +170,7 @@ export class LoginPageComponent implements OnInit {
     if (isTableSessionResponse(response)) {
       console.log('🪑 TableSessionResponse detectado en login');
 
-      const decodedToken = JwtUtils.decodeJWT(response.accessToken);
-      const participantIdFromToken = decodedToken?.participantId;
+      const participantIdFromToken = this.authState.participantId();
 
       console.log('🔍 ParticipantId del token:', participantIdFromToken);
 
@@ -177,10 +178,10 @@ export class LoginPageComponent implements OnInit {
         (p) => p.publicId === participantIdFromToken
       );
 
-      let nickname: string;
+      let nickname = 'Usuario';
 
       if (currentParticipant) {
-        // Prioriza el nombre de usuario, luego el nickname
+        
         if (currentParticipant.user?.name) {
           nickname = currentParticipant.user.name;
           console.log('✅ Usando nombre del usuario:', nickname);
@@ -202,8 +203,7 @@ export class LoginPageComponent implements OnInit {
         response.tableNumber,
         nickname,
         response.numberOfParticipants || 0,
-        response.tableCapacity ?? null,
-        participantIdFromToken
+        response.tableCapacity ?? null
       );
 
       console.log('✅ Datos de mesa guardados correctamente');
@@ -229,6 +229,6 @@ export class LoginPageComponent implements OnInit {
   }
 
   onExit() {
-    this.navigation.navigateBySessionState();
+    this.navigation.navigateToHome();
   }
 }
