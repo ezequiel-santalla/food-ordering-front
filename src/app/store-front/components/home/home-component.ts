@@ -14,6 +14,7 @@ import {
 import { PublicHeaderComponent } from '../../../food-venues/components/public-header/public-header.component';
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
+import { ContactUsLeadCard } from '../contact-us-lead/contact-us-lead-card';
 
 @Component({
   selector: 'app-home',
@@ -23,6 +24,7 @@ import { SweetAlertService } from '../../../shared/services/sweet-alert.service'
     RouterLink,
     LucideAngularModule,
     PublicHeaderComponent,
+    ContactUsLeadCard
   ],
   templateUrl: './home-component.html',
 })
