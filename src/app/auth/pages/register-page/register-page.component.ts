@@ -5,7 +5,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import {
   KeyRound,
   LucideAngularModule,
@@ -41,8 +41,7 @@ export class RegisterPageComponent {
   private authService = inject(AuthService);
   private sweetAlertService = inject(SweetAlertService);
   private errorHandler = inject(ErrorHandlerService);
-  private router = inject(Router);
-  private navigation = inject(NavigationService)
+  private navigation = inject(NavigationService);
 
   get pageTitle(): string {
     return 'Crear Cuenta';
@@ -65,17 +64,14 @@ export class RegisterPageComponent {
   showOptionalFields = false;
 
   registerForm: FormGroup = this.fb.group({
-    // Campos requeridos
     name: ['', [Validators.required, Validators.minLength(2)]],
     lastName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
 
-    // Campos opcionales
     phone: [''],
     birthDate: [''],
 
-    // Dirección (opcional)
     street: [''],
     number: [''],
     city: [''],
@@ -106,7 +102,6 @@ export class RegisterPageComponent {
       'Por favor espera mientras registramos tu cuenta'
     );
 
-    // Preparar datos del registro
     const registerData = this.buildRegisterData(formValue);
 
     this.authService.register(registerData).subscribe({
@@ -119,7 +114,7 @@ export class RegisterPageComponent {
           icon: 'success',
           confirmButtonText: 'Entendido',
         }).then(() => {
-          this.router.navigate(['/auth/login']);
+          this.navigation.navigateToLogin();
         });
 
         this.resetForm();
@@ -139,10 +134,7 @@ export class RegisterPageComponent {
     this.showOptionalFields = false;
   }
 
-  // ==================== MÉTODOS PRIVADOS ====================
-
   private buildRegisterData(formValue: any) {
-    // Campos requeridos
     const data: any = {
       name: formValue.name.trim(),
       lastName: formValue.lastName.trim(),
@@ -150,7 +142,6 @@ export class RegisterPageComponent {
       password: formValue.password,
     };
 
-    // Agregar teléfono solo si está presente y es válido
     if (formValue.phone?.trim()) {
       const phone = FormUtils.formatPhoneNumber(formValue.phone.trim());
       if (phone) {
@@ -162,7 +153,6 @@ export class RegisterPageComponent {
       data.birthDate = formValue.birthDate;
     }
 
-    // Agregar dirección solo si tiene al menos un campo
     const hasAddress =
       formValue.street?.trim() ||
       formValue.city?.trim() ||
@@ -183,7 +173,7 @@ export class RegisterPageComponent {
     return data;
   }
 
-    onExit() {
+  onExit() {
     this.navigation.navigateToHome();
   }
 }

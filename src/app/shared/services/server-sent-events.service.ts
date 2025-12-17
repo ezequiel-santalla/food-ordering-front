@@ -18,6 +18,8 @@ export class ServerSentEventsService {
     'special-offer',
     'new-message',
     'user-joined',
+    'migrated-guest-session',
+    'host-delegated',
     'user-left',
     'count-updated',
     'connection-successful',

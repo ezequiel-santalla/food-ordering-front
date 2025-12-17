@@ -69,15 +69,11 @@ export class RoleSelectionComponent {
 
       if (status === 'authenticated' && !this.hasEmployments()) {
         console.warn('Usuario autenticado sin roles. Redirigiendo al login.');
-        this.router.navigate(['/auth/login']);
+        this.navigationService.navigateToLogin();
       }
     });
   }
 
-  /**
-   * Llama al servicio para seleccionar un rol específico y cambiar el contexto del token.
-   * @param employment El empleo (rol) seleccionado.
-   */
   selectEmployment(employment: Employment): void {
     this.authService.selectRole(employment.publicId).subscribe({
       next: () => {
@@ -96,10 +92,6 @@ export class RoleSelectionComponent {
     });
   }
 
-  /**
-   * Continúa la navegación con el rol de cliente por defecto.
-   * Si ya tiene sesión, va al home
-   */
   continueAsClient(): void {
     console.log('Continuando como cliente...');
 

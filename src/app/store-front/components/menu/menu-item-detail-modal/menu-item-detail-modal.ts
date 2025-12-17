@@ -13,7 +13,8 @@ import { CurrencyPipe, NgClass } from '@angular/common';
 import { Heart, LucideAngularModule } from 'lucide-angular';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 import { FavoritesService } from '../../../services/favorite-service';
-import { AuthStateManager } from '../../../../auth/services/auth-state-manager-service'; 
+import { AuthStateManager } from '../../../../auth/services/auth-state-manager-service';
+import { NavigationService } from '../../../../shared/services/navigation.service';
 
 @Component({
   selector: 'app-menu-item-detail-modal',
@@ -29,6 +30,7 @@ export class MenuItemDetailModal {
   private sweetAlert = inject(SweetAlertService);
   private favoritesService = inject(FavoritesService);
   private authState = inject(AuthStateManager);
+  private navigation = inject(NavigationService);
 
   quantity = 1;
   specialInstructions = '';
@@ -37,47 +39,46 @@ export class MenuItemDetailModal {
   isFavorite = signal(false);
 
   constructor() {
-  effect(() => {
-    const p = this.product();
-    if (!p) return;
+    effect(() => {
+      const p = this.product();
+      if (!p) return;
 
-    if (!this.authState.isAuthenticated()) {
-      this.isFavorite.set(false);
-      return;
-    }
+      if (!this.authState.isAuthenticated()) {
+        this.isFavorite.set(false);
+        return;
+      }
 
-    this.favoritesService.loadFavoriteIds().subscribe((set) => {
-      this.isFavorite.set(set.has(p.publicId));
+      this.favoritesService.loadFavoriteIds().subscribe((set) => {
+        this.isFavorite.set(set.has(p.publicId));
+      });
     });
-  });
-}
+  }
 
-
-  toggleFavorite(event: Event) {
+  async toggleFavorite(event: Event) {
     event.stopPropagation();
 
-    // ✅ Invitado / no logueado: enganche
     if (!this.authState.isAuthenticated()) {
-      this.sweetAlert.promptLoginForFavorites();
+      const deseaLoguearse = await this.sweetAlert.promptLoginForFavorites();
+
+      if (deseaLoguearse) {
+        this.close.emit();
+        this.navigation.navigateToLogin();
+      }
       return;
     }
 
-    // ✅ Llamar back y usar el estado final real
     const p = this.product();
 
     this.favoritesService.toggle(p.publicId).subscribe({
       next: (res) => {
         this.isFavorite.set(res.isFavorite);
-
-        // opcional: feedback mini
-        // this.sweetAlert.showSuccess(
-        //   res.isFavorite ? 'Agregado a favoritos' : 'Quitado de favoritos',
-        //   p.name,
-        //   1200
-        // );
       },
-      error: () => {
-        this.sweetAlert.promptLoginForFavorites();
+      error: async () => {
+        const deseaLoguearse = await this.sweetAlert.promptLoginForFavorites();
+        if (deseaLoguearse) {
+          this.close.emit();
+          this.navigation.navigateToLogin();
+        }
       },
     });
   }

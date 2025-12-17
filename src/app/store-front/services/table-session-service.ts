@@ -77,6 +77,39 @@ export class TableSessionService {
       }
     });
 
+    effect(() => {
+      const hasSession = this.hasActiveSession();
+      const isGuest = this.authState.isGuest();
+
+      if (hasSession && !isGuest) {
+        const currentParticipants = untracked(this._activeParticipants);
+
+        console.log(
+          '🔄 Login detectado: Recargando datos de la mesa para actualizar mi nombre...'
+        );
+
+        this._isLoading.set(true);
+        this.recoverActiveSession().subscribe({
+          next: (data) => {
+            console.log('✅ Mesa sincronizada post-login', data);
+            this._isLoading.set(false);
+
+            const myId = this.authState.participantId();
+            const me = data.activeParticipants?.find(
+              (p) => p.publicId === myId
+            );
+            if (me) {
+              this.updateNickname(me.nickname);
+            }
+          },
+          error: (err) => {
+            console.warn('⚠️ Error sync mesa post-login', err);
+            this._isLoading.set(false);
+          },
+        });
+      }
+    });
+
     effect((onCleanup) => {
       const tableSessionId = this.authService.tableSessionId();
 
@@ -140,25 +173,78 @@ export class TableSessionService {
                   participantWithTime,
                 ]);
 
-                this.sweetAlertService.showInfo(
-                  'Alguien saló',
-                  leavingParticipant.nickname + ' abandonó la mesa'
-                );
+                if (
+                  leavingParticipant.publicId !== this.authState.participantId()
+                ) {
+                  this.sweetAlertService.showInfo(
+                    'Alguien saló',
+                    leavingParticipant.nickname + ' abandonó la mesa'
+                  );
+                }
               }
+            }
 
-              if (event.type === 'host-updated') {
-                const newHost = event.payload.host;
+            if (event.type === 'host-delegated') {
+              const newHost = event.payload.host;
 
-                console.log('SSE: Nuevo host recibido:', newHost.nickname);
+              console.log('SSE: Nuevo host recibido:', newHost.nickname);
 
-                this._hostParticipantId.set(newHost.publicId);
+              this._hostParticipantId.set(newHost.publicId);
 
+              this._activeParticipants.update((participants) =>
+                participants.map((p) => ({
+                  ...p,
+                  ...(p.publicId === newHost.publicId ? newHost : p),
+                }))
+              );
+              if (newHost.publicId === this.authState.participantId()) {
+                this.sweetAlertService.showInfo(
+                  'Fuiste designado como Host',
+                  'Sos el nuevo anfitrión de la mesa'
+                );
+              } else {
                 this.sweetAlertService.showToast(
                   'top-end',
                   'info',
                   `El nuevo anfitrión es ${newHost.nickname}`
                 );
               }
+            }
+
+            if (event.type === 'migrated-guest-session') {
+              const updatedParticipant = event.payload.participant;
+              console.log(
+                'SSE Migración. ID recibido:',
+                updatedParticipant.publicId
+              );
+              console.log(
+                'IDs en mi lista local:',
+                this._activeParticipants().map((p) => p.publicId)
+              );
+              console.log(
+                '🔄 Usuario migrado recibido:',
+                updatedParticipant.nickname
+              );
+
+              this._activeParticipants.update((participants) =>
+                participants.map((p) =>
+                  p.publicId === updatedParticipant.publicId
+                    ? updatedParticipant
+                    : p
+                )
+              );
+
+              if (
+                updatedParticipant.publicId === this.authState.participantId()
+              ) {
+                this.updateNickname(updatedParticipant.nickname);
+              }
+
+              this.sweetAlertService.showToast(
+                'top-end',
+                'info',
+                `${updatedParticipant.nickname} ahora está registrado`
+              );
             }
           },
           error: (err) =>
@@ -418,7 +504,7 @@ export class TableSessionService {
     console.log('👑 Delegando host a:', targetParticipantId);
 
     return this.http.patch<void>(
-      `${environment.baseUrl}/participants/delegate-host/${targetParticipantId}`,
+      `${environment.baseUrl}/participants/host/${targetParticipantId}`,
       {}
     );
   }
