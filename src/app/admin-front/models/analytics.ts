@@ -1,3 +1,8 @@
+export interface DateRange {
+  from: Date;
+  to: Date;
+}
+
 export interface MetricCard {
   value: number;
   change: number;
@@ -21,7 +26,13 @@ export interface LiveMetricsData {
   lastHourSales: number;
 }
 
-export interface DateRange {
-  from: Date;
-  to: Date;
+export interface SalesTrendDataPoint {
+  date: string;
+  amount: number;
+}
+
+export interface SalesTrendData {
+  data: SalesTrendDataPoint[];
+  changePercentage: number;
+  comparisonText: string;
 }

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AnalyticsCardsData, DateRange, LiveMetricsData } from '../models/analytics';
+import { AnalyticsCardsData, DateRange, LiveMetricsData, SalesTrendData } from '../models/analytics';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -19,6 +19,18 @@ export class AnalyticsService {
   getAnalyticsCards(dateRange: DateRange): Observable<AnalyticsCardsData> {
     return this.http.get<AnalyticsCardsData>(
       `${this.baseUrl}/metrics/analytics-cards`,
+      {
+        params: {
+          from: dateRange.from.toISOString(),
+          to: dateRange.to.toISOString()
+        }
+      }
+    );
+  }
+
+  getSalesTrend(dateRange: DateRange): Observable<SalesTrendData> {
+    return this.http.get<SalesTrendData>(
+      `${this.baseUrl}/metrics/analytics-cards/sales-trend`,
       {
         params: {
           from: dateRange.from.toISOString(),

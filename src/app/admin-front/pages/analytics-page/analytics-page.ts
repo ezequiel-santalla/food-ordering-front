@@ -4,11 +4,11 @@ import { getDefaultDateRange } from '../../../utils/date-range';
 import { MetricsHeader } from './metrics-header/metrics-header';
 import { LiveMetricsBar } from './live-metrics-bar/live-metrics-bar';
 import { MetricsCard } from './metrics-card/metrics-card';
+import { SalesTrendChart } from './sales-trend-chart/sales-trend-chart';
 
 @Component({
   selector: 'app-analytics',
-  standalone: true,
-  imports: [MetricsHeader, LiveMetricsBar, MetricsCard],
+  imports: [MetricsHeader, LiveMetricsBar, MetricsCard, SalesTrendChart],
   templateUrl: './analytics-page.html',
 })
 export class AnalyticsPage {

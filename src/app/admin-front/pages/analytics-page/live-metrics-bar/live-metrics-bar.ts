@@ -1,5 +1,3 @@
-// live-metrics-bar.component.ts
-
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
