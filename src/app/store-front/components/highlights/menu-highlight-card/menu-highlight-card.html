@@ -1,0 +1,52 @@
+<div class="relative rounded-2xl border bg-white shadow-sm overflow-hidden cursor-pointer
+         transition-all duration-200 hover:shadow-md hover:-translate-y-0.5" [ngClass]="{
+    'border-violet-200': variant() === 'premium',
+    'border-orange-200': variant() === 'pop',
+    'border-gray-200': variant() === 'minimal'
+  }" (click)="select.emit(product())">
+  <div class="absolute top-2 left-2 z-10 w-8 h-8 rounded-xl border bg-white/90 backdrop-blur
+         flex items-center justify-center" [ngClass]="{
+    'border-violet-200 text-violet-700': variant() === 'premium',
+    'border-orange-200 text-orange-700': variant() === 'pop',
+    'border-gray-200 text-gray-700': variant() === 'minimal'
+  }">
+    @if (variant() === 'premium') {
+    <lucide-icon [img]="Star" class="w-4 h-4"></lucide-icon>
+    } @else if (variant() === 'pop') {
+    <lucide-icon [img]="Flame" class="w-4 h-4"></lucide-icon>
+    } @else {
+    <lucide-icon [img]="Heart" class="w-4 h-4"></lucide-icon>
+    }
+  </div>
+
+  <figure class="relative w-full h-32 bg-gray-100 overflow-hidden">
+    <img [src]="product().imageUrl || 'https://via.placeholder.com/400?text=Sin+Imagen'" [alt]="product().name"
+      class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]" />
+  </figure>
+
+  <div class="p-2">
+    <div class="min-h-[32px]">
+      <h2 class="text-[13px] font-semibold text-gray-900 leading-tight line-clamp-2">
+        {{ product().name }}
+      </h2>
+    </div>
+
+    <div class="mt-2 flex items-center justify-between gap-1">
+      <div class="text-sm font-bold" [ngClass]="{
+             'text-violet-700': variant() === 'premium',
+             'text-orange-700': variant() === 'pop',
+             'text-gray-900': variant() === 'minimal'
+           }">
+        {{ product().price | currency:'ARS':'symbol':'1.0-0' }}
+      </div>
+
+      <button type="button" class="btn btn-xs rounded-xl border bg-white text-gray-900 hover:bg-gray-50" [ngClass]="{
+          'border-violet-200': variant() === 'premium',
+          'border-orange-200': variant() === 'pop',
+          'border-gray-200': variant() === 'minimal'
+        }" (click)="onActionClick($event)">
+        Agregar
+      </button>
+    </div>
+  </div>
+</div>

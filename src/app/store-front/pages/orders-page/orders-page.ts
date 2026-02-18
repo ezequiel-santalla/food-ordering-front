@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { OrderTabs } from '../../components/order-tabs/order-tabs';
-import { TableSummaryComponent } from '../../components/order-tabs/table-summary/table-summary';
+import { OrderTabs } from '../../components/order/order-tabs/order-tabs';
+import { TableSummaryComponent } from '../../components/summary/table-summary/table-summary';
 
 @Component({
   selector: 'app-orders-page',

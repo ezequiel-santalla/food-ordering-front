@@ -4,13 +4,13 @@ import { UnauthenticatedGuard } from './auth/guards/unauthenticated.guard';
 import { HasTableSessionGuard } from './auth/guards/has-table-session.guard';
 import { QrScannerComponent } from './auth/components/qr-scanner/qr-scanner';
 import { EmploymentInvitationResponseComponent } from './admin-front/components/employment-invitation-response/employment-invitation-response';
+import { HomeComponent } from './store-front/components/home/home-component';
 
 export const routes: Routes = [
-  // 🔄 Redirección inicial a food-venues
   {
     path: '',
-    redirectTo: 'food-venues',
-    pathMatch: 'full',
+    component: HomeComponent,
+    title: 'Dinno - Escaneá, Pedí, Disfrutá',
   },
 
   // 🔐 Rutas de autenticación (solo para usuarios NO autenticados)
@@ -20,8 +20,7 @@ export const routes: Routes = [
     loadChildren: () => import('./auth/auth.routes'),
   },
   {
-    path: 'role-selection', // La URL será tudominio.com/role-selection
-    //canActivate: [AuthenticatedGuard], // Protegida por el guard de autenticados
+    path: 'role-selection',
     loadComponent: () =>
       import('./auth/pages/role-selection/role-selection').then(
         (m) => m.RoleSelectionComponent
@@ -35,7 +34,6 @@ export const routes: Routes = [
   // 📱 Escaneo de QR (NO requiere estar autenticado)
   {
     path: 'scan-qr/:tableId',
-    //canActivate: [ScanQrGuard],
     loadComponent: () =>
       import('./auth/pages/qr-scan-handler/qr-scan-handler').then(
         (m) => m.QrScanHandlerComponent
@@ -43,16 +41,16 @@ export const routes: Routes = [
   },
 
   {
-    path: 'profile', // <-- 2. Esta ruta coincide con tu routerLink
-    canActivate: [AuthenticatedGuard], // <-- 3. Protegida por autenticación
+    path: 'profile',
+    canActivate: [AuthenticatedGuard],
     loadComponent: () =>
-      // 4. Apunta al archivo del componente de la página
       import('./store-front/pages/profile-page/profile-page').then(
         (m) => m.ProfilePage
       ),
   },
 
-  // 🏠 Store Front - Menú, Pedidos, etc. (requiere autenticación + tableSessionId)
+  // 🏠 Store Front - Sesión Activa (Menú, Pedidos)
+  // Esta ruta se activa cuando el usuario está EN una mesa
   {
     path: 'session/:tableSessionId',
     canActivate: [HasTableSessionGuard],
@@ -63,6 +61,7 @@ export const routes: Routes = [
   {
     path: 'food-venues',
     loadChildren: () => import('./food-venues/food-venues.routes'),
+    title: 'Restaurantes Disponibles',
   },
 
   // ADMIN LAYOUT
@@ -84,9 +83,8 @@ export const routes: Routes = [
     component: EmploymentInvitationResponseComponent,
   },
 
-  // 🔄 Cualquier ruta no encontrada redirige a food-venues
   {
     path: '**',
-    redirectTo: 'food-venues',
+    redirectTo: '',
   },
 ];

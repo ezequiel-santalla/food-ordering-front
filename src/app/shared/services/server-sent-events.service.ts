@@ -1,61 +1,103 @@
 import { inject, Injectable, NgZone } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, share, finalize } from 'rxjs';
 import { AuthService } from '../../auth/services/auth-service';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class ServerSentEventsService {
   private authService = inject(AuthService);
+  constructor(private _zone: NgZone) {}
 
-  private readonly EVENT_TYPES = [
+  private session$?: Observable<any>;
+  private user$?: Observable<any>;
+
+  private readonly SESSION_EVENT_TYPES = [
     'new-order',
     'order-update-status',
     'payment-updated',
     'special-offer',
     'new-message',
     'user-joined',
+    'migrated-guest-session',
+    'host-delegated',
     'user-left',
     'count-updated',
     'connection-successful',
     'ping',
   ];
 
-  constructor(private _zone: NgZone) {}
+  private readonly USER_EVENT_TYPES = [
+    'favorite-updated',
+    'connection-successful',
+    'ping',
+  ];
 
   subscribeToSession(): Observable<any> {
+    if (this.session$) return this.session$;
+
+    this.session$ = this.createSseStream(
+      () => `${environment.baseUrl}/events-subscriptions/table-sessions`,
+      this.SESSION_EVENT_TYPES,
+      'session'
+    ).pipe(
+      share(),
+      finalize(() => (this.session$ = undefined))
+    );
+
+    return this.session$;
+  }
+
+  subscribeToUser(): Observable<any> {
+    if (this.user$) return this.user$;
+
+    this.user$ = this.createSseStream(
+      () => `${environment.baseUrl}/events-subscriptions/users`,
+      this.USER_EVENT_TYPES,
+      'user'
+    ).pipe(
+      share(),
+      finalize(() => (this.user$ = undefined))
+    );
+
+    return this.user$;
+  }
+
+  private createSseStream(
+    urlBuilder: () => string,
+    eventTypes: string[],
+    label: 'session' | 'user'
+  ): Observable<any> {
     return new Observable((observer) => {
-      let retryDelay = 2000; // 2s
+      let retryDelay = 2000;
       let retryCount = 0;
       let eventSource: EventSource | null = null;
 
       const connect = () => {
         const token = this.authService.accessToken();
         if (!token) {
-          observer.error('No auth token found for SSE connection');
+          observer.error(`No auth token found for SSE ${label}`);
           return;
         }
 
-        const sseUrl = `${environment.baseUrl}/events-subscriptions/table-sessions?token=${token}`;
+        const sseUrl = `${urlBuilder()}?token=${token}`;
         eventSource = new EventSource(sseUrl);
 
-        // 🔹 Conexión abierta correctamente
         eventSource.onopen = () => {
           this._zone.run(() => {
-            console.info(`SSE connected to session`);
-            retryDelay = 2000; // reiniciamos el backoff
+            console.info(`SSE connected (${label})`);
+            retryDelay = 2000;
             retryCount = 0;
           });
         };
 
-        // 🔹 Escucha todos los tipos de eventos esperados
-        this.EVENT_TYPES.forEach((eventName) => {
+        eventTypes.forEach((eventName) => {
           eventSource!.addEventListener(eventName, (event) => {
             this._zone.run(() => {
               try {
-                const payload = JSON.parse((event as MessageEvent).data);
-                observer.next({ type: eventName, payload });
+                observer.next({
+                  type: eventName,
+                  payload: JSON.parse((event as MessageEvent).data),
+                });
               } catch {
                 observer.next({
                   type: eventName,
@@ -63,7 +105,6 @@ export class ServerSentEventsService {
                 });
               }
 
-              // Si se recibe "connection-successful", reseteamos el delay
               if (eventName === 'connection-successful') {
                 retryDelay = 2000;
                 retryCount = 0;
@@ -72,33 +113,25 @@ export class ServerSentEventsService {
           });
         });
 
-        // 🔹 Manejo de errores y reconexión automática
         eventSource.onerror = (error) => {
           this._zone.run(() => {
-            console.warn(`SSE error for session`, error);
+            console.warn(`SSE error (${label})`, error);
             eventSource?.close();
 
             const token = this.authService.accessToken();
             if (!token) {
-              console.error('SSE Error: No token found. Stopping retries.');
-              observer.error(new Error('SSE Auth Error: User is logged out.'));
+              observer.error(new Error(`SSE Auth Error (${label}): logged out`));
               return;
             }
+
             setTimeout(() => {
               retryCount++;
               retryDelay = Math.min(retryDelay * 2, 30000);
 
               if (retryCount > 10) {
-                console.error(
-                  'SSE Error: Too many retries. Stopping connection.'
-                );
-                observer.error(
-                  new Error('SSE connection failed after 10 retries.')
-                );
+                observer.error(new Error(`SSE failed after retries (${label})`));
                 return;
               }
-
-              console.warn(`Reconnecting SSE in ${retryDelay / 1000}s`);
               connect();
             }, retryDelay);
           });
@@ -107,9 +140,8 @@ export class ServerSentEventsService {
 
       connect();
 
-      // 🔹 Cierre limpio de conexión al desuscribirse
       return () => {
-        console.info(`SSE connection closed for session`);
+        console.info(`SSE connection closed (${label})`);
         eventSource?.close();
       };
     });

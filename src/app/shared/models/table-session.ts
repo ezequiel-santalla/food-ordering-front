@@ -4,7 +4,6 @@ import { Employment, Participant } from './common';
 export interface TableSessionRequest {
   tableId: string;
   nickname?: string | null;
-
 }
 
 /**
@@ -14,14 +13,14 @@ export interface TableSessionRequest {
 export interface TableSessionResponse extends BaseAuthResponse {
   publicId: string;
   tableNumber: number;
-  tableCapacity: number | null
+  tableCapacity: number | null;
   numberOfParticipants?: number;
   tableSessionId?: string;
   startTime: string;
   endTime?: string | null;
-  hostClient?: Participant;
+  sessionHost?: Participant;
   activeParticipants: Participant[];
-  previuosParticipants: Participant[];
+  previousParticipants: Participant[];
   employments: Employment[];
 }
 
@@ -34,5 +33,8 @@ export interface TableSessionInfo {
   participantNickname: string;
   participantCount: number;
   sessionId: string | null;
-  tableCapacity: number | null
+  tableCapacity: number | null;
+  hostParticipantId: string | null;
+  activeParticipants: Participant[];
+  previousParticipants: Participant[];
 }

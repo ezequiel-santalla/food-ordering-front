@@ -1,24 +1,33 @@
 // services/cart.service.ts
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { CartItem } from '../models/cart.interface';
 import { Product } from '../models/menu.interface';
+import { AuthStateManager } from '../../auth/services/auth-state-manager-service';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
+  private authState = inject(AuthStateManager);
 
   private _items = signal<CartItem[]>(this.loadFromStorage());
 
   items = this._items.asReadonly();
 
   total = computed(() =>
-    this._items().reduce((sum, item) =>
-      sum + (item.productPrice * item.quantity), 0
+    this._items().reduce(
+      (sum, item) => sum + item.productPrice * item.quantity,
+      0
     )
   );
 
   itemCount = computed(() =>
     this._items().reduce((sum, item) => sum + item.quantity, 0)
   );
+
+  constructor() {
+    effect(() => {
+      const currentVenue = this.authState.foodVenueId();
+    });
+  }
 
   addItem(
     product: Product,
@@ -27,7 +36,6 @@ export class CartService {
   ) {
     const instructions = product.customizable ? specialInstructions : null;
 
-    // Llama a tu lógica de 'addItem' existente
     this.addItemInternal(
       product.name,
       product.price,
@@ -46,25 +54,29 @@ export class CartService {
   ): void {
     const currentItems = this._items();
     const existingIndex = currentItems.findIndex(
-      item => item.productName === productName &&
-              item.specialInstructions === specialInstructions
+      (item) =>
+        item.productName === productName &&
+        item.specialInstructions === specialInstructions
     );
 
     if (existingIndex >= 0) {
       const updated = [...currentItems];
       updated[existingIndex] = {
         ...updated[existingIndex],
-        quantity: updated[existingIndex].quantity + quantity
+        quantity: updated[existingIndex].quantity + quantity,
       };
       this._items.set(updated);
     } else {
-      this._items.update(items => [...items, {
-        productName,
-        productPrice,
-        productImage,
-        quantity: quantity,
-        specialInstructions
-      }]);
+      this._items.update((items) => [
+        ...items,
+        {
+          productName,
+          productPrice,
+          productImage,
+          quantity: quantity,
+          specialInstructions,
+        },
+      ]);
     }
     this.saveToStorage();
     console.log('✅ Producto agregado a la orden');
@@ -76,7 +88,7 @@ export class CartService {
       return;
     }
 
-    this._items.update(items => {
+    this._items.update((items) => {
       const updated = [...items];
       updated[index] = { ...updated[index], quantity };
       return updated;
@@ -86,7 +98,7 @@ export class CartService {
   }
 
   updateInstructions(index: number, instructions: string): void {
-    this._items.update(items => {
+    this._items.update((items) => {
       const updated = [...items];
       updated[index] = { ...updated[index], specialInstructions: instructions };
       return updated;
@@ -96,7 +108,7 @@ export class CartService {
   }
 
   removeItem(index: number): void {
-    this._items.update(items => items.filter((_, i) => i !== index));
+    this._items.update((items) => items.filter((_, i) => i !== index));
     this.saveToStorage();
     console.log('🗑️ Producto eliminado de la orden');
   }
@@ -107,10 +119,15 @@ export class CartService {
     console.log('🧹 Orden limpiada');
   }
 
-  // ========== PERSISTENCIA ==========
-
   private saveToStorage(): void {
     try {
+      const currentVenueId = this.authState.foodVenueId();
+
+      const payload = {
+        venueId: currentVenueId,
+        items: this._items(),
+      };
+
       localStorage.setItem('cart', JSON.stringify(this._items()));
     } catch (error) {
       console.error('Error guardando orden:', error);
@@ -119,8 +136,25 @@ export class CartService {
 
   private loadFromStorage(): CartItem[] {
     try {
-      const stored = localStorage.getItem('cart');
-      return stored ? JSON.parse(stored) : [];
+      const raw = localStorage.getItem('cart');
+      if (!raw) return [];
+
+      const parsed = JSON.parse(raw);
+
+      const currentVenueId = this.authState.foodVenueId();
+
+      const storedItems = Array.isArray(parsed) ? parsed : parsed.items || [];
+      const storedVenueId = Array.isArray(parsed) ? null : parsed.venueId;
+
+      if (currentVenueId && storedVenueId && currentVenueId !== storedVenueId) {
+        console.warn(
+          `🛒 Carrito pertenece a otro Venue (${storedVenueId}). Limpiando...`
+        );
+        localStorage.removeItem('cart');
+        return [];
+      }
+
+      return storedItems;
     } catch (error) {
       console.error('Error cargando orden:', error);
       return [];

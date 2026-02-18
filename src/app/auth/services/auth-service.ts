@@ -18,11 +18,17 @@ import { TokenManager } from '../../utils/token-manager';
 import { AuthStateManager } from './auth-state-manager-service';
 import { AuthApiService } from './auth-api-service';
 import { Employment } from '../../shared/models/common';
+import { FoodVenueService } from '../../food-venues/services/food-venue.service';
+import { MenuService } from '../../store-front/services/menu-service';
+import { CartService } from '../../store-front/services/cart-service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private authApi = inject(AuthApiService);
   private authState = inject(AuthStateManager);
+  private foodVenueService = inject(FoodVenueService);
+  private menuService = inject(MenuService);
+  private cartService = inject(CartService);
 
   private isRefreshingToken = false;
   private tokenRefreshed$ = new Subject<string>();
@@ -32,12 +38,10 @@ export class AuthService {
     this.authState.loadFromStorage();
   }
 
-  // Resource para verificación de estado
   checkStatusResource = rxResource({
     stream: () => this.checkAuthStatus(),
   });
 
-  // Exponer computed del state manager
   authStatus = this.authState.authStatus;
   accessToken = this.authState.accessToken;
   refreshToken = this.authState.refreshToken;
@@ -49,7 +53,6 @@ export class AuthService {
   participantId = this.authState.participantId;
   employments = this.authState.employments;
 
-  // Computed adicional para mostrar info legible
   authStatusText = computed(() => {
     const status = this.authState.authStatus();
     if (status === 'checking') return 'Verificando...';
@@ -196,19 +199,16 @@ export class AuthService {
     );
   }
 
-  /**
-   * Limpieza local del logout (sin llamada al backend)
-   * Usado internamente cuando la comunicación con backend falla
-   */
   private performLocalLogout(): void {
     this.authState.clearState();
+    this.cartService.clear();
+    this.menuService.clearCache();
+    this.foodVenueService.clearAll();
+
     SessionUtils.clearAllAuthData();
     console.log('🗑️ Estado local limpiado');
   }
 
-  /**
-   * Obtener info de sesión desde la respuesta de login
-   */
   getSessionInfoFromResponse(response: LoginResponse): {
     tableNumber?: number;
     activeParticipants?: any[];
@@ -217,10 +217,6 @@ export class AuthService {
     return TokenManager.getSessionInfoFromResponse(response);
   }
 
-  /**
-   * Selecciona un rol de empleado (Admin, Staff, etc.) llamando a la API.
-   * @param employmentId El ID público del rol a seleccionar.
-   */
   selectRole(employmentId: string): Observable<LoginResponse> {
     const currentEmployments = this.authState.employments();
     return this.authApi.selectRole(employmentId).pipe(
@@ -239,9 +235,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Obtener los roles disponibles desde la respuesta de login
-   */
   getAvailableEmployments(response: AuthResponse): Employment[] {
     console.log('Buscando empleos disponibles');
     return TokenManager.getEmploymentsFromResponse(response);
@@ -283,7 +276,6 @@ export class AuthService {
       return this.tokenRefreshed$.pipe(first());
     }
 
-    // Iniciar el proceso de refresco
     this.isRefreshingToken = true;
     const currentRefreshToken = this.authState.refreshToken();
 
@@ -293,24 +285,19 @@ export class AuthService {
       return throwError(() => new Error('No hay refresh token válido.'));
     }
 
-    // Llamar al API Service
     return this.authApi.refreshToken(currentRefreshToken).pipe(
       tap((response: AuthResponse) => {
-        // 1. Guardar los nuevos tokens
         const processed = TokenManager.processAuthResponse(response);
         this.authState.applyAuthData(processed);
 
-        // 2. Avisar a las peticiones en espera que tenemos un nuevo token
         this.tokenRefreshed$.next(response.accessToken);
         this.isRefreshingToken = false;
       }),
       switchMap((response) => {
-        // 3. Devolver un Observable con el nuevo access token
         return of(response.accessToken);
       }),
       catchError((error) => {
-        // 4. ¡El refresh token falló! (ej. también expiró o fue revocado)
-        // No hay nada que hacer. Cierra la sesión.
+
         this.isRefreshingToken = false;
         this.logoutAndReload();
         return throwError(() => error);
@@ -318,9 +305,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Helper para centralizar el logout + recarga de página.
-   */
   logoutAndReload(): void {
     this.logout();
     location.reload();

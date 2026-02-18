@@ -29,7 +29,7 @@ export class OrderService {
 
   private _myOrders: WritableSignal<OrderResponse[]> = signal([]);
   private _tableOrders: WritableSignal<OrderResponse[]> = signal([]);
-  private _isLoading: WritableSignal<boolean> = signal(false);
+  private _isLoading: WritableSignal<boolean> = signal(true);
   private _error: WritableSignal<string | null> = signal(null);
 
   myOrders = computed(() => this._myOrders());
@@ -51,6 +51,7 @@ export class OrderService {
       cleanup(() => {
         this._myOrders.set([]);
         this._tableOrders.set([]);
+        this._isLoading.set(true);
         this.sseSub?.unsubscribe();
       });
     });

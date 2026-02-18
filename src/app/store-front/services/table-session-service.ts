@@ -1,18 +1,28 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import {
+  computed,
+  effect,
+  inject,
+  Injectable,
+  signal,
+  untracked,
+} from '@angular/core';
 import { AuthService } from '../../auth/services/auth-service';
 import { ProfileService } from './profile-service';
-import { TableSessionInfo } from '../../shared/models/table-session';
+import {
+  TableSessionInfo,
+  TableSessionResponse,
+} from '../../shared/models/table-session';
 import { SessionUtils } from '../../utils/session-utils';
 import { ServerSentEventsService } from '../../shared/services/server-sent-events.service';
-import { finalize, Subscription } from 'rxjs';
+import { Observable, Subscription, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { AuthStateManager } from '../../auth/services/auth-state-manager-service';
 import { TokenManager } from '../../utils/token-manager';
 import { Participant } from '../../shared/models/common';
 import { SweetAlertService } from '../../shared/services/sweet-alert.service';
-import { OrderService } from './order-service';
+import { FoodVenueService } from '../../food-venues/services/food-venue.service';
+import { MenuService } from './menu-service';
 
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
@@ -20,31 +30,34 @@ export class TableSessionService {
   private authState = inject(AuthStateManager);
   private profileService = inject(ProfileService);
   private sseService = inject(ServerSentEventsService);
+  private menuService = inject(MenuService);
   private http = inject(HttpClient);
   private sweetAlertService = inject(SweetAlertService);
+  private foodVenueService = inject(FoodVenueService);
+  private _isLoading = signal<boolean>(true);
 
-  // Signals privados
   private _tableNumber = signal<number>(this.getStoredNumber('tableNumber'));
   private _participantNickname = signal<string>(
     this.getStoredString('participantNickname')
   );
-  private _participantCount = signal<number>(
-    this.getStoredNumber('participantCount')
-  );
-  private _participantId = signal<string>(
-    this.getStoredString('participantId')
-  );
+  private _participantCount = signal<number>(0);
   private _tableCapacity = signal<number | null>(this.getStoredCapacity());
+  private _activeParticipants = signal<Participant[]>([]);
+  private _previousParticipants = signal<Participant[]>([]);
+  private _hostParticipantId = signal<string | null>(null);
 
   private sseSubscription: Subscription | undefined;
 
   tableSessionInfo = computed<TableSessionInfo>(() => ({
     tableNumber: this._tableNumber(),
     participantNickname: this._participantNickname(),
-    participantId: this._participantId(),
+    participantId: this.authState.participantId() || '',
     participantCount: this._participantCount(),
     sessionId: this.authService.tableSessionId(),
     tableCapacity: this._tableCapacity(),
+    activeParticipants: this._activeParticipants(),
+    previousParticipants: this._previousParticipants(),
+    hostParticipantId: this._hostParticipantId(),
   }));
 
   hasActiveSession = computed(() => {
@@ -52,10 +65,48 @@ export class TableSessionService {
     return SessionUtils.isValidSession(sessionId);
   });
 
-  constructor(private router: Router) {
+  isLoading = computed(() => this._isLoading());
+
+  constructor() {
     effect(() => {
       if (this.hasActiveSession() && !this.authState.isGuest()) {
         this.syncNicknameFromProfile();
+      }
+      if (!this.hasActiveSession()) {
+        this._isLoading.set(false);
+      }
+    });
+
+    effect(() => {
+      const hasSession = this.hasActiveSession();
+      const isGuest = this.authState.isGuest();
+
+      if (hasSession && !isGuest) {
+        const currentParticipants = untracked(this._activeParticipants);
+
+        console.log(
+          '🔄 Login detectado: Recargando datos de la mesa para actualizar mi nombre...'
+        );
+
+        this._isLoading.set(true);
+        this.recoverActiveSession().subscribe({
+          next: (data) => {
+            console.log('✅ Mesa sincronizada post-login', data);
+            this._isLoading.set(false);
+
+            const myId = this.authState.participantId();
+            const me = data.activeParticipants?.find(
+              (p) => p.publicId === myId
+            );
+            if (me) {
+              this.updateNickname(me.nickname);
+            }
+          },
+          error: (err) => {
+            console.warn('⚠️ Error sync mesa post-login', err);
+            this._isLoading.set(false);
+          },
+        });
       }
     });
 
@@ -76,11 +127,6 @@ export class TableSessionService {
                   `[SSE count-updated] Recibido conteo: ${newCount}. Actualizando signal...`
                 );
                 this._participantCount.set(newCount);
-              } else {
-                console.warn(
-                  '[SSE count-updated] Payload inválido:',
-                  event.payload
-                );
               }
             }
 
@@ -88,9 +134,116 @@ export class TableSessionService {
               const newParticipant: Participant = event.payload.participant;
               console.log('[SSE user-joined] ', newParticipant.nickname);
 
+              this._activeParticipants.update((list) => [
+                ...list,
+                newParticipant,
+              ]);
+
               this.sweetAlertService.showInfo(
                 'Nuevo Participante',
                 newParticipant.nickname + ' se unió a la mesa'
+              );
+            }
+
+            if (
+              event.type === 'user-left' ||
+              event.type === 'participant-left'
+            ) {
+              const leavingParticipant = event.payload.participant;
+
+              if (leavingParticipant) {
+                console.log(
+                  '👋 Usuario abandonó:',
+                  leavingParticipant.nickname
+                );
+
+                this._activeParticipants.update((active) =>
+                  active.filter(
+                    (p) => p.publicId !== leavingParticipant.publicId
+                  )
+                );
+
+                const participantWithTime = {
+                  ...leavingParticipant,
+                  leftAt: new Date().toISOString(),
+                };
+
+                this._previousParticipants.update((prev) => [
+                  ...prev,
+                  participantWithTime,
+                ]);
+
+                if (
+                  leavingParticipant.publicId !== this.authState.participantId()
+                ) {
+                  this.sweetAlertService.showInfo(
+                    'Alguien saló',
+                    leavingParticipant.nickname + ' abandonó la mesa'
+                  );
+                }
+              }
+            }
+
+            if (event.type === 'host-delegated') {
+              const newHost = event.payload.host;
+
+              console.log('SSE: Nuevo host recibido:', newHost.nickname);
+
+              this._hostParticipantId.set(newHost.publicId);
+
+              this._activeParticipants.update((participants) =>
+                participants.map((p) => ({
+                  ...p,
+                  ...(p.publicId === newHost.publicId ? newHost : p),
+                }))
+              );
+              if (newHost.publicId === this.authState.participantId()) {
+                this.sweetAlertService.showInfo(
+                  'Fuiste designado como Host',
+                  'Sos el nuevo anfitrión de la mesa'
+                );
+              } else {
+                this.sweetAlertService.showToast(
+                  'top-end',
+                  'info',
+                  `El nuevo anfitrión es ${newHost.nickname}`
+                );
+              }
+            }
+
+            if (event.type === 'migrated-guest-session') {
+              const updatedParticipant = event.payload.participant;
+              console.log(
+                'SSE Migración. ID recibido:',
+                updatedParticipant.publicId
+              );
+              console.log(
+                'IDs en mi lista local:',
+                this._activeParticipants().map((p) => p.publicId)
+              );
+              console.log(
+                '🔄 Usuario migrado recibido:',
+                updatedParticipant.nickname
+              );
+
+              this._activeParticipants.update((participants) =>
+                participants.map((p) =>
+                  p.publicId === updatedParticipant.publicId
+                    ? updatedParticipant
+                    : p
+                )
+              );
+
+              if (
+                updatedParticipant.publicId === this.authState.participantId()
+              ) {
+                this.updateNickname(updatedParticipant.nickname);
+              }
+
+              this.sweetAlertService.showToast(
+                'top-end',
+                'info',
+                `${updatedParticipant.nickname} ahora está registrado`
               );
             }
           },
@@ -110,12 +263,42 @@ export class TableSessionService {
         }
       });
     });
+
+    effect(() => {
+      const hasSession = this.hasActiveSession();
+
+      const currentTable = untracked(this._tableNumber);
+      const currentParticipants = untracked(this._activeParticipants);
+
+      if (
+        hasSession &&
+        (currentTable === 0 || currentParticipants.length === 0)
+      ) {
+        console.log(
+          '🔄 Detectada recarga de página con sesión activa. Restaurando datos de la mesa...'
+        );
+
+        this._isLoading.set(true);
+
+        this.recoverActiveSession().subscribe({
+          next: () => {
+            this._isLoading.set(false);
+          },
+          error: (err) => {
+            console.error('Error al auto-recuperar sesión:', err),
+              this._isLoading.set(false);
+          },
+        });
+      } else if (
+        hasSession &&
+        currentTable > 0 &&
+        currentParticipants.length > 0
+      ) {
+        this._isLoading.set(false);
+      }
+    });
   }
 
-  /**
-   * Sincroniza el nickname desde el perfil del usuario
-   * Se llama automáticamente cuando hay sesión activa (solo para usuarios con cuenta)
-   */
   private syncNicknameFromProfile(): void {
     this.profileService.getUserProfile().subscribe({
       next: (profile) => {
@@ -134,21 +317,12 @@ export class TableSessionService {
     });
   }
 
-  /**
-   * Fuerza la sincronización del nickname
-   * Útil después de actualizar el perfil
-   */
   refreshNickname(): void {
-    // ✅ Solo sincronizar si NO es invitado
     if (this.hasActiveSession() && !this.authState.isGuest()) {
       this.syncNicknameFromProfile();
     }
   }
 
-  /**
-   * Actualiza solo el nickname (para usuarios con cuenta)
-   * Útil cuando se actualiza el perfil manualmente
-   */
   updateNickname(newNickname: string): void {
     if (newNickname && newNickname.trim()) {
       console.log('✅ Actualizando nickname:', newNickname);
@@ -157,19 +331,68 @@ export class TableSessionService {
     }
   }
 
+  recoverActiveSession(): Observable<TableSessionResponse> {
+    return this.http
+      .get<TableSessionResponse>(
+        `${environment.baseUrl}/participants/table-sessions`
+      )
+      .pipe(
+        tap((response) => {
+          console.log('🔄 Datos de sesión recuperados:', response);
+
+          const myParticipantId = this.authState.participantId();
+          console.log('🆔 Mi Participant ID:', myParticipantId);
+
+          const me = response.activeParticipants?.find(
+            (p) =>
+              p.publicId === myParticipantId || p.publicId === myParticipantId
+          );
+
+          let nicknameToSet = '';
+
+          if (me && me.nickname) {
+            console.log('Nickname encontrado en sesión:', me.nickname);
+            nicknameToSet = me.nickname;
+          } else {
+            console.warn(
+              'No se encontro al participante en la lista. Usando fallback.'
+            );
+            nicknameToSet = this._participantNickname();
+          }
+
+          const count = response.numberOfParticipants ?? 1;
+
+          const activeList = response.activeParticipants || [];
+          const previousList = response.previousParticipants || [];
+          const hostId = response.sessionHost?.publicId || null;
+
+          this.setTableSessionInfo(
+            response.tableNumber,
+            nicknameToSet,
+            count,
+            response.tableCapacity || null,
+            activeList,
+            previousList,
+            hostId
+          );
+        })
+      );
+  }
+
   setTableSessionInfo(
     tableNumber: number,
     participantNickname: string,
     participantCount: number,
     tableCapacity: number | null,
-    participantId?: string
+    activeParticipants: Participant[] = [],
+    previousParticipants: Participant[] = [],
+    hostParticipantId: string | null = null
   ): void {
     console.log('📝 Guardando info de mesa:', {
       tableNumber,
       participantNickname,
       participantCount,
       tableCapacity,
-      participantId,
     });
 
     if (tableNumber > 0) {
@@ -190,10 +413,8 @@ export class TableSessionService {
 
     if (participantCount >= 0) {
       this._participantCount.set(participantCount);
-      localStorage.setItem('participantCount', participantCount.toString());
     } else {
       this._participantCount.set(0);
-      localStorage.removeItem('participantCount');
     }
 
     if (tableCapacity === null) {
@@ -207,23 +428,21 @@ export class TableSessionService {
       localStorage.removeItem('tableCapacity');
     }
 
-    if (participantId && participantId.trim()) {
-      this._participantId.set(participantId);
-      localStorage.setItem('participantId', participantId);
-      console.log('💾 ParticipantId guardado:', participantId);
-    } else {
-      const tokenParticipantId = this.authService.participantId();
-      if (tokenParticipantId) {
-        this._participantId.set(tokenParticipantId);
-        localStorage.setItem('participantId', tokenParticipantId);
-        console.log('💾 ParticipantId obtenido del token:', tokenParticipantId);
-      }
-    }
+    this._activeParticipants.set(activeParticipants);
+    this._previousParticipants.set(previousParticipants);
+    this._hostParticipantId.set(hostParticipantId);
 
     console.log(
       '💾 Estado actual de tableSessionInfo:',
       this.tableSessionInfo()
     );
+  }
+
+  private clearAllClientState() {
+    this.clearSession();
+    this.authState.clearSessionData();
+    this.foodVenueService.clearAll();
+    this.menuService.clearCache();
   }
 
   clearSession(): void {
@@ -232,78 +451,62 @@ export class TableSessionService {
     this._tableNumber.set(0);
     this._participantNickname.set('');
     this._participantCount.set(0);
-    this._participantId.set('');
     this._tableCapacity.set(null);
+    this._activeParticipants.set([]);
+    this._previousParticipants.set([]);
 
     localStorage.removeItem('tableNumber');
     localStorage.removeItem('participantNickname');
-    localStorage.removeItem('participantCount');
-    localStorage.removeItem('participantId');
     localStorage.removeItem('tableCapacity');
   }
 
   //Esto podria estar en un servicio dedicado al participante actual
-  closeSession(): void {
-    console.log('Cerrando sesión de mesa');
+  closeSession(): Observable<any> {
+    console.log('Cerrando sesión de mesa (End Session)...');
 
-    this.http
+    return this.http
       .patch<any>(`${environment.baseUrl}/participants/end`, null, {
         observe: 'response',
       })
-      .subscribe({
-        next: (response) => {
+      .pipe(
+        tap((response) => {
           if (response.status === 200) {
             const processed = TokenManager.processAuthResponse(response.body);
             this.authState.applyAuthData(processed);
           } else {
             this.authState.clearState();
           }
-          console.log('Sesión cerrada exitosamente', response);
-          this.router.navigate(['/food-venues']);
-        },
-        error: (err) => {
-          console.error('Error al cerrar la sesión', err);
-        },
-      });
+
+          this.clearAllClientState();
+
+          console.log('Sesión cerrada exitosamente en datos locales');
+        })
+      );
   }
 
-  leaveSession(): void {
-    console.log('Abandonando sesión de mesa');
+  leaveSession(): Observable<any> {
+    console.log('Abandonando sesión de mesa...');
 
-    // Lógica de limpieza que se ejecutará SIEMPRE
-    const cleanUp = () => {
-      console.log('Limpiando datos de la sesion y redirigiendo...');
-      this.clearSession();
-      this.router.navigate(['/food-venues']);
-    };
-
-    this.http
+    return this.http
       .patch<any>(`${environment.baseUrl}/participants/leave`, null, {
         observe: 'response',
       })
       .pipe(
-        finalize(() => {
-          cleanUp();
+        tap((response) => {
+          console.log('Respuesta leave:', response.status);
+
+          this.clearAllClientState();
         })
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.status === 200 && response.body) {
-            const processed = TokenManager.processAuthResponse(response.body);
-            this.authState.applyAuthData(processed);
-          } else {
-            this.authState.clearState();
-          }
-          console.log('El participante dejó la sesión', response);
-        },
-        error: (err) => {
-          console.warn(
-            'Error al abandonar la sesión, limpiando estado local.',
-            err
-          );
-          this.authState.clearState();
-        },
-      });
+      );
+  }
+
+  delegateHostingDuties(targetParticipantId: string): Observable<void> {
+    console.log('👑 Delegando host a:', targetParticipantId);
+
+    return this.http.patch<void>(
+      `${environment.baseUrl}/participants/host/${targetParticipantId}`,
+      {}
+    );
   }
 
   private getStoredNumber(key: string): number {
