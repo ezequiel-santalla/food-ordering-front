@@ -1,0 +1,80 @@
+<div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+  <!-- Header -->
+  <div class="flex justify-between items-start mb-6">
+    <div>
+      <h3 class="text-xl font-semibold text-gray-900 mb-1">
+        Tendencia de ventas
+      </h3>
+      <p class="text-sm text-gray-500">
+        Ventas diarias del período seleccionado
+      </p>
+    </div>
+
+    @if (salesTrendData.value(); as data) {
+      <div
+        class="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
+        [class.bg-red-50]="data.changePercentage < 0"
+        [class.text-red-600]="data.changePercentage < 0"
+        [class.bg-green-50]="data.changePercentage >= 0"
+        [class.text-green-600]="data.changePercentage >= 0"
+      >
+        <lucide-icon
+          [img]="data.changePercentage >= 0 ? trendingUpIcon : trendingDownIcon"
+          [size]="20"
+        />
+        <span class="font-semibold text-base">
+          {{ data.changePercentage >= 0 ? '+' : '' }}{{ data.changePercentage.toFixed(1) }}%
+        </span>
+        <span class="text-sm text-gray-600">
+          {{ data.comparisonText }}
+        </span>
+      </div>
+    }
+  </div>
+
+  <!-- Loading State -->
+  @if (salesTrendData.isLoading()) {
+    <div class="flex flex-col items-center justify-center min-h-[350px] text-gray-500">
+      <div class="w-10 h-10 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+      <p class="text-sm">Cargando gráfico...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (salesTrendData.error()) {
+    <div class="flex flex-col items-center justify-center min-h-[350px] text-gray-500">
+      <p class="mb-4">Error al cargar el gráfico</p>
+      <button
+        (click)="salesTrendData.reload()"
+        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+      >
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Chart -->
+  @if (salesTrendData.value(); as data) {
+    @if (data.data.length === 0) {
+      <div class="flex flex-col items-center justify-center min-h-[350px] text-gray-500">
+        <p class="text-sm">No hay datos para mostrar en este período</p>
+      </div>
+    } @else {
+      <div class="min-h-[350px]">
+        <apx-chart
+          #chart
+          [series]="chartOptions().series"
+          [chart]="chartOptions().chart"
+          [xaxis]="chartOptions().xaxis"
+          [yaxis]="chartOptions().yaxis"
+          [dataLabels]="chartOptions().dataLabels"
+          [stroke]="chartOptions().stroke"
+          [grid]="chartOptions().grid"
+          [tooltip]="chartOptions().tooltip"
+          [colors]="chartOptions().colors"
+          [fill]="chartOptions().fill"
+        />
+      </div>
+    }
+  }
+</div>
