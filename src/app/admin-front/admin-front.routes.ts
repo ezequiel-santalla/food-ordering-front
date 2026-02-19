@@ -1,6 +1,5 @@
 import { Routes } from "@angular/router";
 import { AdminFrontLayout } from "./layout/admin-front-layout/admin-front-layout";
-import { AdminHomePage } from "./pages/admin-home-page/admin-home-page";
 import { ProductListPage } from "./pages/product-pages/product-list-page/product-list-page";
 import { ProductFormPage } from "./pages/product-pages/product-form-page/product-form-page";
 import { ProductDetailPage } from "./pages/product-pages/product-detail-page/product-detail-page";
@@ -12,6 +11,7 @@ import { EmployeeListPage } from "./pages/employee-pages/employee-list-page/empl
 import { LoungeBuilderPage } from "./pages/lounge-pages/lounge-builder-page/lounge-builder-page";
 import { OrderPage } from "./pages/order-page/order-page";
 import { PaymentPage } from "./pages/payment-page/payment-page";
+import { AnalyticsPage } from "./pages/analytics-page/analytics-page";
 
 export const adminRoutes: Routes = [
   {
@@ -62,12 +62,14 @@ export const adminRoutes: Routes = [
         component: CategoryFormPage
       },
 
-
       {
         path: 'tags',
         component: TagPage
       },
-
+      {
+        path: 'analytics',
+        component: AnalyticsPage
+      },
       {
         path: 'employees',
         component: EmployeeListPage

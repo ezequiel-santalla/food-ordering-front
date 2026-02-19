@@ -1,0 +1,10 @@
+:host ::ng-deep {
+  .apexcharts-tooltip {
+    @apply shadow-lg border border-gray-200;
+  }
+
+  .apexcharts-xaxis-label,
+  .apexcharts-yaxis-label {
+    @apply text-gray-600;
+  }
+}

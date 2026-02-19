@@ -1,0 +1,140 @@
+<!-- metrics-header.html -->
+<header class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+  <div class="flex items-center gap-4">
+    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-600 text-white shadow-lg shadow-green-600/20">
+      <lucide-icon [img]="chartColumnIncreasingIcon" [size]="24" class="text-white"></lucide-icon>
+    </div>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Balances</h1>
+      <p class="text-sm font-medium text-gray-500">Estadísticas y análisis financieros</p>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-3">
+
+    <!-- Shortcuts rápidos con estado activo -->
+    <div class="flex flex-wrap gap-2">
+      <button
+        (click)="setToday()"
+        class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
+        [class.border-green-600]="activeFilter() === 'today'"
+        [class.bg-green-50]="activeFilter() === 'today'"
+        [class.text-green-700]="activeFilter() === 'today'"
+        [class.border-gray-300]="activeFilter() !== 'today'"
+        [class.bg-white]="activeFilter() !== 'today'"
+        [class.text-gray-700]="activeFilter() !== 'today'"
+        [class.hover:bg-gray-50]="activeFilter() !== 'today'">
+        Hoy
+      </button>
+
+      <button
+        (click)="setLast7Days()"
+        class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
+        [class.border-green-600]="activeFilter() === '7d'"
+        [class.bg-green-50]="activeFilter() === '7d'"
+        [class.text-green-700]="activeFilter() === '7d'"
+        [class.border-gray-300]="activeFilter() !== '7d'"
+        [class.bg-white]="activeFilter() !== '7d'"
+        [class.text-gray-700]="activeFilter() !== '7d'"
+        [class.hover:bg-gray-50]="activeFilter() !== '7d'">
+        7d
+      </button>
+
+      <button
+        (click)="setLast30Days()"
+        class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
+        [class.border-green-600]="activeFilter() === '30d'"
+        [class.bg-green-50]="activeFilter() === '30d'"
+        [class.text-green-700]="activeFilter() === '30d'"
+        [class.border-gray-300]="activeFilter() !== '30d'"
+        [class.bg-white]="activeFilter() !== '30d'"
+        [class.text-gray-700]="activeFilter() !== '30d'"
+        [class.hover:bg-gray-50]="activeFilter() !== '30d'">
+        30d
+      </button>
+
+      <button
+        (click)="setLast90Days()"
+        class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
+        [class.border-green-600]="activeFilter() === '90d'"
+        [class.bg-green-50]="activeFilter() === '90d'"
+        [class.text-green-700]="activeFilter() === '90d'"
+        [class.border-gray-300]="activeFilter() !== '90d'"
+        [class.bg-white]="activeFilter() !== '90d'"
+        [class.text-gray-700]="activeFilter() !== '90d'"
+        [class.hover:bg-gray-50]="activeFilter() !== '90d'">
+        90d
+      </button>
+
+      <button
+        (click)="setThisMonth()"
+        class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
+        [class.border-green-600]="activeFilter() === 'thisMonth'"
+        [class.bg-green-50]="activeFilter() === 'thisMonth'"
+        [class.text-green-700]="activeFilter() === 'thisMonth'"
+        [class.border-gray-300]="activeFilter() !== 'thisMonth'"
+        [class.bg-white]="activeFilter() !== 'thisMonth'"
+        [class.text-gray-700]="activeFilter() !== 'thisMonth'"
+        [class.hover:bg-gray-50]="activeFilter() !== 'thisMonth'">
+        Este mes
+      </button>
+
+      <button
+        (click)="setLastMonth()"
+        class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
+        [class.border-green-600]="activeFilter() === 'lastMonth'"
+        [class.bg-green-50]="activeFilter() === 'lastMonth'"
+        [class.text-green-700]="activeFilter() === 'lastMonth'"
+        [class.border-gray-300]="activeFilter() !== 'lastMonth'"
+        [class.bg-white]="activeFilter() !== 'lastMonth'"
+        [class.text-gray-700]="activeFilter() !== 'lastMonth'"
+        [class.hover:bg-gray-50]="activeFilter() !== 'lastMonth'">
+        Mes anterior
+      </button>
+    </div>
+
+    <!-- Date Range Picker con indicador de personalizado -->
+    <div
+      class="flex items-center gap-2 rounded-lg border px-3 py-2 shadow-sm transition-colors"
+      [class.border-green-600]="activeFilter() === 'custom'"
+      [class.bg-green-50]="activeFilter() === 'custom'"
+      [class.border-gray-300]="activeFilter() !== 'custom'"
+      [class.bg-white]="activeFilter() !== 'custom'">
+      <label class="text-xs font-medium text-gray-600">Desde:</label>
+      <input
+        type="date"
+        [(ngModel)]="fromDate"
+        (change)="onDateChange()"
+        [max]="toDate"
+        class="rounded border-none text-sm focus:outline-none focus:ring-0 bg-transparent" />
+
+      <span class="text-gray-400">—</span>
+
+      <label class="text-xs font-medium text-gray-600">Hasta:</label>
+      <input
+        type="date"
+        [(ngModel)]="toDate"
+        (change)="onDateChange()"
+        [min]="fromDate"
+        class="rounded border-none text-sm focus:outline-none focus:ring-0 bg-transparent" />
+    </div>
+
+    <!-- Botón refrescar -->
+    <button
+      (click)="onRefresh()"
+      class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors shadow-sm cursor-pointer"
+      title="Refrescar datos">
+      <lucide-icon [img]="refreshIcon" [size]="18"></lucide-icon>
+    </button>
+
+    <!-- Botón exportar -->
+    <button
+      (click)="onExport()"
+      class="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 shadow-sm transition-all hover:shadow cursor-pointer">
+      <lucide-icon [img]="downloadIcon" [size]="18"></lucide-icon>
+      <span>Exportar</span>
+    </button>
+
+  </div>
+</header>
