@@ -3,7 +3,6 @@
 >
   <nav class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-14 sm:h-16">
-      <!-- Logo/Brand -->
       <div
         class="flex items-center gap-2 cursor-pointer"
         routerLink="/"
@@ -23,12 +22,9 @@
         </span>
       </div>
 
-      <!-- Action Buttons -->
       <div class="flex gap-1.5 sm:gap-2">
-        <!-- ✅ NUEVA LÓGICA: Comprobar la sesión PRIMERO -->
 
         @if (hasValidTableSession()) {
-        <!-- CASO 1: Usuario CON sesión de mesa (Guest O Client) -->
         <button
           [routerLink]="['/session', tableSessionId()]"
           class="btn btn-outline btn-sm sm:btn-md gap-1.5 sm:gap-2 min-w-0"
@@ -40,7 +36,6 @@
           <span class="hidden sm:inline whitespace-nowrap">Mi Mesa</span>
         </button>
         } @else {
-        <!-- CASO 2: Usuario SIN sesión de mesa (Guest O Client) -->
         <button
           (click)="navigateToScanner()"
           class="btn btn-outline btn-sm sm:btn-md gap-1.5 sm:gap-2 min-w-0"
@@ -63,10 +58,7 @@
         </button>
         }
 
-        <!-- Botón de Login / Logout (basado en isLoggedIn) -->
-
         @if (isLoggedIn()) {
-        <!-- Usuario es CLIENT (logueado) -->
         <a
           [routerLink]="['/profile']"
           class="p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer"
@@ -100,7 +92,6 @@
           <span class="inline min-[400px]:hidden">Salir</span>
         </button>
         } @else {
-        <!-- Usuario es GUEST o no está autenticado -->
         <button
           routerLink="/auth/login"
           class="btn btn-primary btn-sm sm:btn-md gap-1.5 sm:gap-2 min-w-0"

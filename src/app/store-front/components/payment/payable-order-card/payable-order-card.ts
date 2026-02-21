@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CircleCheck, User, LucideAngularModule, AlertCircle } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { OrderResponse } from '../../../models/order.interface';
 import { getPaymentStatusUi, toneToTextClass } from '../../../../shared/models/status-ui';
 
@@ -11,14 +11,18 @@ import { getPaymentStatusUi, toneToTextClass } from '../../../../shared/models/s
   templateUrl: './payable-order-card.html',
 })
 export class PayableOrderCardComponent {
-  @Input() order!: OrderResponse;
+
+  private _order = signal<OrderResponse | null>(null);
+
+  @Input() set order(value: OrderResponse) {
+    this._order.set(value);
+  }
+  get order(): OrderResponse {
+    return this._order()!;
+  }
+
   @Input() selected = false;
-
   @Output() selectionChanged = new EventEmitter<{ orderId: string; selected: boolean }>();
-
-  readonly User = User;
-  readonly CircleCheck = CircleCheck;
-  readonly AlertCircle = AlertCircle;
 
  canSelectForPayment = computed(() => {
     const p = this.order?.payment;

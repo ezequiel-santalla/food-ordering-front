@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { Content } from '../../models/food-venue.interface';
+import { FoodVenuePublicResponseDto } from '../../models/food-venue.interface';
 import { FoodVenueCardComponent } from "../food-venue-card/food-venue-card.component";
 
 @Component({
@@ -9,7 +9,7 @@ import { FoodVenueCardComponent } from "../food-venue-card/food-venue-card.compo
 })
 export class FoodVenueListComponent {
 
-  foodVenues = input.required<Content[]>();
+  foodVenues = input.required<FoodVenuePublicResponseDto[]>();
   errorMessage = input<string | null>();
   isLoading = input<boolean>(false);
 

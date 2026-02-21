@@ -306,9 +306,7 @@ async deleteAccount() {
   }
 
   private showErrorMessage(error: any): void {
-    const message =
-      error?.error?.message ||
-      'Error al actualizar el perfil. Por favor, intente nuevamente.';
+    const message = 'Error al actualizar el perfil. Por favor, intente nuevamente.';
     this.sweetAlert.showError('Ocurrió un Problema', message);
   }
 

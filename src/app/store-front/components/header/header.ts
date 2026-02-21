@@ -9,6 +9,8 @@ import {
   Power,
   LogIn,
   UtensilsCrossed,
+  Menu,
+  TextAlignJustify,
 } from 'lucide-angular';
 import { MenuService } from '../../services/menu-service';
 import { TableSessionService } from '../../services/table-session-service';
@@ -35,7 +37,7 @@ export class Header {
   private sweetAlert = inject(SweetAlertService);
 
   readonly Bell = Bell;
-  readonly User = User;
+  readonly User = TextAlignJustify;
   readonly UserCog = UserCog;
   readonly UtensilsCrossed = UtensilsCrossed;
   readonly Power = Power;
@@ -188,10 +190,23 @@ export class Header {
       next: () => {
         this.sweetAlert.close();
         this.sweetAlert.showSuccess('Listo', successMessage);
-        this.navigation.navigateToHome();
-      },
-      error: () => {
-        this.sweetAlert.showError('Error', 'No se pudo completar la acción.');
+       this.navigation.navigateToHome();
+     },
+     error: (err: any) => {
+        this.sweetAlert.close();
+
+        if (err?.status === 409) {
+          this.sweetAlert.showError(
+            'No podés abandonar la mesa',
+            'Tenés pedidos pendientes de pago. Pagalos antes de salir.'
+          );
+          return;
+        }
+
+       this.sweetAlert.showError(
+          'Error',
+          'No se pudo completar la acción.'
+        );
       },
     });
   }

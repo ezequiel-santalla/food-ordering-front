@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Content } from '../../models/food-venue.interface';
+import { FoodVenuePublicResponseDto } from '../../models/food-venue.interface';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, MapPinHouse, MapPlus } from 'lucide-angular';
 
@@ -13,5 +13,5 @@ export class FoodVenueCardComponent {
   readonly MapPinHouse = MapPinHouse
   readonly MapPlus = MapPlus
 
-  venue = input.required<Content>();
+  venue = input.required<FoodVenuePublicResponseDto>();
 }
