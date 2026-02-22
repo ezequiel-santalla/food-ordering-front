@@ -37,12 +37,12 @@
         </div>
 
         <ul tabindex="0"
-          class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow bg-base-100 rounded-box w-56 border border-base-200">
+          class="menu menu-md dropdown-content mt-3 z-50 p-3 shadow bg-base-100 rounded-box w-64 border border-base-200 text-base">
           
           @if (isAuthenticated()) {
           <li>
-            <a routerLink="/profile">
-              <lucide-icon [img]="UserCog" class="w-4 h-4"></lucide-icon>
+            <a class="py-3 gap-3" routerLink="/profile">
+              <lucide-icon [img]="UserCog" class="w-5 h-5"></lucide-icon>
               Mi cuenta
             </a>
           </li>
@@ -50,8 +50,8 @@
           
           @if (hasActiveSession()) {
           <li>
-            <a (click)="onLeaveSession()">
-              <lucide-icon [img]="UtensilsCrossed" class="w-4 h-4"></lucide-icon>
+            <a class="py-3 gap-3" (click)="onLeaveSession()">
+              <lucide-icon [img]="UtensilsCrossed" class="w-5 h-5"></lucide-icon>
               Abandonar Mesa
             </a>
           </li>
@@ -59,8 +59,8 @@
           
           @if (isAuthenticated()) {
           <li>
-            <a (click)="onLogout()">
-              <lucide-icon [img]="Power" class="w-4 h-4"></lucide-icon>
+            <a class="py-3 gap-3" (click)="onLogout()">
+              <lucide-icon [img]="Power" class="w-5 h-"></lucide-icon>
               Cerrar Sesión
             </a>
           </li>
@@ -68,8 +68,8 @@
           
           @if (!isAuthenticated()) {
           <li>
-            <a routerLink="/auth/login">
-              <lucide-icon [img]="LogIn" class="w-4 h-4"></lucide-icon>
+            <a class="py-3 gap-3" routerLink="/auth/login">
+              <lucide-icon [img]="LogIn" class="w-5 h-5"></lucide-icon>
               Iniciar Sesión
             </a>
           </li>
