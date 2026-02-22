@@ -1,21 +1,30 @@
 <div class="max-w-3xl mx-auto space-y-8 pb-12 mt-4">
 
-  <div>
-    <div class="px-4 sm:px-6">
-      <app-highlights-section title="Recomendados" [data$]="menuService.getRecommended()" variant="premium" />
-    </div>
+  @if (bannerUrl()) {
+  <div class="px-4 sm:px-6">
+  <div class="w-full aspect-[4/1] overflow-hidden rounded-xl rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <img class="w-full h-full object-cover" [src]="bannerUrl()!" alt="Banner del local" loading="lazy"
+      class="w-full object-cover object-center" />
   </div>
+  </div>
+}
 
-  <div>
-    <div class="px-4 sm:px-6">
-      <app-highlights-section title="Los más pedidos" [data$]="menuService.getTopSelling()" variant="pop" />
-    </div>
+<div>
+  <div class="px-4 sm:px-6">
+    <app-highlights-section title="Recomendados" [data$]="menuService.getRecommended()" variant="premium" />
   </div>
+</div>
 
-  <div>
-    <div class="px-4 sm:px-6">
-      <app-highlights-section title="Tus Favoritos" emptyMessage="Aún no agregaste ningún favorito"
-        [data$]="favoritesData$()" variant="minimal" />
-    </div>
+<div>
+  <div class="px-4 sm:px-6">
+    <app-highlights-section title="Los más pedidos" [data$]="menuService.getTopSelling()" variant="pop" />
   </div>
+</div>
+
+<div>
+  <div class="px-4 sm:px-6">
+    <app-highlights-section title="Tus Favoritos" emptyMessage="Aún no agregaste ningún favorito"
+      [data$]="favoritesData$()" variant="minimal" />
+  </div>
+</div>
 </div>

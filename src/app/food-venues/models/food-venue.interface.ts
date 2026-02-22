@@ -1,5 +1,5 @@
-export interface FoodVenue {
-  content: Content[];
+export interface FoodVenuePage {
+  content: FoodVenuePublicResponseDto[];
   pageNumber: number;
   pageSize: number;
   totalElements: number;
@@ -9,7 +9,7 @@ export interface FoodVenue {
   empty: boolean;
 }
 
-export interface Content {
+export interface FoodVenuePublicResponseDto {
   publicId: string;
   name: string;
   phone: string;
