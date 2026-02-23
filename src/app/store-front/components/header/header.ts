@@ -4,12 +4,10 @@ import { CommonModule } from '@angular/common';
 import {
   LucideAngularModule,
   Bell,
-  User,
   UserCog,
   Power,
   LogIn,
   UtensilsCrossed,
-  Menu,
   TextAlignJustify,
 } from 'lucide-angular';
 import { MenuService } from '../../services/menu-service';
@@ -19,7 +17,6 @@ import { AuthService } from '../../../auth/services/auth-service';
 import { AuthStateManager } from '../../../auth/services/auth-state-manager-service';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { finalize } from 'rxjs';
-import Swal from 'sweetalert2';
 import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({
@@ -62,7 +59,7 @@ export class Header {
     () => this.menuResource.value()?.foodVenueName || 'Cargando...'
   );
 
-  onLogout(): void {
+  async onLogout() {
     const hasActiveSession = this.tableSessionService.hasActiveSession();
 
     if (!hasActiveSession) {
@@ -70,28 +67,13 @@ export class Header {
       return;
     }
 
-    Swal.fire({
-      title: 'Sesión de mesa activa',
-      text: '¿Qué te gustaría hacer con la mesa al cerrar sesión?',
-      icon: 'question',
-      showCancelButton: true,
-      showDenyButton: true,
+    const choice = await this.sweetAlert.confirmLogoutWithActiveTable();
 
-      confirmButtonText: 'Abandonar mesa y salir',
-      confirmButtonColor: '#d33',
-
-      denyButtonText: 'Solo salir (Mantener mesa)',
-      denyButtonColor: '#3085d6',
-
-      cancelButtonText: 'Cancelar',
-      allowOutsideClick: false,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.handleLeaveAndLogout();
-      } else if (result.isDenied) {
-        this.executeLogout(true);
-      }
-    });
+    if (choice === 'leave_and_logout') {
+      this.handleLeaveAndLogout();
+    } else if (choice === 'logout_only') {
+      this.executeLogout(true);
+    }
   }
 
   private handleLeaveAndLogout() {
