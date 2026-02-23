@@ -1,8 +1,8 @@
 <header class="bg-base-100 border-b border-base-300 sticky top-0 z-100 shadow-sm">
   <div class="navbar max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16">
-    <div class="navbar-start">
-      <div class="flex items-center gap-3">
-        <div class="avatar">
+    <div class="navbar-start flex-1 min-w-0">
+      <div class="flex items-center gap-3 min-w-0 w-full">
+        <div class="avatar shrink-0">
             <div class="w-10 h-10 rounded-lg bg-base-200 flex items-center justify-center">
               @if(venueImageUrl()) {
               <img [src]="venueImageUrl()" [alt]="venueName()" />
@@ -12,14 +12,14 @@
             </div>
         </div>
 
-        <div class="flex flex-col min-w-0">
+        <div class="flex flex-col min-w-0 flex-1">
           <span class="font-bold text-base leading-tight truncate">{{ venueName() }}</span>
           <span class="text-sm text-base-content/70 leading-tight truncate">Hola, {{ participantNickname() }}</span>
         </div>
       </div>
     </div>
 
-    <div class="navbar-end flex items-center gap-1">
+    <div class="navbar-end shrink-0 flex items-center gap-1 w-[88px] sm:w-[96px] justify-end">
       <button class="btn btn-ghost btn-circle">
         <div class="indicator">
           <lucide-icon [img]="Bell" class="w-5 h-5"></lucide-icon>
