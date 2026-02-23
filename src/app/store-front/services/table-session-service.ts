@@ -1,5 +1,6 @@
 import {
   computed,
+  DestroyRef,
   effect,
   inject,
   Injectable,
@@ -23,6 +24,7 @@ import { Participant } from '../../shared/models/common';
 import { SweetAlertService } from '../../shared/services/sweet-alert.service';
 import { FoodVenueService } from '../../food-venues/services/food-venue.service';
 import { MenuService } from './menu-service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
@@ -47,7 +49,8 @@ export class TableSessionService {
   private _hostParticipantId = signal<string | null>(null);
 
   private sseSubscription: Subscription | undefined;
-
+  private destroyRef = inject(DestroyRef);
+  
   tableSessionInfo = computed<TableSessionInfo>(() => ({
     tableNumber: this._tableNumber(),
     participantNickname: this._participantNickname(),
@@ -116,7 +119,9 @@ export class TableSessionService {
       if (this.hasActiveSession() && tableSessionId) {
         console.log(`🔌 Conectando a SSE para mesa:`);
 
-        this.sseSubscription = this.sseService.subscribeToSession().subscribe({
+        this.sseSubscription = this.sseService.subscribeToSession()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
           next: (event) => {
             console.log('Evento SSE recibido en TableSessionService:', event);
 
