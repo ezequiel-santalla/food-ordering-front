@@ -169,19 +169,19 @@ export class Header {
   private performTableAction(observableAction: any, successMessage: string) {
     this.sweetAlert.showLoading('Procesando...');
     observableAction.subscribe({
-      next: () => {
-        this.sweetAlert.close();
-        this.sweetAlert.showSuccess('Listo', successMessage);
-       this.navigation.navigateToHome();
-     },
-     error: (err: any) => {
+      error: async (err: any) => {
         this.sweetAlert.close();
 
         if (err?.status === 409) {
-          this.sweetAlert.showError(
+          const res = await this.sweetAlert.showChoice(
             'No podés abandonar la mesa',
-            'Tenés pedidos pendientes de pago. Pagalos antes de salir.'
+            'Tenés pedidos pendientes de pago. Pagalos antes de salir.',
+            'Pagar ahora',
+            'Cancelar',
           );
+          if (res.isConfirmed) {
+            this.navigation.navigateToPayments();
+          }
           return;
         }
 
