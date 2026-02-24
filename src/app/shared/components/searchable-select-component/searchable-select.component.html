@@ -1,0 +1,41 @@
+<div class="relative w-full">
+
+  <!-- Input de búsqueda -->
+  <div class="input input-bordered input-accent w-full flex items-center gap-2 cursor-pointer"
+    [class.opacity-50]="isDisabled()" [class.cursor-not-allowed]="isDisabled()"
+    (click)="!isDisabled() && toggleDropdown()">
+
+    <input #inputEl type="text"
+      class="grow bg-transparent outline-none placeholder-gray-400 placeholder:italic text-sm disabled:cursor-not-allowed"
+      [placeholder]="isOpen() ? placeholder() : (selectedName() ? '' : currentPlaceholder())" [disabled]="isDisabled()"
+      [value]="isOpen() ? searchText() : selectedName()" (input)="onSearchInput($event.target)"
+      (click)="$event.stopPropagation(); !isDisabled() && openDropdown()" />
+
+    <span class="text-base-content/50 text-xs transition-transform duration-200" [class.rotate-180]="isOpen()">
+      ▼
+    </span>
+  </div>
+
+  <!-- Dropdown -->
+  @if (isOpen() && !isDisabled()) {
+  <div
+    class="absolute z-50 w-full mt-1 bg-base-100 border border-base-300 rounded-lg shadow-xl max-h-52 overflow-y-auto">
+
+    @if (filteredOptions().length === 0) {
+    <div class="px-4 py-3 text-base-content/50 text-sm italic">
+      Sin resultados para "{{ searchText() }}"
+    </div>
+    }
+
+    @for (option of filteredOptions(); track option.id) {
+    <div class="px-4 py-2 text-sm cursor-pointer hover:bg-accent/10 hover:text-accent transition-colors duration-150"
+      [class.bg-accent]="option.id === selectedId()" [class.text-white]="option.id === selectedId()"
+      (mousedown)="selectOption(option)">
+      {{ option.name }}
+    </div>
+    }
+
+  </div>
+  }
+
+</div>
