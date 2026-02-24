@@ -105,4 +105,16 @@ export class NavigationService {
   navigateToScanner() {
     this.router.navigate(['/scan-camera']);
   }
+
+  navigateToPayments(): void {
+    const tableSessionId = this.authService.tableSessionId();
+
+    console.log('💳 Navegando a payments', { tableSessionId });
+
+    if (SessionUtils.isValidSession(tableSessionId)) {
+      this.router.navigate(['/session', tableSessionId, 'payments']);
+    } else {
+      this.router.navigate(['/food-venues']);
+    }
+  }
 }

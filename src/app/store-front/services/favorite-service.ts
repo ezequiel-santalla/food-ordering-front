@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal, computed, effect } from '@angular/core';
+import { inject, Injectable, signal, computed, effect, DestroyRef } from '@angular/core';
 import {
   catchError,
   map,
@@ -19,6 +19,7 @@ import {
 } from '../models/favorite-product.interface';
 import { Product } from '../models/menu.interface';
 import { ServerSentEventsService } from '../../shared/services/server-sent-events.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type VenueCachePayload<T> = {
   value: T;
@@ -31,7 +32,8 @@ export class FavoritesService {
   private http = inject(HttpClient);
   private authState = inject(AuthStateManager);
   private sse = inject(ServerSentEventsService);
-
+  private destroyRef = inject(DestroyRef);
+  
   private IDS_CACHE_KEY = 'dinno-favorites-ids-v1';
   private IDS_TTL = 60 * 1000; // 1 min (ajustable)
 
@@ -63,7 +65,9 @@ export class FavoritesService {
 
       this.loadFavoriteIds().subscribe();
 
-      this.userSseSub = this.sse.subscribeToUser().subscribe({
+      this.userSseSub = this.sse.subscribeToUser()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
         next: ({ type, payload }) => {
           console.log('🟢 USER SSE EVENT:', type, payload);
           if (type !== 'favorite-updated') return;

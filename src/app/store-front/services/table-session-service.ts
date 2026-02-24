@@ -1,5 +1,6 @@
 import {
   computed,
+  DestroyRef,
   effect,
   inject,
   Injectable,
@@ -23,6 +24,7 @@ import { Participant } from '../../shared/models/common';
 import { SweetAlertService } from '../../shared/services/sweet-alert.service';
 import { FoodVenueService } from '../../food-venues/services/food-venue.service';
 import { MenuService } from './menu-service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
@@ -47,7 +49,8 @@ export class TableSessionService {
   private _hostParticipantId = signal<string | null>(null);
 
   private sseSubscription: Subscription | undefined;
-
+  private destroyRef = inject(DestroyRef);
+  
   tableSessionInfo = computed<TableSessionInfo>(() => ({
     tableNumber: this._tableNumber(),
     participantNickname: this._participantNickname(),
@@ -116,7 +119,9 @@ export class TableSessionService {
       if (this.hasActiveSession() && tableSessionId) {
         console.log(`🔌 Conectando a SSE para mesa:`);
 
-        this.sseSubscription = this.sseService.subscribeToSession().subscribe({
+        this.sseSubscription = this.sseService.subscribeToSession()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
           next: (event) => {
             console.log('Evento SSE recibido en TableSessionService:', event);
 
@@ -134,6 +139,9 @@ export class TableSessionService {
               const newParticipant: Participant = event.payload.participant;
               console.log('[SSE user-joined] ', newParticipant.nickname);
 
+              this._previousParticipants.update((prev) =>
+                prev.filter((x) => x.publicId !== newParticipant.publicId),
+              );
               this._activeParticipants.update((list) => [
                 ...list,
                 newParticipant,
@@ -168,10 +176,12 @@ export class TableSessionService {
                   leftAt: new Date().toISOString(),
                 };
 
-                this._previousParticipants.update((prev) => [
-                  ...prev,
-                  participantWithTime,
-                ]);
+                this._previousParticipants.update((prev) => {
+                  const filtered = prev.filter(
+                    (x) => x.publicId !== participantWithTime.publicId,
+                  );
+                  return [...filtered, participantWithTime];
+                });
 
                 if (
                   leavingParticipant.publicId !== this.authState.participantId()
@@ -212,28 +222,41 @@ export class TableSessionService {
             }
 
             if (event.type === 'migrated-guest-session') {
-              const updatedParticipant = event.payload.participant;
-              console.log(
-                'SSE Migración. ID recibido:',
-                updatedParticipant.publicId
-              );
-              console.log(
-                'IDs en mi lista local:',
-                this._activeParticipants().map((p) => p.publicId)
-              );
-              console.log(
-                '🔄 Usuario migrado recibido:',
-                updatedParticipant.nickname
-              );
+              const payload = event.payload ?? {};
+              const updatedParticipant = payload.participant;
+              const deletedIds: string[] = payload.deletedParticipantIds ?? [];
 
-              this._activeParticipants.update((participants) =>
-                participants.map((p) =>
-                  p.publicId === updatedParticipant.publicId
-                    ? updatedParticipant
-                    : p
+              console.log('payload completo:', payload);
+              console.log('updatedParticipant:', updatedParticipant);
+              console.log('deletedIds:', deletedIds);
+
+              this._previousParticipants.update((prev) =>
+                prev.filter(
+                  (p) =>
+                    p.publicId !== updatedParticipant.publicId &&
+                    !deletedIds.includes(p.publicId)
                 )
               );
 
+              this._activeParticipants.update((active) => {
+                let next = active.filter(
+                  (p) => !deletedIds.includes(p.publicId)
+                );
+
+                const idx = next.findIndex(
+                  (p) => p.publicId === updatedParticipant.publicId
+                );
+                if (idx >= 0) {
+                  next = next.map((p) =>
+                    p.publicId === updatedParticipant.publicId
+                      ? { ...p, ...updatedParticipant }
+                      : p,
+                  );
+                } else {
+                  next = [...next, updatedParticipant];
+                }
+                return next;
+              });
               if (
                 updatedParticipant.publicId === this.authState.participantId()
               ) {
@@ -243,7 +266,7 @@ export class TableSessionService {
               this.sweetAlertService.showToast(
                 'top-end',
                 'info',
-                `${updatedParticipant.nickname} ahora está registrado`
+                `${updatedParticipant.nickname} ahora está registrado`,
               );
             }
           },

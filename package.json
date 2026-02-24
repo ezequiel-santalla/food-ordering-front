@@ -19,7 +19,7 @@
     "@mercadopago/sdk-js": "^0.0.3",
     "@tailwindcss/postcss": "^4.1.13",
     "@zxing/ngx-scanner": "^20.0.0",
-    "apexcharts": "^5.3.6",
+    "apexcharts": "^5.6.0",
     "daisyui": "^5.1.18",
     "lucide-angular": "^0.544.0",
     "ng-apexcharts": "^2.0.4",

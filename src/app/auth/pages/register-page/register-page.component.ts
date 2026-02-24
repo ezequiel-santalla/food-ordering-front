@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { SearchableSelectComponent } from '../../../shared/components/searchable-select-component/searchable-select-component';
 import {
   FormBuilder,
   FormGroup,
@@ -22,13 +23,14 @@ import { SweetAlertService } from '../../../shared/services/sweet-alert.service'
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import Swal from 'sweetalert2';
 import { NavigationService } from '../../../shared/services/navigation.service';
+import { CityResponseDto, CountryResponseDto, LocationService, ProvinceResponseDto } from '../../services/location-service';
 
 @Component({
   selector: 'app-register-page',
-  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule],
+  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule, SearchableSelectComponent],
   templateUrl: './register-page.component.html',
 })
-export class RegisterPageComponent {
+export class RegisterPageComponent implements OnInit {
   readonly User = User;
   readonly Mail = Mail;
   readonly KeyRound = KeyRound;
@@ -42,6 +44,11 @@ export class RegisterPageComponent {
   private sweetAlertService = inject(SweetAlertService);
   private errorHandler = inject(ErrorHandlerService);
   private navigation = inject(NavigationService);
+  private locationService = inject(LocationService);
+
+  countries = signal<CountryResponseDto[]>([]);
+  provinces = signal<ProvinceResponseDto[]>([]);
+  cities = signal<CityResponseDto[]>([]);
 
   get pageTitle(): string {
     return 'Crear Cuenta';
@@ -68,17 +75,38 @@ export class RegisterPageComponent {
     lastName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-
     phone: [''],
     birthDate: [''],
-
     street: [''],
     number: [''],
-    city: [''],
-    province: [''],
-    country: [''],
     postalCode: [''],
+    countryId: [null],
+    provinceId: [null],
+    cityId: [null],
   });
+
+  ngOnInit() {
+    this.locationService.getCountries().subscribe(data => this.countries.set(data));
+
+    this.registerForm.get('countryId')!.valueChanges.subscribe(countryId => {
+      this.registerForm.patchValue({ provinceId: null, cityId: null }, { emitEvent: false });
+      this.provinces.set([]);
+      this.cities.set([]);
+      if (countryId) {
+        this.locationService.getProvincesByCountry(Number(countryId))
+          .subscribe(data => this.provinces.set(data));
+      }
+    });
+
+    this.registerForm.get('provinceId')!.valueChanges.subscribe(provinceId => {
+      this.registerForm.patchValue({ cityId: null }, { emitEvent: false });
+      this.cities.set([]);
+      if (provinceId) {
+        this.locationService.getCitiesByProvince(Number(provinceId))
+          .subscribe(data => this.cities.set(data));
+      }
+    });
+  }
 
   private resetForm() {
     this.registerForm.reset();
@@ -144,32 +172,23 @@ export class RegisterPageComponent {
 
     if (formValue.phone?.trim()) {
       const phone = FormUtils.formatPhoneNumber(formValue.phone.trim());
-      if (phone) {
-        data.phone = phone;
-      }
+      if (phone) data.phone = phone;
     }
 
     if (formValue.birthDate) {
       data.birthDate = formValue.birthDate;
     }
 
-    const hasAddress =
-      formValue.street?.trim() ||
-      formValue.city?.trim() ||
-      formValue.country?.trim();
+    const hasAddress = formValue.street?.trim() || formValue.cityId;
 
     if (hasAddress) {
       data.address = {
         street: formValue.street?.trim() || '',
         number: formValue.number?.trim() || '',
-        city: formValue.city?.trim() || '',
-        province: formValue.province?.trim() || '',
-        country: formValue.country?.trim() || '',
         postalCode: formValue.postalCode?.trim() || '',
+        cityId: formValue.cityId ? Number(formValue.cityId) : null,
       };
     }
-
-    console.log('📤 Datos a enviar:', data);
     return data;
   }
 

@@ -1,17 +1,29 @@
-@if (foodVenueResource.error()) {
-  <app-not-found-page />
-}
-
-@if (foodVenueResource.isLoading()) {
+@if (menuResource.isLoading()) {
   <div class="flex flex-col items-center mt-10 gap-2">
     <span class="loading loading-spinner loading-lg text-primary"></span>
     <p class="text-primary text-lg font-medium">Cargando el Menú del Local</p>
   </div>
 }
 
-@if (foodVenueResource.hasValue() && foodVenueResource.value()) {
+@if (menuResource.error()) {
+  @if (isNotFound()) {
+    <app-not-found-page />
+  } @else {
+    <div class="flex flex-col items-center mt-10 gap-3 text-center">
+      <p class="text-red-500 text-lg font-medium">
+        {{ errorMessage() ?? 'No se pudo cargar el menú. Reintentá.' }}
+      </p>
+
+      <button type="button" class="btn btn-primary" (click)="retry()">
+        Reintentar
+      </button>
+    </div>
+  }
+}
+
+@if (!menuResource.isLoading() && !menuResource.error() && menuResource.hasValue() && menuResource.value()) {
   @if (isRootRoute()) {
-    <app-food-venue-menu [menu]="foodVenueResource.value()!" />
+    <app-food-venue-menu [menu]="menuResource.value()!" />
   } @else {
     <router-outlet />
   }
