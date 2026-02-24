@@ -7,7 +7,7 @@ export interface FoodVenueAdminResponse {
     email: string;
     phone: string;
     imageUrl: string;
-    address: Address;
+    address?: Address;
     creationDate: string;
     lastUpdateDate: string;
     numberOfEmployees: number;

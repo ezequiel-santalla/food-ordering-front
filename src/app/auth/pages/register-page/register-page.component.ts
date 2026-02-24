@@ -16,6 +16,8 @@ import {
   Phone,
   MapPin,
   X,
+  Eye,
+  EyeOff,
 } from 'lucide-angular';
 import { AuthService } from '../../services/auth-service';
 import { FormUtils } from '../../../utils/form-utils';
@@ -38,6 +40,14 @@ export class RegisterPageComponent implements OnInit {
   readonly Phone = Phone;
   readonly MapPin = MapPin;
   readonly X = X;
+  readonly Eye = Eye;
+  readonly EyeOff = EyeOff;
+
+  showPassword = false;
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
@@ -71,15 +81,42 @@ export class RegisterPageComponent implements OnInit {
   showOptionalFields = false;
 
   registerForm: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
-    lastName: ['', [Validators.required, Validators.minLength(2)]],
+    name: ['', [
+      Validators.required,
+      Validators.minLength(3),
+      Validators.maxLength(50),
+      Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ](?!.*\s{2,})[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]$/)
+    ]],
+    lastName: ['', [
+      Validators.required,
+      Validators.minLength(3),
+      Validators.maxLength(50),
+      Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ](?!.*\s{2,})[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]$/)
+    ]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    phone: [''],
+    password: ['', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).{8,}$/)
+    ]],
+    phone: ['', [
+      Validators.pattern(/^\+?(?!0+$)\d{10,15}$/)
+    ]],
     birthDate: [''],
-    street: [''],
-    number: [''],
-    postalCode: [''],
+    street: ['', [
+      Validators.minLength(3),
+      Validators.maxLength(100),
+      Validators.pattern(/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ](?!.*\s{2,})[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s./]*[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]$/)
+    ]],
+    number: ['', [
+      Validators.maxLength(10),
+      Validators.pattern(/^[a-zA-Z0-9\s]+$/)
+    ]],
+    postalCode: ['', [
+      Validators.minLength(3),
+      Validators.maxLength(20),
+      Validators.pattern(/^[a-zA-Z0-9]+$/)
+    ]],
     countryId: [null],
     provinceId: [null],
     cityId: [null],

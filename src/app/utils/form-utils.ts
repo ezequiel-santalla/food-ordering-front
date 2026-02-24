@@ -71,11 +71,25 @@ export class FormUtils {
           return `No puede exceder los ${errors[key].requiredLength} caracteres.`;
 
         case 'pattern':
-          if (errors['pattern'].requiredPattern === FormUtils.emailPattern) {
-            return 'El valor ingresado no luce como un correo electrónico.';
+          switch (fieldName) {
+            case 'email':
+              return 'El valor ingresado no luce como un correo electrónico.';
+            case 'password':
+              return 'Debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial (@#$%^&+=!).';
+            case 'phone':
+              return 'Formato inválido. Usá +5491122334455 o 1122334455 (sin espacios ni guiones).';
+            case 'street':
+              return 'Nombre de calle inválido. No se permiten espacios dobles.';
+            case 'number':
+              return 'Solo letras y números.';
+            case 'postalCode':
+              return 'Solo letras y números, sin espacios.';
+            case 'name':
+            case 'lastName':
+              return 'Solo letras, sin espacios dobles ni al inicio/fin.';
+            default:
+              return 'El formato del campo es incorrecto.';
           }
-
-          return 'El formato del campo es incorrecto.';
 
         case 'emailTaken':
           return 'El correo electrónico ya está en uso por otro usuario.';
@@ -84,9 +98,9 @@ export class FormUtils {
           return 'La fecha de inicio debe ser anterior a la fecha de finalización.';
 
         default:
-          return `Error de validación no controlado. ${key}`;
+          return `Error de validación no controlado: ${key}`;
       }
-    };
+    }
 
     return null;
   }

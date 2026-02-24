@@ -15,7 +15,7 @@ export interface SelectOption {
 @Component({
   selector: 'app-searchable-select',
   standalone: true,
-  templateUrl: './searchable-select.component.html',
+  templateUrl: './searchable-select-component.html',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
