@@ -119,7 +119,7 @@ export class ProfileForm implements OnInit {
       ]],
       email: [{ value: '', disabled: true }],
       phone: ['', [
-        Validators.pattern(/^\+?(?!0+$)\d{10,15}$/)  // ← sin espacios ni guiones
+        Validators.pattern(/^\+?(?!0+$)\d{10,15}$/)
       ]],
       birthDate: ['', Validators.required],
       address: this.fb.group({
@@ -139,7 +139,7 @@ export class ProfileForm implements OnInit {
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(20),
-          Validators.pattern(/^[a-zA-Z0-9]+$/)  // ← sin espacios ni guiones
+          Validators.pattern(/^[a-zA-Z0-9]+$/)
         ]],
         countryId: [null],
         provinceId: [null],
@@ -152,11 +152,9 @@ export class ProfileForm implements OnInit {
     this.isEditing = !this.isEditing;
 
     if (this.isEditing) {
-      // 1. Agregamos { emitEvent: false } para no disparar las suscripciones del ngOnInit
       this.profileForm.enable({ emitEvent: false });
       this.profileForm.get('email')?.disable({ emitEvent: false });
 
-      // Habilitar cascada solo si ya hay valores
       if (!this.profileForm.get('address.countryId')?.value) {
         this.profileForm.get('address.provinceId')?.disable({ emitEvent: false });
         this.profileForm.get('address.cityId')?.disable({ emitEvent: false });
@@ -165,7 +163,6 @@ export class ProfileForm implements OnInit {
       const profile = this.profileResource.value();
       if (profile) this.populateForm(profile);
 
-      // 2. Recomendable agregarlo acá también por consistencia
       this.profileForm.disable({ emitEvent: false });
     }
   }

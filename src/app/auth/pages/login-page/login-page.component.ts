@@ -7,6 +7,8 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
+  Eye,
+  EyeOff,
   KeyRound,
   LucideAngularModule,
   Mail,
@@ -21,7 +23,6 @@ import { ErrorHandlerService } from '../../../shared/services/error-handler.serv
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { TableSessionService } from '../../../store-front/services/table-session-service';
 import { isTableSessionResponse, LoginResponse } from '../../models/auth';
-import { JwtUtils } from '../../../utils/jwt-utils';
 import { AuthStateManager } from '../../services/auth-state-manager-service';
 
 @Component({
@@ -35,6 +36,8 @@ export class LoginPageComponent implements OnInit {
   readonly KeyRound = KeyRound;
   readonly RotateCcwIcon = RotateCcwIcon;
   readonly X = X;
+  readonly Eye = Eye;
+  readonly EyeOff = EyeOff;
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
@@ -46,8 +49,13 @@ export class LoginPageComponent implements OnInit {
   private initialTableSessionId: string | null = null;
   private wasGuest = false;
 
+  showPassword = false;
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
   ngOnInit(): void {
-    // Captura el estado ANTES de que el usuario haga nada.
     this.initialTableSessionId = this.authService.tableSessionId();
     this.wasGuest = this.authService.isGuest();
   }
@@ -181,7 +189,7 @@ export class LoginPageComponent implements OnInit {
       let nickname = 'Usuario';
 
       if (currentParticipant) {
-        
+
         if (currentParticipant.user?.name) {
           nickname = currentParticipant.user.name;
           console.log('✅ Usando nombre del usuario:', nickname);
