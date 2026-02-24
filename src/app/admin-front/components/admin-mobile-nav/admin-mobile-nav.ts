@@ -15,7 +15,8 @@ import {
   Users,
   Settings,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  TrendingUpIcon
 } from 'lucide-angular';
 
 @Component({
@@ -38,6 +39,7 @@ export class AdminMobileNav {
   readonly settingsIcon = Settings;
   readonly logOutIcon = LogOut;
   readonly chevronIcon = ChevronDown;
+  readonly trendingUpIcon = TrendingUpIcon;
 
   // Estado del menú expandido
   isMenuExpanded = false;

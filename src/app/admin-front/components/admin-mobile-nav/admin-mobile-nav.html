@@ -11,7 +11,7 @@
       <lucide-icon [img]="dashboardIcon" [size]="22"></lucide-icon>
       <span class="text-xs mt-1">Salón</span>
     </a>
-    
+
 
     <!-- Pedidos -->
     <a routerLink="/admin/orders"
@@ -96,6 +96,15 @@
          class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
         <lucide-icon [img]="usersIcon" [size]="20" class="mr-3"></lucide-icon>
         <span class="text-sm font-medium">Empleados</span>
+      </a>
+
+      <!-- Estadísticas -->
+      <a routerLink="/admin/analytics"
+         routerLinkActive="!text-blue-600 !bg-blue-50"
+         (click)="onLinkClick()"
+         class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
+        <lucide-icon [img]="trendingUpIcon" [size]="20" class="mr-3"></lucide-icon>
+        <span class="text-sm font-medium">Estadísticas</span>
       </a>
 
        <!-- Mi Local -->
