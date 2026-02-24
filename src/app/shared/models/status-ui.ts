@@ -79,8 +79,8 @@ export function getPaymentStatusUi(status: string): StatusUi {
 }
 
 export const ORDER_STATUS_UI: Record<OrderStatus, StatusUi> = {
-  PENDING: { label: 'Pendiente', tone: 'warning', icon: Clock },
-  APPROVED: { label: 'Confirmado', tone: 'info', icon: CheckCheck },
+  PENDING: { label: 'Enviado', tone: 'warning', icon: Clock },
+  APPROVED: { label: 'Recibido', tone: 'info', icon: CheckCheck },
   IN_PROGRESS: { label: 'En preparación', tone: 'primary', icon: CookingPot },
   COMPLETED: { label: 'Listo', tone: 'success', icon: CircleCheckBig },
   SERVED: { label: 'Entregado', tone: 'neutral', icon: HandPlatter },

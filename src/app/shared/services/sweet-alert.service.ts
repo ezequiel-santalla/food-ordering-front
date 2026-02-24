@@ -403,4 +403,39 @@ export class SweetAlertService {
       },
     });
   }
+
+  async confirmLogoutWithActiveTable(): Promise<
+    'leave_and_logout' | 'logout_only' | 'dismiss'
+  > {
+    const result = await Swal.fire({
+      title: 'Sesión de mesa activa',
+      text: '¿Qué te gustaría hacer con la mesa al cerrar sesión?',
+      icon: 'question',
+
+      showConfirmButton: true,
+      showDenyButton: true,
+      showCancelButton: false,
+
+      confirmButtonText: 'Abandonar mesa y salir',
+      confirmButtonColor: '#dc2626',
+
+      denyButtonText: 'Solo salir (mantener mesa)',
+      denyButtonColor: '#3085d6',
+
+      showCloseButton: true,
+      allowOutsideClick: false,
+      allowEscapeKey: true,
+
+      customClass: {
+        ...this.defaultConfig.customClass,
+        actions: 'swal-actions-vertical',
+        confirmButton: 'rounded-lg',
+        denyButton: 'rounded-lg',
+      },
+    });
+
+    if (result.isConfirmed) return 'leave_and_logout';
+    if (result.isDenied) return 'logout_only';
+    return 'dismiss';
+  }
 }

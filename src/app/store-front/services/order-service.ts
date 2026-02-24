@@ -5,6 +5,7 @@ import {
   computed,
   effect,
   WritableSignal,
+  DestroyRef,
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { EMPTY, Observable, Subscription } from 'rxjs';
@@ -18,11 +19,13 @@ import { ServerSentEventsService } from '../../shared/services/server-sent-event
 import { SweetAlertService } from '../../shared/services/sweet-alert.service';
 import { PaymentResponseDto } from '../models/payment.interface';
 import { PaymentsStore } from './payment-store';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private http = inject(HttpClient);
   private sse = inject(ServerSentEventsService);
+  private destroyRef = inject(DestroyRef);
   private tableSession = inject(TableSessionService);
   private sweet = inject(SweetAlertService);
   private paymentsStore = inject(PaymentsStore);
@@ -107,21 +110,18 @@ export class OrderService {
   }
 
   private subscribeToEvents(): void {
-    this.sseSub?.unsubscribe();
-
-    this.sseSub = this.sse.subscribeToSession().subscribe({
-      next: (e) => {
-        console.log('EVENTO SSE RECIBIDO en subscribeToEvents:', e);
-        if (e.type === 'new-order') this.onNewOrder(e.payload);
-        if (e.type === 'order-update-status')
-          this.onOrderStatusUpdate(e.payload);
-        if (e.type === 'payment-updated') {
-          this.onPaymentUpdated(e.payload);
+    this.sse
+      .subscribeToSession()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ type, payload }) => {
+        if (type === 'new-order') this.onNewOrder(payload);
+        if (type === 'order-update-status') this.onOrderStatusUpdate(payload);
+        if (type === 'payment-updated') {
+          this.onPaymentUpdated(payload);
           const myId = this.tableSession.tableSessionInfo().participantId;
-          this.paymentsStore.onPaymentUpdatedFromSse(e.payload, myId);
+          this.paymentsStore.onPaymentUpdatedFromSse(payload, myId);
         }
-      },
-    });
+      });
   }
 
   private onNewOrder(order: OrderResponse) {

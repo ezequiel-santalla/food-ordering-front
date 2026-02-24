@@ -1,12 +1,12 @@
 import { inject, Injectable, NgZone } from '@angular/core';
-import { Observable, share, finalize } from 'rxjs';
+import { Observable, finalize, share } from 'rxjs';
 import { AuthService } from '../../auth/services/auth-service';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ServerSentEventsService {
   private authService = inject(AuthService);
-  constructor(private _zone: NgZone) {}
+  constructor(private zone: NgZone) {}
 
   private session$?: Observable<any>;
   private user$?: Observable<any>;
@@ -33,32 +33,30 @@ export class ServerSentEventsService {
   ];
 
   subscribeToSession(): Observable<any> {
-    if (this.session$) return this.session$;
-
-    this.session$ = this.createSseStream(
-      () => `${environment.baseUrl}/events-subscriptions/table-sessions`,
-      this.SESSION_EVENT_TYPES,
-      'session'
-    ).pipe(
-      share(),
-      finalize(() => (this.session$ = undefined))
-    );
-
+    if (!this.session$) {
+      this.session$ = this.createSseStream(
+        () => `${environment.baseUrl}/events-subscriptions/table-sessions`,
+        this.SESSION_EVENT_TYPES,
+        'session'
+      ).pipe(
+        finalize(() => (this.session$ = undefined)),
+        share({ resetOnRefCountZero: true })
+      );
+    }
     return this.session$;
   }
 
   subscribeToUser(): Observable<any> {
-    if (this.user$) return this.user$;
-
-    this.user$ = this.createSseStream(
-      () => `${environment.baseUrl}/events-subscriptions/users`,
-      this.USER_EVENT_TYPES,
-      'user'
-    ).pipe(
-      share(),
-      finalize(() => (this.user$ = undefined))
-    );
-
+    if (!this.user$) {
+      this.user$ = this.createSseStream(
+        () => `${environment.baseUrl}/events-subscriptions/users`,
+        this.USER_EVENT_TYPES,
+        'user'
+      ).pipe(
+        finalize(() => (this.user$ = undefined)),
+        share({ resetOnRefCountZero: true })
+      );
+    }
     return this.user$;
   }
 
@@ -71,19 +69,40 @@ export class ServerSentEventsService {
       let retryDelay = 2000;
       let retryCount = 0;
       let eventSource: EventSource | null = null;
+      let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+      const clearReconnectTimer = () => {
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+      };
+
+      const closeEventSource = () => {
+        try {
+          eventSource?.close();
+        } catch {}
+        eventSource = null;
+      };
 
       const connect = () => {
+        console.count(`SSE connect (${label})`);
+
         const token = this.authService.accessToken();
         if (!token) {
-          observer.error(`No auth token found for SSE ${label}`);
+          observer.error(new Error(`No auth token found for SSE ${label}`));
           return;
         }
 
-        const sseUrl = `${urlBuilder()}?token=${token}`;
+        const clientId = this.getOrCreateClientId(label);
+        console.log('clientId: ', clientId);
+        const sseUrl = `${urlBuilder()}?token=${token}&clientId=${clientId}`;
+
         eventSource = new EventSource(sseUrl);
 
         eventSource.onopen = () => {
-          this._zone.run(() => {
+          clearReconnectTimer();
+          this.zone.run(() => {
             console.info(`SSE connected (${label})`);
             retryDelay = 2000;
             retryCount = 0;
@@ -92,17 +111,12 @@ export class ServerSentEventsService {
 
         eventTypes.forEach((eventName) => {
           eventSource!.addEventListener(eventName, (event) => {
-            this._zone.run(() => {
+            this.zone.run(() => {
+              const data = (event as MessageEvent).data;
               try {
-                observer.next({
-                  type: eventName,
-                  payload: JSON.parse((event as MessageEvent).data),
-                });
+                observer.next({ type: eventName, payload: JSON.parse(data) });
               } catch {
-                observer.next({
-                  type: eventName,
-                  payload: (event as MessageEvent).data,
-                });
+                observer.next({ type: eventName, payload: data });
               }
 
               if (eventName === 'connection-successful') {
@@ -114,17 +128,23 @@ export class ServerSentEventsService {
         });
 
         eventSource.onerror = (error) => {
-          this._zone.run(() => {
+          this.zone.run(() => {
             console.warn(`SSE error (${label})`, error);
-            eventSource?.close();
 
-            const token = this.authService.accessToken();
-            if (!token) {
+            closeEventSource();
+
+            const stillHasToken = !!this.authService.accessToken();
+            if (!stillHasToken) {
+              clearReconnectTimer();
               observer.error(new Error(`SSE Auth Error (${label}): logged out`));
               return;
             }
 
-            setTimeout(() => {
+            clearReconnectTimer();
+
+            reconnectTimer = setTimeout(() => {
+              reconnectTimer = null;
+
               retryCount++;
               retryDelay = Math.min(retryDelay * 2, 30000);
 
@@ -142,8 +162,19 @@ export class ServerSentEventsService {
 
       return () => {
         console.info(`SSE connection closed (${label})`);
-        eventSource?.close();
+        clearReconnectTimer();
+        closeEventSource();
       };
     });
+  }
+
+  private getOrCreateClientId(label: string): string {
+    const key = `dinno-sse-clientId-${label}`;
+    let v = sessionStorage.getItem(key);
+    if (!v) {
+      v = crypto.randomUUID();
+      sessionStorage.setItem(key, v);
+    }
+    return v;
   }
 }

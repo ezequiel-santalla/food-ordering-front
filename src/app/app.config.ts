@@ -6,6 +6,7 @@ import { registerLocaleData } from '@angular/common';
 
 import localeEs from '@angular/common/locales/es-AR';
 import { authInterceptor } from './auth/interceptors/auth.interceptor';
+import { httpResilienceInterceptor } from './shared/interceptors/http-resilience.interceptor';
 
 registerLocaleData(localeEs, 'es-AR');
 
@@ -21,7 +22,7 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled',
       })
     ),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, httpResilienceInterceptor])),
     {
       provide: LOCALE_ID,
       useValue: 'es-AR'
