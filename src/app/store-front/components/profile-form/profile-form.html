@@ -46,7 +46,7 @@
               <span class="label-text font-medium">Nombre <span class="text-error">*</span></span>
             </label>
             @if (isEditing) {
-            <input type="text" formControlName="name" placeholder="Juan" class="input input-bordered w-full"
+            <input type="text" formControlName="name" placeholder="Ej: Juan" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
               [class.input-error]="hasError('name')" />
             @if (hasError('name')) {
             <label class="label">
@@ -64,7 +64,7 @@
               <span class="label-text font-medium">Apellido <span class="text-error">*</span></span>
             </label>
             @if (isEditing) {
-            <input type="text" formControlName="lastName" placeholder="Pérez" class="input input-bordered w-full"
+            <input type="text" formControlName="lastName" placeholder="Ej: Pérez" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
               [class.input-error]="hasError('lastName')" />
             @if (hasError('lastName')) {
             <label class="label">
@@ -82,7 +82,7 @@
               <span class="label-text font-medium">Teléfono <span class="text-error">*</span></span>
             </label>
             @if (isEditing) {
-            <input type="tel" formControlName="phone" placeholder="+54 11 1234-5678" class="input input-bordered w-full"
+            <input type="tel" formControlName="phone" placeholder="Ej: +541112345678" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
               [class.input-error]="hasError('phone')" />
             @if (hasError('phone')) {
             <label class="label">
@@ -100,7 +100,7 @@
               <span class="label-text font-medium">Fecha de Nacimiento <span class="text-error">*</span></span>
             </label>
             @if (isEditing) {
-            <input type="date" formControlName="birthDate" class="input input-bordered w-full"
+            <input type="date" formControlName="birthDate" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
               [class.input-error]="hasError('birthDate')" />
             @if (hasError('birthDate')) {
             <label class="label">
@@ -127,7 +127,7 @@
               <span class="label-text font-medium">Calle <span class="text-error">*</span></span>
             </label>
             @if (isEditing) {
-            <input type="text" formControlName="street" placeholder="Av. Corrientes" class="input input-bordered w-full"
+            <input type="text" formControlName="street" placeholder="Ej: Av. Corrientes" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
               [class.input-error]="hasError('address.street')" />
             } @else {
             <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.street || '-'}}</p>
@@ -140,36 +140,10 @@
               <span class="label-text font-medium">Número <span class="text-error">*</span></span>
             </label>
             @if (isEditing) {
-            <input type="text" formControlName="number" placeholder="1234" class="input input-bordered w-full"
+            <input type="text" formControlName="number" placeholder="Ej: 1234" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
               [class.input-error]="hasError('address.number')" />
             } @else {
             <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.number || '-'}}</p>
-            }
-          </div>
-
-          <!-- Ciudad -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Ciudad <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
-            <input type="text" formControlName="city" placeholder="Buenos Aires" class="input input-bordered w-full"
-              [class.input-error]="hasError('address.city')" />
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.city || '-'}}</p>
-            }
-          </div>
-
-          <!-- Provincia -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Provincia <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
-            <input type="text" formControlName="province" placeholder="Buenos Aires" class="input input-bordered w-full"
-              [class.input-error]="hasError('address.province')" />
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.province || '-'}}</p>
             }
           </div>
 
@@ -179,10 +153,35 @@
               <span class="label-text font-medium">País <span class="text-error">*</span></span>
             </label>
             @if (isEditing) {
-            <input type="text" formControlName="country" placeholder="Argentina" class="input input-bordered w-full"
-              [class.input-error]="hasError('address.country')" />
+            <app-searchable-select formControlName="countryId" [options]="countries()" placeholder="Buscar país..." />
             } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.country || '-'}}</p>
+            <p class="py-3 px-4 bg-base-200 rounded-lg">{{ profile.address?.country || '-' }}</p>
+            }
+          </div>
+
+          <!-- Provincia -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Provincia <span class="text-error">*</span></span>
+            </label>
+            @if (isEditing) {
+            <app-searchable-select formControlName="provinceId" [options]="provinces()"
+              placeholder="Buscar provincia..." disabledPlaceholder="Seleccioná primero un país" />
+            } @else {
+            <p class="py-3 px-4 bg-base-200 rounded-lg">{{ profile.address?.province || '-' }}</p>
+            }
+          </div>
+
+          <!-- Ciudad -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Ciudad <span class="text-error">*</span></span>
+            </label>
+            @if (isEditing) {
+            <app-searchable-select formControlName="cityId" [options]="cities()" placeholder="Buscar ciudad..."
+              disabledPlaceholder="Seleccioná primero una provincia" />
+            } @else {
+            <p class="py-3 px-4 bg-base-200 rounded-lg">{{ profile.address?.city || '-' }}</p>
             }
           </div>
 
@@ -192,7 +191,7 @@
               <span class="label-text font-medium">Código Postal <span class="text-error">*</span></span>
             </label>
             @if (isEditing) {
-            <input type="text" formControlName="postalCode" placeholder="1234" class="input input-bordered w-full"
+            <input type="text" formControlName="postalCode" placeholder="1234" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
               [class.input-error]="hasError('address.postalCode')" />
             @if (hasError('address.postalCode')) {
             <label class="label">
@@ -228,10 +227,10 @@
 
     </div>
     }
-      <button type="button" (click)="deleteAccount()" class="btn btn-error w-full">
-        <lucide-icon [img]="UserRoundX" class="w-6 h-6"></lucide-icon>
-        Eliminar Cuenta
-      </button>
+    <button type="button" (click)="deleteAccount()" class="btn btn-error w-full">
+      <lucide-icon [img]="UserRoundX" class="w-6 h-6"></lucide-icon>
+      Eliminar Cuenta
+    </button>
 
   </form>
   }

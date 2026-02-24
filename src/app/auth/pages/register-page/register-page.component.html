@@ -180,7 +180,6 @@
                     <input type="text" placeholder="Ej: Evergreen Terrace" formControlName="street"
                       class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
                   </div>
-
                   <div class="form-control">
                     <label class="label">
                       <span class="label-text text-sm">Número</span>
@@ -190,31 +189,36 @@
                   </div>
                 </div>
 
-                <!-- Ciudad, Provincia, País -->
+                <!-- País, Provincia, Ciudad -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div class="form-control">
-                    <label class="label">
-                      <span class="label-text text-sm">Ciudad</span>
-                    </label>
-                    <input type="text" placeholder="Ej: Springfield" formControlName="city"
-                      class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
-                  </div>
 
-                  <div class="form-control">
-                    <label class="label">
-                      <span class="label-text text-sm">Provincia</span>
-                    </label>
-                    <input type="text" placeholder="Ej: Illinois" formControlName="province"
-                      class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
-                  </div>
-
+                  <!-- País -->
                   <div class="form-control">
                     <label class="label">
                       <span class="label-text text-sm">País</span>
                     </label>
-                    <input type="text" placeholder="Ej: USA" formControlName="country"
-                      class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
+                    <app-searchable-select formControlName="countryId" [options]="countries()"
+                      placeholder="Buscar país..." />
                   </div>
+
+                  <!-- Provincia -->
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text text-sm">Provincia</span>
+                    </label>
+                    <app-searchable-select formControlName="provinceId" [options]="provinces()"
+                      placeholder="Buscar provincia..." disabledPlaceholder="Seleccioná primero un país" />
+                  </div>
+
+                  <!-- Ciudad -->
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text text-sm">Ciudad</span>
+                    </label>
+                    <app-searchable-select formControlName="cityId" [options]="cities()" placeholder="Buscar ciudad..."
+                      disabledPlaceholder="Seleccioná primero una provincia" />
+                  </div>
+
                 </div>
 
                 <!-- Código Postal -->
@@ -222,7 +226,7 @@
                   <label class="label">
                     <span class="label-text text-sm">Código Postal</span>
                   </label>
-                  <input type="text" placeholder="Ej: 62704" formControlName="postalCode"
+                  <input type="text" placeholder="Ej: B7600" formControlName="postalCode"
                     class="input input-bordered input-accent w-full placeholder-gray-400 placeholder:italic" />
                 </div>
               </div>

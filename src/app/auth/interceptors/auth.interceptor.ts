@@ -160,6 +160,9 @@ function isPublicRoute(url: string): boolean {
     '/auth/forgot-password',
     '/auth/reset-password',
     '/public/',
+    '/countries',
+    '/provinces',
+    '/cities',
   ];
 
   return publicRoutes.some((route) => url.includes(route));
