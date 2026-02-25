@@ -24,6 +24,7 @@
         <app-order-card
           [order]="order"
           (selected)="onOrderSelected($event)"
+          (cancel)="onCancelOrder($event)"
         ></app-order-card>
       }
     </div>

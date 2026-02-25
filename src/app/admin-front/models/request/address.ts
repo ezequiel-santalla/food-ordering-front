@@ -3,6 +3,9 @@ export default interface Address {
   number: string;
   city: string;
   province: string;
-  postalCode: string;
   country: string;
+  postalCode: string;
+  cityId: number;
+  provinceId: number;
+  countryId: number;
 }

@@ -37,7 +37,7 @@ export interface UserDetail {
   publicId: string;
   name: string;
   lastName: string;
-  address: Address;
+  address?: Address;
   email: string;
   birthDate: string;
   phone: string;

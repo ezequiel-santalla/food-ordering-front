@@ -5,11 +5,10 @@ import {
   computed,
   effect,
   WritableSignal,
-  DestroyRef,
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { EMPTY, Observable, Subscription } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { OrderRequest, OrderResponse } from '../models/order.interface';
 import { PaginatedResponse } from '../../shared/components/pagination/pagination.interface';
 import { environment } from '../../../environments/environment';
@@ -19,13 +18,11 @@ import { ServerSentEventsService } from '../../shared/services/server-sent-event
 import { SweetAlertService } from '../../shared/services/sweet-alert.service';
 import { PaymentResponseDto } from '../models/payment.interface';
 import { PaymentsStore } from './payment-store';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private http = inject(HttpClient);
   private sse = inject(ServerSentEventsService);
-  private destroyRef = inject(DestroyRef);
   private tableSession = inject(TableSessionService);
   private sweet = inject(SweetAlertService);
   private paymentsStore = inject(PaymentsStore);
@@ -35,18 +32,36 @@ export class OrderService {
   private _isLoading: WritableSignal<boolean> = signal(true);
   private _error: WritableSignal<string | null> = signal(null);
 
+  private readonly DEFAULT_PAGE = 0;
+  private readonly PAGE_SIZE = 50;
+  private readonly DEFAULT_SORT = 'creationDate,desc';
+
   myOrders = computed(() => this._myOrders());
   tableOrders = computed(() => this._tableOrders());
   isLoading = computed(() => this._isLoading());
   error = computed(() => this._error());
+  myOrdersView = computed(() => [...this.myOrders()].sort(this.sortOrdersForHistory));
+  tableOrdersView = computed(() => [...this.tableOrders()].sort(this.sortOrdersForHistory));
 
   private sseSub?: Subscription;
 
   constructor() {
     effect((cleanup) => {
-      const sessionId = this.tableSession.tableSessionInfo().sessionId;
+      const sessionId = this.tableSession.sessionId();
 
-      if (sessionId) {
+      if (!sessionId) {
+        this._myOrders.set([]);
+        this._tableOrders.set([]);
+        this._isLoading.set(false);
+        this._error.set(null);
+        this.sseSub?.unsubscribe();
+        this.sseSub = undefined;
+        return;
+      }
+
+      const firstTime = !this.sseSub;
+
+      if (firstTime) {
         this.loadInitialOrders();
         this.subscribeToEvents();
       }
@@ -55,16 +70,29 @@ export class OrderService {
         this._myOrders.set([]);
         this._tableOrders.set([]);
         this._isLoading.set(true);
+        this._error.set(null);
         this.sseSub?.unsubscribe();
+        this.sseSub = undefined;
       });
     });
   }
 
   createOrder(order: OrderRequest): Observable<OrderResponse> {
-    return this.http.post<OrderResponse>(
-      `${environment.baseUrl}/orders`,
-      order
-    );
+    return this.http
+      .post<OrderResponse>(`${environment.baseUrl}/orders`, order)
+      .pipe(
+        tap((created) => {
+          this.onNewOrder(created);
+        }),
+      );
+  }
+
+  private buildPageParams(page = this.DEFAULT_PAGE, size = this.PAGE_SIZE) {
+    return {
+      page: String(page),
+      size: String(size),
+      sort: this.DEFAULT_SORT,
+    };
   }
 
   private loadInitialOrders(): void {
@@ -73,18 +101,19 @@ export class OrderService {
 
     this.http
       .get<PaginatedResponse<OrderResponse>>(
-        `${environment.baseUrl}/participants/table-sessions/orders`
+        `${environment.baseUrl}/participants/table-sessions/orders`,
+        { params: this.buildPageParams(0, 50) },
       )
       .pipe(
         catchError(() => {
           this._error.set('No se pudieron cargar los pedidos.');
           this._isLoading.set(false);
           return EMPTY;
-        })
+        }),
       )
       .subscribe((resp) => {
         const orders = (resp.content ?? []).sort(this.sortOrders);
-        const myId = this.tableSession.tableSessionInfo().participantId;
+        const myId = this.tableSession.myParticipantId();
 
         this._tableOrders.set(orders);
         this._myOrders.set(orders.filter((o) => o.participantId === myId));
@@ -95,13 +124,14 @@ export class OrderService {
   reloadMyOrders(): void {
     this.http
       .get<PaginatedResponse<OrderResponse>>(
-        `${environment.baseUrl}/participants/orders`
+        `${environment.baseUrl}/participants/orders`,
+        { params: this.buildPageParams(0, 50) },
       )
       .pipe(
         catchError(() => {
           this._error.set('No se pudieron cargar mis pedidos.');
           return EMPTY;
-        })
+        }),
       )
       .subscribe((resp) => {
         const orders = (resp.content ?? []).sort(this.sortOrders);
@@ -109,28 +139,36 @@ export class OrderService {
       });
   }
 
+  cancelOrder(orderId: string) {
+    console.log('cancelando orden: ', orderId);
+    return this.http.patch(
+      `${environment.baseUrl}/orders/${orderId}/cancel`,
+      {}
+    );
+  }
+  
   private subscribeToEvents(): void {
-    this.sse
+    this.sseSub?.unsubscribe();
+    this.sseSub = this.sse
       .subscribeToSession()
-      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ type, payload }) => {
         if (type === 'new-order') this.onNewOrder(payload);
         if (type === 'order-update-status') this.onOrderStatusUpdate(payload);
         if (type === 'payment-updated') {
           this.onPaymentUpdated(payload);
-          const myId = this.tableSession.tableSessionInfo().participantId;
+          const myId = this.tableSession.myParticipantId();
           this.paymentsStore.onPaymentUpdatedFromSse(payload, myId);
         }
       });
   }
 
   private onNewOrder(order: OrderResponse) {
-    this._tableOrders.update((list) => [order, ...list].sort(this.sortOrders));
+    this._tableOrders.update((list) => this.upsertOrder(list, order).sort(this.sortOrders));
 
-    const myId = this.tableSession.tableSessionInfo().participantId;
+    const myId = this.tableSession.myParticipantId();
 
     if (order.participantId === myId) {
-      this._myOrders.update((list) => [order, ...list].sort(this.sortOrders));
+      this._myOrders.update((list) => this.upsertOrder(list, order).sort(this.sortOrders));
     } else {
       this.sweet.showInfo(
         'Pedido agregado',
@@ -146,7 +184,7 @@ export class OrderService {
         .sort(this.sortOrders)
     );
 
-    const myId = this.tableSession.tableSessionInfo().participantId;
+    const myId = this.tableSession.myParticipantId();
 
     if (order.participantId === myId) {
       this._myOrders.update((list) =>
@@ -183,6 +221,34 @@ export class OrderService {
     );
   }
 
+  private upsertOrder(
+    list: OrderResponse[],
+    incoming: OrderResponse,
+  ): OrderResponse[] {
+    const idx = list.findIndex((o) => o.publicId === incoming.publicId);
+    if (idx === -1) return [incoming, ...list];
+
+    const merged = { ...list[idx], ...incoming };
+    const next = list.slice();
+    next[idx] = merged;
+
+    return next;
+  }
+
   private sortOrders = (a: OrderResponse, b: OrderResponse) =>
     Number(b.orderNumber) - Number(a.orderNumber);
+
+  private isCancelled(o: any) {
+    return o.status === 'CANCELLED';
+  }
+
+  private sortOrdersForHistory = (a: any, b: any) => {
+    const ac = this.isCancelled(a) ? 1 : 0;
+    const bc = this.isCancelled(b) ? 1 : 0;
+    if (ac !== bc) return ac - bc;
+
+    const ad = new Date(a.orderDate ?? a.createdAt ?? 0).getTime();
+    const bd = new Date(b.orderDate ?? b.createdAt ?? 0).getTime();
+    return bd - ad;
+  };
 }

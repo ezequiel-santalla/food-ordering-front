@@ -9,11 +9,32 @@ export interface ErrorMessage {
 export class ErrorHandlerService {
 
   getAuthError(error: any): ErrorMessage {
+    const appCode = error?.error?.appCode;
+    const msg = error?.error?.message;
+    switch (appCode) {
+      case 'EMAIL_ALREADY_USED':
+        return {
+          title: 'Email ya registrado',
+          message: msg || 'Este email ya tiene una cuenta.',
+        };
+
+      case 'VALIDATION_ERROR':
+        return {
+          title: 'Datos inválidos',
+          message: msg || 'Revisá los campos ingresados.',
+        };
+
+      case 'INVALID_JSON':
+        return {
+          title: 'Datos inválidos',
+          message: msg || 'Formato de datos incorrecto.',
+        };
+    }
     switch (error.status) {
       case 400:
         return {
-          title: 'Email ya registrado',
-          message: 'Este email ya tiene una cuenta. Intenta iniciar sesión.'
+          title: 'Datos inválidos',
+          message: msg || 'Revisá los datos ingresados.',
         };
       case 401:
         return {
@@ -29,6 +50,11 @@ export class ErrorHandlerService {
         return {
           title: 'Usuario no encontrado',
           message: 'Email o contaseña incorrectos.'
+        };
+      case 409:
+        return {
+          title: 'Email ya registrado',
+          message: msg || 'Este email ya tiene una cuenta.',
         };
       case 0:
         return {

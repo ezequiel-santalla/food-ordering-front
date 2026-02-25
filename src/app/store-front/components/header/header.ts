@@ -98,9 +98,22 @@ export class Header {
         console.log('✅ Acción de mesa completada. Procediendo al logout...');
         this.executeLogout(false);
       },
-      error: (err) => {
-        console.error('⚠️ Error en acción de mesa, forzando logout...', err);
-        this.executeLogout(false);
+      error: async (err: any) => {
+        this.sweetAlert.close();
+
+        if (err?.status === 409) {
+          const res = await this.sweetAlert.showChoice(
+            'No podés salir',
+            'Tenés pedidos pendientes de pago. Pagalos antes de cerrar sesión.',
+            'Pagar ahora',
+            'Cancelar',
+          );
+          if (res.isConfirmed) {
+            this.navigation.navigateToPayments();
+          }
+          return;
+        }
+        this.sweetAlert.showError('Error', 'No se pudo completar la acción.');
       },
     });
   }
@@ -169,6 +182,11 @@ export class Header {
   private performTableAction(observableAction: any, successMessage: string) {
     this.sweetAlert.showLoading('Procesando...');
     observableAction.subscribe({
+      next: () => {
+        this.sweetAlert.close();
+        this.sweetAlert.showSuccess(successMessage, '', 1500);
+        this.navigation.navigateToHome();
+      },
       error: async (err: any) => {
         this.sweetAlert.close();
 
