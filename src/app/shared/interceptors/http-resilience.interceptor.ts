@@ -80,12 +80,15 @@ export const httpResilienceInterceptor: HttpInterceptorFn = (req, next) => {
         });
       }
 
+      const appCode = err.error?.appCode;
+
       return new DinnoHttpError({
         kind: 'http',
         title: 'Ocurrió un error',
         message: err.error?.message ?? `Error ${status}.`,
         retryable: false,
         status,
+        appCode,
         cause: err,
       });
     }

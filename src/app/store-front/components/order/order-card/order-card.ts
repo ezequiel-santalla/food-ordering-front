@@ -53,7 +53,7 @@ export class OrderCardComponent {
   readonly HandPlatter = HandPlatter;
   readonly BanknoteArrowUp = BanknoteArrowUp;
 
-  private readonly CANCELABLE_STATUSES = new Set(['PENDING', 'ACCEPTED']);
+  private readonly CANCELABLE_STATUSES = new Set(['PENDING', 'APPROVED']);
 
   isExpanded = signal(false);
   isSelected = signal(false);

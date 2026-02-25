@@ -11,6 +11,7 @@ export class DinnoHttpError extends Error {
   title: string;
   retryable: boolean;
   status?: number;
+  appCode?: string;
 
   constructor(args: {
     kind: DinnoHttpErrorKind;
@@ -18,6 +19,7 @@ export class DinnoHttpError extends Error {
     message: string;
     retryable: boolean;
     status?: number;
+    appCode?: string;
     cause?: unknown;
   }) {
     super(args.message);
@@ -26,6 +28,7 @@ export class DinnoHttpError extends Error {
     this.title = args.title;
     this.retryable = args.retryable;
     this.status = args.status;
+    this.appCode = args.appCode;
 
     (this as any).cause = args.cause;
   }
