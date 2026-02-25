@@ -28,6 +28,7 @@ import {
   PaymentStatus,
 } from '../../../models/payment.interface';
 import { PaymentsStore } from '../../../services/payment-store';
+import { OrderResponse } from '../../../models/order.interface';
 
 @Component({
   selector: 'app-pending-payments-panel',
@@ -45,6 +46,7 @@ export class PendingPaymentsPanelComponent implements OnInit {
   private paymentService = inject(PaymentService);
   private sweet = inject(SweetAlertService);
   paymentsStore = inject(PaymentsStore);
+  
 
   ngOnInit() {
     this.paymentsStore.loadInitialPayments();
@@ -85,46 +87,53 @@ export class PendingPaymentsPanelComponent implements OnInit {
   myOrders = this.orderService.myOrders;
   tableOrders = this.orderService.tableOrders;
 
+  mineBanner = computed(() => this.statusBannerFor(this.myOrders()));
+  tableBanner = computed(() => this.statusBannerFor(this.tableOrders()));
+  cancelledMine = computed(() => this.myOrders().filter(o => this.isOrderCancelled(o)));
+  cancelledTable = computed(() => this.tableOrders().filter(o => this.isOrderCancelled(o)));
+  
   unpaidMine = computed(() =>
-    this.myOrders().filter(
-      (o) => !o.payment || o.payment.status === 'CANCELLED'
+    this.myOrders().filter(o =>
+      !this.isOrderCancelled(o) &&
+      (this.isPaymentMissing(o) || this.isPaymentCancelled(o))
     )
   );
 
   paidMine = computed(() =>
-    this.myOrders().filter((o) => o.payment && o.payment.status !== 'CANCELLED')
+    this.myOrders().filter(
+      (o) => !!o.payment && !this.isPaymentCancelled(o)
+    )
   );
 
   unpaidTable = computed(() =>
-    this.tableOrders().filter(
-      (o) => !o.payment || o.payment.status === 'CANCELLED'
+    this.tableOrders().filter(o =>
+      !this.isOrderCancelled(o) &&
+      (this.isPaymentMissing(o) || this.isPaymentCancelled(o))
     )
   );
 
   paidTable = computed(() =>
     this.tableOrders().filter(
-      (o) => o.payment && o.payment.status !== 'CANCELLED'
+      (o) => !!o.payment && !this.isPaymentCancelled(o)
     )
   );
 
   selectedOrders = signal<string[]>([]);
 
-toggleSelection(event: { orderId: string; selected: boolean }) {
-  this.selectedOrders.update((ids) =>
-    event.selected
-      ? [...ids, event.orderId]
-      : ids.filter((id) => id !== event.orderId)
-  );
-}
-
+  toggleSelection(event: { orderId: string; selected: boolean }) {
+    this.selectedOrders.update((ids) =>
+     event.selected
+        ? [...ids, event.orderId]
+        : ids.filter((id) => id !== event.orderId)
+    );
+  }
 
   total = computed(() => {
-  return this.selectedOrders().reduce((sum, id) => {
-    const order = this.orderService.tableOrders().find(o => o.publicId === id);
-    return order ? sum + order.totalPrice : sum;
-  }, 0);
-});
-
+    return this.selectedOrders().reduce((sum, id) => {
+      const order = this.orderService.tableOrders().find(o => o.publicId === id);
+      return order ? sum + order.totalPrice : sum;
+    }, 0);
+  }); 
 
   selectedOrdersView = computed<PaymentOrderView[]>(() =>
   this.selectedOrders()
@@ -143,8 +152,7 @@ toggleSelection(event: { orderId: string; selected: boolean }) {
         : null;
     })
     .filter((o) => o !== null) as PaymentOrderView[]
-);
-
+  );
 
   pay() {
     if (this.selectedOrders().length === 0 || this.isProcessingPayment())
@@ -191,6 +199,38 @@ toggleSelection(event: { orderId: string; selected: boolean }) {
     this.isProcessingPayment.set(true);
     const ids = this.selectedOrders();
     this.payWithMercadoPago(ids);
+  }
+
+  statusBannerFor(
+    list: OrderResponse[],
+  ): 'NONE' | 'ALL_PAID' | 'WAITING_CONFIRMATION' {
+    const relevant = list.filter((o) => !this.isOrderCancelled(o));
+
+    const hasPayable = relevant.some(
+      (o) => this.isPaymentMissing(o) || this.isPaymentCancelled(o),
+    );
+    if (hasPayable) return 'NONE';
+
+    const anyPending = relevant.some((o) => this.isPaymentPending(o));
+    if (anyPending) return 'WAITING_CONFIRMATION';
+
+    return 'ALL_PAID';
+  }
+
+  selectAllVisible(unpaidList: OrderResponse[]): void {
+    const ids = unpaidList.map((o) => o.publicId);
+    this.selectedOrders.set(ids);
+  }
+
+  clearSelection(): void {
+    this.selectedOrders.set([]);
+  }
+
+  toggleSelectAll(unpaidList: OrderResponse[]): void {
+    const ids = unpaidList.map((o) => o.publicId);
+    const curr = this.selectedOrders();
+    const allSelected = ids.length > 0 && ids.every((id) => curr.includes(id));
+    this.selectedOrders.set(allSelected ? [] : ids);
   }
 
   private requestInPersonPayment(ids: string[], method: PaymentMethod) {
@@ -261,5 +301,30 @@ toggleSelection(event: { orderId: string; selected: boolean }) {
       'Error al procesar pago',
       err?.error?.message || 'Intenta nuevamente.'
     );
+  }
+  
+  private isPaymentMissing(order: OrderResponse): boolean {
+    return !order.payment;
+  }
+
+  private isPaymentCancelled(order: OrderResponse): boolean {
+    const st = order.payment?.status;
+    return st === 'CANCELLED';
+  }
+
+  private isPaymentPending(order: OrderResponse): boolean {
+    return order.payment?.status === 'PENDING';
+  }
+
+  private isPaymentConfirmed(order: OrderResponse): boolean {
+    return order.payment?.status === 'COMPLETED';
+  }
+
+  private isOrderCompleted(order: OrderResponse): boolean {
+    return order.status === 'COMPLETED';
+  }
+
+  private isOrderCancelled(o: OrderResponse) {
+    return o.status === 'CANCELLED';
   }
 }
