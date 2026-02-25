@@ -39,6 +39,17 @@
         {{ paymentUi()!.label }}
       </span>
     }
+    @if (showCountdown()) {
+    <span class="text-[11px] font-semibold text-warning">
+      @if (remainingSeconds() === 0) {
+        Expirando…
+      } @else if (remainingSeconds() !== null && remainingSeconds()! <= 5) {
+        Quedan <span class="font-bold">{{ remainingLabel() }}</span>
+      } @else {
+        {{ remainingLabel() }}
+    }
+    </span>
+    }
 
     <span class="font-bold text-lg text-base-content leading-none">
       ${{ order.totalPrice | number:'1.2-2' }}

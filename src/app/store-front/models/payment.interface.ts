@@ -10,6 +10,7 @@ export enum PaymentMethod {
 
 export enum PaymentStatus {
 
+    INITIATED = 'INITIATED',
     PENDING = 'PENDING',
     COMPLETED = 'COMPLETED',
     CANCELLED = 'CANCELLED',
@@ -27,6 +28,7 @@ export interface PaymentResponseDto {
   amount: number;
   paymentMethod: PaymentMethod;
   status: PaymentStatus;
+  expiresAt?: string | null;
   idempotencyKey: string;
   orderNumbers: number[];
   participant: Participant;
