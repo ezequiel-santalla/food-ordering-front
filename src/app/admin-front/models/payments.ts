@@ -1,5 +1,5 @@
 
-export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED';
+export type PaymentStatus = 'INITIATED' | 'PENDING' | 'COMPLETED' | 'CANCELLED';
 export type PaymentMethod = 'EFECTIVO' | 'TARJETA_DEBITO' | 'TARJETA_CREDITO' | 'TRANSFERENCIA';
 
 export interface PaymentResponse {

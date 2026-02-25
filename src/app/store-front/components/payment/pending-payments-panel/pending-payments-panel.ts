@@ -275,15 +275,27 @@ export class PendingPaymentsPanelComponent implements OnInit {
           .subscribe({
             next: (pref) => {
               this.payModalCmp?.close();
-              this.sweet.showInfo(
-                'Redirigiendo a MercadoPago…',
-                'Un momento por favor'
+              this.sweet.showLoading(
+                'Abriendo Mercado Pago…',
+                'Tenés 5 minutos para realizar el pago.',
               );
-
-              setTimeout(() => {
-                window.location.href = pref.checkoutUrl;
+              window.location.href = pref.checkoutUrl;
+              setTimeout(async () => {
+                if (document.visibilityState === 'visible') {
+                  const res = await this.sweet.showChoice(
+                    '¿No se abrió Mercado Pago?',
+                    'Tocá para reintentar la redirección. Recordá que tenés 5 minutos para pagar.',
+                    'Abrir Mercado Pago',
+                    'Cerrar',
+                  );
+                  if (res.isConfirmed) {
+                    window.location.href = pref.checkoutUrl;
+                  } else {
+                    this.sweet.close();
+                  }
+                }
+              }, 2000);
                 this.isProcessingPayment.set(false);
-              }, 500);
             },
             error: (err) => this.finishError(err),
           });

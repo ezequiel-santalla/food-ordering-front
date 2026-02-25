@@ -53,6 +53,19 @@
     @if (expanded() === p.publicId) {
     <div class="px-4 pb-4 pt-1 space-y-3 text-sm">
 
+      @if (p.status === 'INITIATED' && p.expiresAt) {
+      <div class="text-xs text-amber-600 font-medium flex items-center gap-1">
+        <lucide-icon [img]="Clock" class="w-4 h-4"></lucide-icon>
+        {{ remainingLabel(p) }}
+      </div>
+      }
+      @if (p.status === 'INITIATED' && remainingSeconds(p) === 0) {
+      <div class="text-xs text-gray-500 font-medium flex items-center gap-1">
+        <lucide-icon [img]="Clock" class="w-4 h-4"></lucide-icon>
+        Expirando…
+      </div>
+      }
+
       <div class="text-gray-600">
         Método de pago:
         <span class="font-medium">{{ paymentMethodLabel(p.paymentMethod) }}</span>
@@ -69,7 +82,7 @@
         </div>
 
         <!-- Tacho abajo a la derecha -->
-        @if (p.status === 'PENDING') {
+        @if (p.status === 'PENDING' || p.status === 'INITIATED') {
         <lucide-icon [img]="Trash2"
           class="w-5 h-5 text-red-500 hover:text-red-700 active:scale-90 transition cursor-pointer"
           (click)="onCancelPayment(p.publicId); $event.stopPropagation()"></lucide-icon>
