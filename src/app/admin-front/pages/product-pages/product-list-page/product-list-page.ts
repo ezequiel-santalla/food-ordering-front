@@ -4,7 +4,7 @@ import { ProductService } from '../../../services/product-service';
 import { CommonModule } from '@angular/common';
 import { PaginationComponent } from "../../../../shared/components/pagination/pagination.component";
 import { PaginationService } from '../../../../shared/components/pagination/pagination.service';
-import { ProductResponse } from '../../../models/response/product-response';
+import { Content, ProductResponse } from '../../../models/response/product-response';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
@@ -15,6 +15,19 @@ import { SweetAlertService } from '../../../../shared/services/sweet-alert.servi
 export class ProductListPage {
   openMenuIndex: number | null = null;
   totalPages = 1;
+
+  searchTerm: string = '';
+  private allContents: Content[] = [];
+
+  get filteredContents(): Content[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) return this.productService.contents;
+    return this.allContents.filter(p =>
+      p.name.toLowerCase().includes(term) ||
+      (p.description?.toLowerCase().includes(term))
+    );
+  }
+
 
   constructor(
     public productService: ProductService,
@@ -31,6 +44,7 @@ export class ProductListPage {
 
   ngOnInit(): void {
     this.getProducts();
+    this.loadAllForSearch();
   }
 
   getProducts(page: number = 1): void {
@@ -42,6 +56,22 @@ export class ProductListPage {
       error: (e) => console.error(e),
     });
   }
+
+
+private loadAllForSearch(): void {
+    this.productService.getAllProducts().subscribe({
+      next: (data: ProductResponse) => {
+        this.allContents = data.content;
+        console.log('allContents cargados:', this.allContents.length);
+      },
+      error: (e) => console.error('Error loadAllForSearch:', e)
+    });
+  }
+
+  onSearch(event: Event): void {
+    this.searchTerm = (event.target as HTMLInputElement).value;
+  }
+
 
   toggleMenu(index: number, event?: Event): void {
     if (event) {
@@ -70,6 +100,7 @@ export class ProductListPage {
       next: () => {
         this.sweetAlertService.showSuccess("Producto eliminado correctamente")
         this.getProducts();
+        this.loadAllForSearch();
       },
       error: (e) => {
         console.log(e);
