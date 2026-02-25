@@ -78,71 +78,71 @@ export class ErrorHandlerService {
   /**
    * Obtiene mensaje de error para escaneo de QR
    */
- getQrScanError(error: any): ErrorMessage {
-  const backendError = error?.error;
+  getQrScanError(error: any): ErrorMessage {
+    const backendError = error?.appCode;
 
-  // 1. Primero casos basados en appCode (prioridad absoluta)
-  if (backendError?.appCode) {
-    switch (backendError.appCode) {
-      case 'COMPLETE':
+    console.log('app code: ', backendError);
+    if (backendError) {
+      switch (backendError) {
+        case 'COMPLETE':
+          return {
+            title: 'Mesa Llena',
+            message: 'La mesa escaneada no admite más participantes.',
+          };
+        case 'WAITING_RESET':
+          return {
+            title: 'Mesa en Espera',
+            message:
+              'Avisale al camarero que estás acá para que habilite la mesa.',
+          };
+        case 'OUT_OF_SERVICE':
+          return {
+            title: 'Mesa fuera de servicio',
+            message: 'Esta mesa no está habilitada para iniciar sesión.',
+          };
+        default:
+          return {
+            title: 'No disponible',
+            message:
+              backendError.message ?? 'Ocurrió un error al iniciar sesión.',
+          };
+      }
+    }
+
+    switch (error.status) {
+      case 400:
         return {
-          title: 'Mesa Llena',
-          message: 'La mesa escaneada no admite más participantes.',
+          title: 'QR inválido',
+          message: 'El código QR no es válido o ya tienes una sesión activa.',
         };
-      case 'WAITING_RESET':
+      case 404:
         return {
-          title: 'Mesa en Espera',
-          message: 'Avisale al camarero que estás acá para que habilite la mesa.',
+          title: 'Mesa no encontrada',
+          message: 'No existe una mesa con ese código.',
         };
-      case 'OUT_OF_SERVICE':
+      case 409:
         return {
-          title: 'Mesa fuera de servicio',
-          message: 'Esta mesa no está habilitada para iniciar sesión.',
+          title: 'Conflicto de sesión',
+          message: 'Ya tienes una sesión activa en otra mesa.',
+        };
+      case 0:
+        return {
+          title: 'Sin conexión',
+          message: 'No se puede conectar al servidor. Verifica tu conexión.',
         };
       default:
+        if (error.status >= 500) {
+          return {
+            title: 'Error del servidor',
+            message: 'Error interno del servidor. Intenta más tarde.',
+          };
+        }
         return {
-          title: 'No disponible',
-          message: backendError.message ?? 'Ocurrió un error al iniciar sesión.',
+          title: 'Error al conectar',
+          message: 'No se pudo conectar con la mesa. Intenta nuevamente.',
         };
     }
   }
-
-  // 2. Luego errores estándar HTTP...
-  switch (error.status) {
-    case 400:
-      return {
-        title: 'QR inválido',
-        message: 'El código QR no es válido o ya tienes una sesión activa.',
-      };
-    case 404:
-      return {
-        title: 'Mesa no encontrada',
-        message: 'No existe una mesa con ese código.',
-      };
-    case 409:
-      return {
-        title: 'Conflicto de sesión',
-        message: 'Ya tienes una sesión activa en otra mesa.',
-      };
-    case 0:
-      return {
-        title: 'Sin conexión',
-        message: 'No se puede conectar al servidor. Verifica tu conexión.',
-      };
-    default:
-      if (error.status >= 500) {
-        return {
-          title: 'Error del servidor',
-          message: 'Error interno del servidor. Intenta más tarde.',
-        };
-      }
-      return {
-        title: 'Error al conectar',
-        message: 'No se pudo conectar con la mesa. Intenta nuevamente.',
-      };
-  }
-}
-
 
   /**
    * Método genérico para cualquier error HTTP
