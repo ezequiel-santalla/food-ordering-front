@@ -24,7 +24,6 @@ import { Participant } from '../../shared/models/common';
 import { SweetAlertService } from '../../shared/services/sweet-alert.service';
 import { FoodVenueService } from '../../food-venues/services/food-venue.service';
 import { MenuService } from './menu-service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 export class TableSessionService {
@@ -49,7 +48,6 @@ export class TableSessionService {
   private _hostParticipantId = signal<string | null>(null);
 
   private sseSubscription: Subscription | undefined;
-  private destroyRef = inject(DestroyRef);
   
   tableSessionInfo = computed<TableSessionInfo>(() => ({
     tableNumber: this._tableNumber(),
@@ -67,6 +65,9 @@ export class TableSessionService {
     const sessionId = this.authService.tableSessionId();
     return SessionUtils.isValidSession(sessionId);
   });
+
+  sessionId = computed(() => this.authService.tableSessionId());
+  myParticipantId = computed(() => this.authState.participantId() || '');
 
   isLoading = computed(() => this._isLoading());
 
@@ -114,169 +115,170 @@ export class TableSessionService {
     });
 
     effect((onCleanup) => {
-      const tableSessionId = this.authService.tableSessionId();
+      const tableSessionId = this.sessionId();
+      const hasSession = SessionUtils.isValidSession(tableSessionId);
 
-      if (this.hasActiveSession() && tableSessionId) {
-        console.log(`🔌 Conectando a SSE para mesa:`);
+      if (!hasSession || !tableSessionId) {
+        if (this.sseSubscription) {
+          console.log(
+            `🔌 SSE: cerrando por no-session (prev=${tableSessionId})`,
+          );
+          this.sseSubscription.unsubscribe();
+          this.sseSubscription = undefined;
+        }
+        return;
+      }
+      if (this.sseSubscription) return;
 
-        this.sseSubscription = this.sseService.subscribeToSession()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (event) => {
-            console.log('Evento SSE recibido en TableSessionService:', event);
+      console.log(`🔌 Conectando a SSE para mesa:`);
 
-            if (event.type === 'count-updated') {
-              const newCount = event.payload.count;
-              if (typeof newCount === 'number') {
-                console.log(
-                  `[SSE count-updated] Recibido conteo: ${newCount}. Actualizando signal...`
-                );
-                this._participantCount.set(newCount);
-              }
-            }
+      this.sseSubscription = this.sseService.subscribeToSession().subscribe({
+        next: (event) => {
+          console.log('Evento SSE recibido en TableSessionService:', event);
 
-            if (event.type === 'user-joined') {
-              const newParticipant: Participant = event.payload.participant;
-              console.log('[SSE user-joined] ', newParticipant.nickname);
-
-              this._previousParticipants.update((prev) =>
-                prev.filter((x) => x.publicId !== newParticipant.publicId),
+          if (event.type === 'count-updated') {
+            const newCount = event.payload.count;
+            if (typeof newCount === 'number') {
+              console.log(
+                `[SSE count-updated] Recibido conteo: ${newCount}. Actualizando signal...`,
               );
-              this._activeParticipants.update((list) => [
-                ...list,
-                newParticipant,
-              ]);
-
-              this.sweetAlertService.showInfo(
-                'Nuevo Participante',
-                newParticipant.nickname + ' se unió a la mesa'
-              );
+              this._participantCount.set(newCount);
             }
+          }
 
-            if (
-              event.type === 'user-left' ||
-              event.type === 'participant-left'
-            ) {
-              const leavingParticipant = event.payload.participant;
+          if (event.type === 'user-joined') {
+            const newParticipant: Participant = event.payload.participant;
+            console.log('[SSE user-joined] ', newParticipant.nickname);
 
-              if (leavingParticipant) {
-                console.log(
-                  '👋 Usuario abandonó:',
-                  leavingParticipant.nickname
-                );
+            this._previousParticipants.update((prev) =>
+              prev.filter((x) => x.publicId !== newParticipant.publicId),
+            );
+            this._activeParticipants.update((list) => [
+              ...list,
+              newParticipant,
+            ]);
 
-                this._activeParticipants.update((active) =>
-                  active.filter(
-                    (p) => p.publicId !== leavingParticipant.publicId
-                  )
-                );
+            this.sweetAlertService.showInfo(
+              'Nuevo Participante',
+              newParticipant.nickname + ' se unió a la mesa',
+            );
+          }
 
-                const participantWithTime = {
-                  ...leavingParticipant,
-                  leftAt: new Date().toISOString(),
-                };
+          if (event.type === 'user-left' || event.type === 'participant-left') {
+            const leavingParticipant = event.payload.participant;
 
-                this._previousParticipants.update((prev) => {
-                  const filtered = prev.filter(
-                    (x) => x.publicId !== participantWithTime.publicId,
-                  );
-                  return [...filtered, participantWithTime];
-                });
+            if (leavingParticipant) {
+              console.log('👋 Usuario abandonó:', leavingParticipant.nickname);
 
-                if (
-                  leavingParticipant.publicId !== this.authState.participantId()
-                ) {
-                  this.sweetAlertService.showInfo(
-                    'Alguien saló',
-                    leavingParticipant.nickname + ' abandonó la mesa'
-                  );
-                }
-              }
-            }
-
-            if (event.type === 'host-delegated') {
-              const newHost = event.payload.host;
-
-              console.log('SSE: Nuevo host recibido:', newHost.nickname);
-
-              this._hostParticipantId.set(newHost.publicId);
-
-              this._activeParticipants.update((participants) =>
-                participants.map((p) => ({
-                  ...p,
-                  ...(p.publicId === newHost.publicId ? newHost : p),
-                }))
-              );
-              if (newHost.publicId === this.authState.participantId()) {
-                this.sweetAlertService.showInfo(
-                  'Fuiste designado como Host',
-                  'Sos el nuevo anfitrión de la mesa'
-                );
-              } else {
-                this.sweetAlertService.showToast(
-                  'top-end',
-                  'info',
-                  `El nuevo anfitrión es ${newHost.nickname}`
-                );
-              }
-            }
-
-            if (event.type === 'migrated-guest-session') {
-              const payload = event.payload ?? {};
-              const updatedParticipant = payload.participant;
-              const deletedIds: string[] = payload.deletedParticipantIds ?? [];
-
-              console.log('payload completo:', payload);
-              console.log('updatedParticipant:', updatedParticipant);
-              console.log('deletedIds:', deletedIds);
-
-              this._previousParticipants.update((prev) =>
-                prev.filter(
-                  (p) =>
-                    p.publicId !== updatedParticipant.publicId &&
-                    !deletedIds.includes(p.publicId)
-                )
+              this._activeParticipants.update((active) =>
+                active.filter(
+                  (p) => p.publicId !== leavingParticipant.publicId,
+                ),
               );
 
-              this._activeParticipants.update((active) => {
-                let next = active.filter(
-                  (p) => !deletedIds.includes(p.publicId)
-                );
+              const participantWithTime = {
+                ...leavingParticipant,
+                leftAt: new Date().toISOString(),
+              };
 
-                const idx = next.findIndex(
-                  (p) => p.publicId === updatedParticipant.publicId
+              this._previousParticipants.update((prev) => {
+                const filtered = prev.filter(
+                  (x) => x.publicId !== participantWithTime.publicId,
                 );
-                if (idx >= 0) {
-                  next = next.map((p) =>
-                    p.publicId === updatedParticipant.publicId
-                      ? { ...p, ...updatedParticipant }
-                      : p,
-                  );
-                } else {
-                  next = [...next, updatedParticipant];
-                }
-                return next;
+                return [...filtered, participantWithTime];
               });
-              if (
-                updatedParticipant.publicId === this.authState.participantId()
-              ) {
-                this.updateNickname(updatedParticipant.nickname);
-              }
 
+              if (
+                leavingParticipant.publicId !== this.authState.participantId()
+              ) {
+                this.sweetAlertService.showInfo(
+                  'Alguien saló',
+                  leavingParticipant.nickname + ' abandonó la mesa',
+                );
+              }
+            }
+          }
+
+          if (event.type === 'host-delegated') {
+            const newHost = event.payload.host;
+
+            console.log('SSE: Nuevo host recibido:', newHost.nickname);
+
+            this._hostParticipantId.set(newHost.publicId);
+
+            this._activeParticipants.update((participants) =>
+              participants.map((p) => ({
+                ...p,
+                ...(p.publicId === newHost.publicId ? newHost : p),
+              })),
+            );
+            if (newHost.publicId === this.authState.participantId()) {
+              this.sweetAlertService.showInfo(
+                'Fuiste designado como Host',
+                'Sos el nuevo anfitrión de la mesa',
+              );
+            } else {
               this.sweetAlertService.showToast(
                 'top-end',
                 'info',
-                `${updatedParticipant.nickname} ahora está registrado`,
+                `El nuevo anfitrión es ${newHost.nickname}`,
               );
             }
-          },
-          error: (err) =>
-            console.error(
-              `Error en conexión SSE para mesa ${tableSessionId}:`,
-              err
-            ),
-        });
-      }
+          }
+
+          if (event.type === 'migrated-guest-session') {
+            const payload = event.payload ?? {};
+            const updatedParticipant = payload.participant;
+            const deletedIds: string[] = payload.deletedParticipantIds ?? [];
+
+            console.log('payload completo:', payload);
+            console.log('updatedParticipant:', updatedParticipant);
+            console.log('deletedIds:', deletedIds);
+
+            this._previousParticipants.update((prev) =>
+              prev.filter(
+                (p) =>
+                  p.publicId !== updatedParticipant.publicId &&
+                  !deletedIds.includes(p.publicId),
+              ),
+            );
+
+            this._activeParticipants.update((active) => {
+              let next = active.filter((p) => !deletedIds.includes(p.publicId));
+
+              const idx = next.findIndex(
+                (p) => p.publicId === updatedParticipant.publicId,
+              );
+              if (idx >= 0) {
+                next = next.map((p) =>
+                  p.publicId === updatedParticipant.publicId
+                    ? { ...p, ...updatedParticipant }
+                    : p,
+                );
+              } else {
+                next = [...next, updatedParticipant];
+              }
+              return next;
+            });
+            if (
+              updatedParticipant.publicId === this.authState.participantId()
+            ) {
+              this.updateNickname(updatedParticipant.nickname);
+            }
+
+            this.sweetAlertService.showToast(
+              'top-end',
+              'info',
+              `${updatedParticipant.nickname} ahora está registrado`,
+            );
+          }
+        },
+        error: (err) =>
+          console.error(
+            `Error en conexión SSE para mesa ${tableSessionId}:`,
+            err,
+          ),
+      });
 
       onCleanup(() => {
         if (this.sseSubscription) {
