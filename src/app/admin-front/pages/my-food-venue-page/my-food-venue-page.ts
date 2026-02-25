@@ -77,13 +77,21 @@ loadVenueData(): void {
   this.loading = true;
   this.foodVenueService.getMyFoodVenue().subscribe({
     next: (data: FoodVenueAdminResponse) => {
+        const addr = data.address ?? {
+          street: '',
+          number: '',
+          city: '',
+          province: '',
+          postalCode: '',
+          country: '',
+        };
 
-      this.venueForm.patchValue({
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        address: data.address
-      });
+        this.venueForm.patchValue({
+          name: data.name ?? '',
+          email: data.email ?? '',
+          phone: data.phone ?? '',
+          address: addr,
+        });
 
       const styleGroup = this.venueForm.get('style') as FormGroup;
 
