@@ -9,6 +9,7 @@ import {
   CircleCheck,
   Ban,
   BanknoteArrowUp,
+  Hourglass,
 } from 'lucide-angular';
 
 export type OrderStatus =
@@ -20,6 +21,7 @@ export type OrderStatus =
   | 'CANCELLED';
 
 export type PaymentStatus =
+  | 'INITIATED'
   | 'PENDING'
   | 'COMPLETED'
   | 'FAILED'
@@ -88,6 +90,7 @@ export const ORDER_STATUS_UI: Record<OrderStatus, StatusUi> = {
 };
 
 export const PAYMENT_STATUS_UI: Record<PaymentStatus, StatusUi> = {
+  INITIATED: { label: 'Esperando pago', tone: 'info', icon: Hourglass },
   PENDING: { label: 'Pendiente', tone: 'warning', icon: CircleAlert },
   COMPLETED: { label: 'Pagado', tone: 'success', icon: CircleCheck },
   FAILED: { label: 'Falló', tone: 'danger', icon: Ban },

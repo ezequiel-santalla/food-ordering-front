@@ -23,11 +23,22 @@ export class PaymentHistoryPanelComponent {
   private paymentsStore = inject(PaymentsStore);
   private sweet = inject(SweetAlertService);
 
-  readonly Trash2 = Trash2;
+  private nowMs = signal(Date.now());
   expanded = signal<string | null>(null);
+  timer = setInterval(() => this.nowMs.set(Date.now()), 1000);
+
+  readonly Trash2 = Trash2;
+  readonly WalletCards = WalletCards;
+  readonly Clock = Clock;
+  readonly ChevronDown = ChevronDown;
+  readonly ChevronUp = ChevronUp;
 
   payments = computed(() => this.paymentsStore.payments());
   isLoading = computed(() => this.paymentsStore.isLoading());
+
+  ngOnDestroy() {
+    clearInterval(this.timer);
+  }
 
   toggle(id: string) {
     this.expanded.set(this.expanded() === id ? null : id);
@@ -51,11 +62,6 @@ export class PaymentHistoryPanelComponent {
     }
   }
 
-  readonly WalletCards = WalletCards;
-  readonly Clock = Clock;
-  readonly ChevronDown = ChevronDown;
-  readonly ChevronUp = ChevronUp;
-
   paymentUi(status: string) {
     return getPaymentStatusUi(status);
   }
@@ -74,5 +80,28 @@ export class PaymentHistoryPanelComponent {
         OTHER: 'Otro',
       }[method] ?? method
     );
+  }
+
+  remainingSeconds(p: any) {
+    this.nowMs();
+
+    if (!p.expiresAt) return null;
+
+    const diff = new Date(p.expiresAt).getTime() - Date.now();
+    return Math.max(0, Math.ceil(diff / 1000));
+  }
+
+  remainingLabel(p: any) {
+    const s = this.remainingSeconds(p);
+    if (s == null) return null;
+
+    if (s >= 60) {
+      const m = Math.ceil(s / 60);
+      return `Quedan ${m} min`;
+    }
+
+    if (s <= 5) return `${s}`;
+
+    return `Quedan ${s} s`;
   }
 }
