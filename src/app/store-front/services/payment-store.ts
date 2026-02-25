@@ -54,9 +54,18 @@ export class PaymentsStore {
 
   constructor() {
     effect((cleanup) => {
-      const sessionId = this.tableSession.tableSessionInfo().sessionId;
+      const sessionId = this.tableSession.sessionId();
+      
+      if (!sessionId) {
+        this._page.set(null);
+        this.sseSub?.unsubscribe();
+        this.sseSub = undefined;
+        return;
+      }
 
-      if (sessionId) {
+      const firstTime = !this.sseSub;
+
+      if (firstTime) {
         this.loadInitialPayments();
         this.subscribeToEvents();
       }
@@ -64,6 +73,7 @@ export class PaymentsStore {
       cleanup(() => {
         this._page.set(null);
         this.sseSub?.unsubscribe();
+        this.sseSub = undefined;
       });
     });
   }
@@ -109,7 +119,7 @@ export class PaymentsStore {
 
     this.sseSub = this.sse.subscribeToSession().subscribe((e) => {
       if (e.type === 'payment-updated') {
-        const myId = this.tableSession.tableSessionInfo().participantId;
+        const myId = this.tableSession.myParticipantId();
         this.onPaymentUpdatedFromSse(e.payload, myId);
       }
     });

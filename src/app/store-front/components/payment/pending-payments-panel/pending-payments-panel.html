@@ -32,96 +32,98 @@
 
   <div class="pb-32">
     @if (active() === 'mine') {
-    <h3 class="text-sm font-semibold text-gray-500 mt-2 mb-1">Pendientes</h3>
+  <h3 class="text-sm font-semibold text-gray-500 mt-2 mb-1">Pendientes</h3>
 
-    @if (unpaidMine().length === 0) {
-    <div
-      class="flex flex-col items-center justify-start text-center py-4 mt-2 text-green-600"
-    >
-      <svg
-        class="w-10 h-10 mb-1"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M5 13l4 4L19 7"
-        />
-      </svg>
-      <p class="text-base font-semibold">Todo pago</p>
-      <p class="text-xs text-gray-500 mt-0.5">No tenés pedidos pendientes.</p>
-    </div>
+  @if (unpaidMine().length === 0) {
+    @if (mineBanner() === 'WAITING_CONFIRMATION') {
+      <!-- amarillo -->
+      <div class="flex flex-col items-center text-center py-4 mt-2 text-yellow-600">
+        <p class="text-base font-semibold">Esperando confirmación de pagos</p>
+        <p class="text-xs text-gray-500 mt-0.5">Hay pagos pendientes de acreditación.</p>
+      </div>
     } @else {
+      <!-- verde -->
+      <div class="flex flex-col items-center text-center py-4 mt-2 text-green-600">
+        <p class="text-base font-semibold">Todo pago</p>
+        <p class="text-xs text-gray-500 mt-0.5">No tenés pedidos pendientes.</p>
+      </div>
+    }
+  } @else {
+    <div class="flex items-center justify-between gap-2 mb-2">
+      <button class="btn btn-sm" (click)="toggleSelectAll(unpaidMine())">Seleccionar todo</button>
+      <button class="btn btn-sm btn-ghost"
+              (click)="clearSelection()"
+              [disabled]="selectedOrders().length === 0">Limpiar</button>
+    </div>
+
     <div class="space-y-2">
       @for (order of unpaidMine(); track order.publicId) {
-      <app-payable-order-card
-        [order]="order"
-        [selected]="selectedOrders().includes(order.publicId)"
-        (selectionChanged)="toggleSelection($event)"
-      />
+        <app-payable-order-card
+          [order]="order"
+          [selected]="selectedOrders().includes(order.publicId)"
+          (selectionChanged)="toggleSelection($event)" />
       }
     </div>
-    }
+  }
 
-    <div class="divider"></div>
+  <div class="divider"></div>
 
-    @if (paidMine().length) {
+  @if (paidMine().length) {
     <h3 class="text-sm font-semibold text-gray-500 mt-4 mb-1">Pagadas</h3>
-
     <div class="space-y-2 opacity-60 pointer-events-none">
       @for (order of paidMine(); track order.publicId) {
-      <app-payable-order-card [order]="order" [selected]="false" />
+        <app-payable-order-card [order]="order" [selected]="false" />
       }
     </div>
-    } } @if (active() === 'table') {
-    <h3 class="text-sm font-semibold text-gray-500 mt-2 mb-1">Pendientes</h3>
+  }
+}
 
-    @if (unpaidTable().length === 0) {
-    <div
-      class="flex flex-col items-center justify-start text-center py-4 mt-2 text-green-600"
-    >
-      <svg
-        class="w-10 h-10 mb-1"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M5 13l4 4L19 7"
-        />
-      </svg>
-      <p class="text-base font-semibold">Todo pago</p>
-      <p class="text-xs text-gray-500 mt-0.5">No tenés pedidos pendientes.</p>
-    </div>
+@if (active() === 'table') {
+  <h3 class="text-sm font-semibold text-gray-500 mt-2 mb-1">Pendientes</h3>
+
+  @if (unpaidTable().length === 0) {
+    @if (tableBanner() === 'WAITING_CONFIRMATION') {
+      <!-- amarillo -->
+      <div class="flex flex-col items-center text-center py-4 mt-2 text-yellow-600">
+        <p class="text-base font-semibold">Esperando confirmación de pagos</p>
+        <p class="text-xs text-gray-500 mt-0.5">Hay pagos pendientes de acreditación.</p>
+      </div>
     } @else {
+      <!-- verde -->
+      <div class="flex flex-col items-center text-center py-4 mt-2 text-green-600">
+        <p class="text-base font-semibold">Todo pago</p>
+        <p class="text-xs text-gray-500 mt-0.5">No hay pedidos pendientes.</p>
+      </div>
+    }
+  } @else {
+    <div class="flex items-center justify-between gap-2 mb-2">
+      <button class="btn btn-sm" (click)="toggleSelectAll(unpaidTable())">Seleccionar todo</button>
+      <button class="btn btn-sm btn-ghost"
+              (click)="clearSelection()"
+              [disabled]="selectedOrders().length === 0">Limpiar</button>
+    </div>
+
     <div class="space-y-2">
       @for (order of unpaidTable(); track order.publicId) {
-      <app-payable-order-card
-        [order]="order"
-        [selected]="selectedOrders().includes(order.publicId)"
-        (selectionChanged)="toggleSelection($event)"
-      />
+        <app-payable-order-card
+          [order]="order"
+          [selected]="selectedOrders().includes(order.publicId)"
+          (selectionChanged)="toggleSelection($event)" />
       }
     </div>
-    }
+  }
 
-    <div class="divider"></div>
+  <div class="divider"></div>
 
-    @if (paidTable().length) {
+  @if (paidTable().length) {
     <h3 class="text-sm font-semibold text-gray-500 mt-4 mb-1">Pagadas</h3>
-
     <div class="space-y-2 opacity-60 pointer-events-none">
       @for (order of paidTable(); track order.publicId) {
-      <app-payable-order-card [order]="order" [selected]="false" />
+        <app-payable-order-card [order]="order" [selected]="false" />
       }
     </div>
-    } }
+  }
+}
   </div>
 
   <div

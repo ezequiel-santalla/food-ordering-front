@@ -171,7 +171,7 @@ export class AuthService {
     const token = SessionUtils.getCleanStorageValue('accessToken');
 
     if (!token || !JwtUtils.isValidToken(token)) {
-      this.logout();
+      this.performLocalLogout();
       return of(false);
     }
 
@@ -306,8 +306,10 @@ export class AuthService {
   }
 
   logoutAndReload(): void {
-    this.logout();
-    location.reload();
+    this.logout().subscribe({
+      complete: () => location.reload(),
+      error: () => location.reload()
+    });
   }
 
   setPendingTableScan(id: string) {

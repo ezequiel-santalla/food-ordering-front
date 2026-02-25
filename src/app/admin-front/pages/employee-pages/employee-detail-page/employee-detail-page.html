@@ -60,9 +60,13 @@
                 Dirección
               </label>
               <p class="text-sm md:text-base text-gray-900 leading-relaxed">
+                @if (employee.user.address; as a) {
                 {{ employee.user.address.street }} {{ employee.user.address.number }},
                 {{ employee.user.address.city }}, {{ employee.user.address.province }},
                 {{ employee.user.address.country }} ({{ employee.user.address.postalCode }})
+                } @else {
+                <span class="text-gray-500">Sin dirección</span>
+                }
               </p>
             </div>
           </div>

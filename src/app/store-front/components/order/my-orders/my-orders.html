@@ -20,6 +20,8 @@
       @for (order of orders(); track order.publicId) {
         <app-order-card
           [order]="order"
+          [isMine]="true"
+          (cancel)="onCancelOrder($event)"
         ></app-order-card>
       }
     </div>

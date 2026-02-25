@@ -26,6 +26,7 @@ import {
   OrderStatus,
   toneToBadgeClass,
 } from '../../../../shared/models/status-ui';
+import { PaymentStatus } from '../../../models/payment.interface';
 @Component({
   selector: 'app-order-card',
   standalone: true,
@@ -34,10 +35,12 @@ import {
 })
 export class OrderCardComponent {
   @Input({ required: true }) order!: OrderResponse;
+  @Input() isMine = false;
   @Output() selected = new EventEmitter<{
     orderId: string;
     isSelected: boolean;
   }>();
+  @Output() cancel = new EventEmitter<string>();
 
   readonly ChevronDown = ChevronDown;
   readonly Clock = Clock;
@@ -50,6 +53,8 @@ export class OrderCardComponent {
   readonly HandPlatter = HandPlatter;
   readonly BanknoteArrowUp = BanknoteArrowUp;
 
+  private readonly CANCELABLE_STATUSES = new Set(['PENDING', 'ACCEPTED']);
+
   isExpanded = signal(false);
   isSelected = signal(false);
   isPaid = signal(false);
@@ -58,11 +63,13 @@ export class OrderCardComponent {
     if (changes['order']) {
       const payment = this.order.payment;
 
-      const paid = !!payment;
-
-      //const paid = !!payment && payment.status === PaymentStatus.COMPLETED;
+      const paid = !!payment && payment.status === PaymentStatus.COMPLETED;
 
       this.isPaid.set(paid);
+      if (String(this.order.status) === 'CANCELLED') {
+        this.isExpanded.set(false);
+        this.isSelected.set(false);
+      }
     }
   }
 
@@ -89,5 +96,17 @@ export class OrderCardComponent {
 
   badgeClass(): string {
     return 'badge badge-sm ' + toneToBadgeClass(this.orderUi.tone);
+  }
+
+  canCancel(): boolean {
+    if (!this.isMine) return false;
+    
+    const statusOk = this.CANCELABLE_STATUSES.has(String(this.order.status));
+    if (!statusOk) return false;
+
+    const payStatus = this.order.payment?.status;
+    const hasActivePayment = !!payStatus && payStatus !== 'CANCELLED';
+
+    return !hasActivePayment;
   }
 }

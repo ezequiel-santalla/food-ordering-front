@@ -102,7 +102,7 @@
                   {{ employee.user.name }} {{ employee.user.lastName }}
                 </div>
                 <div class="text-xs text-gray-500">
-                  {{ employee.user.address.city }}, {{ employee.user.address.province }}
+                  {{ employee.user.address?.city || '-' }}, {{ employee.user.address?.province || '-' }}
                 </div>
               </div>
             </div>
@@ -195,7 +195,7 @@
               {{ employee.user.name }} {{ employee.user.lastName }}
             </h3>
             <p class="text-xs text-gray-500">
-              {{ employee.user.address.city }}, {{ employee.user.address.province }}
+              {{ employee.user.address?.city || '-' }}, {{ employee.user.address?.province || '-' }}
             </p>
           </div>
         </div>

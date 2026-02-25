@@ -43,7 +43,7 @@ export class TableOrders {
 
   @ViewChild('payModalCmp') payModalCmp?: PaymentModalComponent;
 
-  orders = this.orderService.tableOrders;
+  orders = this.orderService.tableOrdersView;
   isLoading = this.orderService.isLoading;
   error = this.orderService.error;
 
@@ -103,6 +103,10 @@ export class TableOrders {
     this.selectedPaymentMethod.set(method);
   }
 
+  onCancelOrder(orderId: string) {
+    this.orderService.cancelOrder(orderId).subscribe();
+  }
+  
   confirmPayment() {
     if (!this.hasSelectedOrders()) return;
 

@@ -124,6 +124,62 @@ export class MyFoodVenuePage implements OnInit {
     });
   }
 
+loadVenueData(): void {
+  this.loading = true;
+  this.foodVenueService.getMyFoodVenue().subscribe({
+    next: (data: FoodVenueAdminResponse) => {
+        const addr = data.address ?? {
+          street: '',
+          number: '',
+          city: '',
+          province: '',
+          postalCode: '',
+          country: '',
+        };
+
+        this.venueForm.patchValue({
+          name: data.name ?? '',
+          email: data.email ?? '',
+          phone: data.phone ?? '',
+          address: addr,
+        });
+
+      const styleGroup = this.venueForm.get('style') as FormGroup;
+
+      const styleData = data.venueStyle;
+
+      if (styleGroup && styleData) {
+        styleGroup.patchValue({
+
+          instagramUrl: styleData.instagramUrl ?? '',
+          facebookUrl: styleData.facebookUrl ?? '',
+          whatsappNumber: styleData.whatsappNumber ?? '',
+
+          slogan: styleData.slogan ?? '',
+          description: styleData.description ?? '',
+          publicMenu: styleData.publicMenu ?? false,
+
+          primaryColor: styleData.primaryColor ?? '#3b82f6',
+          secondaryColor: styleData.secondaryColor ?? '#8b5cf6',
+          accentColor: styleData.accentColor ?? '#f59e0b',
+          backgroundColor: styleData.backgroundColor ?? '#ffffff',
+          textColor: styleData.textColor ?? '#000000',
+
+          logoUrl: styleData.logoUrl ?? '',
+          bannerUrl: styleData.bannerUrl ?? ''
+        });
+        this.logoPreview = styleData.logoUrl ?? null;
+          this.bannerPreview = styleData.bannerUrl ?? null;
+      }
+      this.venueForm.disable();
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Error al cargar datos del local', err);
+      this.loading = false;
+    }
+  });
+}
   toggleEdit(): void {
     this.isEditing = !this.isEditing;
 

@@ -90,14 +90,25 @@ export class ServerSentEventsService {
 
         const token = this.authService.accessToken();
         if (!token) {
+          clearReconnectTimer();
           observer.error(new Error(`No auth token found for SSE ${label}`));
+          reconnectTimer = setTimeout(() => {
+            reconnectTimer = null;
+            connect();
+          }, retryDelay);
+          retryDelay = Math.min(retryDelay *2, 30000);
           return;
         }
 
         const clientId = this.getOrCreateClientId(label);
         console.log('clientId: ', clientId);
-        const sseUrl = `${urlBuilder()}?token=${token}&clientId=${clientId}`;
-
+        const sseUrl = `${urlBuilder()}?token=${encodeURIComponent(token)}&clientId=${encodeURIComponent(clientId)}`;
+console.log('SSE connect attempt', {
+  label,
+  token: !!this.authService.accessToken(),
+  sessionId: this.authService.tableSessionId?.(),
+  clientId
+});
         eventSource = new EventSource(sseUrl);
 
         eventSource.onopen = () => {
@@ -130,6 +141,7 @@ export class ServerSentEventsService {
         eventSource.onerror = (error) => {
           this.zone.run(() => {
             console.warn(`SSE error (${label})`, error);
+            console.warn('SSE error', {label, readyState: eventSource?.readyState});
 
             closeEventSource();
 

@@ -56,6 +56,15 @@
     </div>
     }
 
+    @if (canCancel()) {
+    <div class="mt-4 flex justify-end">
+      <button type="button" class="btn btn-sm btn-outline btn-error"
+        (click)="$event.stopPropagation(); cancel.emit(order.publicId)">
+        Cancelar orden
+      </button>
+    </div>
+    }
+
     <div
       class="flex justify-between items-center text-lg font-bold text-base-content py-2 border-t border-base-300 mt-4">
       <span>Total:</span>
