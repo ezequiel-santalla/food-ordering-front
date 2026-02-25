@@ -18,6 +18,11 @@ export class ProductService {
 
   }
 
+  getAllProducts() {
+  const params = new HttpParams().set('page', '0').set('size', '9999');
+  return this.http.get<ProductResponse>(this.API_URL, { params });
+}
+
   getProducts(page: number) {
     let params = new HttpParams().set('page', page.toString());
     return this.http.get<ProductResponse>(this.API_URL, { params: params })
