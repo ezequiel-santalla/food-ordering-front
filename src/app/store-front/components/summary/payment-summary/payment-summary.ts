@@ -4,6 +4,7 @@ import { OrderService } from '../../../services/order-service';
 import { LucideAngularModule, Coins, BanknoteX } from 'lucide-angular';
 import { PaymentStatus } from '../../../models/payment.interface';
 import { SkeletonTextComponent } from '../../../../shared/components/skeleton/skeleton-text';
+import { OrderStatus } from '../../../models/order.interface';
 
 @Component({
   selector: 'app-payment-summary',
@@ -16,13 +17,20 @@ export class PaymentSummaryComponent {
   readonly orderService = inject(OrderService);
 
   totalSpent = computed(() =>
-    this.orderService.tableOrders().reduce((sum, o) => sum + o.totalPrice, 0)
+    this.orderService.tableOrders()
+      .filter(o =>
+        o.status !== OrderStatus.CANCELLED
+      )
+      .reduce((sum, o) => sum + o.totalPrice, 0)
   );
 
   remainingToPay = computed(() =>
     this.orderService
       .tableOrders()
-      .filter(o => o.payment?.status !== PaymentStatus.COMPLETED)
+      .filter(o =>
+        o.status !== OrderStatus.CANCELLED &&
+        o.payment?.status !== PaymentStatus.COMPLETED
+      )
       .reduce((sum, o) => sum + o.totalPrice, 0)
   );
 

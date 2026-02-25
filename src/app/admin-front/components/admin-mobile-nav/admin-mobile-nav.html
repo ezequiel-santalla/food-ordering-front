@@ -35,7 +35,7 @@
     <button (click)="toggleMenu()"
             [class.text-blue-600]="isMenuExpanded"
             [class.bg-blue-50]="isMenuExpanded"
-            class="flex flex-col items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
+            class="flex flex-col items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">
       <lucide-icon
         [img]="isMenuExpanded ? closeIcon : menuIcon"
         [size]="22">
@@ -129,7 +129,7 @@
     <!-- Logout -->
     <div class="border-t border-gray-200 pt-4">
       <button (click)="logout()"
-              class="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+              class="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
         <lucide-icon [img]="logOutIcon" [size]="20" class="mr-3"></lucide-icon>
         <span class="text-sm font-medium">Cerrar Sesión</span>
       </button>
