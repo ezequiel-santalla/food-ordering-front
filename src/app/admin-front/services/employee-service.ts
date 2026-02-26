@@ -16,6 +16,11 @@ readonly API_URL = `${environment.baseUrl}/employees`;
 
   constructor(private http: HttpClient) {}
 
+  getAllEmployees(): Observable<EmployeeResponse> {
+  const params = new HttpParams().set('page', '0').set('size', '9999');
+  return this.http.get<EmployeeResponse>(this.API_URL, { params });
+}
+
   getEmployees(page: number, email?: string, active?: boolean): Observable<EmployeeResponse> {
     let params = new HttpParams().set('page', page.toString());
 

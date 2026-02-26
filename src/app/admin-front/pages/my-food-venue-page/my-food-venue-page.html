@@ -18,9 +18,9 @@
 
       @if (!loading) {
       <button (click)="toggleEdit()" type="button"
-        class="cursor-pointer flex items-center px-4 py-2 text-sm font-medium rounded-md shadow-lg transition duration-150"
-        [class.bg-red-500]="isEditing" [class.text-white]="isEditing" [class.hover:bg-red-600]="isEditing"
-        [class.bg-indigo-600]="!isEditing" [class.hover:bg-indigo-700]="!isEditing">
+        class="cursor-pointer flex items-center text-white px-4 py-2 text-sm font-medium rounded-md shadow-lg transition duration-150"
+        [class.bg-red-500]="isEditing"  [class.hover:bg-red-600]="isEditing"
+        [class.bg-indigo-600]="!isEditing"  [class.hover:bg-indigo-700]="!isEditing">
         @if (!isEditing) {
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
