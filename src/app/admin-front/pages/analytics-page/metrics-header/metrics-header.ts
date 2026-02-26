@@ -21,6 +21,15 @@ export class MetricsHeader {
   readonly refreshIcon = RefreshCcw;
   readonly downloadIcon = Download;
 
+  readonly quickFilters = [
+    { key: 'today', label: 'Hoy', action: () => this.setToday() },
+    { key: '7d', label: '7d', action: () => this.setLast7Days() },
+    { key: '30d', label: '30d', action: () => this.setLast30Days() },
+    { key: '90d', label: '90d', action: () => this.setLast90Days() },
+    { key: 'thisMonth', label: 'Este mes', action: () => this.setThisMonth() },
+    { key: 'lastMonth', label: 'Mes anterior', action: () => this.setLastMonth() },
+  ];
+
   // Outputs
   dateRangeChange = output<DateRange>();
   refresh = output<void>();
@@ -47,10 +56,6 @@ export class MetricsHeader {
 
       this.dateRangeChange.emit({ from, to });
     }
-  }
-
-  onRefresh() {
-    this.refresh.emit();
   }
 
   onExport() {

@@ -4,6 +4,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { Bell, ChefHat, LucideAngularModule, TrendingUp, UserCheck } from 'lucide-angular';
 import { ShoppingCart, Users, DollarSign } from 'lucide-angular';
 import { AnalyticsService } from '../../../services/analytics-service';
+import { interval, startWith, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-live-metrics-bar',
@@ -24,6 +25,9 @@ export class LiveMetricsBar {
   readonly userCheckIcon = UserCheck;
 
   liveMetrics = rxResource({
-    stream: () => this.analyticsService.getLiveMetrics()
+    stream: () => interval(30000).pipe(
+      startWith(0),
+      switchMap(() => this.analyticsService.getLiveMetrics())
+    )
   });
 }

@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './qr-code-modal.css'
 })
 export class QrCodeModal {
-qrCodeUrl = input.required<string>();
+  qrCodeUrl = input.required<string>();
   tableNumber = input.required<number>();
   loading = input<boolean>(false);
   error = input<string | null>(null);
@@ -26,11 +26,22 @@ qrCodeUrl = input.required<string>();
     }
   }
 
-  onDownload(): void {
-    const link = document.createElement('a');
-    link.href = this.qrCodeUrl();
-    link.download = `QR-Mesa-${this.tableNumber()}.png`;
-    link.click();
+  async onDownload(): Promise<void> {
+    try {
+      const response = await fetch(this.qrCodeUrl());
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = `QR-Mesa-${this.tableNumber()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
+    } catch (err) {
+      console.error('Error al descargar el QR:', err);
+    }
   }
 
   onOpenNewTab(): void {
