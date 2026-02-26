@@ -23,6 +23,22 @@ export class EmployeeListPage {
   activeFilter: boolean | null = null;
   selectedEmployee: EmploymentContent | null = null;
 
+  private allContents: EmploymentContent[] = [];
+
+  get filteredContents(): EmploymentContent[] {
+    const term = this.searchEmail.trim().toLowerCase();
+    return this.allContents.filter(emp => {
+      const matchesSearch = !term ||
+        emp.user.name.toLowerCase().includes(term) ||
+        emp.user.lastName.toLowerCase().includes(term) ||
+        emp.user.email.toLowerCase().includes(term);
+
+      const matchesFilter = this.activeFilter === null || emp.active === this.activeFilter;
+
+      return matchesSearch && matchesFilter;
+    });
+  }
+
   public employeeService = inject(EmployeeService);
   private paginationService = inject(PaginationService);
   private eRef = inject(ElementRef);
@@ -39,6 +55,7 @@ export class EmployeeListPage {
 
   ngOnInit(): void {
     this.getEmployees();
+    this.loadAllForSearch();
   }
 
   getEmployees(page: number = 1): void {
@@ -58,6 +75,15 @@ export class EmployeeListPage {
           'No se pudieron cargar los empleados. Por favor, intenta nuevamente.'
         );
       }
+    });
+  }
+
+  private loadAllForSearch(): void {
+    this.employeeService.getAllEmployees().subscribe({
+      next: (data: EmployeeResponse) => {
+        this.allContents = data.content;
+      },
+      error: (e) => console.error('Error loadAllForSearch:', e)
     });
   }
 

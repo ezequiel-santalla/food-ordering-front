@@ -16,17 +16,72 @@ export class ProductListPage {
   openMenuIndex: number | null = null;
   totalPages = 1;
 
+  sortField: 'name' | 'category' | 'price' | 'stock' | null = null;
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  sortBy(field: 'name' | 'category' | 'price' | 'stock'): void {
+    if (this.sortField === field) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDirection = 'asc';
+    }
+    }
+
   searchTerm: string = '';
   private allContents: Content[] = [];
 
+
   get filteredContents(): Content[] {
-    const term = this.searchTerm.trim().toLowerCase();
-    if (!term) return this.productService.contents;
-    return this.allContents.filter(p =>
-      p.name.toLowerCase().includes(term) ||
-      (p.description?.toLowerCase().includes(term))
-    );
+  const term = this.searchTerm.trim().toLowerCase();
+  const source = term ? this.allContents : this.productService.contents;
+
+  let result = source.filter(p =>
+    !term ||
+    p.name.toLowerCase().includes(term) ||
+    (p.description?.toLowerCase().includes(term))
+  );
+
+  if (this.sortField) {
+    result = [...result].sort((a, b) => {
+      let valA: string | number = '';
+      let valB: string | number = '';
+
+      switch (this.sortField) {
+        case 'name':
+          valA = a.name.toLowerCase();
+          valB = b.name.toLowerCase();
+          break;
+        case 'category':
+          valA = (a.category?.name ?? '').toLowerCase();
+          valB = (b.category?.name ?? '').toLowerCase();
+          break;
+        case 'price':
+          valA = a.price;
+          valB = b.price;
+          break;
+        case 'stock':
+          valA = a.stock;
+          valB = b.stock;
+          break;
+      }
+
+      if (valA < valB) return this.sortDirection === 'asc' ? -1 : 1;
+      if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
   }
+
+  return result;
+}
+  // get filteredContents(): Content[] {
+  //   const term = this.searchTerm.trim().toLowerCase();
+  //   if (!term) return this.productService.contents;
+  //   return this.allContents.filter(p =>
+  //     p.name.toLowerCase().includes(term) ||
+  //     (p.description?.toLowerCase().includes(term))
+  //   );
+  // }
 
 
   constructor(
@@ -108,4 +163,8 @@ private loadAllForSearch(): void {
       }
     });
   }
+
+
+
+
 }
