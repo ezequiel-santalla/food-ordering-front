@@ -12,6 +12,7 @@ import {
 } from 'lucide-angular';
 import { DateRange } from '../../../models/analytics';
 import { AnalyticsService } from '../../../services/analytics-service';
+import { interval, startWith, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-metrics-card',
@@ -34,8 +35,9 @@ export class MetricsCard {
 
   analyticsData = rxResource({
     params: () => this.dateRange(),
-    stream: ({ params }) => {
-      return this.analyticsService.getAnalyticsCards(params);
-    }
+    stream: ({ params }) => interval(30000).pipe(
+      startWith(0),
+      switchMap(() => this.analyticsService.getAnalyticsCards(params))
+    )
   });
 }
