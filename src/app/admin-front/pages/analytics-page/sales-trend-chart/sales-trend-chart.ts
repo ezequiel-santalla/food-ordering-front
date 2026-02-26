@@ -17,6 +17,7 @@ import {
 } from 'ng-apexcharts';
 import { DateRange } from '../../../models/analytics';
 import { AnalyticsService } from '../../../services/analytics-service';
+import { interval, startWith, switchMap } from 'rxjs';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -50,9 +51,10 @@ export class SalesTrendChart {
 
   salesTrendData = rxResource({
     params: () => this.dateRange(),
-    stream: ({ params }) => {
-      return this.analyticsService.getSalesTrend(params);
-    }
+    stream: ({ params }) => interval(30000).pipe(
+      startWith(0),
+      switchMap(() => this.analyticsService.getSalesTrend(params))
+    )
   });
 
   // Chart options
