@@ -1,58 +1,100 @@
 <dialog #dialog class="modal modal-bottom sm:modal-middle">
-  <div class="modal-box rounded-2xl p-0 overflow-hidden bg-white">
+  <div class="modal-box rounded-2xl p-0 overflow-hidden bg-white shadow-xl">
 
-    <div class="px-6 pt-6 pb-4 border-b border-gray-100">
+    <!-- Header -->
+    <div class="px-6 pt-6 pb-4 border-b border-orange-100/70">
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <h3 class="text-lg font-bold text-gray-900">Acciones</h3>
-          <p class="text-sm text-gray-500 truncate">
+          <h3 class="text-lg font-black text-[#1f1b16]">Acciones</h3>
+          <p class="text-sm text-[#3a332c]/60 font-semibold truncate">
             {{ participant()?.nickname }}
           </p>
         </div>
 
-        <button type="button" class="btn btn-ghost btn-sm btn-circle" (click)="close()">
+        <button
+          type="button"
+          class="w-9 h-9 rounded-2xl flex items-center justify-center
+                 border border-orange-200/70 bg-white/70 hover:bg-orange-50 transition
+                 text-[#1f1b16]"
+          (click)="close()"
+          aria-label="Cerrar"
+        >
           ✕
         </button>
       </div>
     </div>
 
+    <!-- Body -->
     <div class="px-6 py-5 space-y-3">
       @if (canAct()) {
+
+        <!-- CTA principal -->
         <button
           type="button"
-          class="btn btn-outline w-full justify-start gap-2"
+          class="w-full h-12 rounded-2xl font-black text-white shadow-lg
+                 bg-gradient-to-r from-orange-500 to-amber-500
+                 hover:from-orange-600 hover:to-amber-600 transition
+                 flex items-center justify-start gap-2 px-4"
           (click)="clickTransferHost()"
         >
           <lucide-icon [img]="Crown" class="w-5 h-5"></lucide-icon>
-          Designar anfitrión
+          <span>Designar anfitrión</span>
         </button>
 
+        <!-- Acción inactiva (no clickeable) -->
         <button
           type="button"
-          class="btn btn-outline w-full justify-start gap-2"
-          (click)="clickRemove()"
+          class="w-full h-12 rounded-2xl font-black
+                 border border-orange-200/70 bg-white/60 text-[#1f1b16]/50
+                 flex items-center justify-start gap-2 px-4
+                 cursor-not-allowed opacity-70"
+          disabled
+          aria-disabled="true"
+          tabindex="-1"
         >
           <lucide-icon [img]="UserMinus" class="w-5 h-5"></lucide-icon>
-          Quitar de la mesa
-          <span class="ml-auto text-xs text-gray-400">Inactivo</span>
+          <span>Quitar de la mesa</span>
+
+          <span
+            class="ml-auto text-[11px] font-black px-2 py-1 rounded-2xl
+                   border border-gray-200 bg-gray-100 text-gray-600"
+          >
+          </span>
+          <span class="ml-auto text-xs text-[#3a332c]/50 font-semibold">(próximo)</span>
         </button>
+
       } @else {
-        <div class="text-sm text-gray-500">No hay acciones disponibles.</div>
+        <div class="text-sm text-[#3a332c]/60 font-semibold">
+          No hay acciones disponibles.
+        </div>
       }
 
+      <!-- Acción secundaria -->
       <button
         type="button"
-        class="btn btn-ghost w-full justify-start gap-2"
+        class="w-full h-12 rounded-2xl font-black
+                 border border-orange-200/70 bg-white/60 text-[#1f1b16]/50
+                 flex items-center justify-start gap-2 px-4
+                 cursor-not-allowed opacity-70"
         (click)="close()"
       >
         <lucide-icon [img]="UserRound" class="w-5 h-5"></lucide-icon>
-        Ver participante
-        <span class="ml-auto text-xs text-gray-400">(próximo)</span>
+        <span>Ver participante</span>
+        <span class="ml-auto text-xs text-[#3a332c]/50 font-semibold">(próximo)</span>
       </button>
     </div>
 
+    <!-- Footer -->
     <div class="px-6 pb-6 pt-2">
-      <button type="button" class="btn w-full" (click)="close()">Cancelar</button>
+      <button
+        type="button"
+        class="w-full h-12 rounded-2xl font-black
+               border border-orange-200/70 bg-white/70 hover:bg-orange-50 transition
+               text-[#1f1b16]"
+        (click)="close()"
+      >
+        Cancelar
+      </button>
     </div>
 
   </div>

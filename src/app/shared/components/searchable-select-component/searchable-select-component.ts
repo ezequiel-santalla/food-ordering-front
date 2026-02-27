@@ -40,6 +40,31 @@ export class SearchableSelectComponent implements ControlValueAccessor {
 
   private onChange: (value: number | null) => void = () => {};
   private onTouched: () => void = () => {};
+  private readonly instanceId =
+    crypto.randomUUID?.() ?? Math.random().toString(16).slice(2);
+
+  ngOnInit() {
+    window.addEventListener('dinno-select-opened', this.onOtherOpened);
+  }
+
+  ngOnDestroy() {
+    window.removeEventListener('dinno-select-opened', this.onOtherOpened);
+  }
+
+  private onOtherOpened = (e: any) => {
+    const openedId = e?.detail?.id;
+    if (openedId && openedId !== this.instanceId) {
+      this.closeDropdown();
+    }
+  };
+
+  private notifyOpened() {
+    window.dispatchEvent(
+      new CustomEvent('dinno-select-opened', {
+        detail: { id: this.instanceId },
+      }),
+    );
+  }
 
   selectedName = computed(() => {
     const id = this.selectedId();
@@ -71,12 +96,31 @@ export class SearchableSelectComponent implements ControlValueAccessor {
     this.isOpen.set(true);
   }
 
-  toggleDropdown() {
-    this.isOpen.update(v => !v);
-    if (this.isOpen()) this.searchText.set('');
+  canOpen(): boolean {
+    if (this.isDisabled()) return false;
+
+    const opts = this.filteredOptions?.() ?? this.options?.() ?? [];
+    if (Array.isArray(opts) && opts.length === 0) return false;
+
+    return true;
+  }
+
+  toggleDropdown(): void {
+    if (!this.canOpen()) {
+      this.closeDropdown();
+      return;
+    }
+    this.isOpen.update((v) => !v);
+    if (this.isOpen()) this.notifyOpened();
   }
 
   openDropdown() {
+    if (!this.canOpen()) {
+      this.closeDropdown();
+      return;
+    }
+    this.isOpen.set(true);
+    this.notifyOpened();
     this.isOpen.set(true);
     this.searchText.set('');
   }

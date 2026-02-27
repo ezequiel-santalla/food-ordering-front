@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TableSessionService } from '../../services/table-session-service';
 import {
   LucideAngularModule,
@@ -32,6 +32,8 @@ export class HomeComponent {
   private tableSession = inject(TableSessionService);
   private navigation = inject(NavigationService);
   private sweetAlert = inject(SweetAlertService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   readonly QrCode = QrCode;
   readonly Utensils = Utensils;
@@ -62,5 +64,11 @@ export class HomeComponent {
     if (!result) return;
 
     console.log('Número de contacto:', result);
+  }
+
+  scrollTo(sectionId: string) {
+    const el = document.getElementById(sectionId);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }

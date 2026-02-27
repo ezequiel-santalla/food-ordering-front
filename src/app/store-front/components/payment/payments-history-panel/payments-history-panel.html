@@ -17,8 +17,9 @@
 
   @for (p of payments(); track p.publicId) {
 
-  <div class="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden transition"
-    [class.opacity-60]="p.status === 'CANCELLED'">
+  <div class="border border-orange-200/60 rounded-2xl bg-white/70 backdrop-blur shadow-sm overflow-hidden transition
+            hover:shadow-md"
+     [class.opacity-60]="p.status === 'CANCELLED'">
 
     <button class="w-full flex items-center justify-between px-4 py-3 text-left" (click)="toggle(p.publicId)">
       <div class="flex items-center gap-3">
@@ -40,7 +41,8 @@
 
       <div class="flex items-center gap-3">
 
-        <span class="font-semibold text-sm inline-flex items-center gap-1" [class]="paymentStatusClass(p.status)">
+        <span class="px-2.5 py-1 rounded-full font-semibold text-xs inline-flex items-center gap-1"
+      [class]="paymentStatusClass(p.status)">
           <lucide-icon [img]="paymentUi(p.status).icon" class="w-4 h-4"></lucide-icon>
           {{ paymentUi(p.status).label }}
         </span>

@@ -1,10 +1,12 @@
 <div class="dropdown dropdown-end group">
   <div tabindex="0" role="button"
-    class="btn btn-ghost btn-sm h-auto py-1 px-2 -mr-2 flex items-center gap-2 text-gray-700 font-medium hover:bg-gray-200/50 relative z-50">
+    class="btn btn-ghost btn-sm h-auto py-1 px-2 -mr-2
+       flex items-center gap-2 text-[#1f1b16] font-semibold
+       hover:bg-orange-50/70 relative z-[200] rounded-2xl">
     <lucide-icon [img]="UsersRound" class="w-5 h-5"></lucide-icon>
     <span class="text-base flex items-center gap-2">
       @if (isLoading()) {
-      <div class="h-4 w-14 rounded bg-gray-200 animate-pulse"></div>
+      <div class="h-4 w-14 rounded bg-orange-200/40 animate-pulse"></div>
       } @else {
       @if (tableCapacity() === null) {
       {{ participantCount() }} {{ participantCount() === 1 ? 'Persona' : 'Personas' }}
@@ -17,12 +19,16 @@
 
   </div>
 
-  <div class="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] transition-all duration-200 
-              invisible opacity-0 group-focus-within:visible group-focus-within:opacity-100 cursor-default">
-  </div>
+  <div class="fixed inset-0 z-40 bg-black/10 backdrop-blur-[1px] transition-all duration-200 
+            invisible opacity-0 group-focus-within:visible group-focus-within:opacity-100 cursor-default">
+</div>
 
   <ul tabindex="0"
-    class="menu dropdown-content z-50 mt-2 p-2 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] bg-white rounded-xl w-72 border border-gray-100">
+    class="menu dropdown-content fixed z-[300] mt-3 right-4
+       w-72 rounded-[24px]
+       bg-white/90 backdrop-blur-md
+       border border-orange-200/70
+       shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)]">
 
     <li class="menu-title flex flex-row justify-between items-center px-3 py-2">
       <span class="font-bold text-sm text-gray-500">En la mesa</span>
@@ -32,18 +38,18 @@
     @for (user of sortedParticipants(); track user.publicId) {
     <li>
       <div role="button" class="flex items-center gap-3 py-2 px-2 rounded-lg transition-colors w-full relative
-           hover:bg-gray-50" [class.cursor-pointer]="amIHost() && user.publicId !== myParticipantId()"
-        [class.bg-blue-50]="user.publicId === myParticipantId()"
-        [class.text-blue-500]="user.publicId === myParticipantId()" (click)="
+           hover:bg-orange-50/60" [class.cursor-pointer]="amIHost() && user.publicId !== myParticipantId()"
+        [class.bg-orange-50]="user.publicId === myParticipantId()"
+[class.text-orange-700]="user.publicId === myParticipantId()" (click)="
       amIHost() && user.publicId !== myParticipantId()
         ? openParticipantActions(user)
         : null
     ">
         <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors"
-          [class.bg-blue-500]="user.publicId === myParticipantId()"
-          [class.text-white]="user.publicId === myParticipantId()"
-          [class.bg-gray-100]="user.publicId !== myParticipantId()"
-          [class.text-gray-500]="user.publicId !== myParticipantId()">
+          [class.bg-orange-500]="user.publicId === myParticipantId()"
+[class.text-white]="user.publicId === myParticipantId()"
+[class.bg-orange-100]="user.publicId !== myParticipantId()"
+[class.text-orange-700]="user.publicId !== myParticipantId()">
           <lucide-icon [img]="UserRound" class="w-5 h-5"></lucide-icon>
         </div>
 
@@ -72,7 +78,7 @@
 
 
     @if (previousParticipants().length > 0) {
-    <div class="h-px bg-gray-100 my-1 mx-2"></div>
+    <div class="h-px bg-orange-200/40 my-1 mx-2"></div>
     <li class="menu-title px-3 py-2">
       <span class="text-sm font-bold text-gray-500">Salieron</span>
     </li>

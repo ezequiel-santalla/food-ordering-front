@@ -1,96 +1,143 @@
-<section class="min-h-screen flex items-center justify-center px-4 py-4">
-  <div class="w-full max-w-md">
+<section class="min-h-screen px-4 py-10 bg-[#fbf6ef] relative overflow-hidden flex items-center justify-center">
+
+  <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-orange-300/20 blur-3xl"></div>
+  <div class="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-amber-400/15 blur-3xl"></div>
+
+  <img
+    src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1763819126/logo-dinno-chef_ybshqf.png"
+    alt="logo"
+    class="pointer-events-none select-none absolute right-6 bottom-6 w-40 opacity-[0.06] blur-[0.2px]"
+  />
+
+  <div class="w-full max-w-md relative">
+
     <div class="text-center mb-6">
-      <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br rounded-full mb-4">
-        <lucide-icon [img]="User" class="w-12 h-12 text-base-content/70"></lucide-icon>
+      <div class="flex justify-center">
+        <img
+          src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772114910/dinno-banner_eqcu7r.png"
+          alt="Dinno"
+          class="w-10/12 sm:w-4/5 object-contain drop-shadow"
+        />
       </div>
-      <h1 class="text-3xl font-bold text-base-content mb-2">Iniciar Sesión</h1>
-      <p class="text-base-content/70">Accede a tu cuenta</p>
+
+      <h1 class="mt-4 text-2xl sm:text-3xl font-black text-[#1f1b16]">Iniciar sesión</h1>
+      <p class="mt-1 text-[#3a332c]/70">Accedé a tu cuenta para continuar</p>
     </div>
 
-    <div class="card bg-base-100 shadow-2xl relative">
+    <div class="rounded-[28px] bg-white/70 backdrop-blur border border-white shadow-2xl relative overflow-hidden">
 
-      <button (click)="onExit()"
-        class="btn btn-ghost btn-circle btn-sm absolute right-3 z-10 text-base-content/50 hover:text-base-content"
-        aria-label="Cerrar y volver">
+      <button
+        (click)="onExit()"
+        class="absolute right-3 top-3 btn btn-ghost btn-circle btn-sm text-[#3a332c]/60 hover:text-[#1f1b16]"
+        aria-label="Cerrar y volver"
+      >
         <lucide-icon [img]="X" class="w-6 h-6"></lucide-icon>
       </button>
 
-      <div class="card-body">
+      <div class="p-6 md:p-8">
 
-        <form [formGroup]="myForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <form [formGroup]="myForm" (ngSubmit)="onSubmit()" class="space-y-5">
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-semibold">Email</span>
-            </label>
+          <div>
+            <label class="text-sm font-bold text-[#1f1b16]">Email</label>
+
             <label
-              class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
-              <lucide-icon [img]="Mail" class="w-4 h-4 text-base-content/70"></lucide-icon>
-              <input type="email" placeholder="Ej: juan.perez@example.com" formControlName="email"
-                class="grow placeholder-gray-400 placeholder:italic" required />
+              class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                     flex items-center gap-2 focus-within:border-orange-400 transition"
+            >
+              <lucide-icon [img]="Mail" class="w-4 h-4 text-[#3a332c]/60"></lucide-icon>
+              <input
+                type="email"
+                placeholder="Ej: juan.perez@example.com"
+                formControlName="email"
+                class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40"
+                required
+              />
             </label>
-            @if ( formUtils.isValidField(myForm, 'email') ) {
-            <span class="form-text text-warning">
-              {{ formUtils.getTextError(myForm, "email") }}
-            </span>
+
+            @if (formUtils.isValidField(myForm, 'email')) {
+              <span class="text-sm text-orange-700 mt-1 block">
+                {{ formUtils.getTextError(myForm, "email") }}
+              </span>
             }
           </div>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-semibold">Contraseña</span>
-            </label>
+          <div>
+            <label class="text-sm font-bold text-[#1f1b16]">Contraseña</label>
+
             <label
-              class="input input-bordered input-accent w-full focus:accent-accent transition-all duration-300 flex items-center gap-2 my-1">
-              <lucide-icon [img]="KeyRound" class="w-4 h-4 text-base-content/70"></lucide-icon>
-              <input [type]="showPassword ? 'text' : 'password'" placeholder="Mínimo 8 caracteres"
-                formControlName="password" class="grow placeholder-gray-400 placeholder:italic" required />
-              <button type="button" (click)="togglePassword()"
-                class="btn btn-ghost btn-xs btn-circle text-base-content/50 hover:text-base-content"
-                aria-label="Mostrar/ocultar contraseña">
+              class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                     flex items-center gap-2 focus-within:border-orange-400 transition"
+            >
+              <lucide-icon [img]="KeyRound" class="w-4 h-4 text-[#3a332c]/60"></lucide-icon>
+
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                placeholder="Mínimo 8 caracteres"
+                formControlName="password"
+                class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40"
+                required
+              />
+
+              <button
+                type="button"
+                (click)="togglePassword()"
+                class="btn btn-ghost btn-xs btn-circle text-[#3a332c]/60 hover:text-[#1f1b16]"
+                aria-label="Mostrar/ocultar contraseña"
+              >
                 <lucide-icon [img]="showPassword ? EyeOff : Eye" class="w-4 h-4"></lucide-icon>
               </button>
             </label>
-            @if ( formUtils.isValidField(myForm, 'password') ) {
-            <span class="form-text text-warning">
-              {{ formUtils.getTextError(myForm, "password") }}
-            </span>
+
+            @if (formUtils.isValidField(myForm, 'password')) {
+              <span class="text-sm text-orange-700 mt-1 block">
+                {{ formUtils.getTextError(myForm, "password") }}
+              </span>
             }
           </div>
 
-          <div class="text-right">
-            <a routerLink="/auth/forgot-password"
-              class="text-accent hover:text-accent-focus text-sm transition-colors duration-300">
+          <div class="flex items-center justify-end">
+            <a
+              routerLink="/auth/forgot-password"
+              class="text-sm font-semibold text-orange-700 hover:text-orange-800 transition"
+            >
               ¿Olvidaste tu contraseña?
             </a>
           </div>
 
-          <div class="space-y-3 sm:space-y-0 sm:flex sm:gap-4 pt-6">
-            <button type="submit"
-              class="btn btn-primary bg-gradient-to-r border-none text-white w-full sm:flex-1 hover:scale-105 transition-all duration-300 shadow-lg h-12">
-              <lucide-icon [img]="User" class="w-5 h-5" />
-              Iniciar Sesión
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <button
+              type="submit"
+              class="h-12 rounded-2xl font-bold text-white shadow-lg
+                     bg-gradient-to-r from-orange-500 to-amber-500
+                     hover:from-orange-600 hover:to-amber-600 transition"
+            >
+              Iniciar sesión
             </button>
-            <button type="button" (click)="onCancel()"
-              class="btn btn-outline btn-secondary w-full sm:flex-1 hover:scale-105 transition-all duration-300 h-12">
-              <lucide-icon [img]="RotateCcwIcon" class="w-5 h-5"></lucide-icon>
+
+            <button
+              type="button"
+              (click)="onCancel()"
+              class="h-12 rounded-2xl font-bold border border-orange-200 bg-white hover:bg-orange-50 transition"
+            >
               Limpiar
             </button>
           </div>
         </form>
 
-        <div class="divider">O</div>
+        <div class="my-6 h-px bg-orange-200/60"></div>
+
         <div class="text-center">
-          <p class="text-base-content/70">
-            ¿No tienes una cuenta?
-            <a routerLink="/auth/register"
-              class="text-accent hover:text-accent-focus font-semibold transition-colors duration-300">
-              Regístrate aquí
+          <p class="text-[#3a332c]/70">
+            ¿No tenés una cuenta?
+            <a routerLink="/auth/register" class="text-orange-700 hover:text-orange-800 font-bold transition">
+              Registrate
             </a>
           </p>
         </div>
+
       </div>
     </div>
+
   </div>
 </section>

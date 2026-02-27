@@ -1,91 +1,99 @@
-<section class="min-h-screen flex items-center justify-center px-4 py-4">
-  <div class="w-full max-w-md">
+<section class="min-h-screen px-4 py-10 bg-[#fbf6ef] relative overflow-hidden flex items-center justify-center">
 
-    <!-- LOADING STATE -->
+  <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-orange-300/20 blur-3xl"></div>
+  <div class="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-amber-400/15 blur-3xl"></div>
+
+  <div class="w-full max-w-md relative">
+
+    <div class="text-center mb-6">
+      <div class="flex justify-center">
+        <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772114910/dinno-banner_eqcu7r.png" alt="Dinno"
+          class="w-10/12 sm:w-4/5 object-contain drop-shadow" />
+      </div>
+    </div>
     @if (verificationState === 'loading') {
-      <div class="text-center mb-6">
-        <div
-          class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br rounded-full mb-4"
-        >
-          <lucide-icon
-            [img]="LoaderCircle"
-            class="w-12 h-12 text-base-content/70 animate-spin"
-          ></lucide-icon>
-        </div>
-        <h1 class="text-3xl font-bold text-base-content mb-2">Verificando tu email...</h1>
-        <p class="text-base-content/70">Por favor espera mientras confirmamos tu cuenta</p>
+    <div class="text-center mb-6">
+      <div class="mx-auto w-16 h-16 rounded-2xl bg-orange-500/10 text-orange-700 flex items-center justify-center">
+        <lucide-icon [img]="LoaderCircle" class="w-8 h-8 animate-spin"></lucide-icon>
       </div>
 
-      <div class="card bg-base-100 shadow-2xl">
-        <div class="card-body"></div>
+      <h1 class="mt-4 text-2xl font-black text-[#1f1b16]">
+        Verificando tu email...
+      </h1>
+
+      <p class="mt-2 text-[#3a332c]/70 text-sm">
+        Por favor espera mientras confirmamos tu cuenta
+      </p>
+    </div>
+
+    <div class="rounded-[28px] bg-white/70 backdrop-blur border border-white shadow-2xl p-8 text-center">
+      <div class="h-2 w-full bg-orange-100 rounded-full overflow-hidden">
+        <div class="h-full w-1/2 bg-gradient-to-r from-orange-400 to-amber-500 animate-pulse"></div>
       </div>
+    </div>
     }
 
-    <!-- SUCCESS STATE -->
     @if (verificationState === 'success') {
-      <div class="text-center mb-6">
-        <div
-          class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br rounded-full mb-4"
-        >
-          <lucide-icon
-            [img]="Check"
-            class="w-12 h-12 text-base-content/70"
-          ></lucide-icon>
-        </div>
-        <h1 class="text-3xl font-bold text-base-content mb-2">¡Email verificado!</h1>
-        <p class="text-base-content/70">Tu cuenta ha sido activada correctamente</p>
+    <div class="text-center mb-6">
+      <div class="mx-auto w-16 h-16 rounded-2xl bg-orange-500/10 text-orange-700 flex items-center justify-center">
+        <lucide-icon [img]="Check" class="w-8 h-8"></lucide-icon>
       </div>
 
-      <div class="card bg-base-100 shadow-2xl">
-        <div class="card-body">
-          <div class="space-y-3 pt-6">
-            <button
-              routerLink="/auth/login"
-              class="btn btn-primary bg-gradient-to-r border-none text-white w-full hover:scale-105 transition-all duration-300 shadow-lg h-12"
-            >
-              <lucide-icon [img]="User" class="w-5 h-5" />
-              Ir al inicio de sesión
-            </button>
-          </div>
-        </div>
-      </div>
+      <h1 class="mt-4 text-2xl font-black text-[#1f1b16]">
+        ¡Email verificado!
+      </h1>
+
+      <p class="mt-2 text-[#3a332c]/70 text-sm">
+        Tu cuenta fue activada correctamente.
+      </p>
+    </div>
+
+    <div class="rounded-[28px] bg-white/70 backdrop-blur border border-white shadow-2xl p-6">
+
+      <button routerLink="/auth/login" class="w-full h-12 rounded-2xl font-bold text-white shadow-lg
+                 bg-gradient-to-r from-orange-500 to-amber-500
+                 hover:from-orange-600 hover:to-amber-600 transition
+                 flex items-center justify-center gap-2">
+        <lucide-icon [img]="User" class="w-5 h-5" />
+        Ir al inicio de sesión
+      </button>
+
+    </div>
     }
 
-    <!-- ERROR STATE -->
     @if (verificationState === 'error') {
-      <div class="text-center mb-6">
-        <div
-          class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br rounded-full mb-4"
-        >
-          <lucide-icon
-            [img]="CircleAlert"
-            class="w-12 h-12 text-base-content/70"
-          ></lucide-icon>
-        </div>
-        <h1 class="text-3xl font-bold text-base-content mb-2">Error en la verificación</h1>
-        <p class="text-base-content/70">{{ errorMessage }}</p>
+    <div class="text-center mb-6">
+      <div class="mx-auto w-16 h-16 rounded-2xl bg-red-500/10 text-red-600 flex items-center justify-center">
+        <lucide-icon [img]="CircleAlert" class="w-8 h-8"></lucide-icon>
       </div>
 
-      <div class="card bg-base-100 shadow-2xl">
-        <div class="card-body">
-          <div class="space-y-3 pt-6">
-            <button
-              routerLink="/auth/resend-verification"
-              class="btn btn-primary bg-gradient-to-r border-none text-white w-full hover:scale-105 transition-all duration-300 shadow-lg h-12"
-            >
-              <lucide-icon [img]="Send" class="w-5 h-5" />
-              Solicitar nuevo enlace
-            </button>
-            <button
-              routerLink="/auth/login"
-              class="btn btn-outline btn-secondary w-full hover:scale-105 transition-all duration-300 h-12"
-            >
-              <lucide-icon [img]="User" class="w-5 h-5"></lucide-icon>
-              Volver al inicio de sesión
-            </button>
-          </div>
-        </div>
-      </div>
+      <h1 class="mt-4 text-2xl font-black text-[#1f1b16]">
+        Error en la verificación
+      </h1>
+
+      <p class="mt-2 text-[#3a332c]/70 text-sm">
+        {{ errorMessage }}
+      </p>
+    </div>
+
+    <div class="rounded-[28px] bg-white/70 backdrop-blur border border-white shadow-2xl p-6 space-y-3">
+
+      <button routerLink="/auth/resend-verification" class="w-full h-12 rounded-2xl font-bold text-white shadow-lg
+                 bg-gradient-to-r from-orange-500 to-amber-500
+                 hover:from-orange-600 hover:to-amber-600 transition
+                 flex items-center justify-center gap-2">
+        <lucide-icon [img]="Send" class="w-5 h-5" />
+        Solicitar nuevo enlace
+      </button>
+
+      <button routerLink="/auth/login" class="w-full h-12 rounded-2xl font-bold border border-orange-200 bg-white
+                 hover:bg-orange-50 transition
+                 flex items-center justify-center gap-2">
+        <lucide-icon [img]="User" class="w-5 h-5"></lucide-icon>
+        Volver al inicio de sesión
+      </button>
+
+    </div>
     }
 
   </div>

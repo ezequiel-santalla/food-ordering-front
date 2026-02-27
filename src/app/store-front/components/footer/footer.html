@@ -1,91 +1,114 @@
-<footer
-  class="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-300 shadow-lg z-50"
->
+<footer class="fixed bottom-0 left-0 right-0 z-[120]
+               bg-white/80 backdrop-blur-xl
+               border-t border-orange-200/60
+               shadow-[0_-10px_30px_-18px_rgba(0,0,0,0.25)]">
   <nav class="px-4 py-2 safe-area-pb">
     <div class="flex justify-around items-center max-w-md mx-auto">
-      <!-- inicio -->
+
+      <!-- INICIO -->
       <a
         [routerLink]="sessionRoutesService.homeRoute()"
-        routerLinkActive="bg-base-200/90"
+        routerLinkActive="is-active"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group"
+        class="nav-item group"
       >
-        <div
-          class="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
-        >
-          <lucide-icon [img]="Store"></lucide-icon>
+        <div class="nav-icon bg-orange-500/10 text-orange-700">
+          <lucide-icon [img]="Store" class="w-5 h-5"></lucide-icon>
         </div>
-        <span
-          class="text-xs font-medium text-base-content/70 group-hover:text-primary transition-colors"
-          >Inicio</span
-        >
+        <span class="nav-label">Inicio</span>
       </a>
 
-      <!-- Menú -->
+      <!-- MENU -->
       <a
         [routerLink]="sessionRoutesService.menuRoute()"
-        routerLinkActive="bg-base-200/90"
+        routerLinkActive="is-active"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group"
+        class="nav-item group"
       >
-        <div
-          class="p-2 rounded-lg bg-success/10 hover:bg-success/20 transition-colors"
-        >
-          <lucide-icon [img]="Menu" class="w-5 h-5 text-success"></lucide-icon>
+        <div class="nav-icon bg-orange-500/10 text-orange-700">
+          <lucide-icon [img]="Menu" class="w-5 h-5"></lucide-icon>
         </div>
-        <span
-          class="text-xs font-medium text-base-content/70 group-hover:text-success router-link-active:text-success router-link-active:font-semibold transition-colors"
-          >Menú</span
-        >
+        <span class="nav-label">Menú</span>
       </a>
 
-      <!-- Pedidos -->
+      <!-- PEDIDOS -->
       <a
         [routerLink]="sessionRoutesService.ordersRoute()"
-        routerLinkActive="bg-base-200/90"
-        class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group relative"
+        routerLinkActive="is-active"
+        class="nav-item group relative"
       >
-        <div
-          class="p-2 rounded-lg bg-warning/10 hover:bg-warning/20 transition-colors relative"
-        >
-          <lucide-icon
-            [img]="HandPlatter"
-            class="w-5 h-5 text-warning"
-          ></lucide-icon>
+        <div class="nav-icon bg-orange-500/10 text-orange-700 relative">
+          <lucide-icon [img]="HandPlatter" class="w-5 h-5"></lucide-icon>
 
           @if (itemsInCartCount() > 0) {
-          <div
-            class="absolute -top-2 -right-2 bg-error text-error-content text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg"
-          >
-            {{ itemsInCartCount() }}
-          </div>
+            <div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs
+                        rounded-full w-5 h-5 flex items-center justify-center
+                        font-bold shadow-md">
+              {{ itemsInCartCount() }}
+            </div>
           }
         </div>
-        <span
-          class="text-xs font-medium text-base-content/70 group-hover:text-warning router-link-active:text-warning router-link-active:font-semibold transition-colors"
-          >Pedidos</span
-        >
+        <span class="nav-label">Pedidos</span>
       </a>
 
-      <!-- Pagos -->
+      <!-- PAGOS -->
       <a
         [routerLink]="sessionRoutesService.paymentsRoute()"
-        routerLinkActive="bg-base-200/90"
-        class="flex flex-col items-center gap-1 py-3 px-3 rounded-xl hover:bg-base-200/50 transition-all duration-200 cursor-pointer group"
+        routerLinkActive="is-active"
+        class="nav-item group"
       >
-        <div
-          class="p-2 rounded-lg bg-secondary/10 hover:bg-secondary/20 transition-colors"
-        >
-          <lucide-icon
-            [img]="CreditCard"
-            class="w-5 h-5 text-secondary"
-          ></lucide-icon>
+        <div class="nav-icon bg-orange-500/10 text-orange-700">
+          <lucide-icon [img]="CreditCard" class="w-5 h-5"></lucide-icon>
         </div>
-        <span
-          class="text-xs font-medium text-base-content/70 group-hover:text-secondary router-link-active:text-secondary router-link-active:font-semibold transition-colors"
-          >Pagos</span
-        >
+        <span class="nav-label">Pagos</span>
       </a>
+
     </div>
   </nav>
 </footer>
+
+<style>
+  /* base */
+  .nav-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:.25rem;
+    padding:.5rem .65rem;
+    border-radius:1.1rem;
+    transition:all .2s ease;
+    cursor:pointer;
+    user-select:none;
+  }
+  .nav-item:hover{
+    background:rgba(251,146,60,.10);
+  }
+
+  .nav-icon{
+    padding:.55rem;
+    border-radius:.95rem;
+    transition:all .2s ease;
+    box-shadow:0 2px 0 rgba(0,0,0,.04);
+  }
+
+  .nav-label{
+    font-size:.72rem;
+    font-weight:600;
+    color:rgba(58,51,44,.65);
+    transition:all .2s ease;
+  }
+
+  /* active (routerLinkActive="is-active") */
+  .is-active{
+    background:rgba(251,146,60,.14);
+    outline:1px solid rgba(251,146,60,.22);
+  }
+  .is-active .nav-icon{
+    background:rgba(251,146,60,.22);
+    color:rgb(194,65,12);
+  }
+  .is-active .nav-label{
+    color:rgb(194,65,12);
+    font-weight:800;
+  }
+</style>

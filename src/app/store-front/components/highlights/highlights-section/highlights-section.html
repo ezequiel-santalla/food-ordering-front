@@ -1,91 +1,99 @@
-<div class="space-y-2 z-910">
+<div class="z-910 mb-6">
   <!-- Header -->
   @if (resource.isLoading() || items().length > 0) {
-  <div class="relative flex items-center gap-2 px-4 py-2.5 rounded-2xl border bg-white
-           shadow-sm" [ngClass]="{
-      'border-violet-200': variant() === 'premium',
-      'border-orange-200': variant() === 'pop',
-      'border-gray-200': variant() === 'minimal'
-    }">
-
-    <div [ngClass]="{
-    'border-violet-200 text-violet-600': variant() === 'premium',
-    'border-orange-200 text-orange-600': variant() === 'pop',
-    'border-gray-200 text-gray-700': variant() === 'minimal'
-  }">
-      @if (variant() === 'premium') {
-      <lucide-icon [img]="Star" class="w-5 h-5"></lucide-icon>
-      } @else if (variant() === 'pop') {
-      <lucide-icon [img]="Flame" class="w-5 h-5"></lucide-icon>
-      } @else {
-      <lucide-icon [img]="Heart" class="w-5 h-5"></lucide-icon>
-      }
-    </div>
-
-    <div class="flex-1 min-w-0">
-      <div class="font-semibold text-gray-900 truncate">{{ title() }}</div>
-    </div>
-  </div>
-  }
-  <!-- Loading: skeleton en lugar de spinner -->
-  @if (resource.isLoading()) {
-  <div class="overflow-x-auto scrollbar-hide -mx-4 px-4 py-1">
-    <div class="flex gap-4">
-      @for (_ of [1,2,3]; track _) {
-      <div class="w-40 md:w-44">
-        <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-          <div class="h-32 bg-gray-200 animate-pulse"></div>
-          <div class="p-3 space-y-2">
-            <div class="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
-            <div class="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
-            <div class="h-8 w-full bg-gray-200 rounded-xl animate-pulse"></div>
-          </div>
-        </div>
+    <div class="flex items-center gap-2 px-4 pb-1">
+      <div
+        class="w-8 h-8 rounded-xl flex items-center justify-center
+               border bg-white/70 backdrop-blur shadow-sm"
+        [ngClass]="{
+          'border-orange-300/70 text-orange-700 bg-orange-50/80': variant() === 'premium',
+          'border-amber-300/70 text-amber-700 bg-amber-50/80': variant() === 'pop',
+          'border-orange-200/60 text-orange-700 bg-white/70': variant() === 'minimal'
+        }"
+      >
+        @if (variant() === 'premium') {
+          <lucide-icon [img]="Star" class="w-4 h-4"></lucide-icon>
+        } @else if (variant() === 'pop') {
+          <lucide-icon [img]="Flame" class="w-4 h-4"></lucide-icon>
+        } @else {
+          <lucide-icon [img]="Heart" class="w-4 h-4"></lucide-icon>
+        }
       </div>
-      }
+
+      <div class="font-black text-[#1f1b16] text-sm tracking-tight">
+        {{ title() }}
+      </div>
     </div>
-  </div>
+  }
+
+  <!-- Loading: skeleton -->
+  @if (resource.isLoading()) {
+    <div class="overflow-x-auto scrollbar-hide -mx-4 px-4 py-1">
+      <div class="flex gap-4">
+        @for (_ of [1,2,3]; track _) {
+          <div class="w-40 md:w-44">
+            <div class="rounded-2xl border border-orange-200/60 bg-white shadow-sm overflow-hidden">
+              <div class="h-32 bg-orange-100/60 animate-pulse"></div>
+              <div class="p-3 space-y-2">
+                <div class="h-3 w-24 bg-orange-100/80 rounded animate-pulse"></div>
+                <div class="h-3 w-16 bg-orange-100/80 rounded animate-pulse"></div>
+                <div class="h-8 w-full bg-orange-100/80 rounded-xl animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
   }
 
   @if (resource.error()) {
-  <div class="text-center py-2 text-error">
-    Error al cargar {{ title().toLowerCase() }}
-  </div>
+    <div class="text-center py-2 text-orange-700">
+      Error al cargar {{ title().toLowerCase() }}
+    </div>
   }
 
   @if (items().length > 0) {
-  <div class="overflow-x-auto scrollbar-hide -mx-4 sm:-mx-6 px-4 sm:px-6 py-1">
-    <div class="grid grid-flow-col
-           auto-cols-[8.5rem] sm:auto-cols-[9rem] md:auto-cols-[10rem]
-           gap-3 items-stretch snap-x snap-mandatory">
-      @for (p of items(); track p.publicId) {
-      <div class="snap-start">
-        <app-menu-highlight-card class="w-full" [product]="p" [variant]="variant()" (select)="openProduct(p)"
-          (add)="add.emit(p)" />
+    <div class="overflow-x-auto scrollbar-hide -mx-4 sm:-mx-6 px-4 sm:px-6 py-1">
+      <div class="grid grid-flow-col
+                  auto-cols-[8.5rem] sm:auto-cols-[9rem] md:auto-cols-[10rem]
+                  gap-3 items-stretch snap-x snap-mandatory">
+        @for (p of items(); track p.publicId) {
+          <div class="snap-start">
+            <app-menu-highlight-card
+              class="w-full"
+              [product]="p"
+              [variant]="variant()"
+              (select)="openProduct(p)"
+              (add)="add.emit(p)"
+            />
+          </div>
+        }
+        <div class="w-1"></div>
       </div>
-      }
-      <div class="w-1"></div>
     </div>
-  </div>
   }
 
   @if (!resource.isLoading() && items().length === 0 && emptyMessage()) {
-  <div class="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6 py-1">
-    <div class="rounded-2xl border bg-white shadow-sm px-4 py-3 text-sm"
-         [ngClass]="{
-           'border-violet-100 text-violet-700': variant() === 'premium',
-           'border-orange-100 text-orange-700': variant() === 'pop',
-           'border-gray-200 text-gray-700': variant() === 'minimal'
-         }">
-      <div class="flex items-center gap-2">
-        <lucide-icon [img]="Heart" class="w-4 h-4"></lucide-icon>
-        <span>{{ emptyMessage() }}</span>
+    <div class="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6 py-1">
+      <div
+        class="rounded-2xl border border-orange-200/60 bg-white/70 backdrop-blur
+               shadow-sm px-4 py-3 text-sm text-[#1f1b16]"
+      >
+        <div class="flex items-center gap-2 text-orange-700 font-semibold">
+          <lucide-icon
+            [img]="variant() === 'premium' ? Star : (variant() === 'pop' ? Flame : Heart)"
+            class="w-4 h-4"
+          ></lucide-icon>
+          <span class="text-[#1f1b16]/80 font-medium">{{ emptyMessage() }}</span>
+        </div>
       </div>
     </div>
-  </div>
-}
+  }
 
   @if (selected()) {
-  <app-menu-item-detail-modal [product]="selected()!" (close)="selected.set(undefined)" />
+    <app-menu-item-detail-modal
+      [product]="selected()!"
+      (close)="selected.set(undefined)"
+    />
   }
 </div>

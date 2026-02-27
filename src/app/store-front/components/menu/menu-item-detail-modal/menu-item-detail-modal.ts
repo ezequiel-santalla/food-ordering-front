@@ -10,7 +10,7 @@ import { Product } from '../../../models/menu.interface';
 import { CartService } from '../../../services/cart-service';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe, NgClass } from '@angular/common';
-import { Heart, LucideAngularModule } from 'lucide-angular';
+import { Heart, Plus, Minus, LucideAngularModule, ShoppingCart } from 'lucide-angular';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 import { FavoritesService } from '../../../services/favorite-service';
 import { AuthStateManager } from '../../../../auth/services/auth-state-manager-service';
@@ -36,7 +36,12 @@ export class MenuItemDetailModal {
   specialInstructions = '';
 
   readonly Heart = Heart;
+  readonly ShoppingCart = ShoppingCart;
+  readonly Plus = Plus;
+  readonly Minus = Minus;
+
   isFavorite = signal(false);
+  isFavLoading = signal(false);
 
   constructor() {
     effect(() => {
@@ -57,6 +62,8 @@ export class MenuItemDetailModal {
   async toggleFavorite(event: Event) {
     event.stopPropagation();
 
+    if (this.isFavLoading()) return;
+
     if (!this.authState.isAuthenticated()) {
       const deseaLoguearse = await this.sweetAlert.promptLoginForFavorites();
 
@@ -69,15 +76,21 @@ export class MenuItemDetailModal {
 
     const p = this.product();
 
+    this.isFavLoading.set(true);
+    this.sweetAlert.showToast('top-end', 'info', 'Actualizando favorito...');
+
     this.favoritesService.toggle(p.publicId).subscribe({
       next: (res) => {
         this.isFavorite.set(res.isFavorite);
+        this.isFavLoading.set(false);
       },
       error: async () => {
         const deseaLoguearse = await this.sweetAlert.promptLoginForFavorites();
         if (deseaLoguearse) {
           this.close.emit();
           this.navigation.navigateToLogin();
+        } else {
+          this.sweetAlert.showToast('top-end', 'error', 'No se pudo actualizar el favorito.');
         }
       },
     });
@@ -98,10 +111,10 @@ export class MenuItemDetailModal {
     this.cartService.addItem(prod, this.quantity, instructions);
     this.close.emit();
 
-    this.sweetAlert.showSuccess(
-      '¡Agregado!',
-      `${this.product().name} fue añadido a tu orden.`,
-      1500
-    );
+    this.sweetAlert.showToast(
+      'top-end',
+      'success',
+      'Agregaste ' + `${this.product.name} a tu orden.`
+    )
   }
 }
