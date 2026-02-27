@@ -1,7 +1,6 @@
-// app-menu-item-card.ts
-import { Component, inject, Input, output } from '@angular/core';
+import { Component, computed, inject, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Plus, Star } from 'lucide-angular';
+import { LucideAngularModule, Plus, Minus, Star } from 'lucide-angular';
 import { Product } from '../../../models/menu.interface';
 import { CartService } from '../../../services/cart-service';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
@@ -20,23 +19,48 @@ export class MenuItemCard {
   private sweetAlert = inject(SweetAlertService);
 
   readonly Plus = Plus;
+  readonly Minus = Minus;
   readonly Star = Star;
 
   select = output<Product>();
 
-  onActionClick(event: Event) {
-    event.stopPropagation();
-this.cartService.addItem(
-      this.product,
-      1,    // Cantidad 1
-      null  // Sin instrucciones
-    );
+  // Cantidad total de este producto en el carrito (suma todas las variantes)
+  quantity = computed(() => {
+    const items = this.cartService.items();
+    return items
+      .filter(i => i.productName === this.product.name)
+      .reduce((sum, i) => sum + i.quantity, 0);
+  });
 
-    // 7. (Opcional) Da feedback al usuario
-    this.sweetAlert.showSuccess(
-      '¡Agregado!',
-      `${this.product.name} fue añadido a tu orden.`,
-      1500 // 1.5 segundos
-    );
+  increaseQuantity(ev?: Event) {
+    ev?.stopPropagation();
+
+    const before = this.quantity();
+    this.cartService.addItem(this.product, 1, null);
+
+    if (before === 0) {
+      this.sweetAlert.showToast(
+        'top-end',
+        'success',
+        'Agregaste ' + `${this.product.name} a tu orden.`
+      )
+    }
+  }
+
+  decreaseQuantity(ev?: Event) {
+    ev?.stopPropagation();
+
+    const items = this.cartService.items();
+
+    // Preferimos bajar el "normal" (sin instrucciones) si existe
+    const idx =
+      items.findIndex(i => i.productName === this.product.name && i.specialInstructions === null) ??
+      -1;
+
+    const index = idx >= 0 ? idx : items.findIndex(i => i.productName === this.product.name);
+    if (index < 0) return;
+
+    const current = items[index].quantity;
+    this.cartService.updateQuantity(index, current - 1);
   }
 }

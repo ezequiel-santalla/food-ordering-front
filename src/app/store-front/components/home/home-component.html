@@ -1,146 +1,191 @@
-<app-public-header />
-<div class="min-h-[calc(100vh-64px)] bg-base-100 flex flex-col">
+<app-public-header (navTo)="scrollTo($event)" />
 
-  <div class="hero bg-base-200 py-12 lg:py-20 px-4 rounded-b-[3rem] shadow-sm relative overflow-hidden">
+<div class="min-h-[calc(100vh-64px)] bg-[#fbf6ef]">
 
-    <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-primary/10 blur-3xl"></div>
-    <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-60 h-60 rounded-full bg-secondary/10 blur-3xl"></div>
+  <section class="relative overflow-hidden">
+    <div class="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-orange-300/20 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-amber-400/15 blur-3xl"></div>
 
-    <div class="hero-content text-center flex-col max-w-3xl z-10">
-
-      <h1 class="text-5xl lg:text-7xl font-black tracking-tight text-base-content mb-4">
-        Dinno
-      </h1>
-      <p class="py-2 text-xl text-base-content/70 font-medium max-w-lg mx-auto mb-8">
-        La forma más inteligente de pedir comida. Sin esperas, sin errores, directo desde tu mesa.
-      </p>
-
-      @if (hasActiveSession()) {
-      <div
-        class="card bg-base-100 shadow-xl w-full max-w-md border-l-4 border-primary animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div class="card-body items-center text-center">
-          <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2 text-primary">
-            <lucide-icon [img]="Utensils" class="w-8 h-8"></lucide-icon>
-          </div>
-          <h2 class="card-title text-2xl">¡Ya estás en una mesa!</h2>
-          <p class="text-gray-500">Actualmente estás conectado a la <strong>Mesa {{ sessionInfo().tableNumber
-              }}</strong>.</p>
-          <div class="card-actions mt-4 w-full">
-            <a [routerLink]="['/session', sessionInfo().sessionId]"
-              class="btn btn-primary btn-lg w-full shadow-lg gap-2">
-              Ver el Menú y Pedir
-              <lucide-icon [img]="ArrowRight" class="w-5 h-5"></lucide-icon>
-            </a>
-          </div>
+    <div class="max-w-6xl mx-auto px-4 pt-10 pb-12 lg:pt-16 lg:pb-20 ">
+      <div class="text-center">
+        <div class="flex justify-center">
+          <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772114910/dinno-banner_eqcu7r.png" alt="Dinno"
+            class="w-8/12 sm:w-3/5 md:w-2/4 lg:w-2/3 max-w-4xl object-contain drop-shadow-xl mx-auto" />
         </div>
+
+        <p class="mt-1 text-lg lg:text-xl text-[#3a332c]/70 font-medium max-w-2xl mx-auto">
+          La forma más inteligente de pedir comida. Sin esperas, sin errores, directo desde tu mesa.
+        </p>
       </div>
 
-      } @else {
-      <div
-        class="card w-full max-w-sm bg-base-100 shadow-2xl border border-base-200 hover:shadow-primary/20 transition-all duration-300 transform hover:-translate-y-1">
-        <div class="card-body items-center text-center p-8">
-
-          <div class="relative group cursor-pointer" (click)="onScanQr()">
+      <div class="mt-10 flex justify-center">
+        @if (hasActiveSession()) {
+        <div class="w-full max-w-xl bg-white/70 backFdrop-blur rounded-[28px] shadow-xl border border-white">
+          <div class="p-7 lg:p-8 text-center">
             <div
-              class="w-48 h-48 border-4 border-base-300 rounded-3xl flex items-center justify-center relative bg-base-50 group-hover:border-primary transition-colors duration-300">
-              <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-xl -mt-1 -ml-1">
-              </div>
-              <div
-                class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-xl -mt-1 -mr-1">
-              </div>
-              <div
-                class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary rounded-bl-xl -mb-1 -ml-1">
-              </div>
-              <div
-                class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary rounded-br-xl -mb-1 -mr-1">
-              </div>
+              class="w-16 h-16 mx-auto rounded-2xl bg-orange-500/10 text-orange-700 flex items-center justify-center">
+              <lucide-icon [img]="Utensils" class="w-8 h-8"></lucide-icon>
+            </div>
 
-              <lucide-icon [img]="QrCode"
-                class="w-20 h-20 text-base-content/20 group-hover:text-primary group-hover:scale-110 transition-all duration-300"></lucide-icon>
+            <h2 class="mt-4 text-2xl font-extrabold text-[#1f1b16]">¡Ya estás en una mesa!</h2>
+            <p class="mt-2 text-[#3a332c]/70">
+              Actualmente estás conectado a la <strong>Mesa {{ sessionInfo().tableNumber }}</strong>.
+            </p>
 
-              <div
-                class="absolute inset-x-4 h-0.5 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-[scan_2s_ease-in-out_infinite] opacity-50">
-              </div>
+            <div class="mt-6">
+              <a [routerLink]="['/session', sessionInfo().sessionId]" class="btn w-full h-14 rounded-2xl border-0 text-white shadow-lg
+                         bg-gradient-to-r from-orange-500 to-amber-500
+                         hover:from-orange-600 hover:to-amber-600 gap-2">
+                Ver menú y pedir
+                <lucide-icon [img]="ArrowRight" class="w-5 h-5"></lucide-icon>
+              </a>
             </div>
           </div>
-
-          <h3 class="font-bold text-xl mt-6">Escanear Código QR</h3>
-          <p class="text-sm text-base-content/60 mb-4">Apunta a la mesa para comenzar</p>
-
-          <button (click)="onScanQr()" class="btn btn-primary btn-wide shadow-lg gap-2">
-            <lucide-icon [img]="ScanLine" class="w-5 h-5"></lucide-icon>
-            Activar Cámara
-          </button>
         </div>
-      </div>
-      }
+        } @else {
 
+        <div id="scan" class="w-full max-w-xl bg-white/70 backdrop-blur rounded-[32px] shadow-2xl border border-white">
+          <div class="p-7 lg:p-9 text-center">
+            <div class="mx-auto w-[260px] max-w-full">
+              <div class="relative rounded-[28px] bg-white border border-orange-200/70 shadow-sm p-6"
+                (click)="onScanQr()">
+                <div
+                  class="absolute top-3 left-3 w-10 h-10 border-l-[5px] border-t-[5px] border-orange-500 rounded-tl-2xl">
+                </div>
+                <div
+                  class="absolute top-3 right-3 w-10 h-10 border-r-[5px] border-t-[5px] border-orange-500 rounded-tr-2xl">
+                </div>
+                <div
+                  class="absolute bottom-3 left-3 w-10 h-10 border-l-[5px] border-b-[5px] border-orange-500 rounded-bl-2xl">
+                </div>
+                <div
+                  class="absolute bottom-3 right-3 w-10 h-10 border-r-[5px] border-b-[5px] border-orange-500 rounded-br-2xl">
+                </div>
+
+                <div class="h-40 flex items-center justify-center text-[#3a332c]/25">
+                  <lucide-icon [img]="QrCode" class="w-20 h-20"></lucide-icon>
+                </div>
+
+                <div class="absolute inset-x-8 top-1/2 h-[3px] bg-orange-400/60 shadow-[0_0_12px_rgba(251,146,60,0.45)]
+                              animate-[scan_2.2s_ease-in-out_infinite] rounded-full"></div>
+              </div>
+            </div>
+
+            <h3 class="mt-6 text-2xl font-extrabold text-[#1f1b16]">Escanear Código QR</h3>
+            <p class="mt-2 text-[#3a332c]/70">Apunta a la mesa para comenzar</p>
+
+            <button (click)="onScanQr()" class="mt-6 btn w-full h-14 rounded-2xl border-0 text-white shadow-lg gap-2
+                       bg-gradient-to-r from-orange-500 to-amber-500
+                       hover:from-orange-600 hover:to-amber-600">
+              <lucide-icon [img]="ScanLine" class="w-5 h-5"></lucide-icon>
+              Activar Cámara
+            </button>
+          </div>
+        </div>
+        }
+      </div>
     </div>
-  </div>
+  </section>
 
   @if (!hasActiveSession()) {
-  <div class="py-16 px-4 bg-base-100">
-    <div class="max-w-4xl mx-auto text-center">
-      <h2 class="text-3xl font-bold mb-4">¿No estás en un restaurante?</h2>
-      <p class="text-gray-500 mb-8 max-w-xl mx-auto">
-        No te preocupes. Podés explorar todos los lugares asociados a Dinno, ver sus menús y planear tu próxima salida.
+  <section id="restaurants" class="scroll-mt-20 py-14 px-4">
+    <div class="max-w-5xl mx-auto text-center">
+      <h2 class="text-3xl font-black text-[#1f1b16]">¿No estás en un restaurante?</h2>
+      <p class="mt-3 text-[#3a332c]/70 max-w-2xl mx-auto">
+        Podés explorar los lugares asociados a Dinno, ver sus menús y planear tu próxima salida.
       </p>
-      <button class="flex items-center gap-2
-         px-4 py-2.5 w-full
-         rounded-2xl border border-gray-200
-         bg-white shadow-sm
-         text-sm text-gray-700
-         justify-center sm:justify-start
-         hover:bg-base-200 transition" (click)="onFoodVenues()">
-        <lucide-icon [img]="Utensils" class="w-4 h-4 text-gray-500"></lucide-icon>
-        <span>Ver Restaurantes Disponibles</span>
+
+      <button class="mt-8 w-full sm:w-auto inline-flex items-center gap-2 px-5 py-3 rounded-2xl
+                 bg-white border border-orange-200/70 shadow-sm text-[#1f1b16]
+                 hover:bg-orange-50 transition" (click)="onFoodVenues()">
+        <lucide-icon [img]="Utensils" class="w-5 h-5 text-orange-700"></lucide-icon>
+        <span class="font-semibold">Ver Restaurantes Disponibles</span>
       </button>
-
     </div>
-  </div>
+  </section>
 
-  <div class="py-8 px-4 bg-base-200/50">
+  <!-- COMO FUNCIONA -->
+  <section id="how" class="scroll-mt-24 py-16 px-4 bg-white/40 border-y border-orange-200/40">
     <div class="max-w-6xl mx-auto">
-      <h3 class="text-center text-sm font-bold text-primary uppercase tracking-widest mb-2">La Experiencia Dinno</h3>
-      <h2 class="text-center text-3xl md:text-4xl font-bold mb-12">Cómo funciona</h2>
+      <div class="text-center">
+        <p class="text-xs font-black tracking-widest uppercase text-orange-700">
+          La experiencia Dinno
+        </p>
+        <h2 class="mt-2 text-3xl md:text-4xl font-black text-[#1f1b16]">
+          Cómo funciona
+        </h2>
+      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
 
-        <div class="card bg-base-100 shadow-sm border border-base-200 hover:shadow-md transition-shadow">
-          <div class="card-body items-center text-center">
-            <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
-              <lucide-icon [img]="QrCode" class="w-7 h-7"></lucide-icon>
-            </div>
-            <h3 class="card-title">1. Escaneá</h3>
-            <p class="text-gray-500">Buscá el código QR en tu mesa. Escanealo con Dinno para vincularte
-              instantáneamente.</p>
+        <!-- ESCANEA -->
+        <div>
+          <div class="flex justify-center">
+            <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772112562/escanea_afdsm9.png" alt="Escanear"
+              class="w-40 md:w-44 object-contain" />
           </div>
+          <h3 class="mt-6 text-xl font-extrabold text-[#1f1b16]">
+            1. Escaneá
+          </h3>
+          <p class="mt-2 text-[#3a332c]/70 max-w-sm mx-auto">
+            Buscá el QR en tu mesa y vinculáte al instante.
+          </p>
         </div>
 
-        <div class="card bg-base-100 shadow-sm border border-base-200 hover:shadow-md transition-shadow">
-          <div class="card-body items-center text-center">
-            <div class="w-14 h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center mb-4">
-              <lucide-icon [img]="Smartphone" class="w-7 h-7"></lucide-icon>
-            </div>
-            <h3 class="card-title">2. Pedí</h3>
-            <p class="text-gray-500">Explorá el menú digital, personalizá tus platos y enviá la orden directo a la
-              cocina.</p>
+        <!-- PEDI -->
+        <div>
+          <div class="flex justify-center">
+            <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772112565/pedi_emrzmf.png" alt="Pedir"
+              class="w-40 md:w-44 object-contain" />
           </div>
+          <h3 class="mt-6 text-xl font-extrabold text-[#1f1b16]">
+            2. Pedí
+          </h3>
+          <p class="mt-2 text-[#3a332c]/70 max-w-sm mx-auto">
+            Explorá el menú digital, personalizá y enviá tu orden a cocina.
+          </p>
         </div>
 
-        <div class="card bg-base-100 shadow-sm border border-base-200 hover:shadow-md transition-shadow">
-          <div class="card-body items-center text-center">
-            <div class="w-14 h-14 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center mb-4">
-              <lucide-icon [img]="Zap" class="w-7 h-7"></lucide-icon>
-            </div>
-            <h3 class="card-title">3. Disfrutá</h3>
-            <p class="text-gray-500">Seguí el estado de tu pedido en tiempo real. Pagá desde la app o llamá al mozo.</p>
+        <!-- DISFRUTA -->
+        <div>
+          <div class="flex justify-center">
+            <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772112560/disfruta_ah0n6k.png" alt="Disfrutar"
+              class="w-40 md:w-44 object-contain" />
           </div>
+          <h3 class="mt-6 text-xl font-extrabold text-[#1f1b16]">
+            3. Disfrutá
+          </h3>
+          <p class="mt-2 text-[#3a332c]/70 max-w-sm mx-auto">
+            Seguí el estado en tiempo real. Pagá desde la app o llamá al mozo.
+          </p>
         </div>
 
       </div>
     </div>
-  </div>
+  </section>
+
+  <section id="contact" class="py-14 px-4">
+    <app-contact-us-lead-card />
+  </section>
   }
-  <app-contact-us-lead-card />
+
 </div>
+
+<style>
+  @keyframes scan {
+    0% {
+      transform: translateY(-70px);
+      opacity: .25;
+    }
+
+    50% {
+      transform: translateY(70px);
+      opacity: .55;
+    }
+
+    100% {
+      transform: translateY(-70px);
+      opacity: .25;
+    }
+  }
+</style>

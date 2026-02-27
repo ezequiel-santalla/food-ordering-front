@@ -405,11 +405,11 @@ export class SweetAlertService {
   }
 
   async confirmLogoutWithActiveTable(): Promise<
-    'leave_and_logout' | 'logout_only' | 'dismiss'
+    'leave_and_logout' | 'dismiss'
   > {
     const result = await Swal.fire({
       title: 'Sesión de mesa activa',
-      text: '¿Qué te gustaría hacer con la mesa al cerrar sesión?',
+      text: 'Si cerrás sesión vas a abandonar la mesa, ¿estás seguro?',
       icon: 'question',
 
       showConfirmButton: true,
@@ -419,7 +419,7 @@ export class SweetAlertService {
       confirmButtonText: 'Abandonar mesa y salir',
       confirmButtonColor: '#dc2626',
 
-      denyButtonText: 'Solo salir (mantener mesa)',
+      denyButtonText: 'Quedarme',
       denyButtonColor: '#3085d6',
 
       showCloseButton: true,
@@ -435,7 +435,6 @@ export class SweetAlertService {
     });
 
     if (result.isConfirmed) return 'leave_and_logout';
-    if (result.isDenied) return 'logout_only';
     return 'dismiss';
   }
 }

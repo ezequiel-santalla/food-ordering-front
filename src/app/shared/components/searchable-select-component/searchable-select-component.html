@@ -1,41 +1,61 @@
 <div class="relative w-full">
 
-  <!-- Input de búsqueda -->
-  <div class="input input-bordered input-accent w-full flex items-center gap-2 cursor-pointer"
-    [class.opacity-50]="isDisabled()" [class.cursor-not-allowed]="isDisabled()"
-    (click)="!isDisabled() && toggleDropdown()">
+  <!-- Input -->
+  <div
+    class="w-full h-11 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+           flex items-center gap-2 cursor-pointer
+           focus-within:border-orange-400 transition"
+    [class.opacity-50]="isDisabled()"
+    [class.cursor-not-allowed]="isDisabled()"
+    (click)="!isDisabled() && toggleDropdown()"
+  >
+    <input
+      #inputEl
+      type="text"
+      class="grow bg-transparent outline-none text-sm
+             placeholder:text-[#3a332c]/40
+             disabled:cursor-not-allowed"
+      [placeholder]="isOpen() ? placeholder() : (selectedName() ? '' : currentPlaceholder())"
+      [disabled]="isDisabled()"
+      [value]="isOpen() ? searchText() : selectedName()"
+      (input)="onSearchInput($event.target)"
+      (click)="canOpen() && openDropdown()"
+    />
 
-    <input #inputEl type="text"
-      class="grow bg-transparent outline-none placeholder-gray-400 placeholder:italic text-sm disabled:cursor-not-allowed"
-      [placeholder]="isOpen() ? placeholder() : (selectedName() ? '' : currentPlaceholder())" [disabled]="isDisabled()"
-      [value]="isOpen() ? searchText() : selectedName()" (input)="onSearchInput($event.target)"
-      (click)="$event.stopPropagation(); !isDisabled() && openDropdown()" />
-
-    <span class="text-base-content/50 text-xs transition-transform duration-200" [class.rotate-180]="isOpen()">
+    <span
+      class="text-[#3a332c]/60 text-xs transition-transform duration-200 select-none"
+      [class.rotate-180]="isOpen()"
+    >
       ▼
     </span>
   </div>
 
   <!-- Dropdown -->
   @if (isOpen() && !isDisabled()) {
-  <div
-    class="absolute z-50 w-full mt-1 bg-base-100 border border-base-300 rounded-lg shadow-xl max-h-52 overflow-y-auto">
+    <div
+      class="absolute z-50 w-full mt-2 rounded-2xl overflow-hidden
+             bg-white/90 backdrop-blur border border-orange-200/70 shadow-2xl
+             max-h-56 overflow-y-auto"
+    >
 
-    @if (filteredOptions().length === 0) {
-    <div class="px-4 py-3 text-base-content/50 text-sm italic">
-      Sin resultados para "{{ searchText() }}"
+      @if (filteredOptions().length === 0) {
+        <div class="px-4 py-3 text-sm text-[#3a332c]/60 italic">
+          Sin resultados para "{{ searchText() }}"
+        </div>
+      }
+
+      @for (option of filteredOptions(); track option.id) {
+        <div
+          class="px-4 py-2.5 text-sm cursor-pointer select-none
+                 hover:bg-orange-50 transition"
+          [class.bg-orange-300]="option.id === selectedId()"
+          [class.text-orange-800]="option.id === selectedId()"
+          (mousedown)="selectOption(option)"
+        >
+          {{ option.name }}
+        </div>
+      }
+
     </div>
-    }
-
-    @for (option of filteredOptions(); track option.id) {
-    <div class="px-4 py-2 text-sm cursor-pointer hover:bg-accent/10 hover:text-accent transition-colors duration-150"
-      [class.bg-accent]="option.id === selectedId()" [class.text-white]="option.id === selectedId()"
-      (mousedown)="selectOption(option)">
-      {{ option.name }}
-    </div>
-    }
-
-  </div>
   }
-
 </div>
