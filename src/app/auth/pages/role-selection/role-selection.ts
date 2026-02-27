@@ -99,9 +99,10 @@ export class RoleSelectionComponent {
 
     if (SessionUtils.isValidSession(tableSessionId)) {
       console.log('Ya tiene sesión de mesa, navegando a home');
-      this.sweetAlertService.showInfo(
-        'Sesión Activa',
-        'Ya tenías una sesión de mesa activa. Te redirigiremos allí.'
+      this.sweetAlertService.showToast(
+        'top-end',
+        'info',
+        'Tenés una sesión de mesa activa. Redirigiendo...'
       );
 
       this.tableSessionService.recoverActiveSession().subscribe({

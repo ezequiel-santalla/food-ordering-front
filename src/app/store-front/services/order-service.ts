@@ -170,8 +170,9 @@ export class OrderService {
     if (order.participantId === myId) {
       this._myOrders.update((list) => this.upsertOrder(list, order).sort(this.sortOrders));
     } else {
-      this.sweet.showInfo(
-        'Pedido agregado',
+      this.sweet.showToast(
+        'top-end',
+        'success',
         `${order.clientAlias} realizó un pedido`
       );
     }
