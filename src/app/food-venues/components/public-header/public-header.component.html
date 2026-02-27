@@ -1,122 +1,59 @@
-<header
-  class="bg-base-100 border-b border-base-300 sticky top-0 z-50 shadow-sm"
->
-  <nav class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-14 sm:h-16">
-      <div
-        class="flex items-center gap-2 cursor-pointer"
-        routerLink="/"
-      >
-        <div
-          class="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg flex items-center justify-center shrink-0"
-        >
-          <lucide-icon
-            [img]="House"
-            class="w-5 h-5 text-base-content/70 text-white"
-          ></lucide-icon>
-        </div>
-        <span
-          class="font-bold text-base sm:text-lg text-base-content hidden sm:block"
-        >
-          FoodVenues
-        </span>
-      </div>
+<header id="publicHeader" class="sticky top-0 z-40">
+  <div class="bg-white/70 backdrop-blur border-b border-orange-200/50">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a class="flex items-center gap-3 select-none" routerLink="/">
+        <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1763819126/logo-dinno-chef_ybshqf.png"
+          alt="Dinno" class="w-9 h-9 rounded-xl object-contain" />
+        <span class="font-black text-lg text-[#1f1b16]">Dinno</span>
+      </a>
 
-      <div class="flex gap-1.5 sm:gap-2">
+      <div class="relative">
+        <button class="btn btn-ghost rounded-2xl" (click)="toggleMenu()" aria-label="Abrir menú">
+          <lucide-icon [img]="Menu" class="w-6 h-6 text-[#1f1b16]"></lucide-icon>
+        </button>
 
-        @if (hasValidTableSession()) {
-        <button
-          [routerLink]="['/session', tableSessionId()]"
-          class="btn btn-outline btn-sm sm:btn-md gap-1.5 sm:gap-2 min-w-0"
-        >
-         <lucide-icon
-            [img]="Utensils"
-            class="w-5 h-5 text-base-content/70"
-          ></lucide-icon>
-          <span class="hidden sm:inline whitespace-nowrap">Mi Mesa</span>
-        </button>
-        } @else {
-        <button
-          (click)="navigateToScanner()"
-          class="btn btn-outline btn-sm sm:btn-md gap-1.5 sm:gap-2 min-w-0"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-            />
-          </svg>
-          <span class="hidden sm:inline whitespace-nowrap">Escanear QR</span>
-        </button>
-        }
+        @if (menuOpen()) {
+          <div class="fixed top-[72px] right-4 z-[1001] w-72
+            bg-white rounded-3xl shadow-2xl border border-orange-200/60 overflow-hidden"
+            (click)="$event.stopPropagation()">
+            <div class="p-2">
+              @if (isHome()) {
+                <button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-orange-50" (click)="goTo('restaurants')">
+                  Restaurantes
+                </button>
+                <button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-orange-50" (click)="goTo('how')">
+                  Cómo funciona
+                </button>
+                <button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-orange-50" (click)="goTo('contact')">
+                  Contacto
+                </button>
+                <div class="my-2 h-px bg-orange-200/60"></div>
+              }
 
-        @if (isLoggedIn()) {
-        <a
-          [routerLink]="['/profile']"
-          class="p-2 rounded-xl active:bg-base-200/70 active:scale-95 transition-all duration-150 cursor-pointer"
-        >
-          <lucide-icon
-            [img]="User"
-            class="w-5 h-5 text-base-content/70"
-          ></lucide-icon>
-        </a>
-        <button
-          (click)="logout()"
-          class="btn btn-primary btn-sm sm:btn-md gap-1.5 sm:gap-2 min-w-0"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-            />
-          </svg>
-          <span class="hidden min-[400px]:inline whitespace-nowrap"
-            >Cerrar sesión</span
-          >
-          <span class="inline min-[400px]:hidden">Salir</span>
-        </button>
-        } @else {
-        <button
-          routerLink="/auth/login"
-          class="btn btn-primary btn-sm sm:btn-md gap-1.5 sm:gap-2 min-w-0"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-            />
-          </svg>
-          <span class="hidden min-[400px]:inline whitespace-nowrap"
-            >Iniciar sesión</span
-          >
-          <span class="inline min-[400px]:hidden">Entrar</span>
-        </button>
+              <button class="w-full btn h-12 rounded-2xl border-0 text-white shadow-md gap-2
+                bg-gradient-to-r from-orange-500 to-amber-500
+                hover:from-orange-600 hover:to-amber-600" (click)="onScanQr()">
+                <lucide-icon [img]="QrCode" class="w-5 h-5"></lucide-icon>
+                Escanear QR
+              </button>
+
+              @if (!isLoggedIn()) {
+                <button class="mt-2 w-full btn h-12 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2"
+                  (click)="onLogin()">
+                  <lucide-icon [img]="LogIn" class="w-5 h-5 text-orange-700"></lucide-icon>
+                  Iniciar sesión
+                </button>
+              } @else {
+                <button class="mt-2 w-full btn h-12 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2"
+                  (click)="onLogout()">
+                  <lucide-icon [img]="Logout" class="w-5 h-5 text-orange-700"></lucide-icon>
+                  Salir
+                </button>
+              }
+            </div>
+          </div>
         }
       </div>
     </div>
-  </nav>
+  </div>
 </header>

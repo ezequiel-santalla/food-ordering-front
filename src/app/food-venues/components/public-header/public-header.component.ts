@@ -1,5 +1,14 @@
-import { Component, inject, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import {
+  Component,
+  inject,
+  computed,
+  Output,
+  EventEmitter,
+  signal,
+  HostListener,
+  ElementRef,
+} from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth-service';
 import { SessionUtils } from '../../../utils/session-utils';
 import { AuthStateManager } from '../../../auth/services/auth-state-manager-service';
@@ -10,6 +19,9 @@ import {
   LucideAngularModule,
   Utensils,
   House,
+  Menu,
+  QrCode,
+  LogIn,
 } from 'lucide-angular';
 import { NavigationService } from '../../../shared/services/navigation.service';
 
@@ -24,11 +36,19 @@ export class PublicHeaderComponent {
   readonly Logout = LogOut;
   readonly Utensils = Utensils;
   readonly House = House;
+  readonly Menu = Menu;
+  readonly QrCode = QrCode;
+  readonly LogIn = LogIn;
 
-  authService = inject(AuthService);
+  private authService = inject(AuthService);
   private authState = inject(AuthStateManager);
   private navigation = inject(NavigationService);
+  private router = inject(Router);
+  private elementRef = inject(ElementRef);
 
+  @Output() navTo = new EventEmitter<string>();
+
+  menuOpen = signal(false);
   isLoggedIn = this.authState.isAuthenticated;
   tableSessionId = this.authState.tableSessionId;
 
@@ -36,14 +56,55 @@ export class PublicHeaderComponent {
     return SessionUtils.isValidSession(this.tableSessionId());
   });
 
-  logout() {
+  sHome = computed(
+    () =>
+      this.router.url === '/' ||
+      this.router.url.startsWith('/?') ||
+      this.router.url.startsWith('/#'),
+  );
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.closeMenu();
+    }
+  }
+
+  ngOnInit() {
+    this.router.events.subscribe(() => {
+      this.closeMenu();
+    });
+  }
+
+  toggleMenu() {
+    this.menuOpen.update((v) => !v);
+  }
+
+  closeMenu() {
+    this.menuOpen.set(false);
+  }
+
+  goTo(sectionId: string) {
+    this.navTo.emit(sectionId);
+    this.closeMenu();
+  }
+
+  onScanQr() {
+    this.closeMenu();
+    this.navigation.navigateToScanner();
+  }
+
+  onLogin() {
+    this.closeMenu();
+    this.navigation.navigateToLogin?.();
+  }
+
+  onLogout() {
     this.authService.logout().subscribe({
       next: () => {
-        console.log('✅ Logout completado, redirigiendo...');
         this.navigation.navigateToHome();
       },
       error: (error) => {
-        console.error('❌ Error durante logout:', error);
         this.authState.clearState();
         this.navigation.navigateToHome();
       },
@@ -52,5 +113,9 @@ export class PublicHeaderComponent {
 
   navigateToScanner() {
     this.navigation.navigateToScanner();
+  }
+
+  isHome() {
+    return this.router.url === '/' || this.router.url === '/home';
   }
 }

@@ -2,31 +2,27 @@
 
 <div class="px-3">
   
-  <!-- Barra de tabs SIN margen interno -->
-<!-- Tabs de pagos vs historial -->
 <div class="px-4 mt-2 mb-3">
-  <div class="flex border-b border-gray-200">
+  <div class="flex border-b border-orange-200/60">
 
-    <!-- TAB PAGAR -->
     <button
       class="flex-1 py-2 flex items-center justify-center gap-2 text-sm font-medium
              transition-all"
       [ngClass]="activeTab() === 'pending'
-        ? 'text-primary border-b-2 border-primary'
-        : 'text-gray-500'"
+  ? 'text-orange-700 border-b-2 border-orange-500'
+  : 'text-[#3a332c]/60 hover:text-[#1f1b16]'"
       (click)="setTab('pending')"
     >
       <lucide-icon [img]="Coins" class="w-4 h-4"></lucide-icon>
       <span>Pagar</span>
     </button>
 
-    <!-- TAB HISTORIAL -->
     <button
       class="flex-1 py-2 flex items-center justify-center gap-2 text-sm font-medium
              transition-all"
       [ngClass]="activeTab() === 'history'
-        ? 'text-primary border-b-2 border-primary'
-        : 'text-gray-500'"
+  ? 'text-orange-700 border-b-2 border-orange-500'
+  : 'text-[#3a332c]/60 hover:text-[#1f1b16]'"
       (click)="setTab('history')"
     >
       <lucide-icon [img]="History" class="w-4 h-4"></lucide-icon>
@@ -35,8 +31,6 @@
 
   </div>
 </div>
-
-
 
   <!-- Panel de pendientes -->
   @if (activeTab() === 'pending') {

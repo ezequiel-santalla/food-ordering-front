@@ -1,29 +1,24 @@
-import {
-  HttpErrorResponse,
-  HttpInterceptorFn,
-} from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { throwError, timer } from 'rxjs';
 import { catchError, mergeMap, retryWhen, timeout } from 'rxjs/operators';
 import { DinnoHttpError } from '../errors/dinno-http-error';
 
 export const httpResilienceInterceptor: HttpInterceptorFn = (req, next) => {
-  const TIMEOUT_MS = 12_000;
-  const MAX_RETRIES = 2;      // total: 1 intento + 2 retries = 3
+  const READ_TIMEOUT_MS = 12_000;
+  const MAX_RETRIES = 2;
   const BASE_DELAY_MS = 600;
 
-  // Excluir SSE (aunque EventSource no pase por HttpClient, por seguridad)
   if (req.url.includes('/events-subscriptions/')) {
     return next(req);
   }
 
-  // Retry solo para GET/HEAD (evita duplicar acciones en POST pagos/órdenes)
   const method = req.method.toUpperCase();
-  const shouldRetry = method === 'GET' || method === 'HEAD';
+  const isRead = method === 'GET' || method === 'HEAD';
 
   const isRetryable = (err: any) => {
     if (err?.name === 'TimeoutError') return true;
     if (err instanceof HttpErrorResponse) {
-      return err.status === 0 || err.status === 502 || err.status === 503 || err.status === 504;
+      return err.status === 0 || [502, 503, 504].includes(err.status);
     }
     return false;
   };
@@ -31,7 +26,6 @@ export const httpResilienceInterceptor: HttpInterceptorFn = (req, next) => {
   const backoff = (attempt: number) => BASE_DELAY_MS * Math.pow(2, attempt - 1);
 
   const normalize = (err: any): DinnoHttpError => {
-    // Timeout
     if (err?.name === 'TimeoutError') {
       return new DinnoHttpError({
         kind: 'timeout',
@@ -42,16 +36,14 @@ export const httpResilienceInterceptor: HttpInterceptorFn = (req, next) => {
       });
     }
 
-    // HttpErrorResponse
     if (err instanceof HttpErrorResponse) {
       const status = err.status;
 
-      // status 0 = backend caído, CORS sin éxito, sin red, etc.
       if (status === 0) {
         return new DinnoHttpError({
           kind: 'network',
           title: 'No se pudo conectar',
-          message: 'No se pudo contactar con el servidor. Probablemente esté fuera de línea. Reintentá.',
+          message: 'No se pudo contactar con el servidor. Reintentá.',
           retryable: true,
           status,
           cause: err,
@@ -93,7 +85,6 @@ export const httpResilienceInterceptor: HttpInterceptorFn = (req, next) => {
       });
     }
 
-    // fallback
     return new DinnoHttpError({
       kind: 'unknown',
       title: 'Error inesperado',
@@ -103,12 +94,17 @@ export const httpResilienceInterceptor: HttpInterceptorFn = (req, next) => {
     });
   };
 
-  let stream$ = next(req).pipe(
-    timeout(TIMEOUT_MS),
+  let stream$ = next(req);
+
+  if (isRead) {
+    stream$ = stream$.pipe(timeout(READ_TIMEOUT_MS));
+  }
+
+  stream$ = stream$.pipe(
     catchError((err) => throwError(() => normalize(err)))
   );
 
-  if (shouldRetry) {
+  if (isRead) {
     stream$ = stream$.pipe(
       retryWhen((errors) =>
         errors.pipe(

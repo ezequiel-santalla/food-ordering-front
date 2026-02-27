@@ -40,11 +40,16 @@
         {{ product().price | currency:'ARS':'symbol':'1.0-0' }}
       </div>
 
-      <button type="button" class="btn btn-xs rounded-xl border bg-white text-gray-900 hover:bg-gray-50" [ngClass]="{
+      <button
+        type="button"
+        class="btn btn-xs rounded-xl border bg-white text-gray-900 hover:bg-gray-50"
+        [ngClass]="{
           'border-violet-200': variant() === 'premium',
           'border-orange-200': variant() === 'pop',
           'border-gray-200': variant() === 'minimal'
-        }" (click)="onActionClick($event)">
+        }"
+        (click)="onActionClick($event)"
+      >
         Agregar
       </button>
     </div>

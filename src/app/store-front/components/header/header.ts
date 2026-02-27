@@ -8,7 +8,7 @@ import {
   Power,
   LogIn,
   UtensilsCrossed,
-  TextAlignJustify,
+  TextAlignJustify
 } from 'lucide-angular';
 import { MenuService } from '../../services/menu-service';
 import { TableSessionService } from '../../services/table-session-service';
@@ -18,11 +18,12 @@ import { AuthStateManager } from '../../../auth/services/auth-state-manager-serv
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { finalize } from 'rxjs';
 import { NavigationService } from '../../../shared/services/navigation.service';
+import { NotificationDropdownComponent } from '../notifications/notification-dropdown';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, NotificationDropdownComponent],
   templateUrl: './header.html',
 })
 export class Header {
@@ -71,9 +72,7 @@ export class Header {
 
     if (choice === 'leave_and_logout') {
       this.handleLeaveAndLogout();
-    } else if (choice === 'logout_only') {
-      this.executeLogout(true);
-    }
+    } 
   }
 
   private handleLeaveAndLogout() {

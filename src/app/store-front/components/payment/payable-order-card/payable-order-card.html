@@ -1,57 +1,61 @@
-<div class="flex justify-between items-center p-3 rounded-lg border border-base-300 bg-base-100 hover:bg-base-200 transition">
-
-  <!-- ✅ Checkbox solo si NO hay pago o si está CANCELLED -->
-  <div>
+<div
+  class="flex justify-between items-center p-4 rounded-2xl
+         border border-orange-200/60 bg-white/70 backdrop-blur
+         shadow-sm hover:shadow-md hover:bg-orange-50/40 transition"
+>
+  <!-- Checkbox -->
+  <div class="pt-1">
     @if (canSelectForPayment()) {
       <input
         type="checkbox"
-        class="checkbox checkbox-primary mt-1"
+        class="checkbox checkbox-primary"
         [checked]="selected"
         (change)="onToggleCheckbox($event)"
       />
     }
   </div>
 
-  <!-- Info principal -->
+  <!-- Info -->
   <div class="flex flex-col min-w-0 flex-grow px-3">
-    <span class="font-semibold text-base-content">
+    <span class="font-extrabold text-[#1f1b16]">
       Orden #{{ order.orderNumber }}
     </span>
 
-    <!-- Solo mostrar “Pagado por” cuando realmente está pagado -->
     @if (order.payment?.status === 'COMPLETED') {
-      <p class="text-xs text-green-600 flex items-center gap-1 truncate">
+      <p class="text-xs text-green-700 flex items-center gap-1 truncate">
         Pagado por {{ order.payment?.participant?.nickname }}
       </p>
-
-      <p class="text-[10px] text-gray-500">
+      <p class="text-[10px] text-[#3a332c]/60">
         {{ order.payment?.paymentDate | date:'short' }}
       </p>
     }
   </div>
 
-  <!-- Montos + Estado -->
+  <!-- Estado + monto -->
   <div class="flex flex-col items-end ml-3">
     @if (paymentUi() && order.payment?.status !== 'CANCELLED') {
-      <span class="inline-flex items-center gap-1 font-semibold text-xs mb-1"
-            [class]="paymentTextClass()">
+      <span
+        class="inline-flex items-center gap-1 font-semibold text-xs mb-1"
+        [class]="paymentTextClass()"
+      >
         <lucide-icon [img]="paymentUi()!.icon" class="w-3.5 h-3.5"></lucide-icon>
         {{ paymentUi()!.label }}
       </span>
     }
+
     @if (showCountdown()) {
-    <span class="text-[11px] font-semibold text-warning">
-      @if (remainingSeconds() === 0) {
-        Expirando…
-      } @else if (remainingSeconds() !== null && remainingSeconds()! <= 5) {
-        Quedan <span class="font-bold">{{ remainingLabel() }}</span>
-      } @else {
-        {{ remainingLabel() }}
-    }
-    </span>
+      <span class="text-[11px] font-semibold text-amber-700">
+        @if (remainingSeconds() === 0) {
+          Expirando…
+        } @else if (remainingSeconds() !== null && remainingSeconds()! <= 5) {
+          Quedan <span class="font-black">{{ remainingLabel() }}</span>
+        } @else {
+          {{ remainingLabel() }}
+        }
+      </span>
     }
 
-    <span class="font-bold text-lg text-base-content leading-none">
+    <span class="font-black text-lg text-[#1f1b16] leading-none">
       ${{ order.totalPrice | number:'1.2-2' }}
     </span>
   </div>

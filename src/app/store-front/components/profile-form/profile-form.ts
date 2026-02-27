@@ -10,7 +10,7 @@ import { ProfileService } from '../../services/profile-service';
 import { TableSessionService } from '../../../store-front/services/table-session-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
-import { LucideAngularModule, Pencil, UserRoundX } from 'lucide-angular';
+import { LucideAngularModule, Pencil, UserRoundX, UserRound } from 'lucide-angular';
 import { AuthService } from '../../../auth/services/auth-service';
 import { lastValueFrom } from 'rxjs';
 import { NavigationService } from '../../../shared/services/navigation.service';
@@ -76,6 +76,7 @@ export class ProfileForm implements OnInit {
 
   readonly Pencil = Pencil;
   readonly UserRoundX = UserRoundX;
+  readonly UserRound = UserRound;
 
   countries = signal<CountryResponseDto[]>([]);
   provinces = signal<ProvinceResponseDto[]>([]);

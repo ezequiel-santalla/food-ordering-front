@@ -1,238 +1,373 @@
-<section class="max-w-6xl mx-auto p-6">
+<section class="max-w-3xl mx-auto p-4 px-1 overflow-visible">
+
   <!-- Loading State -->
   @if (profileResource.isLoading()) {
-  <div class="flex items-center justify-center py-12">
-    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-    <p class="ml-4 text-lg">Cargando perfil...</p>
+  <div class="bg-white/70 backdrop-blur border border-orange-200/60 rounded-2xl shadow-sm p-6">
+    <div class="flex items-center justify-center py-6">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
+      <p class="ml-4 text-sm font-semibold text-[#3a332c]/70">Cargando perfil...</p>
+    </div>
   </div>
   }
 
   <!-- Error State -->
   @else if (profileResource.error()) {
-  <div class="alert alert-error">
-    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <span>Error al cargar el perfil. Por favor intenta nuevamente.</span>
+  <div class="rounded-2xl bg-red-50 border border-red-200 p-4 text-sm text-red-700 font-semibold">
+    Error al cargar el perfil. Por favor intentá nuevamente.
   </div>
   }
 
   <!-- Profile Content -->
   @else if (profileResource.value(); as profile) {
-  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-6">
-    <!-- Header con botón de editar -->
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-xl font-bold">{{profile.name}} {{profile.lastName}}</h1>
-        <p class="text-base-content/60 text-sm mt-1">{{profile.email}}</p>
+
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-4">
+
+    <!-- Header -->
+    <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h1 class="text-lg sm:text-xl font-black text-[#1f1b16] truncate">
+            {{ profile.name }} {{ profile.lastName }}
+          </h1>
+          <p class="text-sm text-[#3a332c]/60 font-semibold truncate mt-1">
+            {{ profile.email }}
+          </p>
+        </div>
+
+        @if (!isEditing) {
+        <button type="button" (click)="toggleEdit()" class="w-11 h-11 rounded-2xl text-white shadow-lg
+                     bg-gradient-to-r from-orange-500 to-amber-500
+                     hover:from-orange-600 hover:to-amber-600 transition
+                     flex items-center justify-center" aria-label="Editar">
+          <lucide-icon [img]="Pencil" class="w-5 h-5"></lucide-icon>
+        </button>
+        }
       </div>
-      @if (!isEditing) {
-      <button type="button" (click)="toggleEdit()" class="btn btn-primary">
-        <lucide-icon [img]="Pencil" class="w-6 h-6"></lucide-icon>
-      </button>
+
+      @if (isEditing) {
+      <div class="mt-4 rounded-2xl border border-orange-200/70 bg-orange-50/60 px-4 py-3">
+        <p class="text-sm font-semibold text-[#1f1b16]">
+          Estás editando tu perfil
+        </p>
+        <p class="text-xs text-[#3a332c]/60 font-semibold mt-0.5">
+          Completá los campos obligatorios y guardá los cambios.
+        </p>
+      </div>
       }
     </div>
 
+    <!-- Card helper: título -->
+    <div class="flex items-center gap-2 px-2">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center
+                    border border-orange-200/70 bg-white/70 shadow-sm">
+        <lucide-icon [img]="UserRound" class="w-4 h-4 text-orange-700"></lucide-icon>
+      </div>
+      <div class="font-black text-[#1f1b16] text-sm tracking-tight">
+        Información personal
+      </div>
+    </div>
+
     <!-- Información Personal -->
-    <div class="card bg-base-100 shadow-xl">
-      <div class="card-body">
-        <h3 class="card-title text-lg mb-4">Información Personal</h3>
+    <section class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Nombre -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Nombre <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
-            <input type="text" formControlName="name" placeholder="Ej: Juan" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
-              [class.input-error]="hasError('name')" />
-            @if (hasError('name')) {
-            <label class="label">
-              <span class="label-text-alt text-error">{{getErrorMessage('name')}}</span>
-            </label>
-            }
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.name}}</p>
-            }
-          </div>
+        <!-- Nombre -->
+        <div class="space-y-1">
+          <label class="text-xs font-black text-[#3a332c]/70">
+            Nombre <span class="text-red-600">*</span>
+          </label>
 
-          <!-- Apellido -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Apellido <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
-            <input type="text" formControlName="lastName" placeholder="Ej: Pérez" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
-              [class.input-error]="hasError('lastName')" />
-            @if (hasError('lastName')) {
-            <label class="label">
-              <span class="label-text-alt text-error">{{getErrorMessage('lastName')}}</span>
-            </label>
-            }
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.lastName}}</p>
-            }
-          </div>
+          @if (isEditing) {
+          <input type="text" formControlName="name" placeholder="Ej: Juan" class="w-full h-11 rounded-2xl px-4 text-sm font-semibold text-[#1f1b16]
+                       border bg-white/80 shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-orange-300/60
+                       placeholder:text-[#3a332c]/40 placeholder:italic"
+            [ngClass]="hasError('name') ? 'border-red-300' : 'border-orange-200/70'" />
 
-          <!-- Teléfono -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Teléfono <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
-            <input type="tel" formControlName="phone" placeholder="Ej: +541112345678" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
-              [class.input-error]="hasError('phone')" />
-            @if (hasError('phone')) {
-            <label class="label">
-              <span class="label-text-alt text-error">{{getErrorMessage('phone')}}</span>
-            </label>
-            }
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.phone}}</p>
-            }
+          @if (hasError('name')) {
+          <p class="text-xs font-semibold text-red-700">
+            {{ getErrorMessage('name') }}
+          </p>
+          }
+          } @else {
+          <div class="h-11 rounded-2xl px-4 flex items-center
+                          border border-orange-200/70 bg-white/70 text-[#1f1b16] font-semibold">
+            {{ profile.name }}
           </div>
-
-          <!-- Fecha de Nacimiento -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Fecha de Nacimiento <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
-            <input type="date" formControlName="birthDate" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
-              [class.input-error]="hasError('birthDate')" />
-            @if (hasError('birthDate')) {
-            <label class="label">
-              <span class="label-text-alt text-error">{{getErrorMessage('birthDate')}}</span>
-            </label>
-            }
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.birthDate | date: 'dd/MM/yyyy'}}</p>
-            }
-          </div>
+          }
         </div>
+
+        <!-- Apellido -->
+        <div class="space-y-1">
+          <label class="text-xs font-black text-[#3a332c]/70">
+            Apellido <span class="text-red-600">*</span>
+          </label>
+
+          @if (isEditing) {
+          <input type="text" formControlName="lastName" placeholder="Ej: Pérez" class="w-full h-11 rounded-2xl px-4 text-sm font-semibold text-[#1f1b16]
+                       border bg-white/80 shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-orange-300/60
+                       placeholder:text-[#3a332c]/40 placeholder:italic"
+            [ngClass]="hasError('lastName') ? 'border-red-300' : 'border-orange-200/70'" />
+
+          @if (hasError('lastName')) {
+          <p class="text-xs font-semibold text-red-700">
+            {{ getErrorMessage('lastName') }}
+          </p>
+          }
+          } @else {
+          <div class="h-11 rounded-2xl px-4 flex items-center
+                          border border-orange-200/70 bg-white/70 text-[#1f1b16] font-semibold">
+            {{ profile.lastName }}
+          </div>
+          }
+        </div>
+
+        <!-- Teléfono -->
+        <div class="space-y-1">
+          <label class="text-xs font-black text-[#3a332c]/70">
+            Teléfono <span class="text-red-600">*</span>
+          </label>
+
+          @if (isEditing) {
+          <input type="tel" formControlName="phone" placeholder="Ej: +541112345678" class="w-full h-11 rounded-2xl px-4 text-sm font-semibold text-[#1f1b16]
+                       border bg-white/80 shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-orange-300/60
+                       placeholder:text-[#3a332c]/40 placeholder:italic"
+            [ngClass]="hasError('phone') ? 'border-red-300' : 'border-orange-200/70'" />
+
+          @if (hasError('phone')) {
+          <p class="text-xs font-semibold text-red-700">
+            {{ getErrorMessage('phone') }}
+          </p>
+          }
+          } @else {
+          <div class="h-11 rounded-2xl px-4 flex items-center
+                          border border-orange-200/70 bg-white/70 text-[#1f1b16] font-semibold">
+            {{ profile.phone }}
+          </div>
+          }
+        </div>
+
+        <!-- Fecha de nacimiento -->
+        <div class="space-y-1">
+          <label class="text-xs font-black text-[#3a332c]/70">
+            Fecha de nacimiento <span class="text-red-600">*</span>
+          </label>
+
+          @if (isEditing) {
+          <input type="date" formControlName="birthDate" class="w-full h-11 rounded-2xl px-4 text-sm font-semibold text-[#1f1b16]
+                       border bg-white/80 shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-orange-300/60"
+            [ngClass]="hasError('birthDate') ? 'border-red-300' : 'border-orange-200/70'" />
+
+          @if (hasError('birthDate')) {
+          <p class="text-xs font-semibold text-red-700">
+            {{ getErrorMessage('birthDate') }}
+          </p>
+          }
+          } @else {
+          <div class="h-11 rounded-2xl px-4 flex items-center
+                          border border-orange-200/70 bg-white/70 text-[#1f1b16] font-semibold">
+            {{ profile.birthDate | date:'dd/MM/yyyy' }}
+          </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Dirección título -->
+    <div class="flex items-center gap-2 px-2 pt-2">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center
+                    border border-orange-200/70 bg-white/70 shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-orange-700" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <div class="font-black text-[#1f1b16] text-sm tracking-tight">
+        Dirección
       </div>
     </div>
 
     <!-- Dirección -->
-    <div class="card bg-base-100 shadow-xl" formGroupName="address">
-      <div class="card-body">
-        <h3 class="card-title text-lg mb-4">Dirección</h3>
+    <section class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 space-y-4" formGroupName="address">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Calle -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Calle <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
-            <input type="text" formControlName="street" placeholder="Ej: Av. Corrientes" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
-              [class.input-error]="hasError('address.street')" />
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.street || '-'}}</p>
-            }
+        <!-- Calle -->
+        <div class="space-y-1">
+          <label class="text-xs font-black text-[#3a332c]/70">
+            Calle <span class="text-red-600">*</span>
+          </label>
+
+          @if (isEditing) {
+          <input type="text" formControlName="street" placeholder="Ej: Av. Corrientes" class="w-full h-11 rounded-2xl px-4 text-sm font-semibold text-[#1f1b16]
+                       border bg-white/80 shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-orange-300/60
+                       placeholder:text-[#3a332c]/40 placeholder:italic"
+            [ngClass]="hasError('address.street') ? 'border-red-300' : 'border-orange-200/70'" />
+          } @else {
+          <div class="h-11 rounded-2xl px-4 flex items-center
+                          border border-orange-200/70 bg-white/70 text-[#1f1b16] font-semibold">
+            {{ profile.address?.street || '-' }}
           </div>
+          }
+        </div>
 
-          <!-- Número -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Número <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
-            <input type="text" formControlName="number" placeholder="Ej: 1234" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
-              [class.input-error]="hasError('address.number')" />
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.number || '-'}}</p>
-            }
+        <!-- Número -->
+        <div class="space-y-1">
+          <label class="text-xs font-black text-[#3a332c]/70">
+            Número <span class="text-red-600">*</span>
+          </label>
+
+          @if (isEditing) {
+          <input type="text" formControlName="number" placeholder="Ej: 1234" class="w-full h-11 rounded-2xl px-4 text-sm font-semibold text-[#1f1b16]
+                       border bg-white/80 shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-orange-300/60
+                       placeholder:text-[#3a332c]/40 placeholder:italic"
+            [ngClass]="hasError('address.number') ? 'border-red-300' : 'border-orange-200/70'" />
+          } @else {
+          <div class="h-11 rounded-2xl px-4 flex items-center
+                          border border-orange-200/70 bg-white/70 text-[#1f1b16] font-semibold">
+            {{ profile.address?.number || '-' }}
           </div>
+          }
+        </div>
 
-          <!-- País -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">País <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
+        <!-- País -->
+        <div class="space-y-1">
+          <label class="text-xs font-black text-[#3a332c]/70">
+            País <span class="text-red-600">*</span>
+          </label>
+
+          @if (isEditing) {
+          <div class="rounded-2xl border border-orange-200/70 bg-white/80 shadow-sm px-2 py-1">
             <app-searchable-select formControlName="countryId" [options]="countries()" placeholder="Buscar país..." />
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{ profile.address?.country || '-' }}</p>
-            }
           </div>
+          } @else {
+          <div class="h-11 rounded-2xl px-4 flex items-center
+                          border border-orange-200/70 bg-white/70 text-[#1f1b16] font-semibold">
+            {{ profile.address?.country || '-' }}
+          </div>
+          }
+        </div>
 
-          <!-- Provincia -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Provincia <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
+        <!-- Provincia -->
+        <div class="space-y-1">
+          <label class="text-xs font-black text-[#3a332c]/70">
+            Provincia <span class="text-red-600">*</span>
+          </label>
+
+          @if (isEditing) {
+          <div class="rounded-2xl border border-orange-200/70 bg-white/80 shadow-sm px-2 py-1">
             <app-searchable-select formControlName="provinceId" [options]="provinces()"
               placeholder="Buscar provincia..." disabledPlaceholder="Seleccioná primero un país" />
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{ profile.address?.province || '-' }}</p>
-            }
           </div>
+          } @else {
+          <div class="h-11 rounded-2xl px-4 flex items-center
+                          border border-orange-200/70 bg-white/70 text-[#1f1b16] font-semibold">
+            {{ profile.address?.province || '-' }}
+          </div>
+          }
+        </div>
 
-          <!-- Ciudad -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Ciudad <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
+        <!-- Ciudad -->
+        <div class="space-y-1">
+          <label class="text-xs font-black text-[#3a332c]/70">
+            Ciudad <span class="text-red-600">*</span>
+          </label>
+
+          @if (isEditing) {
+          <div class="rounded-2xl border border-orange-200/70 bg-white/80 shadow-sm px-2 py-1">
             <app-searchable-select formControlName="cityId" [options]="cities()" placeholder="Buscar ciudad..."
               disabledPlaceholder="Seleccioná primero una provincia" />
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{ profile.address?.city || '-' }}</p>
-            }
           </div>
+          } @else {
+          <div class="h-11 rounded-2xl px-4 flex items-center
+                          border border-orange-200/70 bg-white/70 text-[#1f1b16] font-semibold">
+            {{ profile.address?.city || '-' }}
+          </div>
+          }
+        </div>
 
-          <!-- Código Postal -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Código Postal <span class="text-error">*</span></span>
-            </label>
-            @if (isEditing) {
-            <input type="text" formControlName="postalCode" placeholder="1234" class="input input-bordered w-full placeholder-gray-400 placeholder:italic"
-              [class.input-error]="hasError('address.postalCode')" />
-            @if (hasError('address.postalCode')) {
-            <label class="label">
-              <span class="label-text-alt text-error">{{getErrorMessage('address.postalCode')}}</span>
-            </label>
-            }
-            } @else {
-            <p class="py-3 px-4 bg-base-200 rounded-lg">{{profile.address?.postalCode || '-'}}</p>
-            }
+        <!-- Código Postal -->
+        <div class="space-y-1">
+          <label class="text-xs font-black text-[#3a332c]/70">
+            Código postal <span class="text-red-600">*</span>
+          </label>
+
+          @if (isEditing) {
+          <input type="text" formControlName="postalCode" placeholder="7600" class="w-full h-11 rounded-2xl px-4 text-sm font-semibold text-[#1f1b16]
+                       border bg-white/80 shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-orange-300/60
+                       placeholder:text-[#3a332c]/40 placeholder:italic"
+            [ngClass]="hasError('address.postalCode') ? 'border-red-300' : 'border-orange-200/70'" />
+
+          @if (hasError('address.postalCode')) {
+          <p class="text-xs font-semibold text-red-700">
+            {{ getErrorMessage('address.postalCode') }}
+          </p>
+          }
+          } @else {
+          <div class="h-11 rounded-2xl px-4 flex items-center
+                          border border-orange-200/70 bg-white/70 text-[#1f1b16] font-semibold">
+            {{ profile.address?.postalCode || '-' }}
           </div>
+          }
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Botones de acción (solo en modo edición) -->
+    <!-- Acciones edición -->
     @if (isEditing) {
-    <div class="flex justify-end gap-3 pb-6">
-      <button type="button" (click)="toggleEdit()" class="btn btn-ghost" [disabled]="isSaving">
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <button type="button" (click)="toggleEdit()" class="h-11 px-4 rounded-2xl font-black transition border
+                   border-orange-200/70 bg-white/70 hover:bg-orange-50 disabled:opacity-60" [disabled]="isSaving">
         Cancelar
       </button>
-      <button type="submit" [disabled]="profileForm.invalid || isSaving" class="btn btn-primary">
+
+      <button type="submit" [disabled]="profileForm.invalid || isSaving" class="h-11 px-5 rounded-2xl font-black text-white shadow-lg
+                   bg-gradient-to-r from-orange-500 to-amber-500
+                   hover:from-orange-600 hover:to-amber-600 transition
+                   disabled:opacity-60">
         @if (isSaving) {
-        <span class="loading loading-spinner loading-sm"></span>
+        <span class="loading loading-spinner"></span>
         Guardando...
         } @else {
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
         Guardar cambios
         }
       </button>
-
     </div>
     }
-    <button type="button" (click)="deleteAccount()" class="btn btn-error w-full">
-      <lucide-icon [img]="UserRoundX" class="w-6 h-6"></lucide-icon>
-      Eliminar Cuenta
-    </button>
+    @if (!isEditing) {
+  <div class="pt-4">
+    <details class="rounded-2xl border border-red-200/70 bg-red-50/30 p-4">
+      <summary class="cursor-pointer text-sm font-black text-red-700 select-none">
+        Eliminar cuenta
+      </summary>
 
+      <div class="mt-3">
+        <button
+          type="button"
+          (click)="deleteAccount()"
+          class="w-full h-11 rounded-2xl font-black
+                 border border-red-200/70 bg-white/70 text-red-700
+                 hover:bg-red-50 transition
+                 inline-flex items-center justify-center gap-2"
+        >
+          <lucide-icon [img]="UserRoundX" class="w-5 h-5"></lucide-icon>
+          <span>Confirmar eliminación</span>
+        </button>
+
+        <p class="text-[11px] text-[#3a332c]/55 font-semibold mt-2 text-center">
+          Esta acción es permanente.
+        </p>
+      </div>
+    </details>
+  </div>
+}
   </form>
   }
-
 </section>
