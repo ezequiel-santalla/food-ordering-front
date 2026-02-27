@@ -22,7 +22,8 @@ export class AdminHomePage {
 adminInfo: AdminInfo = {
       email: 'Cargando...',
       role: 'Cargando...',
-      foodVenueName: 'Cargando...'
+      foodVenueName: 'Cargando...',
+      venueLogo: ''
     };
 
 sections: Section[] = [
