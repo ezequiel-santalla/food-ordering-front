@@ -21,11 +21,6 @@ export class AnalyticsPage {
     this.currentDateRange.set(range);
   }
 
-  onRefresh() {
-    console.log('Refrescando datos para:', this.currentDateRange());
-    // rxResource recargará automáticamente
-  }
-
   onExport() {
     console.log('Exportando datos para:', this.currentDateRange());
     // Implementar exportación

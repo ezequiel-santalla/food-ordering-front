@@ -2,39 +2,87 @@ import { Component, ElementRef, HostListener, effect } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../../services/product-service';
 import { CommonModule } from '@angular/common';
-import { PaginationComponent } from "../../../../shared/components/pagination/pagination.component";
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { PaginationService } from '../../../../shared/components/pagination/pagination.service';
-import { Content, ProductResponse } from '../../../models/response/product-response';
+import {
+  Content,
+  ProductResponse,
+} from '../../../models/response/product-response';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-product-list-page',
   imports: [RouterLink, CommonModule, PaginationComponent],
-  templateUrl: './product-list-page.html'
+  templateUrl: './product-list-page.html',
 })
 export class ProductListPage {
   openMenuIndex: number | null = null;
   totalPages = 1;
+
+  sortField: 'name' | 'category' | 'price' | 'stock' | null = null;
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  sortBy(field: 'name' | 'category' | 'price' | 'stock'): void {
+    if (this.sortField === field) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDirection = 'asc';
+    }
+  }
 
   searchTerm: string = '';
   private allContents: Content[] = [];
 
   get filteredContents(): Content[] {
     const term = this.searchTerm.trim().toLowerCase();
-    if (!term) return this.productService.contents;
-    return this.allContents.filter(p =>
-      p.name.toLowerCase().includes(term) ||
-      (p.description?.toLowerCase().includes(term))
-    );
-  }
+    const source = term ? this.allContents : this.productService.contents;
 
+    let result = source.filter(
+      (p) =>
+        !term ||
+        p.name.toLowerCase().includes(term) ||
+        p.description?.toLowerCase().includes(term),
+    );
+
+    if (this.sortField) {
+      result = [...result].sort((a, b) => {
+        let valA: string | number = '';
+        let valB: string | number = '';
+
+        switch (this.sortField) {
+          case 'name':
+            valA = a.name.toLowerCase();
+            valB = b.name.toLowerCase();
+            break;
+          case 'category':
+            valA = (a.category?.name ?? '').toLowerCase();
+            valB = (b.category?.name ?? '').toLowerCase();
+            break;
+          case 'price':
+            valA = a.price;
+            valB = b.price;
+            break;
+          case 'stock':
+            valA = a.stock;
+            valB = b.stock;
+            break;
+        }
+
+        if (valA < valB) return this.sortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }
 
   constructor(
     public productService: ProductService,
     private paginationService: PaginationService,
     private eRef: ElementRef,
-    private router: Router,
-    private sweetAlertService: SweetAlertService
+    private sweetAlertService: SweetAlertService,
   ) {
     effect(() => {
       const page = this.paginationService.currentPage();
@@ -57,21 +105,19 @@ export class ProductListPage {
     });
   }
 
-
-private loadAllForSearch(): void {
+  private loadAllForSearch(): void {
     this.productService.getAllProducts().subscribe({
       next: (data: ProductResponse) => {
         this.allContents = data.content;
         console.log('allContents cargados:', this.allContents.length);
       },
-      error: (e) => console.error('Error loadAllForSearch:', e)
+      error: (e) => console.error('Error loadAllForSearch:', e),
     });
   }
 
   onSearch(event: Event): void {
     this.searchTerm = (event.target as HTMLInputElement).value;
   }
-
 
   toggleMenu(index: number, event?: Event): void {
     if (event) {
@@ -98,14 +144,14 @@ private loadAllForSearch(): void {
 
     this.productService.deleteProduct(id).subscribe({
       next: () => {
-        this.sweetAlertService.showSuccess("Producto eliminado correctamente")
+        this.sweetAlertService.showSuccess('Producto eliminado correctamente');
         this.getProducts();
         this.loadAllForSearch();
       },
       error: (e) => {
         console.log(e);
-        this.sweetAlertService.showError("Error al eliminar el producto","")
-      }
+        this.sweetAlertService.showError('Error al eliminar el producto', '');
+      },
     });
   }
 }
