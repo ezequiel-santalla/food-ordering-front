@@ -158,8 +158,8 @@ export class TableSessionService {
               newParticipant,
             ]);
 
-            this.sweetAlertService.showInfo(
-              'Nuevo Participante',
+            this.sweetAlertService.showToast(
+              'top-end', 'info',
               newParticipant.nickname + ' se unió a la mesa',
             );
           }
@@ -191,8 +191,8 @@ export class TableSessionService {
               if (
                 leavingParticipant.publicId !== this.authState.participantId()
               ) {
-                this.sweetAlertService.showInfo(
-                  'Alguien saló',
+                this.sweetAlertService.showToast(
+                  'top-end', 'info',
                   leavingParticipant.nickname + ' abandonó la mesa',
                 );
               }
@@ -230,10 +230,8 @@ export class TableSessionService {
             const payload = event.payload ?? {};
             const updatedParticipant = payload.participant;
             const deletedIds: string[] = payload.deletedParticipantIds ?? [];
-
-            console.log('payload completo:', payload);
-            console.log('updatedParticipant:', updatedParticipant);
-            console.log('deletedIds:', deletedIds);
+            const previousParticipant = this._activeParticipants().find(p => p.publicId === updatedParticipant.publicId);
+            const previousNickname = previousParticipant?.nickname;
 
             this._previousParticipants.update((prev) =>
               prev.filter(
@@ -265,11 +263,12 @@ export class TableSessionService {
             ) {
               this.updateNickname(updatedParticipant.nickname);
             }
-
             this.sweetAlertService.showToast(
               'top-end',
               'info',
-              `${updatedParticipant.nickname} ahora está registrado`,
+              previousNickname && previousNickname !== updatedParticipant.nickname
+              ? `${previousNickname} ahora está registrado como ${updatedParticipant.nickname}`
+              : `${updatedParticipant.nickname} ahora está registrado`
             );
           }
         },
