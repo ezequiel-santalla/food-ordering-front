@@ -1,90 +1,102 @@
-<!-- Nivel 1 (Top) -->
-<div class="sticky top-14 sm:top-16 z-40 bg-base-200/80 backdrop-blur">
-  <div class="tabs tabs-boxed p-2 overflow-x-auto flex-nowrap gap-2">
-    <button
-      type="button"
-      class="tab tab-sm whitespace-nowrap px-4"
-      [class.tab-active]="selectedL1() === 'all'"
-      (click)="selectL1('all')">
-      Todos
-    </button>
+<div class="mb-24">
+  <div class="sticky top-16 sm:top-16 z-40 bg-white/70 backdrop-blur border-b border-orange-200/50">
+    <div class="max-w-6xl mx-auto px-3 py-2">
+      <div class="flex gap-2 overflow-x-auto flex-nowrap scrollbar-hide">
+        <button type="button" class="h-9 px-4 rounded-2xl text-sm font-semibold border transition whitespace-nowrap
+               bg-white hover:bg-orange-50 border-orange-200/70 text-[#1f1b16]"
+          [class.!bg-gradient-to-r]="selectedL1() === 'all'" [class.from-orange-500]="selectedL1() === 'all'"
+          [class.to-amber-500]="selectedL1() === 'all'" [class.!text-white]="selectedL1() === 'all'"
+          [class.!border-transparent]="selectedL1() === 'all'" (click)="selectL1('all')">
+          Todos
+        </button>
 
-    @for (name of level1(); track name) {
-      <button
-        type="button"
-        class="tab tab-sm whitespace-nowrap px-4"
-        [class.tab-active]="selectedL1() === name"
-        (click)="selectL1(name)">
-        {{ name }}
-      </button>
-    }
-  </div>
-</div>
-
-<!-- Nivel 2 (Sub) -->
-@if (level2().length) {
-  <div class="bg-base-100 border-b border-base-300">
-    <div
-      class="flex gap-2 overflow-x-auto p-2 scroll-smooth
-             flex-nowrap snap-x snap-mandatory scrollbar-hide"
-      #subScroll
-    >
-      <button
-        class="btn btn-xs btn-ghost snap-start"
-        [class.btn-active]="selectedL2() === 'all'"
-        (click)="selectL2('all')"
-      >
-        Todas
-      </button>
-
-      @for (name of level2(); track name) {
-        <button
-          class="btn btn-xs btn-ghost snap-start"
-          [class.btn-active]="selectedL2() === name"
-          (click)="selectL2(name)"
-        >
+        @for (name of level1(); track name) {
+        <button type="button" class="h-9 px-4 rounded-2xl text-sm font-semibold border transition whitespace-nowrap
+                 bg-white hover:bg-orange-50 border-orange-200/70 text-[#1f1b16]"
+          [class.!bg-gradient-to-r]="selectedL1() === name" [class.from-orange-500]="selectedL1() === name"
+          [class.to-amber-500]="selectedL1() === name" [class.!text-white]="selectedL1() === name"
+          [class.!border-transparent]="selectedL1() === name" (click)="selectL1(name)">
           {{ name }}
         </button>
-      }
+        }
+      </div>
     </div>
   </div>
-}
 
-<section class="max-w-6xl mx-auto p-4 sm:p-6 mb-8">
-  @if (menuResource.isLoading()) {
-    <div class="flex items-center justify-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      <p class="ml-4 text-lg">Cargando menú...</p>
+  <!-- Nivel 2 (Sub) -->
+  @if (level2().length) {
+  <div
+    class="sticky top-[calc(3.5rem+0px)] sm:top-[calc(4rem+0px)] z-30 bg-white/70 backdrop-blur border-b border-orange-200/40">
+    <div class="max-w-6xl mx-auto px-3 py-2">
+      <div class="flex gap-2 overflow-x-auto flex-nowrap scroll-smooth scrollbar-hide" #subScroll>
+        <button type="button" class="h-8 px-3 rounded-2xl text-xs font-semibold border transition whitespace-nowrap
+                 bg-white hover:bg-orange-50 border-orange-200/60 text-[#3a332c]"
+          [class.!bg-orange-500]="selectedL2() === 'all'" [class.!text-white]="selectedL2() === 'all'"
+          [class.!border-transparent]="selectedL2() === 'all'" (click)="selectL2('all')">
+          Todas
+        </button>
+
+        @for (name of level2(); track name) {
+        <button type="button" class="h-8 px-3 rounded-2xl text-xs font-semibold border transition whitespace-nowrap
+                   bg-white hover:bg-orange-50 border-orange-200/60 text-[#3a332c]"
+          [class.!bg-orange-500]="selectedL2() === name" [class.!text-white]="selectedL2() === name"
+          [class.!border-transparent]="selectedL2() === name" (click)="selectL2(name)">
+          {{ name }}
+        </button>
+        }
+      </div>
     </div>
+  </div>
   }
 
-  @if (menuResource.error()) {
-    <div class="alert alert-error">
-      <span>Error al cargar el menú. Por favor intenta nuevamente.</span>
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-10">
+    @if (menuResource.isLoading()) {
+    <div class="rounded-3xl border border-orange-200/60 bg-white shadow-lg p-6">
+      <div class="flex items-center gap-3">
+        <span class="loading loading-spinner text-orange-500"></span>
+        <p class="text-base font-semibold text-[#1f1b16]">Cargando menú…</p>
+      </div>
+      <div class="mt-5 space-y-3">
+        <div class="h-20 rounded-2xl bg-orange-100/60 animate-pulse"></div>
+        <div class="h-20 rounded-2xl bg-orange-100/50 animate-pulse"></div>
+        <div class="h-20 rounded-2xl bg-orange-100/40 animate-pulse"></div>
+      </div>
     </div>
-  }
+    }
 
-  @if (!menuResource.isLoading() && !menuResource.error()) {
+    @if (menuResource.error()) {
+    <div class="rounded-3xl border border-red-200/70 bg-white shadow-lg p-6">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-red-50 border border-red-200/70 flex items-center justify-center shrink-0">
+          <span class="text-red-600 font-black">!</span>
+        </div>
+        <div>
+          <p class="font-black text-[#1f1b16]">Error al cargar el menú</p>
+          <p class="text-sm text-base-content/60 mt-1">Por favor intentá nuevamente.</p>
+        </div>
+      </div>
+    </div>
+    }
+
+    @if (!menuResource.isLoading() && !menuResource.error()) {
     <div class="grid grid-cols-1 gap-4">
       @for (p of products(); track p.publicId) {
-        <app-menu-item-card
-          [product]="p"
-          (select)="openProduct(p)">
-        </app-menu-item-card>
+      <app-menu-item-card [product]="p" (select)="openProduct(p)">
+      </app-menu-item-card>
       }
 
       @if (!products().length) {
-        <p class="text-center text-base-content/70 italic">
-          Sin productos para esta selección.
-        </p>
+      <div class="rounded-3xl border border-orange-200/60 bg-orange-50/40 shadow-sm p-6 text-center">
+        <p class="font-black text-[#1f1b16]">Sin productos</p>
+        <p class="text-sm text-[#3a332c]/70 mt-1">No hay productos para esta selección.</p>
+      </div>
       }
     </div>
-  }
-</section>
+    }
+  </section>
 
-@if (selectedProduct()) {
-  <app-menu-item-detail-modal
-    [product]="selectedProduct()!"
-    (close)="closeModal()">
+  @if (selectedProduct()) {
+  <app-menu-item-detail-modal [product]="selectedProduct()!" (close)="closeModal()">
   </app-menu-item-detail-modal>
-}
+  }
+</div>

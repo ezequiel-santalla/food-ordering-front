@@ -30,11 +30,10 @@ export class MenuHighlightCard {
     event.stopPropagation();
 
     this.cartService.addItem(this.product(), 1, null);
-
-    this.sweetAlert.showSuccess(
-      '¡Agregado!',
-      `${this.product().name} fue añadido a tu orden.`,
-      1500
-    );
+    this.sweetAlert.showToast(
+      'top-end',
+      'success',
+      'Agregaste ' + `${this.product.name} a tu orden.`
+    )
   }
 }

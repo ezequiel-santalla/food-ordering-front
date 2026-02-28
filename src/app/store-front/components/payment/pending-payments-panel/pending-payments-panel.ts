@@ -5,6 +5,7 @@ import {
   computed,
   ViewChild,
   OnInit,
+  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PayableOrderCardComponent } from '../../payment/payable-order-card/payable-order-card';
@@ -16,9 +17,7 @@ import { SweetAlertService } from '../../../../shared/services/sweet-alert.servi
 import {
   CreditCard,
   Banknote,
-  CircleCheck,
   LucideAngularModule,
-  Smartphone,
 } from 'lucide-angular';
 
 import {
@@ -55,12 +54,16 @@ export class PendingPaymentsPanelComponent implements OnInit {
   readonly PaymentMethod = PaymentMethod;
 
   @ViewChild('payModalCmp') payModalCmp?: PaymentModalComponent;
+  @ViewChild('scrollContainer') scrollContainer?: ElementRef<HTMLDivElement>;
 
   isProcessingPayment = signal(false);
 
   active = signal<'mine' | 'table'>('mine');
   setTab(t: 'mine' | 'table') {
     this.active.set(t);
+    setTimeout(() => {
+      this.scrollContainer?.nativeElement.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
   }
 
   paymentMethods = [

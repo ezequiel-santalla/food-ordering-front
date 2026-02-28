@@ -27,6 +27,7 @@ export class ServerSentEventsService {
   ];
 
   private readonly USER_EVENT_TYPES = [
+    'new_notification',
     'favorite-updated',
     'connection-successful',
     'ping',

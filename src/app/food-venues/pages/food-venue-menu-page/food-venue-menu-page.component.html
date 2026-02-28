@@ -1,23 +1,81 @@
 @if (menuResource.isLoading()) {
-  <div class="flex flex-col items-center mt-10 gap-2">
-    <span class="loading loading-spinner loading-lg text-primary"></span>
-    <p class="text-primary text-lg font-medium">Cargando el Menú del Local</p>
-  </div>
+  <section class="bg-[#fbf6ef]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+      <div class="rounded-[28px] bg-white/70 backdrop-blur border border-white shadow-xl p-6 md:p-8">
+        <div class="flex items-center justify-center gap-3">
+          <span class="loading loading-spinner loading-lg text-orange-500"></span>
+          <p class="text-[#3a332c]/80 font-semibold">Cargando el menú del local…</p>
+        </div>
+
+        <!-- Skeleton (simula categorías + cards) -->
+        <div class="mt-8 space-y-8">
+
+          @for (c of [1,2,3]; track c) {
+            <div class="space-y-4">
+              <div class="flex items-end gap-3">
+                <div class="h-5 w-44 bg-orange-100/70 rounded animate-pulse"></div>
+                <div class="h-px flex-1 bg-orange-200/60 mb-2"></div>
+              </div>
+
+              <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                @for (i of [1,2,3,4]; track i) {
+                  <div class="rounded-[24px] bg-white border border-orange-200/60 p-4 shadow-sm">
+                    <div class="aspect-[16/10] rounded-2xl bg-orange-100/70 animate-pulse"></div>
+                    <div class="mt-4 h-4 w-3/4 bg-orange-100/70 rounded animate-pulse"></div>
+                    <div class="mt-2 h-3 w-1/2 bg-orange-100/70 rounded animate-pulse"></div>
+                    <div class="mt-4 h-9 w-20 bg-orange-100/70 rounded-xl animate-pulse"></div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+        </div>
+      </div>
+
+    </div>
+  </section>
 }
 
 @if (menuResource.error()) {
   @if (isNotFound()) {
     <app-not-found-page />
   } @else {
-    <div class="flex flex-col items-center mt-10 gap-3 text-center">
-      <p class="text-red-500 text-lg font-medium">
-        {{ errorMessage() ?? 'No se pudo cargar el menú. Reintentá.' }}
-      </p>
+    <section class="bg-[#fbf6ef]">
+      <div class="max-w-2xl mx-auto px-4 py-10">
+        <div class="rounded-[28px] bg-white/70 backdrop-blur border border-white shadow-xl p-8 text-center">
+          <div class="flex flex-col items-center gap-3">
 
-      <button type="button" class="btn btn-primary" (click)="retry()">
-        Reintentar
-      </button>
-    </div>
+            <div class="w-14 h-14 rounded-2xl bg-red-500/10 text-red-600 flex items-center justify-center">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z">
+                </path>
+              </svg>
+            </div>
+
+            <p class="text-lg font-black text-[#1f1b16]">
+              {{ errorMessage() ?? 'No se pudo cargar el menú.' }}
+            </p>
+            <p class="text-sm text-[#3a332c]/70">
+              Reintentá en unos segundos.
+            </p>
+
+            <button
+              type="button"
+              class="mt-2 h-12 px-6 rounded-2xl font-bold text-white shadow-lg
+                     bg-gradient-to-r from-orange-500 to-amber-500
+                     hover:from-orange-600 hover:to-amber-600 transition"
+              (click)="retry()"
+            >
+              Reintentar
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </section>
   }
 }
 

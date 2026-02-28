@@ -1,52 +1,107 @@
 <div class="max-w-4xl mx-auto px-4 py-12">
-  <div class="rounded-3xl border border-primary/20 bg-primary/5 p-6 text-center">
-    <h3 class="font-bold text-lg mb-2">¿Tenés un restaurante?</h3>
-    <p class="text-sm text-base-content/70 mb-4">
-      Digitalizá tu menú, pedidos y pagos con Dinno.
-    </p>
+  <div class="rounded-[32px] border border-orange-200/60 bg-white/60 backdrop-blur p-6 md:p-8 shadow-xl">
 
-    <form class="max-w-md mx-auto space-y-3" (ngSubmit)="submit()">
-      <label class="input input-bordered w-full flex items-center gap-2 rounded-2xl">
-        <span class="text-base-content/50 text-sm">📞</span>
-        <input type="tel" class="grow" placeholder="Dejanos tu teléfono y te contactamos" [(ngModel)]="phoneNumber"
-          name="phoneNumber" required maxlength="20" />
+    <!-- Icono/Ilustración -->
+    <div class="flex justify-center mb-6">
+      <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772112558/contactanos_v4iosq.png" alt="Contactanos"
+        class="w-40 md:w-48 object-contain drop-shadow" />
+    </div>
+
+    <!-- Título -->
+    <div class="text-center">
+      <h3 class="font-black text-2xl md:text-3xl text-[#1f1b16]">
+        ¿Tenés un restaurante?
+      </h3>
+      <p class="mt-2 text-sm md:text-base text-[#3a332c]/70 max-w-xl mx-auto">
+        Digitalizá tu menú, pedidos y pagos con Dinno.
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form class="max-w-md mx-auto mt-8 space-y-3" (ngSubmit)="submit()">
+
+      <!-- Tel -->
+      <label class="w-full flex items-center gap-3 rounded-2xl px-4 h-12
+               bg-white border border-orange-200/70 shadow-sm focus-within:border-orange-400 transition">
+        <span class="text-[#3a332c]/50">📞</span>
+        <input type="tel" class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40"
+          placeholder="Teléfono de contacto" [(ngModel)]="phoneNumber" name="phoneNumber" required
+          maxlength="20" />
       </label>
 
-      <button type="button" class="btn btn-ghost btn-sm rounded-2xl" (click)="expanded = !expanded">
-        {{ expanded ? 'Ocultar detalles' : 'Agregar más info (opcional)' }}
-      </button>
+      <!-- Expand -->
+<button
+  type="button"
+  (click)="expanded = !expanded"
+  class="w-full rounded-2xl border border-orange-200/70 bg-white/70 shadow-sm
+         px-4 py-3
+         flex flex-col sm:flex-row sm:items-center sm:justify-between
+         text-[#1f1b16] font-semibold
+         hover:bg-orange-50 hover:border-orange-300 transition"
+>
+
+  <div class="flex items-center gap-2 justify-center sm:justify-start">
+    <span class="inline-flex w-7 h-7 items-center justify-center rounded-xl bg-orange-500/10 text-orange-700 text-lg">
+      @if (!expanded) { + } @else { − }
+    </span>
+
+    <span class="text-sm sm:text-base">
+      @if (!expanded) { Agregar más info }
+      @else { Ocultar detalles }
+    </span>
+  </div>
+
+  <span class="text-xs sm:text-sm text-[#3a332c]/60 mt-1 sm:mt-0">
+    (Opcional)
+  </span>
+
+</button>
 
       @if (expanded) {
       <div class="space-y-2 text-left">
-        <input class="input input-bordered w-full rounded-2xl" placeholder="Nombre (opcional)" [(ngModel)]="name"
-          name="name" maxlength="100" />
+        <input class="w-full h-11 rounded-2xl px-4 bg-white border border-orange-200/70 shadow-sm outline-none
+                   focus:border-orange-400 transition placeholder:text-[#3a332c]/40" placeholder="Nombre (opcional)"
+          [(ngModel)]="name" name="name" maxlength="100" />
 
-        <input class="input input-bordered w-full rounded-2xl" placeholder="Restaurante (opcional)"
-          [(ngModel)]="restaurantName" name="restaurantName" maxlength="120" />
+        <input class="w-full h-11 rounded-2xl px-4 bg-white border border-orange-200/70 shadow-sm outline-none
+                   focus:border-orange-400 transition placeholder:text-[#3a332c]/40"
+          placeholder="Restaurante (opcional)" [(ngModel)]="restaurantName" name="restaurantName" maxlength="120" />
 
-        <input class="input input-bordered w-full rounded-2xl" placeholder="Email (opcional)" [(ngModel)]="email"
-          name="email" maxlength="120" />
+        <input class="w-full h-11 rounded-2xl px-4 bg-white border border-orange-200/70 shadow-sm outline-none
+                   focus:border-orange-400 transition placeholder:text-[#3a332c]/40" placeholder="Email (opcional)"
+          [(ngModel)]="email" name="email" maxlength="120" />
 
-        <input class="input input-bordered w-full rounded-2xl" placeholder="Dirección / zona (opcional)"
-          [(ngModel)]="address" name="address" maxlength="255" />
+        <input class="w-full h-11 rounded-2xl px-4 bg-white border border-orange-200/70 shadow-sm outline-none
+                   focus:border-orange-400 transition placeholder:text-[#3a332c]/40"
+          placeholder="Dirección / zona (opcional)" [(ngModel)]="address" name="address" maxlength="255" />
 
-        <textarea class="textarea textarea-bordered w-full rounded-2xl" placeholder="Notas (opcional)"
+        <textarea class="w-full rounded-2xl px-4 py-3 bg-white border border-orange-200/70 shadow-sm outline-none
+                   focus:border-orange-400 transition placeholder:text-[#3a332c]/40" placeholder="Notas (opcional)"
           [(ngModel)]="notes" name="notes" maxlength="500" rows="3"></textarea>
       </div>
       }
 
-      <button class="btn btn-primary rounded-2xl w-full" [disabled]="isLoading || !phoneNumber.trim()">
+      <!-- CTA -->
+      <button class="w-full h-12 rounded-2xl font-bold text-white shadow-lg disabled:opacity-60 disabled:cursor-not-allowed
+               bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 transition"
+        [disabled]="isLoading || !phoneNumber.trim()">
         @if (!isLoading) { Pedir que me llamen }
         @else { Enviando... }
       </button>
 
+      <!-- Alerts -->
       @if (successMessage) {
-      <div class="text-sm text-success mt-2">{{ successMessage }}</div>
+      <div class="text-sm mt-2 text-green-700 bg-green-50 border border-green-200 rounded-2xl px-4 py-3">
+        {{ successMessage }}
+      </div>
       }
 
       @if (errorMessage) {
-      <div class="text-sm text-error mt-2">{{ errorMessage }}</div>
+      <div class="text-sm mt-2 text-red-700 bg-red-50 border border-red-200 rounded-2xl px-4 py-3">
+        {{ errorMessage }}
+      </div>
       }
     </form>
+
   </div>
 </div>
