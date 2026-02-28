@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, Input, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { PaymentsStore } from '../../../services/payment-store';
 import {
@@ -20,11 +20,20 @@ import { getPaymentStatusUi, toneToTextClass } from '../../../../shared/models/s
   templateUrl: './payments-history-panel.html',
 })
 export class PaymentHistoryPanelComponent {
+
+  @Input() activeSection: 'history' | 'pending' = 'pending';
+  @Input() highlightPaymentId: string | null = null;
+
   private paymentsStore = inject(PaymentsStore);
   private sweet = inject(SweetAlertService);
 
   private nowMs = signal(Date.now());
   expanded = signal<string | null>(null);
+
+  @ViewChild('historyScroll', { static: false })
+  historyScroll?: ElementRef<HTMLDivElement>;
+
+  activeTab = signal<'pending' | 'history'>('pending');
   timer = setInterval(() => this.nowMs.set(Date.now()), 1000);
 
   readonly Trash2 = Trash2;
@@ -35,6 +44,21 @@ export class PaymentHistoryPanelComponent {
 
   payments = computed(() => this.paymentsStore.payments());
   isLoading = computed(() => this.paymentsStore.isLoading());
+
+  ngOnChanges() {
+    if (!this.highlightPaymentId) return;
+
+    this.expanded.set(this.highlightPaymentId);
+
+    setTimeout(() => {
+      const id = this.highlightPaymentId!;
+      const el = document.getElementById(`pay-${id}`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      el?.classList.add('ring-2', 'ring-orange-300');
+      setTimeout(() => el?.classList.remove('ring-2', 'ring-orange-300'), 1200);
+    }, 0);
+  }
 
   ngOnDestroy() {
     clearInterval(this.timer);

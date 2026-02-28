@@ -6,6 +6,7 @@ import {
   ViewChild,
   OnInit,
   ElementRef,
+  Input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PayableOrderCardComponent } from '../../payment/payable-order-card/payable-order-card';
@@ -14,17 +15,12 @@ import { PaymentService } from '../../../services/payment-service';
 import { PaymentModalComponent } from '../../payment/payment-modal/payment-modal';
 import { SweetAlertService } from '../../../../shared/services/sweet-alert.service';
 
-import {
-  CreditCard,
-  Banknote,
-  LucideAngularModule,
-} from 'lucide-angular';
+import { CreditCard, Banknote, LucideAngularModule } from 'lucide-angular';
 
 import {
   PaymentMethod,
   PaymentOrderView,
-  PaymentRequest,
-  PaymentStatus,
+  PaymentRequest
 } from '../../../models/payment.interface';
 import { PaymentsStore } from '../../../services/payment-store';
 import { OrderResponse } from '../../../models/order.interface';
@@ -45,7 +41,6 @@ export class PendingPaymentsPanelComponent implements OnInit {
   private paymentService = inject(PaymentService);
   private sweet = inject(SweetAlertService);
   paymentsStore = inject(PaymentsStore);
-  
 
   ngOnInit() {
     this.paymentsStore.loadInitialPayments();
@@ -56,13 +51,24 @@ export class PendingPaymentsPanelComponent implements OnInit {
   @ViewChild('payModalCmp') payModalCmp?: PaymentModalComponent;
   @ViewChild('scrollContainer') scrollContainer?: ElementRef<HTMLDivElement>;
 
+  @Input() set resetScroll(val: boolean) {
+    if (val) {
+      setTimeout(() => {
+        this.scrollContainer?.nativeElement?.scrollTo({ top: 0 });
+      }, 0);
+    }
+  }
+
   isProcessingPayment = signal(false);
 
   active = signal<'mine' | 'table'>('mine');
   setTab(t: 'mine' | 'table') {
     this.active.set(t);
     setTimeout(() => {
-      this.scrollContainer?.nativeElement.scrollTo({ top: 0, behavior: 'smooth' });
+      this.scrollContainer?.nativeElement.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
     }, 0);
   }
 
@@ -92,69 +98,78 @@ export class PendingPaymentsPanelComponent implements OnInit {
 
   mineBanner = computed(() => this.statusBannerFor(this.myOrders()));
   tableBanner = computed(() => this.statusBannerFor(this.tableOrders()));
-  cancelledMine = computed(() => this.myOrders().filter(o => this.isOrderCancelled(o)));
-  cancelledTable = computed(() => this.tableOrders().filter(o => this.isOrderCancelled(o)));
-  
+  cancelledMine = computed(() =>
+    this.myOrders().filter((o) => this.isOrderCancelled(o)),
+  );
+  cancelledTable = computed(() =>
+    this.tableOrders().filter((o) => this.isOrderCancelled(o)),
+  );
+
   unpaidMine = computed(() =>
-    this.myOrders().filter(o =>
-      !this.isOrderCancelled(o) &&
-      (this.isPaymentMissing(o) || this.isPaymentCancelled(o))
-    )
+    this.myOrders().filter(
+      (o) =>
+        !this.isOrderCancelled(o) &&
+        (this.isPaymentMissing(o) || this.isPaymentCancelled(o)),
+    ),
   );
 
   paidMine = computed(() =>
-    this.myOrders().filter(
-      (o) => !!o.payment && !this.isPaymentCancelled(o)
-    )
+    this.myOrders().filter((o) => !!o.payment && !this.isPaymentCancelled(o)),
   );
 
   unpaidTable = computed(() =>
-    this.tableOrders().filter(o =>
-      !this.isOrderCancelled(o) &&
-      (this.isPaymentMissing(o) || this.isPaymentCancelled(o))
-    )
+    this.tableOrders().filter(
+      (o) =>
+        !this.isOrderCancelled(o) &&
+        (this.isPaymentMissing(o) || this.isPaymentCancelled(o)),
+    ),
   );
 
   paidTable = computed(() =>
     this.tableOrders().filter(
-      (o) => !!o.payment && !this.isPaymentCancelled(o)
-    )
+      (o) => !!o.payment && !this.isPaymentCancelled(o),
+    ),
   );
 
   selectedOrders = signal<string[]>([]);
 
   toggleSelection(event: { orderId: string; selected: boolean }) {
     this.selectedOrders.update((ids) =>
-     event.selected
+      event.selected
         ? [...ids, event.orderId]
-        : ids.filter((id) => id !== event.orderId)
+        : ids.filter((id) => id !== event.orderId),
     );
   }
 
   total = computed(() => {
     return this.selectedOrders().reduce((sum, id) => {
-      const order = this.orderService.tableOrders().find(o => o.publicId === id);
+      const order = this.orderService
+        .tableOrders()
+        .find((o) => o.publicId === id);
       return order ? sum + order.totalPrice : sum;
     }, 0);
-  }); 
+  });
 
-  selectedOrdersView = computed<PaymentOrderView[]>(() =>
-  this.selectedOrders()
-    .map((id) => {
-      const order = this.orderService.tableOrders().find(o => o.publicId === id);
-      return order
-        ? {
-            publicId: order.publicId,
-            orderNumber: order.orderNumber,
-            items: order.orderDetails.map((d) => ({
-              quantity: d.quantity,
-              productName: d.productName,
-              subtotal: d.subtotal,
-            })),
-          }
-        : null;
-    })
-    .filter((o) => o !== null) as PaymentOrderView[]
+  selectedOrdersView = computed<PaymentOrderView[]>(
+    () =>
+      this.selectedOrders()
+        .map((id) => {
+          const order = this.orderService
+            .tableOrders()
+            .find((o) => o.publicId === id);
+          return order
+            ? {
+                publicId: order.publicId,
+                orderNumber: order.orderNumber,
+                items: order.orderDetails.map((d) => ({
+                  quantity: d.quantity,
+                  productName: d.productName,
+                  subtotal: d.subtotal,
+                })),
+              }
+            : null;
+        })
+        .filter((o) => o !== null) as PaymentOrderView[],
   );
 
   pay() {
@@ -188,7 +203,7 @@ export class PendingPaymentsPanelComponent implements OnInit {
 
         this.sweet.showConfirmableSuccess(
           'Mozo en camino',
-          'Pronto se acercará a tu mesa para cobrar.'
+          'Pronto se acercará a tu mesa para cobrar.',
         );
 
         this.selectedOrders.set([]);
@@ -252,7 +267,7 @@ export class PendingPaymentsPanelComponent implements OnInit {
 
         this.sweet.showConfirmableSuccess(
           'Pedido de pago enviado',
-          'Un mozo se acercará a tu mesa para cobrar. El pago se marcará como completado cuando el mozo lo confirme.'
+          'Un mozo se acercará a tu mesa para cobrar. El pago se marcará como completado cuando el mozo lo confirme.',
         );
 
         this.selectedOrders.set([]);
@@ -298,7 +313,7 @@ export class PendingPaymentsPanelComponent implements OnInit {
                   }
                 }
               }, 2000);
-                this.isProcessingPayment.set(false);
+              this.isProcessingPayment.set(false);
             },
             error: (err) => this.finishError(err),
           });
@@ -314,10 +329,10 @@ export class PendingPaymentsPanelComponent implements OnInit {
 
     this.sweet.showError(
       'Error al procesar pago',
-      err?.error?.message || 'Intenta nuevamente.'
+      err?.error?.message || 'Intenta nuevamente.',
     );
   }
-  
+
   private isPaymentMissing(order: OrderResponse): boolean {
     return !order.payment;
   }

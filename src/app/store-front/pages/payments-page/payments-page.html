@@ -1,4 +1,7 @@
-<div class="max-w-3xl mx-auto px-2">
-  <app-payment-summary/>
-  <app-payments-panel />
+<div class="max-w-3xl mx-auto h-full flex flex-col min-h-0">
+  <app-payment-summary class="flex-shrink-0" />
+
+  <div class="flex-1 min-h-0">
+    <app-payments-panel [activeTab]="activeTab()" [highlightPaymentId]="highlightPaymentId()" />
+  </div>
 </div>

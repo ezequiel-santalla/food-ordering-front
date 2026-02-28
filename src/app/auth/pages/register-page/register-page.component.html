@@ -9,11 +9,14 @@
     <!-- Header -->
     <div class="text-center mb-6">
       <div class="flex justify-center">
-        <img
-          src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772114910/dinno-banner_eqcu7r.png"
-          alt="Dinno"
-          class="w-10/12 sm:w-4/5 object-contain drop-shadow"
-        />
+        <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772114910/dinno-banner_eqcu7r.png" alt="Dinno"
+          class="
+      w-full
+      max-w-[240px]      /* 📱 mobile */
+      sm:max-w-[300px]   /* tablet */
+      md:max-w-[360px]   /* desktop */
+      object-contain drop-shadow
+    " />
       </div>
 
       <h1 class="mt-4 text-2xl sm:text-3xl font-black text-[#1f1b16]">Crear cuenta</h1>
@@ -24,11 +27,9 @@
     <div class="rounded-[28px] bg-white/70 backdrop-blur border border-white shadow-2xl relative overflow-hidden">
 
       <!-- Close -->
-      <button
-        (click)="onExit()"
+      <button (click)="onExit()"
         class="absolute right-3 top-3 btn btn-ghost btn-circle btn-sm text-[#3a332c]/60 hover:text-[#1f1b16]"
-        aria-label="Cerrar y volver"
-      >
+        aria-label="Cerrar y volver">
         <lucide-icon [img]="X" class="w-6 h-6"></lucide-icon>
       </button>
 
@@ -38,145 +39,109 @@
 
           <!-- Información Personal -->
           <div>
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-black text-[#1f1b16]">Información personal</h3>
-              <span class="text-xs text-[#3a332c]/60">Campos obligatorios *</span>
+            <div class="mb-4">
+              <h3 class="text-lg font-black text-[#1f1b16] leading-tight">Información personal</h3>
+              <p class="text-[11px] font-bold text-orange-700/60 uppercase tracking-wide mt-0.5">
+                Los campos marcados con * son obligatorios
+              </p>
             </div>
+
             <div class="h-px bg-orange-200/60 mb-5"></div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-              <!-- Nombre -->
               <div>
                 <label class="text-sm font-bold text-[#1f1b16]">Nombre <span class="text-orange-700">*</span></label>
-                <label
-                  class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
-                         flex items-center gap-2 focus-within:border-orange-400 transition"
-                >
+                <label class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                   flex items-center gap-2 focus-within:border-orange-400 transition">
                   <lucide-icon [img]="User" class="w-4 h-4 text-[#3a332c]/60"></lucide-icon>
-                  <input
-                    type="text"
-                    placeholder="Ej: Juan"
-                    formControlName="name"
-                    class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40"
-                    required
-                  />
+                  <input type="text" placeholder="Ej: Juan" formControlName="name"
+                    class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40" required />
                 </label>
 
                 @if (formUtils.isValidField(registerForm, 'name')) {
-                  <span class="text-sm text-orange-700 mt-1 block">
-                    {{ formUtils.getTextError(registerForm, 'name') }}
-                  </span>
+                <span class="text-sm text-orange-700 mt-1 block">
+                  {{ formUtils.getTextError(registerForm, 'name') }}
+                </span>
                 }
               </div>
 
-              <!-- Apellido -->
               <div>
                 <label class="text-sm font-bold text-[#1f1b16]">Apellido <span class="text-orange-700">*</span></label>
-                <label
-                  class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
-                         flex items-center gap-2 focus-within:border-orange-400 transition"
-                >
+                <label class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                   flex items-center gap-2 focus-within:border-orange-400 transition">
                   <lucide-icon [img]="User" class="w-4 h-4 text-[#3a332c]/60"></lucide-icon>
-                  <input
-                    type="text"
-                    placeholder="Ej: Pérez"
-                    formControlName="lastName"
-                    class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40"
-                    required
-                  />
+                  <input type="text" placeholder="Ej: Pérez" formControlName="lastName"
+                    class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40" required />
                 </label>
 
                 @if (formUtils.isValidField(registerForm, 'lastName')) {
-                  <span class="text-sm text-orange-700 mt-1 block">
-                    {{ formUtils.getTextError(registerForm, 'lastName') }}
-                  </span>
+                <span class="text-sm text-orange-700 mt-1 block">
+                  {{ formUtils.getTextError(registerForm, 'lastName') }}
+                </span>
                 }
               </div>
-
             </div>
           </div>
 
           <!-- Credenciales -->
           <div>
-            <h3 class="text-lg font-black text-[#1f1b16] mb-4">Credenciales</h3>
+            <div class="mb-4">
+              <h3 class="text-lg font-black text-[#1f1b16] leading-tight">Credenciales</h3>
+              <p class="text-[11px] font-bold text-orange-700/60 uppercase tracking-wide mt-0.5">
+                Datos para acceder a tu cuenta de forma segura
+              </p>
+            </div>
+
             <div class="h-px bg-orange-200/60 mb-5"></div>
 
             <div class="space-y-4">
-
-              <!-- Email -->
               <div>
                 <label class="text-sm font-bold text-[#1f1b16]">Email <span class="text-orange-700">*</span></label>
-                <label
-                  class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
-                         flex items-center gap-2 focus-within:border-orange-400 transition"
-                >
+                <label class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                   flex items-center gap-2 focus-within:border-orange-400 transition">
                   <lucide-icon [img]="Mail" class="w-4 h-4 text-[#3a332c]/60"></lucide-icon>
-                  <input
-                    type="email"
-                    placeholder="Ej: juan.perez@example.com"
-                    formControlName="email"
-                    class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40"
-                    required
-                  />
+                  <input type="email" placeholder="Ej: juan.perez@example.com" formControlName="email"
+                    class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40" required />
                 </label>
-
                 @if (formUtils.isValidField(registerForm, 'email')) {
-                  <span class="text-sm text-orange-700 mt-1 block">
-                    {{ formUtils.getTextError(registerForm, 'email') }}
-                  </span>
+                <span class="text-sm text-orange-700 mt-1 block">
+                  {{ formUtils.getTextError(registerForm, 'email') }}
+                </span>
                 }
               </div>
 
-              <!-- Password -->
               <div>
-                <label class="text-sm font-bold text-[#1f1b16]">Contraseña <span class="text-orange-700">*</span></label>
-                <label
-                  class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
-                         flex items-center gap-2 focus-within:border-orange-400 transition"
-                >
+                <label class="text-sm font-bold text-[#1f1b16]">Contraseña <span
+                    class="text-orange-700">*</span></label>
+                <label class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                   flex items-center gap-2 focus-within:border-orange-400 transition">
                   <lucide-icon [img]="KeyRound" class="w-4 h-4 text-[#3a332c]/60"></lucide-icon>
-
-                  <input
-                    [type]="showPassword ? 'text' : 'password'"
-                    placeholder="Mínimo 8 caracteres"
-                    formControlName="password"
-                    class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40"
-                    required
-                  />
-
-                  <button
-                    type="button"
-                    (click)="togglePassword()"
-                    class="btn btn-ghost btn-xs btn-circle text-[#3a332c]/60 hover:text-[#1f1b16]"
-                    aria-label="Mostrar/ocultar contraseña"
-                  >
+                  <input [type]="showPassword ? 'text' : 'password'" placeholder="Mínimo 8 caracteres"
+                    formControlName="password" class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40"
+                    required />
+                  <button type="button" (click)="togglePassword()"
+                    class="btn btn-ghost btn-xs btn-circle text-[#3a332c]/60 hover:text-[#1f1b16]">
                     <lucide-icon [img]="showPassword ? EyeOff : Eye" class="w-4 h-4"></lucide-icon>
                   </button>
                 </label>
-
                 @if (formUtils.isValidField(registerForm, 'password')) {
-                  <span class="text-sm text-orange-700 mt-1 block">
-                    {{ formUtils.getTextError(registerForm, 'password') }}
-                  </span>
+                <span class="text-sm text-orange-700 mt-1 block">
+                  {{ formUtils.getTextError(registerForm, 'password') }}
+                </span>
                 }
               </div>
-
             </div>
           </div>
 
           <!-- Optional toggle -->
           <div class="h-px bg-orange-200/60"></div>
 
-          <button
-            type="button"
-            (click)="toggleOptionalFields()"
-            class="w-full rounded-2xl border border-orange-200/70 bg-white/70 shadow-sm
+          <button type="button" (click)="toggleOptionalFields()" class="w-full rounded-2xl border border-orange-200/70 bg-white/70 shadow-sm
                    px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between
-                   text-[#1f1b16] font-semibold hover:bg-orange-50 hover:border-orange-300 transition"
-          >
+                   text-[#1f1b16] font-semibold hover:bg-orange-50 hover:border-orange-300 transition">
             <div class="flex items-center gap-2 justify-center sm:justify-start">
-              <span class="inline-flex w-7 h-7 items-center justify-center rounded-xl bg-orange-500/10 text-orange-700 text-lg">
+              <span
+                class="inline-flex w-7 h-7 items-center justify-center rounded-xl bg-orange-500/10 text-orange-700 text-lg">
                 @if (!showOptionalFields) { + } @else { − }
               </span>
               <span class="text-sm sm:text-base">
@@ -190,150 +155,120 @@
           </button>
 
           @if (showOptionalFields) {
-            <div class="space-y-6 p-4 md:p-5 rounded-2xl bg-white/60 border border-orange-200/60">
+          <div class="space-y-6 p-4 md:p-5 rounded-2xl bg-white/60 border border-orange-200/60">
 
-              <!-- Phone + Birthdate -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Phone + Birthdate -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                <div>
-                  <label class="text-sm font-bold text-[#1f1b16]">Teléfono</label>
-                  <label
-                    class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
-                           flex items-center gap-2 focus-within:border-orange-400 transition"
-                  >
-                    <lucide-icon [img]="Phone" class="w-4 h-4 text-[#3a332c]/60"></lucide-icon>
-                    <input
-                      type="tel"
-                      placeholder="+54 11 1234 5678"
-                      formControlName="phone"
-                      class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40"
-                    />
-                  </label>
-                  @if (formUtils.isValidField(registerForm, 'phone')) {
-                    <span class="text-sm text-orange-700 mt-1 block">
-                      {{ formUtils.getTextError(registerForm, 'phone') }}
-                    </span>
-                  }
-                </div>
-
-                <div>
-                  <label class="text-sm font-bold text-[#1f1b16]">Fecha de nacimiento</label>
-                  <label
-                    class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
-                           flex items-center gap-2 focus-within:border-orange-400 transition"
-                  >
-                    <input type="date" formControlName="birthDate" class="w-full bg-transparent outline-none" />
-                  </label>
-                  @if (formUtils.isValidField(registerForm, 'birthDate')) {
-                    <span class="text-sm text-orange-700 mt-1 block">
-                      {{ formUtils.getTextError(registerForm, 'birthDate') }}
-                    </span>
-                  }
-                </div>
-
+              <div>
+                <label class="text-sm font-bold text-[#1f1b16]">Teléfono</label>
+                <label class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                           flex items-center gap-2 focus-within:border-orange-400 transition">
+                  <lucide-icon [img]="Phone" class="w-4 h-4 text-[#3a332c]/60"></lucide-icon>
+                  <input type="tel" placeholder="+54 11 1234 5678" formControlName="phone"
+                    class="w-full bg-transparent outline-none placeholder:text-[#3a332c]/40" />
+                </label>
+                @if (formUtils.isValidField(registerForm, 'phone')) {
+                <span class="text-sm text-orange-700 mt-1 block">
+                  {{ formUtils.getTextError(registerForm, 'phone') }}
+                </span>
+                }
               </div>
 
-              <!-- Address -->
               <div>
-                <div class="flex items-center gap-2 mb-3">
-                  <div class="w-9 h-9 rounded-2xl bg-orange-500/10 text-orange-700 flex items-center justify-center">
-                    <lucide-icon [img]="MapPin" class="w-4 h-4"></lucide-icon>
-                  </div>
-                  <h4 class="font-black text-[#1f1b16]">Dirección</h4>
-                </div>
-
-                <div class="space-y-4">
-
-                  <!-- Street + number -->
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="md:col-span-2">
-                      <label class="text-xs font-bold text-[#3a332c]/70">Calle</label>
-                      <input
-                        type="text"
-                        placeholder="Ej: Av. Siempre Viva"
-                        formControlName="street"
-                        class="mt-2 w-full h-11 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
-                               outline-none focus:border-orange-400 transition placeholder:text-[#3a332c]/40"
-                      />
-                    </div>
-                    <div>
-                      <label class="text-xs font-bold text-[#3a332c]/70">Número</label>
-                      <input
-                        type="text"
-                        placeholder="Ej: 742"
-                        formControlName="number"
-                        class="mt-2 w-full h-11 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
-                               outline-none focus:border-orange-400 transition placeholder:text-[#3a332c]/40"
-                      />
-                    </div>
-                  </div>
-
-                  <!-- selects -->
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label class="text-xs font-bold text-[#3a332c]/70">País</label>
-                      <div class="mt-2">
-                        <app-searchable-select formControlName="countryId" [options]="countries()" placeholder="Buscar país..." />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label class="text-xs font-bold text-[#3a332c]/70">Provincia</label>
-                      <div class="mt-2">
-                        <app-searchable-select formControlName="provinceId" [options]="provinces()"
-                          placeholder="Buscar provincia..." disabledPlaceholder="Seleccioná primero un país" />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label class="text-xs font-bold text-[#3a332c]/70">Ciudad</label>
-                      <div class="mt-2">
-                        <app-searchable-select formControlName="cityId" [options]="cities()"
-                          placeholder="Buscar ciudad..." disabledPlaceholder="Seleccioná primero una provincia" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- postal code -->
-                  <div>
-                    <label class="text-xs font-bold text-[#3a332c]/70">Código postal</label>
-                    <input
-                      type="text"
-                      placeholder="Ej: B7600"
-                      formControlName="postalCode"
-                      class="mt-2 w-full h-11 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
-                             outline-none focus:border-orange-400 transition placeholder:text-[#3a332c]/40"
-                    />
-                  </div>
-
-                </div>
+                <label class="text-sm font-bold text-[#1f1b16]">Fecha de nacimiento</label>
+                <label class="mt-2 w-full h-12 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                           flex items-center gap-2 focus-within:border-orange-400 transition">
+                  <input type="date" formControlName="birthDate" class="w-full bg-transparent outline-none" />
+                </label>
+                @if (formUtils.isValidField(registerForm, 'birthDate')) {
+                <span class="text-sm text-orange-700 mt-1 block">
+                  {{ formUtils.getTextError(registerForm, 'birthDate') }}
+                </span>
+                }
               </div>
 
             </div>
+
+            <!-- Address -->
+            <div>
+              <div class="flex items-center gap-2 mb-3">
+                <div class="w-9 h-9 rounded-2xl bg-orange-500/10 text-orange-700 flex items-center justify-center">
+                  <lucide-icon [img]="MapPin" class="w-4 h-4"></lucide-icon>
+                </div>
+                <h4 class="font-black text-[#1f1b16]">Dirección</h4>
+              </div>
+
+              <div class="space-y-4">
+
+                <!-- Street + number -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="md:col-span-2">
+                    <label class="text-xs font-bold text-[#3a332c]/70">Calle</label>
+                    <input type="text" placeholder="Ej: Av. Siempre Viva" formControlName="street" class="mt-2 w-full h-11 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                               outline-none focus:border-orange-400 transition placeholder:text-[#3a332c]/40" />
+                  </div>
+                  <div>
+                    <label class="text-xs font-bold text-[#3a332c]/70">Número</label>
+                    <input type="text" placeholder="Ej: 742" formControlName="number" class="mt-2 w-full h-11 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                               outline-none focus:border-orange-400 transition placeholder:text-[#3a332c]/40" />
+                  </div>
+                </div>
+
+                <!-- selects -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label class="text-xs font-bold text-[#3a332c]/70">País</label>
+                    <div class="mt-2">
+                      <app-searchable-select formControlName="countryId" [options]="countries()"
+                        placeholder="Buscar país..." />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="text-xs font-bold text-[#3a332c]/70">Provincia</label>
+                    <div class="mt-2">
+                      <app-searchable-select formControlName="provinceId" [options]="provinces()"
+                        placeholder="Buscar provincia..." disabledPlaceholder="Seleccioná primero un país" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="text-xs font-bold text-[#3a332c]/70">Ciudad</label>
+                    <div class="mt-2">
+                      <app-searchable-select formControlName="cityId" [options]="cities()"
+                        placeholder="Buscar ciudad..." disabledPlaceholder="Seleccioná primero una provincia" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- postal code -->
+                <div>
+                  <label class="text-xs font-bold text-[#3a332c]/70">Código postal</label>
+                  <input type="text" placeholder="Ej: B7600" formControlName="postalCode" class="mt-2 w-full h-11 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+                             outline-none focus:border-orange-400 transition placeholder:text-[#3a332c]/40" />
+                </div>
+
+              </div>
+            </div>
+
+          </div>
           }
 
           <!-- Buttons -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <button
-              type="submit"
-              [disabled]="isSubmitting"
-              class="h-12 rounded-2xl font-bold text-white shadow-lg disabled:opacity-60
+            <button type="submit" [disabled]="isSubmitting" class="h-12 rounded-2xl font-bold text-white shadow-lg disabled:opacity-60
                      bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 transition
-                     flex items-center justify-center gap-2"
-            >
+                     flex items-center justify-center gap-2">
               @if (isSubmitting) {
-                <span class="loading loading-spinner"></span>
+              <span class="loading loading-spinner"></span>
               }
               <lucide-icon [img]="User" class="w-5 h-5" />
               Registrarse
             </button>
 
-            <button
-              type="button"
-              (click)="onCancel()"
-              class="h-12 rounded-2xl font-bold border border-orange-200 bg-white hover:bg-orange-50 transition
-                     flex items-center justify-center gap-2"
-            >
+            <button type="button" (click)="onCancel()" class="h-12 rounded-2xl font-bold border border-orange-200 bg-white hover:bg-orange-50 transition
+                     flex items-center justify-center gap-2">
               <lucide-icon [img]="RotateCcwIcon" class="w-5 h-5"></lucide-icon>
               Limpiar
             </button>
