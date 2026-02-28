@@ -1,9 +1,8 @@
 <div class="relative w-full">
 
-  <!-- Input -->
   <div
-    class="w-full h-11 px-4 rounded-2xl bg-white border border-orange-200/70 shadow-sm
-           flex items-center gap-2 cursor-pointer
+    class="relative w-full h-11 rounded-2xl bg-white border border-orange-200/70 shadow-sm
+           flex items-center
            focus-within:border-orange-400 transition"
     [class.opacity-50]="isDisabled()"
     [class.cursor-not-allowed]="isDisabled()"
@@ -12,7 +11,7 @@
     <input
       #inputEl
       type="text"
-      class="grow bg-transparent outline-none text-sm
+      class="w-full h-full pl-4 pr-10 bg-transparent outline-none text-sm cursor-text
              placeholder:text-[#3a332c]/40
              disabled:cursor-not-allowed"
       [placeholder]="isOpen() ? placeholder() : (selectedName() ? '' : currentPlaceholder())"
@@ -23,14 +22,13 @@
     />
 
     <span
-      class="text-[#3a332c]/60 text-xs transition-transform duration-200 select-none"
+      class="absolute right-4 top-1/2 -translate-y-1/2 text-[#3a332c]/60 text-xs transition-transform duration-200 select-none cursor-pointer"
       [class.rotate-180]="isOpen()"
     >
       ▼
     </span>
   </div>
 
-  <!-- Dropdown -->
   @if (isOpen() && !isDisabled()) {
     <div
       class="absolute z-50 w-full mt-2 rounded-2xl overflow-hidden
