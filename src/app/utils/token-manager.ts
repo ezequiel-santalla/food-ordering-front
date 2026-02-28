@@ -156,11 +156,6 @@ export class TokenManager {
     );
     const foodVenueId = SessionUtils.cleanSessionValue(decoded.foodVenueId);
 
-    console.log('💾 Datos extraídos del token:', {
-      tableSessionId,
-      foodVenueId,
-    });
-
     return { tableSessionId, foodVenueId };
   }
 
