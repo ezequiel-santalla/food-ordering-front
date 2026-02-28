@@ -1,11 +1,14 @@
 import { computed, inject, Injectable } from '@angular/core';
 import {
+  BehaviorSubject,
   catchError,
+  filter,
   first,
+  map,
   Observable,
   of,
-  Subject,
   switchMap,
+  take,
   tap,
   throwError,
 } from 'rxjs';
@@ -31,7 +34,7 @@ export class AuthService {
   private cartService = inject(CartService);
 
   private isRefreshingToken = false;
-  private tokenRefreshed$ = new Subject<string>();
+  private tokenRefreshed$ = new BehaviorSubject<string | null>(null);
   private pendingTableId: string | null = null;
 
   constructor() {
@@ -65,7 +68,7 @@ export class AuthService {
       email: string;
       password: string;
     },
-    initialTableSessionId: string | null = null
+    initialTableSessionId: string | null = null,
   ): Observable<LoginResponse> {
     const loginPayload = {
       ...credentials,
@@ -77,7 +80,7 @@ export class AuthService {
         const processed = SessionUtils.isTableSessionResponse(response)
           ? TokenManager.processTableSessionResponse(
               response as TableSessionResponse,
-              this.authState.refreshToken()
+              this.authState.refreshToken(),
             )
           : TokenManager.processAuthResponse(response as AuthResponse);
 
@@ -86,7 +89,7 @@ export class AuthService {
       catchError((error) => {
         console.error('❌ Error en login:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -95,7 +98,7 @@ export class AuthService {
       catchError((error) => {
         console.error('❌ Error en registro:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -107,7 +110,7 @@ export class AuthService {
       catchError((error) => {
         console.error('❌ Error reenviando email:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -116,7 +119,7 @@ export class AuthService {
       catchError((error) => {
         console.error('❌ Error en solicitud de reseteo:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -127,7 +130,7 @@ export class AuthService {
       catchError((error) => {
         console.error('❌ Error en reseteo de contraseña:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -139,14 +142,14 @@ export class AuthService {
       catchError((error) => {
         console.error('❌ Error verificando email:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
   scanQR(
     tableId: string,
     nickname: string | null = null,
-    forceChange = false
+    forceChange = false,
   ): Observable<TableSessionResponse> {
     const currentSessionId = this.authState.tableSessionId();
     const hasValidSession = SessionUtils.isValidSession(currentSessionId);
@@ -160,7 +163,7 @@ export class AuthService {
 
     if (hasValidSession && forceChange) {
       return this.closeCurrentSession().pipe(
-        switchMap(() => this.performScanQR(tableId, nickname))
+        switchMap(() => this.performScanQR(tableId, nickname)),
       );
     }
 
@@ -190,12 +193,12 @@ export class AuthService {
       catchError((error) => {
         console.error(
           '⚠️ Error en logout del backend, realizando logout local:',
-          error
+          error,
         );
 
         this.performLocalLogout();
         return of(void 0);
-      })
+      }),
     );
   }
 
@@ -223,7 +226,7 @@ export class AuthService {
       tap((response) => {
         // La API devuelve un nuevo token, así que lo procesamos y actualizamos todo el estado.
         const processed = TokenManager.processAuthResponse(
-          response as AuthResponse
+          response as AuthResponse,
         );
         processed.employments = currentEmployments;
         this.authState.applyAuthData(processed);
@@ -231,7 +234,7 @@ export class AuthService {
       catchError((error) => {
         console.error('❌ Error al seleccionar el rol:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -244,7 +247,7 @@ export class AuthService {
 
   private performScanQR(
     tableId: string,
-    nickname: string | null = null
+    nickname: string | null = null,
   ): Observable<TableSessionResponse> {
     const nicknameOrUndefined = nickname ?? undefined;
 
@@ -252,14 +255,14 @@ export class AuthService {
       tap((response) => {
         const processed = TokenManager.processTableSessionResponse(
           response,
-          this.authState.refreshToken()
+          this.authState.refreshToken(),
         );
         this.authState.applyAuthData(processed);
       }),
       catchError((error) => {
         console.error('❌ Error escaneando QR:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -271,12 +274,16 @@ export class AuthService {
 
   refreshAccessToken(): Observable<string> {
     if (this.isRefreshingToken) {
-      // Si ya hay un refresco en progreso,
-      // las otras peticiones "esperan" hasta que termine.
-      return this.tokenRefreshed$.pipe(first());
+      return this.tokenRefreshed$.pipe(
+        filter((token) => token !== null),
+        take(1),
+        map((token) => token!),
+      );
     }
 
     this.isRefreshingToken = true;
+    this.tokenRefreshed$.next(null); // resetear antes de empezar
+
     const currentRefreshToken = this.authState.refreshToken();
 
     if (!currentRefreshToken || currentRefreshToken === 'guest') {
@@ -289,26 +296,23 @@ export class AuthService {
       tap((response: AuthResponse) => {
         const processed = TokenManager.processAuthResponse(response);
         this.authState.applyAuthData(processed);
-
         this.tokenRefreshed$.next(response.accessToken);
         this.isRefreshingToken = false;
       }),
-      switchMap((response) => {
-        return of(response.accessToken);
-      }),
+      switchMap((response) => of(response.accessToken)),
       catchError((error) => {
-
         this.isRefreshingToken = false;
+        this.tokenRefreshed$.next(null);
         this.logoutAndReload();
         return throwError(() => error);
-      })
+      }),
     );
   }
 
   logoutAndReload(): void {
     this.logout().subscribe({
       complete: () => location.reload(),
-      error: () => location.reload()
+      error: () => location.reload(),
     });
   }
 

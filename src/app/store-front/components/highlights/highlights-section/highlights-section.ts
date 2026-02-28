@@ -1,12 +1,13 @@
-import { Component, computed, output, signal, input } from '@angular/core';
+import { Component, computed, output, signal, input, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, filter } from 'rxjs/operators';
 import { MenuHighlightCard } from '../menu-highlight-card/menu-highlight-card';
 import { MenuItemDetailModal } from '../../menu/menu-item-detail-modal/menu-item-detail-modal';
 import { Product } from '../../../models/menu.interface';
 import { LucideAngularModule, Star, Flame, Heart } from 'lucide-angular';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-highlights-section',
@@ -15,6 +16,9 @@ import { LucideAngularModule, Star, Flame, Heart } from 'lucide-angular';
   templateUrl: './highlights-section.html',
 })
 export class HighlightsSection {
+
+  constructor(private router: Router) {}
+
   readonly Star = Star;
   readonly Flame = Flame;
   readonly Heart = Heart;
@@ -28,6 +32,19 @@ export class HighlightsSection {
 
   add = output<Product>();
   select = output<Product>();
+
+  @ViewChild('hScroll') hScroll?: ElementRef<HTMLDivElement>;
+
+  ngOnInit() {
+  this.router.events.pipe(
+    filter(e => e instanceof NavigationEnd)
+  ).subscribe(() => {
+    setTimeout(() => {
+      const el = document.getElementById('hscroll-' + this.title());
+      el?.scrollTo({ left: 0 });
+    }, 200);
+  });
+}
 
   selected = signal<Product | undefined>(undefined);
   openProduct = (p: Product) => this.selected.set(p);

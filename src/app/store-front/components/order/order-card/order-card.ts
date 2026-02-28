@@ -5,6 +5,7 @@ import {
   EventEmitter,
   signal,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -15,6 +16,7 @@ import {
   CircleX,
   Package,
   User,
+  Info,
   CookingPot,
   HandPlatter,
   CheckCheck,
@@ -27,6 +29,7 @@ import {
   toneToBadgeClass,
 } from '../../../../shared/models/status-ui';
 import { PaymentStatus } from '../../../models/payment.interface';
+import { NavigationService } from '../../../../shared/services/navigation.service';
 @Component({
   selector: 'app-order-card',
   standalone: true,
@@ -41,6 +44,9 @@ export class OrderCardComponent {
     isSelected: boolean;
   }>();
   @Output() cancel = new EventEmitter<string>();
+  @Output() viewPayment = new EventEmitter<string>();
+
+  private navigation = inject(NavigationService);
 
   readonly ChevronDown = ChevronDown;
   readonly Clock = Clock;
@@ -48,6 +54,7 @@ export class OrderCardComponent {
   readonly CircleX = CircleX;
   readonly Package = Package;
   readonly User = User;
+  readonly Info = Info;
   readonly CheckCheck = CheckCheck;
   readonly CookingPot = CookingPot;
   readonly HandPlatter = HandPlatter;
@@ -108,5 +115,30 @@ export class OrderCardComponent {
     const hasActivePayment = !!payStatus && payStatus !== 'CANCELLED';
 
     return !hasActivePayment;
+  }
+
+  getCancelState():
+    | { type: 'CAN_CANCEL' }
+    | { type: 'HAS_PAYMENT' }
+    | { type: 'INVALID_STATUS' }
+    | { type: 'NOT_MINE' } {
+    if (!this.isMine) return { type: 'NOT_MINE' };
+    
+    const statusOk = this.CANCELABLE_STATUSES.has(String(this.order.status));
+    if (!statusOk) return { type: 'INVALID_STATUS' };
+
+    const payStatus = this.order.payment?.status;
+    const hasActivePayment = !!payStatus && payStatus !== 'CANCELLED';
+    if (hasActivePayment) return { type: 'HAS_PAYMENT' };
+
+    return { type: 'CAN_CANCEL' };
+  }
+
+  onViewPayment(paymentId: string | undefined) {
+    if (!paymentId) return;
+    this.navigation.navigateToPayments({
+      section: 'history',
+      highlight: paymentId,
+    });
   }
 }

@@ -108,7 +108,9 @@ export class Header {
             'Cancelar',
           );
           if (res.isConfirmed) {
-            this.navigation.navigateToPayments();
+            this.navigation.navigateToPayments({
+              section: 'pending'
+            });
           }
           return;
         }
@@ -197,7 +199,9 @@ export class Header {
             'Cancelar',
           );
           if (res.isConfirmed) {
-            this.navigation.navigateToPayments();
+            this.navigation.navigateToPayments({
+              section: 'pending'
+            });
           }
           return;
         }
