@@ -1,29 +1,82 @@
 import { Injectable } from '@angular/core';
 import Swal, {
   SweetAlertIcon,
+  SweetAlertOptions,
   SweetAlertPosition,
   SweetAlertResult,
 } from 'sweetalert2';
 
-@Injectable({
-  providedIn: 'root',
-})
+type ConfirmLogoutActiveTableResult = 'leave_and_logout' | 'dismiss';
+
+@Injectable({ providedIn: 'root' })
 export class SweetAlertService {
-  private defaultConfig = {
-    customClass: {
-      popup: 'rounded-lg',
-      confirmButton: 'rounded-lg',
-      cancelButton: 'rounded-lg',
-    },
-    confirmButtonColor: '#dc2626',
-    cancelButtonColor: '#6b7280',
+  // 🎨 Dinno Theme (ajustá colores si querés)
+  private readonly theme = {
+    danger: '#ef4444', // red-500 (cancel / delete)
+    warning: '#f59e0b', // amber-500
+    neutral: '#6b7280', // gray-500
+    success: '#10b981', // emerald-500
+    info: '#3b82f6', // blue-500
+  } as const;
+
+  // Clases globales para "estilo Dinno"
+  // (la magia real la hacemos en CSS global con estas clases)
+  private readonly baseClasses = {
+    popup: 'dinno-swal dinno-swal--popup',
+    title: 'dinno-swal--title',
+    htmlContainer: 'dinno-swal--text',
+    actions: 'dinno-swal--actions',
+    confirmButton: 'dinno-swal--btn dinno-swal--btn-confirm',
+    cancelButton: 'dinno-swal--btn dinno-swal--btn-cancel',
+    denyButton: 'dinno-swal--btn dinno-swal--btn-deny',
+    closeButton: 'dinno-swal--close',
+    input: 'dinno-swal--input',
+  } as const;
+
+  private readonly defaultConfig: Partial<SweetAlertOptions> = {
+    customClass: { ...this.baseClasses },
+    confirmButtonColor: this.theme.warning,
+    cancelButtonColor: this.theme.neutral,
+    reverseButtons: true,
+    focusCancel: true,
   };
+
+  private fire<T = any>(options: SweetAlertOptions) {
+    const merged = {
+      ...this.defaultConfig,
+      ...options,
+      customClass: {
+        ...(this.defaultConfig.customClass ?? {}),
+        ...(options.customClass ?? {}),
+      },
+    } as SweetAlertOptions;
+
+    return Swal.fire<T>(merged);
+  }
+
+  private toast(position: SweetAlertPosition) {
+    return Swal.mixin({
+      toast: true,
+      position,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (t) => {
+        t.onmouseenter = Swal.stopTimer;
+        t.onmouseleave = Swal.resumeTimer;
+      },
+      customClass: {
+        popup: 'dinno-toast',
+        title: 'dinno-toast--title',
+      },
+    });
+  }
 
   async confirmDelete(
     itemName: string,
-    itemType: string = 'elemento'
+    itemType: string = 'elemento',
   ): Promise<boolean> {
-    const result = await Swal.fire({
+    const result = await this.fire({
       title: '¿Estás seguro?',
       text: `El ${itemType} "${itemName}" será eliminado permanentemente`,
       icon: 'warning',
@@ -32,14 +85,13 @@ export class SweetAlertService {
       cancelButtonText: 'Cancelar',
       focusCancel: true,
       reverseButtons: true,
-      ...this.defaultConfig,
+      confirmButtonColor: this.theme.danger,
     });
-
     return result.isConfirmed;
   }
 
   async confirmCancelPayment(): Promise<boolean> {
-    const result = await Swal.fire({
+    const result = await this.fire({
       title: '¿Cancelar pago?',
       text: 'Esta acción no se puede deshacer.',
       icon: 'warning',
@@ -47,94 +99,67 @@ export class SweetAlertService {
       confirmButtonText: 'Cancelar pago',
       cancelButtonText: 'Volver',
       reverseButtons: true,
-      ...this.defaultConfig,
-      confirmButtonColor: '#dc2626',
+      confirmButtonColor: this.theme.danger,
+      focusCancel: true,
     });
-
     return result.isConfirmed;
   }
 
   showToast(position: SweetAlertPosition, icon: SweetAlertIcon, title: string) {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: position,
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer;
-        toast.onmouseleave = Swal.resumeTimer;
-      },
-    });
-
-    Toast.fire({
-      icon: icon,
-      title: title,
-    });
+    this.toast(position).fire({ icon, title });
   }
 
   async confirm(
     title: string,
     text: string,
     confirmButtonText: string = 'Confirmar',
-    icon: SweetAlertIcon = 'warning'
+    icon: SweetAlertIcon = 'warning',
   ): Promise<SweetAlertResult> {
-    return Swal.fire({
-      title: title,
-      text: text,
-      icon: icon,
+    return this.fire({
+      title,
+      text,
+      icon,
       showCancelButton: true,
-      confirmButtonText: confirmButtonText,
+      confirmButtonText,
       cancelButtonText: 'Cancelar',
       reverseButtons: true,
       focusCancel: true,
-      ...this.defaultConfig,
-      confirmButtonColor: '#f59e0b',
+      confirmButtonColor: this.theme.warning,
     });
   }
 
   showPaymentCancelled() {
-    Swal.fire({
+    this.fire({
       title: 'Pago cancelado',
       text: 'El pago fue marcado como cancelado.',
       icon: 'success',
       timer: 1800,
       timerProgressBar: true,
       showConfirmButton: false,
-      customClass: {
-        popup: 'rounded-lg',
-      },
+      allowOutsideClick: true,
+      allowEscapeKey: true,
     });
   }
 
-  // Método genérico para confirmar acciones CRUD
   async confirmAction(
     isEditMode: boolean,
     entityName: string,
-    entityType: string = 'elemento'
+    entityType: string = 'elemento',
   ): Promise<boolean> {
     const action = isEditMode ? 'actualizar' : 'crear';
     const actionPast = isEditMode ? 'actualizado' : 'creado';
-    const icon = isEditMode ? 'question' : 'info';
+    const icon: SweetAlertIcon = isEditMode ? 'question' : 'info';
 
-    const result = await Swal.fire({
+    const result = await this.fire({
       title: `¿Confirmar ${action} ${entityType}?`,
-      text: `${
-        entityType.charAt(0).toUpperCase() + entityType.slice(1)
-      } "${entityName}" será ${actionPast} con la información proporcionada`,
-      icon: icon,
+      text: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} "${entityName}" será ${actionPast} con la información proporcionada`,
+      icon,
       showCancelButton: true,
       confirmButtonText: `Sí, ${action}`,
       cancelButtonText: 'Cancelar',
       focusCancel: false,
       reverseButtons: true,
-      customClass: {
-        popup: 'rounded-lg',
-        confirmButton: 'rounded-lg',
-        cancelButton: 'rounded-lg',
-      },
-      confirmButtonColor: isEditMode ? '#f59e0b' : '#10b981',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: isEditMode ? this.theme.warning : this.theme.success,
     });
 
     return result.isConfirmed;
@@ -145,9 +170,9 @@ export class SweetAlertService {
     text: string,
     confirmButtonText: string = 'Confirmar',
     cancelButtonText: string = 'Cancelar',
-    icon: 'warning' | 'question' | 'info' = 'question'
+    icon: 'warning' | 'question' | 'info' = 'question',
   ): Promise<boolean> {
-    const result = await Swal.fire({
+    const result = await this.fire({
       title,
       text,
       icon,
@@ -156,7 +181,6 @@ export class SweetAlertService {
       cancelButtonText,
       focusCancel: false,
       reverseButtons: false,
-      ...this.defaultConfig,
     });
 
     return result.isConfirmed;
@@ -165,9 +189,9 @@ export class SweetAlertService {
   async showInput(
     title: string,
     placeholder: string = '',
-    inputType: 'text' | 'email' | 'password' = 'text'
+    inputType: 'text' | 'email' | 'password' = 'text',
   ) {
-    const result = await Swal.fire({
+    const result = await this.fire<string>({
       title,
       input: inputType,
       inputPlaceholder: placeholder,
@@ -175,12 +199,9 @@ export class SweetAlertService {
       confirmButtonText: 'Confirmar',
       cancelButtonText: 'Cancelar',
       inputValidator: (value) => {
-        if (!value) {
-          return 'Este campo es requerido';
-        }
+        if (!value) return 'Este campo es requerido';
         return null;
       },
-      ...this.defaultConfig,
     });
 
     return result.isConfirmed ? result.value : null;
@@ -188,57 +209,55 @@ export class SweetAlertService {
 
   showLoading(
     title: string = 'Cargando...',
-    text: string = 'Por favor espera'
+    text: string = 'Por favor espera',
   ) {
-    return Swal.fire({
+    return this.fire({
       title,
       text,
       allowOutsideClick: false,
       allowEscapeKey: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-      customClass: {
-        popup: 'rounded-lg',
-      },
+      didOpen: () => Swal.showLoading(),
+      showConfirmButton: false,
     });
   }
 
-  showSuccess(title: string, text: string = '', timer: number = 2000): Promise<SweetAlertResult> {
-    return Swal.fire({
+  showSuccess(
+    title: string,
+    text: string = '',
+    timer: number = 2000,
+  ): Promise<SweetAlertResult> {
+    return this.fire({
       title,
       text,
       icon: 'success',
       timer,
       timerProgressBar: true,
       showConfirmButton: false,
-      customClass: {
-        popup: 'rounded-lg',
-      },
     });
   }
 
   showError(title: string, message: string): Promise<any> {
     Swal.close();
-
-    return Swal.fire({
+    return this.fire({
       title,
       text: message,
       icon: 'error',
       confirmButtonText: 'Entendido',
       allowOutsideClick: false,
       allowEscapeKey: false,
-      ...this.defaultConfig,
+      confirmButtonColor: this.theme.danger,
+      showCancelButton: false,
     });
   }
 
   showInfo(title: string, text: string = '') {
-    Swal.fire({
+    this.fire({
       title,
       text,
       icon: 'info',
       confirmButtonText: 'Entendido',
-      ...this.defaultConfig,
+      confirmButtonColor: this.theme.info,
+      showCancelButton: false,
     });
   }
 
@@ -247,7 +266,7 @@ export class SweetAlertService {
       'Guardá tus favoritos',
       'Registrate o iniciá sesión para guardar tus favoritos y verlos en cada visita.',
       'Iniciar sesión',
-      'Más tarde'
+      'Más tarde',
     );
     return res.isConfirmed;
   }
@@ -255,7 +274,7 @@ export class SweetAlertService {
   async confirmLogout(userName?: string): Promise<boolean> {
     const greeting = userName ? `${userName}` : 'usuario';
 
-    const result = await Swal.fire({
+    const result = await this.fire({
       title: '¿Cerrar sesión?',
       text: `¡Hasta luego, ${greeting}! ¿Estás seguro que deseas cerrar sesión?`,
       icon: 'question',
@@ -264,13 +283,7 @@ export class SweetAlertService {
       cancelButtonText: 'Cancelar',
       focusCancel: false,
       reverseButtons: true,
-      customClass: {
-        popup: 'rounded-lg',
-        confirmButton: 'rounded-lg',
-        cancelButton: 'rounded-lg',
-      },
-      confirmButtonColor: '#f59e0b',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: this.theme.warning,
     });
 
     return result.isConfirmed;
@@ -280,9 +293,9 @@ export class SweetAlertService {
     title: string,
     text: string = '',
     confirmButtonText: string = 'Aceptar',
-    cancelButtonText: string = 'Cancelar'
+    cancelButtonText: string = 'Cancelar',
   ): Promise<SweetAlertResult<any>> {
-    return Swal.fire({
+    return this.fire({
       title,
       text,
       icon: 'question',
@@ -290,16 +303,15 @@ export class SweetAlertService {
       confirmButtonText,
       cancelButtonText,
       reverseButtons: false,
-      ...this.defaultConfig,
     });
   }
 
   async inputText(
     title: string,
     text: string = '',
-    placeholder: string = 'Ingresá tu nombre'
+    placeholder: string = 'Ingresá tu nombre',
   ): Promise<SweetAlertResult<any>> {
-    return Swal.fire({
+    return this.fire({
       title,
       text,
       input: 'text',
@@ -310,12 +322,10 @@ export class SweetAlertService {
       allowOutsideClick: false,
       allowEscapeKey: false,
       inputValidator: (value) => {
-        if (!value || !value.trim()) {
+        if (!value || !value.trim())
           return 'Por favor ingresá un nombre válido';
-        }
         return null;
       },
-      ...this.defaultConfig,
     });
   }
 
@@ -324,30 +334,26 @@ export class SweetAlertService {
   }
 
   showGuestWelcome(name: string, table?: number) {
-    Swal.fire({
+    this.fire({
       title: `¡Bienvenido ${name}!`,
       text: table ? `Te uniste a la mesa ${table}.` : '',
       icon: 'success',
       timer: 1800,
       timerProgressBar: true,
       showConfirmButton: false,
-      ...this.defaultConfig,
     });
   }
 
   showLogoutSuccess(userName?: string) {
     const message = userName ? `¡Hasta luego, ${userName}!` : '¡Hasta luego!';
 
-    Swal.fire({
+    this.fire({
       title: message,
       text: 'Has cerrado sesión correctamente.',
       icon: 'success',
       timer: 2000,
       timerProgressBar: true,
       showConfirmButton: false,
-      customClass: {
-        popup: 'rounded-lg',
-      },
     });
   }
 
@@ -364,50 +370,37 @@ export class SweetAlertService {
   showConfirmableSuccess(
     title: string,
     text: string = '',
-    confirmButtonText: string = 'Aceptar'
+    confirmButtonText: string = 'Aceptar',
   ): Promise<SweetAlertResult> {
-    return Swal.fire({
+    return this.fire({
       title,
       text,
       icon: 'success',
       showConfirmButton: true,
-      confirmButtonText: confirmButtonText,
-      ...this.defaultConfig,
-      customClass: {
-        popup: 'rounded-lg',
-      },
+      confirmButtonText,
+      showCancelButton: false,
+      confirmButtonColor: this.theme.success,
     });
   }
 
-  /**
-   * Muestra un popup de error que REQUIERE la confirmación del usuario.
-   * Devuelve una promesa para que se pueda actuar después.
-   * @param title Título del popup
-   * @param text Texto del popup
-   * @param confirmButtonText Texto del botón (ej. 'Ir al Inicio')
-   */
   showConfirmableError(
     title: string,
     text: string = '',
-    confirmButtonText: string = 'Entendido'
+    confirmButtonText: string = 'Entendido',
   ): Promise<SweetAlertResult> {
-    return Swal.fire({
+    return this.fire({
       title,
       text,
       icon: 'error',
       showConfirmButton: true,
-      confirmButtonText: confirmButtonText,
-      ...this.defaultConfig,
-      customClass: {
-        popup: 'rounded-lg',
-      },
+      confirmButtonText,
+      showCancelButton: false,
+      confirmButtonColor: this.theme.danger,
     });
   }
 
-  async confirmLogoutWithActiveTable(): Promise<
-    'leave_and_logout' | 'dismiss'
-  > {
-    const result = await Swal.fire({
+  async confirmLogoutWithActiveTable(): Promise<ConfirmLogoutActiveTableResult> {
+    const result = await this.fire({
       title: 'Sesión de mesa activa',
       text: 'Si cerrás sesión vas a abandonar la mesa, ¿estás seguro?',
       icon: 'question',
@@ -417,20 +410,17 @@ export class SweetAlertService {
       showCancelButton: false,
 
       confirmButtonText: 'Abandonar mesa y salir',
-      confirmButtonColor: '#dc2626',
+      confirmButtonColor: this.theme.danger,
 
       denyButtonText: 'Quedarme',
-      denyButtonColor: '#3085d6',
+      denyButtonColor: this.theme.info,
 
       showCloseButton: true,
       allowOutsideClick: false,
       allowEscapeKey: true,
 
       customClass: {
-        ...this.defaultConfig.customClass,
-        actions: 'swal-actions-vertical',
-        confirmButton: 'rounded-lg',
-        denyButton: 'rounded-lg',
+        actions: 'dinno-swal--actions dinno-swal--actions-vertical',
       },
     });
 

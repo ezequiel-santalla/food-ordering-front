@@ -3,3 +3,46 @@
 @plugin "daisyui" {
   themes: light --default; /* dark --prefersdark; */
 }
+/* Popup base */
+.dinno-swal--popup {
+  border-radius: 1.25rem; /* 2xl */
+  border: 1px solid rgba(251, 146, 60, 0.25); /* orange-400/25 */
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  backdrop-filter: blur(10px);
+}
+
+/* Tipografías */
+.dinno-swal--title {
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.dinno-swal--text {
+  opacity: 0.85;
+}
+
+/* Botones */
+.dinno-swal--btn {
+  border-radius: 1rem; /* 2xl-ish */
+  padding: 0.7rem 1rem;
+  font-weight: 800;
+}
+.dinno-swal--btn-cancel {
+  filter: saturate(0.95);
+}
+
+/* Acciones en columna (para tu caso de mesa activa) */
+.dinno-swal--actions-vertical {
+  display: grid !important;
+  grid-auto-flow: row;
+  gap: 0.5rem;
+}
+
+/* Toast */
+.dinno-toast {
+  border-radius: 1rem;
+  border: 1px solid rgba(245, 158, 11, 0.25); /* amber */
+  backdrop-filter: blur(10px);
+}
+.dinno-toast--title {
+  font-weight: 800;
+}

@@ -5,7 +5,7 @@
       @if (currentVenueResource.isLoading()) {
       <div class="w-full h-full bg-orange-100/60 animate-pulse"></div>
       } @else if (bannerUrl()) {
-      <img [src]="bannerUrl()!" alt="Banner del local" loading="lazy"
+      <img [src]="bannerUrl()!" alt="Banner del local" loading="eager" fetchpriority="high"
         class="w-full h-full object-cover object-center" />
       }
     </div>
