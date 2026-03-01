@@ -2,56 +2,97 @@
   <div class="bg-white/70 backdrop-blur border-b border-orange-200/50">
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
       <a class="flex items-center gap-3 select-none" routerLink="/">
-        <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1763819126/logo-dinno-chef_ybshqf.png"
-          alt="Dinno" class="w-9 h-9 rounded-xl object-contain" />
+        <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1763819126/logo-dinno-chef_ybshqf.png" alt="Dinno"
+          class="w-9 h-9 rounded-xl object-contain" />
         <span class="font-black text-lg text-[#1f1b16]">Dinno</span>
       </a>
 
-      <div class="relative">
+      <!-- Desktop nav (md+) -->
+      <nav class="hidden md:flex items-center gap-2">
+        @if (isHome()) {
+        <button class="btn btn-ghost rounded-2xl text-sm" (click)="goTo('restaurants')">Restaurantes</button>
+        <button class="btn btn-ghost rounded-2xl text-sm" (click)="goTo('how')">Cómo funciona</button>
+        <button class="btn btn-ghost rounded-2xl text-sm" (click)="goTo('contact')">Contacto</button>
+        }
+
+        <button class="btn h-10 rounded-2xl border-0 text-white shadow-md gap-2
+          bg-gradient-to-r from-orange-500 to-amber-500
+          hover:from-orange-600 hover:to-amber-600 text-sm" (click)="onScanQr()">
+          <lucide-icon [img]="QrCode" class="w-4 h-4"></lucide-icon>
+          Escanear QR
+        </button>
+
+        @if (!isLoggedIn()) {
+        <button class="btn h-10 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2 text-sm"
+          (click)="onLogin()">
+          <lucide-icon [img]="LogIn" class="w-4 h-4 text-orange-700"></lucide-icon>
+          Iniciar sesión
+        </button>
+        } @else {
+        <a routerLink="/profile"
+          class="btn btn-ghost h-10 w-10 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 p-0">
+          <lucide-icon [img]="User" class="w-4 h-4 text-orange-700"></lucide-icon>
+        </a>
+        <button class="btn h-10 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2 text-sm"
+          (click)="onLogout()">
+          <lucide-icon [img]="Logout" class="w-4 h-4 text-orange-700"></lucide-icon>
+          Salir
+        </button>
+        }
+      </nav>
+
+      <!-- Mobile hamburger (< md) -->
+      <div class="relative md:hidden">
         <button class="btn btn-ghost rounded-2xl" (click)="toggleMenu()" aria-label="Abrir menú">
           <lucide-icon [img]="Menu" class="w-6 h-6 text-[#1f1b16]"></lucide-icon>
         </button>
 
         @if (menuOpen()) {
-          <div class="fixed top-[72px] right-4 z-[1001] w-72
+        <div class="fixed top-[72px] right-4 z-[1001] w-72
             bg-white rounded-3xl shadow-2xl border border-orange-200/60 overflow-hidden"
-            (click)="$event.stopPropagation()">
-            <div class="p-2">
-              @if (isHome()) {
-                <button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-orange-50" (click)="goTo('restaurants')">
-                  Restaurantes
-                </button>
-                <button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-orange-50" (click)="goTo('how')">
-                  Cómo funciona
-                </button>
-                <button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-orange-50" (click)="goTo('contact')">
-                  Contacto
-                </button>
-                <div class="my-2 h-px bg-orange-200/60"></div>
-              }
+          (click)="$event.stopPropagation()">
+          <div class="p-2">
+            @if (isHome()) {
+            <button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-orange-50" (click)="goTo('restaurants')">
+              Restaurantes
+            </button>
+            <button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-orange-50" (click)="goTo('how')">
+              Cómo funciona
+            </button>
+            <button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-orange-50" (click)="goTo('contact')">
+              Contacto
+            </button>
+            <div class="my-2 h-px bg-orange-200/60"></div>
+            }
 
-              <button class="w-full btn h-12 rounded-2xl border-0 text-white shadow-md gap-2
+            <button class="w-full btn h-12 rounded-2xl border-0 text-white shadow-md gap-2
                 bg-gradient-to-r from-orange-500 to-amber-500
                 hover:from-orange-600 hover:to-amber-600" (click)="onScanQr()">
-                <lucide-icon [img]="QrCode" class="w-5 h-5"></lucide-icon>
-                Escanear QR
-              </button>
+              <lucide-icon [img]="QrCode" class="w-5 h-5"></lucide-icon>
+              Escanear QR
+            </button>
 
-              @if (!isLoggedIn()) {
-                <button class="mt-2 w-full btn h-12 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2"
-                  (click)="onLogin()">
-                  <lucide-icon [img]="LogIn" class="w-5 h-5 text-orange-700"></lucide-icon>
-                  Iniciar sesión
-                </button>
-              } @else {
-                <button class="mt-2 w-full btn h-12 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2"
-                  (click)="onLogout()">
-                  <lucide-icon [img]="Logout" class="w-5 h-5 text-orange-700"></lucide-icon>
-                  Salir
-                </button>
-              }
-            </div>
+            @if (!isLoggedIn()) {
+            <button class="mt-2 w-full btn h-12 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2"
+              (click)="onLogin()">
+              <lucide-icon [img]="LogIn" class="w-5 h-5 text-orange-700"></lucide-icon>
+              Iniciar sesión
+            </button>
+            } @else {
+            <a routerLink="/profile"
+              class="mt-2 w-full btn h-12 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2"
+              (click)="closeMenu()">
+              <lucide-icon [img]="User" class="w-5 h-5 text-orange-700"></lucide-icon>
+              Mi perfil
+            </a>
+            <button class="mt-2 w-full btn h-12 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2"
+              (click)="onLogout()">
+              <lucide-icon [img]="Logout" class="w-5 h-5 text-orange-700"></lucide-icon>
+              Salir
+            </button>
+            }
           </div>
+        </div>
         }
       </div>
     </div>
