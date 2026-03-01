@@ -107,7 +107,7 @@ export class TableEditDetailModal {
     this.qrError.set(null);
 
     try {
-      const baseUrl = `${window.location.origin}/#/scan-qr`;
+      const baseUrl = `${window.location.origin}/scan-qr`;
 
       const response = await this.diningTableService.generateQrCode(
         baseUrl,
