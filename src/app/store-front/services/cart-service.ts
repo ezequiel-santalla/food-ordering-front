@@ -41,7 +41,8 @@ export class CartService {
       product.price,
       instructions,
       quantity,
-      product.imageUrl
+      product.imageUrl,
+      product.customizable
     );
   }
 
@@ -50,13 +51,14 @@ export class CartService {
     productPrice: number,
     specialInstructions: string | null,
     quantity: number,
-    productImage?: string
+    productImage?: string,
+    customizable: boolean = false
   ): void {
     const currentItems = this._items();
     const existingIndex = currentItems.findIndex(
       (item) =>
         item.productName === productName &&
-        item.specialInstructions === specialInstructions
+        item.specialInstructions?.toLocaleLowerCase() === specialInstructions?.toLocaleLowerCase()
     );
 
     if (existingIndex >= 0) {
@@ -75,6 +77,7 @@ export class CartService {
           productImage,
           quantity: quantity,
           specialInstructions,
+          customizable
         },
       ]);
     }
@@ -128,7 +131,7 @@ export class CartService {
         items: this._items(),
       };
 
-      localStorage.setItem('cart', JSON.stringify(this._items()));
+      localStorage.setItem('cart', JSON.stringify(payload));
     } catch (error) {
       console.error('Error guardando orden:', error);
     }

@@ -4,7 +4,7 @@ export interface CartItem {
   productImage?: string;
   quantity: number;
   specialInstructions: string | null;
-
+  customizable: boolean;
   _expand?: boolean;
 }
 

@@ -34,7 +34,7 @@ export class MenuItemCard {
   increaseQuantity(ev?: Event) {
     ev?.stopPropagation();
 
-    this.cartService.addItem(this.product, 1, null);
+    this.cartService.addItem(this.product, 1, '');
 
     this.sweetAlert.showToast(
       'top-end',

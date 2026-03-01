@@ -26,6 +26,12 @@ export class OrderTabs {
   tableCount = computed(() => this.orderService.tableOrders().length);
   myCount = computed(() => this.orderService.myOrders().length);
 
+  ngOnInit() {
+    if (this.cartCount() === 0) {
+      this.activeTab.set('mine');
+    }
+  }
+
   setTab(tab: string) {
     this.activeTab.set(tab as OrderView);
     this.scrollContainer.nativeElement.scrollTop = 0;
