@@ -6,21 +6,21 @@
     <div class="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-orange-300/20 blur-3xl"></div>
     <div class="pointer-events-none absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-amber-400/15 blur-3xl"></div>
 
-    <div class="max-w-6xl mx-auto px-4 pt-10 pb-12 lg:pt-16 lg:pb-20 ">
+    <div class="max-w-6xl mx-auto px-4 pt-10 pb-8 lg:pt-16 lg:pb-12 ">
       <div class="text-center">
         <div class="flex justify-center">
           <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772114910/dinno-banner_eqcu7r.png" alt="Dinno"
             class="w-8/12 sm:w-3/5 md:w-2/4 lg:w-2/3 max-w-4xl object-contain drop-shadow-xl mx-auto" />
         </div>
 
-        <p class="mt-1 text-lg lg:text-xl text-[#3a332c]/70 font-medium max-w-2xl mx-auto">
-          La forma más inteligente de pedir comida. Sin esperas, sin errores, directo desde tu mesa.
+        <p class="mt-4 text-lg lg:text-xl text-[#3a332c]/70 font-medium max-w-2xl mx-auto">
+          La forma más inteligente de pedir comida. Sin esperas, sin complicaciones, directo desde tu mesa.
         </p>
       </div>
 
-      <div class="mt-10 flex justify-center">
+      <div class="mt-6 flex justify-center relative z-10">
         @if (hasActiveSession()) {
-        <div class="w-full max-w-xl bg-white/70 backFdrop-blur rounded-[28px] shadow-xl border border-white">
+        <div class="w-full max-w-xl bg-white/70 backdrop-blur rounded-[28px] shadow-xl border border-white">
           <div class="p-7 lg:p-8 text-center">
             <div
               class="w-16 h-16 mx-auto rounded-2xl bg-orange-500/10 text-orange-700 flex items-center justify-center">
@@ -34,8 +34,8 @@
 
             <div class="mt-6">
               <a [routerLink]="['/session', sessionInfo().sessionId]" class="btn w-full h-14 rounded-2xl border-0 text-white shadow-lg
-                         bg-gradient-to-r from-orange-500 to-amber-500
-                         hover:from-orange-600 hover:to-amber-600 gap-2">
+                             bg-gradient-to-r from-orange-500 to-amber-500
+                             hover:from-orange-600 hover:to-amber-600 gap-2">
                 Ver menú y pedir
                 <lucide-icon [img]="ArrowRight" class="w-5 h-5"></lucide-icon>
               </a>
@@ -43,11 +43,11 @@
           </div>
         </div>
         } @else {
-
         <div id="scan" class="w-full max-w-xl bg-white/70 backdrop-blur rounded-[32px] shadow-2xl border border-white">
           <div class="p-7 lg:p-9 text-center">
             <div class="mx-auto w-[260px] max-w-full">
-              <div class="relative rounded-[28px] bg-white border border-orange-200/70 shadow-sm p-6"
+              <div
+                class="relative rounded-[28px] bg-white border border-orange-200/70 shadow-sm p-6 cursor-pointer hover:scale-105 transition-transform"
                 (click)="onScanQr()">
                 <div
                   class="absolute top-3 left-3 w-10 h-10 border-l-[5px] border-t-[5px] border-orange-500 rounded-tl-2xl">
@@ -66,8 +66,9 @@
                   <lucide-icon [img]="QrCode" class="w-20 h-20"></lucide-icon>
                 </div>
 
-                <div class="absolute inset-x-8 top-1/2 h-[3px] bg-orange-400/60 shadow-[0_0_12px_rgba(251,146,60,0.45)]
-                              animate-[scan_2.2s_ease-in-out_infinite] rounded-full"></div>
+                <div
+                  class="absolute inset-x-4 h-[3px] bg-orange-500 shadow-[0_0_14px_2px_rgba(249,115,22,0.6)] rounded-full z-10 scanner-line">
+                </div>
               </div>
             </div>
 
@@ -75,11 +76,34 @@
             <p class="mt-2 text-[#3a332c]/70">Apunta a la mesa para comenzar</p>
 
             <button (click)="onScanQr()" class="mt-6 btn w-full h-14 rounded-2xl border-0 text-white shadow-lg gap-2
-                       bg-gradient-to-r from-orange-500 to-amber-500
-                       hover:from-orange-600 hover:to-amber-600">
+                           bg-gradient-to-r from-orange-500 to-amber-500
+                           hover:from-orange-600 hover:to-amber-600">
               <lucide-icon [img]="ScanLine" class="w-5 h-5"></lucide-icon>
               Activar Cámara
             </button>
+            <div class="relative flex items-center py-6">
+              <div class="flex-grow border-t border-orange-200/60"></div>
+              <span class="flex-shrink-0 mx-4 text-[#3a332c]/50 text-sm font-medium">o ingresá el código de la mesa</span>
+              <div class="flex-grow border-t border-orange-200/60"></div>
+            </div>
+
+            <div class="flex gap-2 text-left">
+              <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <lucide-icon [img]="Keyboard" class="w-5 h-5 text-orange-400"></lucide-icon>
+                </div>
+                <input type="text"
+                       [(ngModel)]="manualTableCode"
+                       (keyup.enter)="onManualSubmit()"
+                       placeholder="Ej: A4B92CF5"
+                       class="w-full pl-10 pr-4 h-14 bg-white border border-orange-200/70 rounded-2xl shadow-sm text-[#1f1b16] font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all placeholder:text-gray-400 uppercase" />
+              </div>
+              <button (click)="onManualSubmit()"
+                      [disabled]="!manualTableCode"
+                      class="h-14 px-6 bg-orange-100 text-orange-700 font-bold rounded-2xl hover:bg-orange-200 transition-colors disabled:opacity-50 disabled:hover:bg-orange-100 flex items-center justify-center">
+                Ir
+              </button>
+            </div>
           </div>
         </div>
         }
@@ -87,84 +111,132 @@
     </div>
   </section>
 
+  <div class="max-w-5xl mx-auto px-4">
+    <div class="h-px bg-gradient-to-r from-transparent via-orange-200/50 to-transparent"></div>
+  </div>
+
   @if (!hasActiveSession()) {
-  <section id="restaurants" class="scroll-mt-20 py-14 px-4">
+  <section id="restaurants" class="scroll-mt-20 py-10 px-4">
     <div class="max-w-5xl mx-auto text-center">
-      <h2 class="text-3xl font-black text-[#1f1b16]">¿No estás en un restaurante?</h2>
-      <p class="mt-3 text-[#3a332c]/70 max-w-2xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-black text-[#1f1b16]">¿No estás en un restaurante?</h2>
+      <p class="mt-2 text-[#3a332c]/70 max-w-2xl mx-auto">
         Podés explorar los lugares asociados a Dinno, ver sus menús y planear tu próxima salida.
       </p>
 
-      <button class="mt-8 w-full sm:w-auto inline-flex items-center gap-2 px-5 py-3 rounded-2xl
+      <button class="mt-6 w-full sm:w-auto inline-flex items-center justify-center gap-3 px-5 py-3 rounded-2xl
                  bg-white border border-orange-200/70 shadow-sm text-[#1f1b16]
-                 hover:bg-orange-50 transition" (click)="onFoodVenues()">
+                 hover:bg-orange-50 hover:border-orange-300 transition" (click)="onFoodVenues()">
         <lucide-icon [img]="Utensils" class="w-5 h-5 text-orange-700"></lucide-icon>
         <span class="font-semibold">Ver Restaurantes Disponibles</span>
       </button>
     </div>
   </section>
 
-  <!-- COMO FUNCIONA -->
-  <section id="how" class="scroll-mt-24 py-16 px-4 bg-white/40 border-y border-orange-200/40">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="h-px w-full bg-orange-200/40"></div>
+  </div>
+
+  <section id="how" class="scroll-mt-24 py-16 px-4 bg-gradient-to-b from-[#fbf6ef] to-white relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-64 h-64 bg-orange-400/5 rounded-full blur-3xl -z-10"></div>
+    <div class="absolute bottom-0 left-0 w-80 h-80 bg-amber-300/10 rounded-full blur-3xl -z-10"></div>
+
     <div class="max-w-6xl mx-auto">
-      <div class="text-center">
-        <p class="text-xs font-black tracking-widest uppercase text-orange-700">
+      <div class="text-center relative z-10">
+        <span
+          class="inline-block py-1.5 px-4 rounded-full bg-orange-100 text-orange-600 text-[11px] sm:text-xs font-black tracking-[0.2em] uppercase mb-4 shadow-sm border border-orange-200/50">
           La experiencia Dinno
-        </p>
-        <h2 class="mt-2 text-3xl md:text-4xl font-black text-[#1f1b16]">
-          Cómo funciona
+        </span>
+        <h2 class="text-4xl md:text-5xl font-black text-[#1f1b16] tracking-tight">
+          Así de fácil funciona
         </h2>
       </div>
 
-      <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-
-        <!-- ESCANEA -->
-        <div>
-          <div class="flex justify-center">
-            <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772112562/escanea_afdsm9.png" alt="Escanear"
-              class="w-40 md:w-44 object-contain" />
+      <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-14 relative z-10">
+        <div class="hidden md:block absolute top-[45%] left-[10%] right-[10%] h-[3px] -z-10">
+          <div
+            class="w-full h-full bg-[length:20px_20px] bg-[linear-gradient(to_right,rgba(251,146,60,0.4)_50%,transparent_50%)] animate-[dash_20s_linear_infinite]">
           </div>
-          <h3 class="mt-6 text-xl font-extrabold text-[#1f1b16]">
-            1. Escaneá
-          </h3>
-          <p class="mt-2 text-[#3a332c]/70 max-w-sm mx-auto">
-            Buscá el QR en tu mesa y vinculáte al instante.
-          </p>
         </div>
 
-        <!-- PEDI -->
-        <div>
-          <div class="flex justify-center">
-            <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772112565/pedi_emrzmf.png" alt="Pedir"
-              class="w-40 md:w-44 object-contain" />
+        <div class="relative group h-full">
+          <div
+            class="absolute -top-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white font-black flex items-center justify-center text-2xl shadow-[0_8px_16px_-6px_rgba(234,88,12,0.6)] z-20 border-4 border-white group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
+            1
           </div>
-          <h3 class="mt-6 text-xl font-extrabold text-[#1f1b16]">
-            2. Pedí
-          </h3>
-          <p class="mt-2 text-[#3a332c]/70 max-w-sm mx-auto">
-            Explorá el menú digital, personalizá y enviá tu orden a cocina.
-          </p>
+
+          <div
+            class="bg-white rounded-[2.5rem] p-8 pt-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-transparent bg-clip-padding relative h-full flex flex-col items-center text-center transition-all duration-300 group-hover:shadow-[0_20px_40px_rgb(234,88,12,0.08)] group-hover:-translate-y-3 group-hover:border-orange-100 before:absolute before:inset-0 before:-z-10 before:rounded-[2.5rem] before:bg-gradient-to-b before:from-orange-50 before:to-white">
+            <div class="h-40 flex items-center justify-center mb-6 w-full relative">
+              <div
+                class="absolute inset-0 bg-orange-100/50 rounded-full blur-2xl scale-50 group-hover:scale-100 transition-transform duration-500">
+              </div>
+              <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772112562/escanea_afdsm9.png" alt="Escanear"
+                class="w-36 md:w-44 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.1)] group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500 z-10" />
+            </div>
+            <h3 class="text-2xl font-extrabold text-[#1f1b16] mb-4">Escaneá</h3>
+            <p class="text-[#3a332c]/75 text-[15px] leading-relaxed">
+              Buscá el <strong class="text-orange-600">código QR</strong> en tu mesa y vinculá tu teléfono al instante
+              sin descargar apps.
+            </p>
+          </div>
         </div>
 
-        <!-- DISFRUTA -->
-        <div>
-          <div class="flex justify-center">
-            <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772112560/disfruta_ah0n6k.png" alt="Disfrutar"
-              class="w-40 md:w-44 object-contain" />
+        <div class="relative group mt-12 md:mt-0 h-full">
+          <div
+            class="absolute -top-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white font-black flex items-center justify-center text-2xl shadow-[0_8px_16px_-6px_rgba(234,88,12,0.6)] z-20 border-4 border-white group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
+            2
           </div>
-          <h3 class="mt-6 text-xl font-extrabold text-[#1f1b16]">
-            3. Disfrutá
-          </h3>
-          <p class="mt-2 text-[#3a332c]/70 max-w-sm mx-auto">
-            Seguí el estado en tiempo real. Pagá desde la app o llamá al mozo.
-          </p>
+
+          <div
+            class="bg-white rounded-[2.5rem] p-8 pt-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-transparent bg-clip-padding relative h-full flex flex-col items-center text-center transition-all duration-300 group-hover:shadow-[0_20px_40px_rgb(234,88,12,0.08)] group-hover:-translate-y-3 group-hover:border-orange-100 before:absolute before:inset-0 before:-z-10 before:rounded-[2.5rem] before:bg-gradient-to-b before:from-orange-50 before:to-white">
+            <div class="h-40 flex items-center justify-center mb-6 w-full relative">
+              <div
+                class="absolute inset-0 bg-orange-100/50 rounded-full blur-2xl scale-50 group-hover:scale-100 transition-transform duration-500">
+              </div>
+              <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772112565/pedi_emrzmf.png" alt="Pedir"
+                class="w-36 md:w-44 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.1)] group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 z-10" />
+            </div>
+            <h3 class="text-2xl font-extrabold text-[#1f1b16] mb-4">Pedí</h3>
+            <p class="text-[#3a332c]/75 text-[15px] leading-relaxed">
+              Explorá el menú digital, <strong class="text-orange-600">personalizá tu plato</strong> y enviá la orden
+              directo a la cocina.
+            </p>
+          </div>
+        </div>
+
+        <div class="relative group mt-12 md:mt-0 h-full">
+          <div
+            class="absolute -top-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white font-black flex items-center justify-center text-2xl shadow-[0_8px_16px_-6px_rgba(234,88,12,0.6)] z-20 border-4 border-white group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
+            3
+          </div>
+
+          <div
+            class="bg-white rounded-[2.5rem] p-8 pt-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-transparent bg-clip-padding relative h-full flex flex-col items-center text-center transition-all duration-300 group-hover:shadow-[0_20px_40px_rgb(234,88,12,0.08)] group-hover:-translate-y-3 group-hover:border-orange-100 before:absolute before:inset-0 before:-z-10 before:rounded-[2.5rem] before:bg-gradient-to-b before:from-orange-50 before:to-white">
+            <div class="h-40 flex items-center justify-center mb-6 w-full relative">
+              <div
+                class="absolute inset-0 bg-orange-100/50 rounded-full blur-2xl scale-50 group-hover:scale-100 transition-transform duration-500">
+              </div>
+              <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772112560/disfruta_ah0n6k.png"
+                alt="Disfrutar"
+                class="w-36 md:w-44 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.1)] group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500 z-10" />
+            </div>
+            <h3 class="text-2xl font-extrabold text-[#1f1b16] mb-4">Disfrutá</h3>
+            <p class="text-[#3a332c]/75 text-[15px] leading-relaxed">
+              Seguí el estado en vivo. Cuando termines, <strong class="text-orange-600">pagá desde la web</strong> o
+              llamá al mozo.
+            </p>
+          </div>
         </div>
 
       </div>
     </div>
   </section>
 
-  <section id="contact" class="py-14 px-4">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="h-px w-full bg-orange-200/40"></div>
+  </div>
+
+  <section id="contact" class="py-10 px-4">
     <app-contact-us-lead-card />
   </section>
   }
@@ -172,20 +244,32 @@
 </div>
 
 <style>
+  .scanner-line {
+    animation: scan 2.5s ease-in-out infinite;
+  }
+
   @keyframes scan {
-    0% {
-      transform: translateY(-70px);
-      opacity: .25;
+
+    0%,
+    100% {
+      top: 10%;
+      opacity: 0;
+    }
+
+    15%,
+    85% {
+      opacity: 1;
     }
 
     50% {
-      transform: translateY(70px);
-      opacity: .55;
+      top: 90%;
+      opacity: 1;
     }
+  }
 
-    100% {
-      transform: translateY(-70px);
-      opacity: .25;
+  @keyframes dash {
+    to {
+      background-position: 200px 0;
     }
   }
 </style>

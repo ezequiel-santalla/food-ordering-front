@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TableSessionService } from '../../services/table-session-service';
 import {
   LucideAngularModule,
@@ -10,11 +10,14 @@ import {
   Smartphone,
   ArrowRight,
   ScanLine,
+  Keyboard,
 } from 'lucide-angular';
 import { PublicHeaderComponent } from '../../../food-venues/components/public-header/public-header.component';
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { ContactUsLeadCard } from '../contact-us-lead/contact-us-lead-card';
+import { FormsModule } from '@angular/forms';
+import { QrProcessingService } from '../../../auth/services/qr-processing-service';
 
 @Component({
   selector: 'app-home',
@@ -24,7 +27,8 @@ import { ContactUsLeadCard } from '../contact-us-lead/contact-us-lead-card';
     RouterLink,
     LucideAngularModule,
     PublicHeaderComponent,
-    ContactUsLeadCard
+    ContactUsLeadCard,
+    FormsModule
   ],
   templateUrl: './home-component.html',
 })
@@ -32,8 +36,7 @@ export class HomeComponent {
   private tableSession = inject(TableSessionService);
   private navigation = inject(NavigationService);
   private sweetAlert = inject(SweetAlertService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
+  private qrProcessingService = inject(QrProcessingService);
 
   readonly QrCode = QrCode;
   readonly Utensils = Utensils;
@@ -41,6 +44,9 @@ export class HomeComponent {
   readonly Smartphone = Smartphone;
   readonly ArrowRight = ArrowRight;
   readonly ScanLine = ScanLine;
+  readonly Keyboard = Keyboard;
+  
+  manualTableCode: string = '';
 
   hasActiveSession = this.tableSession.hasActiveSession;
 
@@ -49,6 +55,11 @@ export class HomeComponent {
   onScanQr() {
     this.navigation.navigateToScanner();
   }
+
+  onManualSubmit() {
+  const cleanCode = this.manualTableCode.trim().toLowerCase();
+  this.qrProcessingService.processTableRequest({ shortCode: cleanCode });
+}
 
   onFoodVenues() {
     this.navigation.navigateToFoodVenues();

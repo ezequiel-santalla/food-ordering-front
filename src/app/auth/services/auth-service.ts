@@ -24,6 +24,7 @@ import { Employment } from '../../shared/models/common';
 import { FoodVenueService } from '../../food-venues/services/food-venue.service';
 import { MenuService } from '../../store-front/services/menu-service';
 import { CartService } from '../../store-front/services/cart-service';
+import { TableAccessRequest } from './qr-processing-service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -147,7 +148,7 @@ export class AuthService {
   }
 
   scanQR(
-    tableId: string,
+    request: TableAccessRequest,
     nickname: string | null = null,
     forceChange = false,
   ): Observable<TableSessionResponse> {
@@ -163,11 +164,11 @@ export class AuthService {
 
     if (hasValidSession && forceChange) {
       return this.closeCurrentSession().pipe(
-        switchMap(() => this.performScanQR(tableId, nickname)),
+        switchMap(() => this.performScanQR(request, nickname)),
       );
     }
 
-    return this.performScanQR(tableId, nickname);
+    return this.performScanQR(request, nickname);
   }
 
   checkAuthStatus(): Observable<boolean> {
@@ -246,12 +247,12 @@ export class AuthService {
   // ==================== MÉTODOS PRIVADOS ====================
 
   private performScanQR(
-    tableId: string,
+    request: TableAccessRequest,
     nickname: string | null = null,
   ): Observable<TableSessionResponse> {
     const nicknameOrUndefined = nickname ?? undefined;
 
-    return this.authApi.scanQR(tableId, nicknameOrUndefined).pipe(
+    return this.authApi.scanQR(request).pipe(
       tap((response) => {
         const processed = TokenManager.processTableSessionResponse(
           response,
