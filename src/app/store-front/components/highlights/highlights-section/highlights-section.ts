@@ -1,4 +1,13 @@
-import { Component, computed, output, signal, input, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  computed,
+  output,
+  signal,
+  input,
+  ViewChild,
+  ElementRef,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
@@ -8,16 +17,23 @@ import { MenuItemDetailModal } from '../../menu/menu-item-detail-modal/menu-item
 import { Product } from '../../../models/menu.interface';
 import { LucideAngularModule, Star, Flame, Heart } from 'lucide-angular';
 import { NavigationEnd, Router } from '@angular/router';
+import { MenuService } from '../../../services/menu-service';
 
 @Component({
   selector: 'app-highlights-section',
   standalone: true,
-  imports: [CommonModule, MenuHighlightCard, MenuItemDetailModal, LucideAngularModule],
+  imports: [
+    CommonModule,
+    MenuHighlightCard,
+    MenuItemDetailModal,
+    LucideAngularModule,
+  ],
   templateUrl: './highlights-section.html',
 })
 export class HighlightsSection {
-
   constructor(private router: Router) {}
+
+  private menuService = inject(MenuService);
 
   readonly Star = Star;
   readonly Flame = Flame;
@@ -36,18 +52,27 @@ export class HighlightsSection {
   @ViewChild('hScroll') hScroll?: ElementRef<HTMLDivElement>;
 
   ngOnInit() {
-  this.router.events.pipe(
-    filter(e => e instanceof NavigationEnd)
-  ).subscribe(() => {
-    setTimeout(() => {
-      const el = document.getElementById('hscroll-' + this.title());
-      el?.scrollTo({ left: 0 });
-    }, 200);
-  });
-}
+    this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe(() => {
+        setTimeout(() => {
+          const el = document.getElementById('hscroll-' + this.title());
+          el?.scrollTo({ left: 0 });
+        }, 200);
+      });
+  }
 
   selected = signal<Product | undefined>(undefined);
-  openProduct = (p: Product) => this.selected.set(p);
+
+  openProduct(skinnyProduct: Product) {
+    if (!skinnyProduct.publicId) return;
+
+    this.menuService.getFullProductByPublicId(skinnyProduct.publicId).subscribe({
+      next: (fullProduct) => {
+        this.selected.set(fullProduct || skinnyProduct);
+      }
+    });
+  }
 
   resource = rxResource({
     stream: () => this.data$().pipe(catchError(() => of([] as Product[]))),

@@ -169,6 +169,16 @@ export class MenuService {
       );
   }
 
+  getFullProductByPublicId(publicId: string): Observable<Product | undefined> {
+    return this.getMenuNodes().pipe(
+      map(({ menu }) => {
+        const allProducts = this.collectAllProducts(menu);
+        return allProducts.find(p => p.publicId === publicId);
+      }),
+      catchError(() => of(undefined))
+    );
+  }
+
   private mapElementsToNodes(elements: MenuElement[] | undefined): MenuNode[] {
     if (!elements?.length) return [];
     return elements.map((el) => this.mapAnyNode(el));

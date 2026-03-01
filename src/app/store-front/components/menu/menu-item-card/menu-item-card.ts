@@ -24,43 +24,22 @@ export class MenuItemCard {
 
   select = output<Product>();
 
-  // Cantidad total de este producto en el carrito (suma todas las variantes)
   quantity = computed(() => {
     const items = this.cartService.items();
     return items
-      .filter(i => i.productName === this.product.name)
+      .filter((i) => i.productName === this.product.name)
       .reduce((sum, i) => sum + i.quantity, 0);
   });
 
   increaseQuantity(ev?: Event) {
     ev?.stopPropagation();
 
-    const before = this.quantity();
     this.cartService.addItem(this.product, 1, null);
 
-    if (before === 0) {
-      this.sweetAlert.showToast(
-        'top-end',
-        'success',
-        'Agregaste ' + `${this.product.name} a tu orden.`
-      )
-    }
-  }
-
-  decreaseQuantity(ev?: Event) {
-    ev?.stopPropagation();
-
-    const items = this.cartService.items();
-
-    // Preferimos bajar el "normal" (sin instrucciones) si existe
-    const idx =
-      items.findIndex(i => i.productName === this.product.name && i.specialInstructions === null) ??
-      -1;
-
-    const index = idx >= 0 ? idx : items.findIndex(i => i.productName === this.product.name);
-    if (index < 0) return;
-
-    const current = items[index].quantity;
-    this.cartService.updateQuantity(index, current - 1);
+    this.sweetAlert.showToast(
+      'top-end',
+      'success',
+      'Agregaste ' + `${this.product.name} a tu orden.`,
+    );
   }
 }
