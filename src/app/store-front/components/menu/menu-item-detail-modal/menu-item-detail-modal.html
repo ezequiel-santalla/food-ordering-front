@@ -1,4 +1,4 @@
-<div class="fixed inset-0 z-[200]">
+<div class="fixed inset-0 z-[1000]">
   <div class="fixed inset-0 bg-black/40 z-[60] backdrop-blur-[2px] animate-[fade-in_0.15s_ease-out]"
     (click)="close.emit()"></div>
 
@@ -26,17 +26,12 @@
 
         @if (product().category) {
         <div class="absolute bottom-4 left-4">
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold
-                         bg-orange-500/10 text-orange-800 border border-orange-200/70 shadow-sm">
-            {{ product().category }}
-          </span>
         </div>
         }
 
-        <div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-base-100 to-transparent"></div>
       </figure>
 
-      <div class="overflow-y-auto flex-1 px-6 pt-2 pb-4 space-y-3">
+      <div class="overflow-y-auto flex-1 px-6 pt-4 pb-4 space-y-3">
         <div class="space-y-2">
           <div class="flex items-start justify-between gap-3">
             <h2 class="text-2xl font-black text-base-content leading-tight">
@@ -81,7 +76,7 @@
         <div class="divider my-2"></div>
 
         <div class="flex items-center justify-between">
-          <label class="label-text font-bold text-sm">Cantidad</label>
+          <label class="label-text font-bold text-lg">Cantidad</label>
 
           <div
             class="flex items-center justify-center gap-3 bg-orange-50 rounded-2xl py-1 px-2 border border-orange-200/60">

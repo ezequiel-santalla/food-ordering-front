@@ -52,7 +52,7 @@ export class QrScannerComponent implements OnInit, OnDestroy {
 
       console.log('ID extraido:', tableId);
 
-      this.qrProcessingService.processTableId(tableId);
+      this.qrProcessingService.processTableRequest({ tableId: tableId });
     } catch (error) {
       console.error('Error al parsear la URL del QR:', error);
       this.showScanner.set(false);
