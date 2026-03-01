@@ -9,6 +9,12 @@ import { Participant } from '../../shared/models/common';
 import { finalize } from 'rxjs';
 import Swal from 'sweetalert2';
 
+export interface TableAccessRequest {
+  tableId?: string;
+  shortCode?: string;
+  nickname?: string | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -22,7 +28,7 @@ export class QrProcessingService {
   private isSubmitting = signal(false);
   public isInQrFlow = signal(false);
 
-  processTableId(tableId: string): void {
+  processTableRequest(request: TableAccessRequest): void {
     this.isInQrFlow.set(true);
 
     const current = this.authService.tableSessionId();
@@ -44,14 +50,14 @@ export class QrProcessingService {
     const isAuthenticated = this.authService.isAuthenticated();
 
     if (isAuthenticated) {
-      this.processAuthenticatedUser(tableId);
+      this.processAuthenticatedUser(request);
       return;
     }
 
-    this.processGuestFlow(tableId);
+    this.processGuestFlow(request);
   }
 
-  private processAuthenticatedUser(tableId: string): void {
+  private processAuthenticatedUser(request: TableAccessRequest): void {
     const currentSession = this.authService.tableSessionId();
 
     if (SessionUtils.isValidSession(currentSession)) {
@@ -73,7 +79,7 @@ export class QrProcessingService {
     );
 
     this.authService
-      .scanQR(tableId)
+      .scanQR(request)
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (response) => {
@@ -104,7 +110,7 @@ export class QrProcessingService {
       });
   }
 
-  private processGuestFlow(tableId: string): void {
+  private processGuestFlow(request: TableAccessRequest): void {
     this.sweetAlertService
       .showChoice(
         '¿Cómo querés continuar?',
@@ -114,19 +120,19 @@ export class QrProcessingService {
       )
       .then((result) => {
         if (result.isConfirmed) {
-          this.askGuestName(tableId);
+          this.askGuestName(request);
           return;
         }
 
         Swal.close();
         
-        this.authService.setPendingTableScan(tableId);
+        this.authService.setPendingTableScan(JSON.stringify(request));
 
         queueMicrotask(() => this.navigation.navigateToLogin());
       });
   }
 
-  private askGuestName(tableId: string): void {
+  private askGuestName(request: TableAccessRequest): void {
     this.sweetAlertService
       .inputText(
         'Ingresá tu nombre',
@@ -149,11 +155,11 @@ export class QrProcessingService {
           return;
         }
 
-        this.finishGuestScan(tableId, nickname);
+        this.finishGuestScan(request, nickname);
       });
   }
 
-  private finishGuestScan(tableId: string, nickname: string): void {
+  private finishGuestScan(request: TableAccessRequest, nickname: string): void {
     this.sweetAlertService.showLoading(
       'Uniéndote...',
       'Conectando con la mesa'
@@ -161,8 +167,13 @@ export class QrProcessingService {
 
     this.isSubmitting.set(true);
 
+    const payloadConNickname: TableAccessRequest = {
+      ...request,
+      nickname: nickname
+    };
+
     this.authService
-      .scanQR(tableId, nickname)
+      .scanQR(payloadConNickname)
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (response) => {

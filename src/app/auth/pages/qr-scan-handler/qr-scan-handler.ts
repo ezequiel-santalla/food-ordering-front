@@ -24,7 +24,7 @@ export class QrScanHandlerComponent implements OnInit {
         tableIdFromUrl
       );
       // Pasa el trabajo al servicio
-      this.qrProcessingService.processTableId(tableIdFromUrl);
+      this.qrProcessingService.processTableRequest({ tableId: tableIdFromUrl });
     } else {
       console.error('Handler: No se encontró un ID de mesa en la URL.');
       this.sweetAlert.showError(

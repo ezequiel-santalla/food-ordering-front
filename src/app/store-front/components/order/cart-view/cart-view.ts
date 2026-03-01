@@ -124,4 +124,19 @@ export class CartView implements OnInit {
       },
     });
   }
+
+  async emptyCart(){
+    const confirmed = await this.sweetAlert.confirmCustomAction(
+      'Vaciar carrito',
+      '¿Querés quitar todos los productos que elegiste hasta ahora?',
+      'Sí, vaciar',
+      'Cancelar',
+      'warning'
+    );
+
+    if (confirmed) {
+      this.cartService.clear();
+      this.sweetAlert.showSuccess('Productos eliminados', '', 1500);
+    } 
+  }
 }
