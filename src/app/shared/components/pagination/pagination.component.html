@@ -2,7 +2,9 @@
   @for (page of getPagesList(); track page) {
     <button
       class="join-item btn"
-      [class.btn-primary]="page === activePage()"
+       [class.!bg-orange-500]="page === activePage()"
+  [class.!text-white]="page === activePage()"
+  [class.!border-orange-500]="page === activePage()"
       [routerLink]="[]"
       [queryParams]="{ page: page }"
       (click)="activePage.set(page)"

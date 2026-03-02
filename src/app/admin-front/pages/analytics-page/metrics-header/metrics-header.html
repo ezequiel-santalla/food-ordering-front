@@ -2,9 +2,9 @@
 <header class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
   <div class="flex items-center gap-4">
-    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-600 text-white shadow-lg shadow-green-600/20">
+    <!-- <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-600 text-white shadow-lg shadow-green-600/20">
       <lucide-icon [img]="chartColumnIncreasingIcon" [size]="24" class="text-white"></lucide-icon>
-    </div>
+    </div> -->
     <div>
       <h1 class="text-2xl font-bold text-gray-900">Balances</h1>
       <p class="text-sm font-medium text-gray-500">Estadísticas y análisis financieros</p>
@@ -18,78 +18,79 @@
       <button
         (click)="setToday()"
         class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
-        [class.border-green-600]="activeFilter() === 'today'"
-        [class.bg-green-50]="activeFilter() === 'today'"
-        [class.text-green-700]="activeFilter() === 'today'"
-        [class.border-gray-300]="activeFilter() !== 'today'"
-        [class.bg-white]="activeFilter() !== 'today'"
-        [class.text-gray-700]="activeFilter() !== 'today'"
-        [class.hover:bg-gray-50]="activeFilter() !== 'today'">
+       [class.border-orange-500]="activeFilter() === 'today'"
+[class.bg-orange-50]="activeFilter() === 'today'"
+[class.text-orange-700]="activeFilter() === 'today'"
+[class.border-gray-300]="activeFilter() !== 'today'"
+[class.bg-white]="activeFilter() !== 'today'"
+[class.text-gray-700]="activeFilter() !== 'today'"
+[class.hover:bg-gray-50]="activeFilter() !== 'today'">
         Hoy
       </button>
 
       <button
         (click)="setLast7Days()"
         class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
-        [class.border-green-600]="activeFilter() === '7d'"
-        [class.bg-green-50]="activeFilter() === '7d'"
-        [class.text-green-700]="activeFilter() === '7d'"
-        [class.border-gray-300]="activeFilter() !== '7d'"
-        [class.bg-white]="activeFilter() !== '7d'"
-        [class.text-gray-700]="activeFilter() !== '7d'"
-        [class.hover:bg-gray-50]="activeFilter() !== '7d'">
+        [class.border-orange-500]="activeFilter() === '7d'"
+[class.bg-orange-50]="activeFilter() === '7d'"
+[class.text-orange-700]="activeFilter() === '7d'"
+[class.border-gray-300]="activeFilter() !== '7d'"
+[class.bg-white]="activeFilter() !== '7d'"
+[class.text-gray-700]="activeFilter() !== '7d'"
+[class.hover:bg-gray-50]="activeFilter() !== '7d'"
+        >
         7d
       </button>
 
       <button
         (click)="setLast30Days()"
         class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
-        [class.border-green-600]="activeFilter() === '30d'"
-        [class.bg-green-50]="activeFilter() === '30d'"
-        [class.text-green-700]="activeFilter() === '30d'"
-        [class.border-gray-300]="activeFilter() !== '30d'"
-        [class.bg-white]="activeFilter() !== '30d'"
-        [class.text-gray-700]="activeFilter() !== '30d'"
-        [class.hover:bg-gray-50]="activeFilter() !== '30d'">
+        [class.border-orange-500]="activeFilter() === '30d'"
+[class.bg-orange-50]="activeFilter() === '30d'"
+[class.text-orange-700]="activeFilter() === '30d'"
+[class.border-gray-300]="activeFilter() !== '30d'"
+[class.bg-white]="activeFilter() !== '30d'"
+[class.text-gray-700]="activeFilter() !== '30d'"
+[class.hover:bg-gray-50]="activeFilter() !== '30d'">
         30d
       </button>
 
       <button
         (click)="setLast90Days()"
         class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
-        [class.border-green-600]="activeFilter() === '90d'"
-        [class.bg-green-50]="activeFilter() === '90d'"
-        [class.text-green-700]="activeFilter() === '90d'"
-        [class.border-gray-300]="activeFilter() !== '90d'"
-        [class.bg-white]="activeFilter() !== '90d'"
-        [class.text-gray-700]="activeFilter() !== '90d'"
-        [class.hover:bg-gray-50]="activeFilter() !== '90d'">
+       [class.border-orange-500]="activeFilter() === '90d'"
+[class.bg-orange-50]="activeFilter() === '90d'"
+[class.text-orange-700]="activeFilter() === '90d'"
+[class.border-gray-300]="activeFilter() !== '90d'"
+[class.bg-white]="activeFilter() !== '90d'"
+[class.text-gray-700]="activeFilter() !== '90d'"
+[class.hover:bg-gray-50]="activeFilter() !== '90d'">
         90d
       </button>
 
       <button
         (click)="setThisMonth()"
         class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
-        [class.border-green-600]="activeFilter() === 'thisMonth'"
-        [class.bg-green-50]="activeFilter() === 'thisMonth'"
-        [class.text-green-700]="activeFilter() === 'thisMonth'"
-        [class.border-gray-300]="activeFilter() !== 'thisMonth'"
-        [class.bg-white]="activeFilter() !== 'thisMonth'"
-        [class.text-gray-700]="activeFilter() !== 'thisMonth'"
-        [class.hover:bg-gray-50]="activeFilter() !== 'thisMonth'">
+        [class.border-orange-500]="activeFilter() === 'thisMonth'"
+[class.bg-orange-50]="activeFilter() === 'thisMonth'"
+[class.text-orange-700]="activeFilter() === 'thisMonth'"
+[class.border-gray-300]="activeFilter() !== 'thisMonth'"
+[class.bg-white]="activeFilter() !== 'thisMonth'"
+[class.text-gray-700]="activeFilter() !== 'thisMonth'"
+[class.hover:bg-gray-50]="activeFilter() !== 'thisMonth'">
         Este mes
       </button>
 
       <button
         (click)="setLastMonth()"
         class="rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
-        [class.border-green-600]="activeFilter() === 'lastMonth'"
-        [class.bg-green-50]="activeFilter() === 'lastMonth'"
-        [class.text-green-700]="activeFilter() === 'lastMonth'"
-        [class.border-gray-300]="activeFilter() !== 'lastMonth'"
-        [class.bg-white]="activeFilter() !== 'lastMonth'"
-        [class.text-gray-700]="activeFilter() !== 'lastMonth'"
-        [class.hover:bg-gray-50]="activeFilter() !== 'lastMonth'">
+        [class.border-orange-500]="activeFilter() === 'lastMonth'"
+[class.bg-orange-50]="activeFilter() === 'lastMonth'"
+[class.text-orange-700]="activeFilter() === 'lastMonth'"
+[class.border-gray-300]="activeFilter() !== 'lastMonth'"
+[class.bg-white]="activeFilter() !== 'lastMonth'"
+[class.text-gray-700]="activeFilter() !== 'lastMonth'"
+[class.hover:bg-gray-50]="activeFilter() !== 'lastMonth'">
         Mes anterior
       </button>
     </div>
@@ -123,7 +124,7 @@
     <!-- Botón exportar -->
     <button
       (click)="onExport()"
-      class="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700  shadow-sm transition-all hover:shadow cursor-pointer">
+      class="flex items-center gap-2 rounded-lg hover:bg-orange-900  bg-gradient-to-br from-orange-500 via-orange-400 to-orange-300 px-4 py-2 text-sm font-medium text-white   shadow-sm transition-all hover:shadow cursor-pointer">
       <lucide-icon [img]="downloadIcon" [size]="18"></lucide-icon>
       <span>Exportar</span>
     </button>
