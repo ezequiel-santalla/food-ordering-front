@@ -19,9 +19,9 @@ export class TableCreateModal {
   capacity: number | null = null;
   selectedShape: string = '';
 
-  constructor(private diningTableService : DiningTableService,
-              private sweetAlertService: SweetAlertService
-  ) {}
+  constructor(private diningTableService: DiningTableService,
+    private sweetAlertService: SweetAlertService
+  ) { }
 
   onClose(): void {
     this.close.emit();
@@ -34,7 +34,9 @@ export class TableCreateModal {
   }
 
   isFormValid(): boolean {
-    return !!(this.capacity && this.selectedShape);
+    if (this.capacity !== null && this.capacity <= 0) return false;
+    if (this.tableNumber !== null && this.tableNumber <= 0) return false;
+    return !!this.selectedShape;
   }
 
   onSubmit(): void {
@@ -43,7 +45,7 @@ export class TableCreateModal {
     const tableRequest: DiningTableRequest = {
       number: this.tableNumber!,
       capacity: this.capacity!,
-     // status: 'AVAILABLE'
+      // status: 'AVAILABLE'
     };
 
     this.diningTableService.createTable(tableRequest).subscribe({
