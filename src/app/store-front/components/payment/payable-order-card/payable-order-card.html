@@ -46,7 +46,7 @@
     @if (showCountdown()) {
       <span class="text-[11px] font-semibold text-amber-700">
         @if (remainingSeconds() === 0) {
-          Expirando…
+          Procesando...
         } @else if (remainingSeconds() !== null && remainingSeconds()! <= 5) {
           Quedan <span class="font-black">{{ remainingLabel() }}</span>
         } @else {
