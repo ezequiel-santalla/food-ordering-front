@@ -25,6 +25,8 @@ import {
 } from 'lucide-angular';
 import { NavigationService } from '../../../shared/services/navigation.service';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
+import { finalize } from 'rxjs';
+import { TableSessionService } from '../../../store-front/services/table-session-service';
 
 @Component({
   selector: 'app-public-header',
@@ -47,7 +49,7 @@ export class PublicHeaderComponent {
   private router = inject(Router);
   private elementRef = inject(ElementRef);
   private alertService = inject(SweetAlertService);
-
+  private tableSessionService = inject(TableSessionService);
 
   @Output() navTo = new EventEmitter<string>();
 
@@ -102,31 +104,84 @@ export class PublicHeaderComponent {
     this.navigation.navigateToLogin?.();
   }
 
-  onLogout() {
-    this.alertService
-      .confirm(
-        '¿Cerrar sesión?',
-        'Se finalizará tu sesión actual en el panel administrativo.',
-        'Cerrar Sesión',
-      )
-      .then((result) => {
-        if (result.isConfirmed) {
-          this.alertService.showLoading(
-            'Saliendo...',
-            'Limpiando credenciales de acceso.',
-          );
+  async onLogout() {
+    const hasActiveSession = this.tableSessionService.hasActiveSession();
 
-          this.authService.logout().subscribe({
-            next: () => {
-              this.handleLogoutSuccess();
-            },
-            error: (error) => {
-              console.error('Error durante logout:', error);
-              this.authState.clearState();
-              this.handleLogoutSuccess();
-            },
-          });
+    if (!hasActiveSession) {
+      const confirmed = await this.alertService.confirm(
+        '¿Cerrar sesión?',
+        'Se finalizará tu sesión actual.',
+        'Cerrar Sesión',
+      );
+
+      if (confirmed.isConfirmed) {
+        this.executeLogout(true);
+      }
+      return;
+    }
+
+    const choice = await this.alertService.confirmLogoutWithActiveTable();
+
+    if (choice === 'leave_and_logout') {
+      this.handleLeaveAndLogout();
+    }
+  }
+
+  private handleLeaveAndLogout() {
+    const sessionInfo = this.tableSessionService.tableSessionInfo();
+    const isLastPerson = sessionInfo.participantCount <= 1;
+
+    let actionObservable;
+    let loadingMessage = '';
+
+    if (isLastPerson) {
+      loadingMessage = 'Cerrando mesa y sesión...';
+      actionObservable = this.tableSessionService.closeSession();
+    } else {
+      loadingMessage = 'Abandonando mesa y sesión...';
+      actionObservable = this.tableSessionService.leaveSession();
+    }
+
+    this.alertService.showLoading(loadingMessage);
+
+    actionObservable.subscribe({
+      next: () => {
+        this.executeLogout(false);
+      },
+      error: async (err: any) => {
+        this.alertService.close();
+
+        if (err?.status === 409) {
+          const res = await this.alertService.showChoice(
+            'No podés salir',
+            'Tenés pedidos pendientes de pago. Pagalos antes de cerrar sesión.',
+            'Pagar ahora',
+            'Cancelar',
+          );
+          if (res.isConfirmed) {
+            this.navigation.navigateToPayments({ section: 'pending' });
+          }
+          return;
         }
+        this.alertService.showError('Error', 'No se pudo completar la acción.');
+      },
+    });
+  }
+
+  private executeLogout(showLoading: boolean) {
+    if (showLoading) {
+      this.alertService.showLoading('Saliendo...', 'Limpiando credenciales.');
+    }
+
+    this.authService
+      .logout()
+      .pipe(finalize(() => this.alertService.close()))
+      .subscribe({
+        next: () => this.handleLogoutSuccess(),
+        error: (error) => {
+          console.error('Error durante logout:', error);
+          this.handleLogoutSuccess();
+        },
       });
   }
 
