@@ -62,10 +62,8 @@ export class SessionUtils {
 
       if (cleanValue) {
         localStorage.setItem(key, cleanValue);
-        console.log(`✅ ${key} guardado:`, cleanValue);
       } else {
         localStorage.removeItem(key);
-        console.log(`⚠️ ${key} removido (valor inválido)`);
       }
     } catch (error) {
       console.error(`❌ Error guardando localStorage [${key}]:`, error);
@@ -74,13 +72,11 @@ export class SessionUtils {
 
   static clearAllSessionData(): void {
     this.removeKeys(this.SESSION_KEYS);
-    console.log('🗑️ Datos de sesión limpiados del localStorage');
   }
 
   static clearAllAuthData(): void {
     const allKeys = [...this.AUTH_KEYS, ...this.SESSION_KEYS];
     this.removeKeys(allKeys);
-    console.log('🗑️ Todos los datos de autenticación limpiados');
   }
 
   private static removeKeys(keys: readonly string[]): void {

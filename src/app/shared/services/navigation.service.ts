@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/services/auth-service';
 import { SessionUtils } from '../../utils/session-utils';
+import { Section } from 'lucide-angular';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
@@ -105,16 +106,23 @@ export class NavigationService {
   navigateToScanner() {
     this.router.navigate(['/scan-camera']);
   }
-
-  navigateToPayments(): void {
+  
+  navigateToPayments(opts?: {
+    section?: 'history' | 'pending';
+    highlight?: string;
+  }): void {
     const tableSessionId = this.authService.tableSessionId();
 
-    console.log('💳 Navegando a payments', { tableSessionId });
-
-    if (SessionUtils.isValidSession(tableSessionId)) {
-      this.router.navigate(['/session', tableSessionId, 'payments']);
-    } else {
+    if (!SessionUtils.isValidSession(tableSessionId)) {
       this.router.navigate(['/food-venues']);
+      return;
     }
+    console.log('navegando a /payments/', opts?.section)
+    this.router.navigate(['/session', tableSessionId, 'payments'], {
+      queryParams: {
+        section: opts?.section ?? 'history',
+        highlight: opts?.highlight,
+      },
+    });
   }
 }

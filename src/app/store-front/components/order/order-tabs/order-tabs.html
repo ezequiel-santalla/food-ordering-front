@@ -1,4 +1,4 @@
-<div class="flex flex-col" style="height: calc(120vh - 320px)">
+<div class="flex flex-col" style="height: calc(100vh - 320px)">
 
   <div class="w-full grid grid-cols-3 gap-2 mb-4 px-2 flex-shrink-0">
 
@@ -6,7 +6,7 @@
              border-orange-200/70 bg-white/70 hover:bg-orange-50" [class.!bg-gradient-to-r]="activeTab() === 'cart'"
       [class.from-orange-500]="activeTab() === 'cart'" [class.to-amber-500]="activeTab() === 'cart'"
       [class.!text-white]="activeTab() === 'cart'" [class.!border-0]="activeTab() === 'cart'" (click)="setTab('cart')">
-      Mi orden ({{ cartCount() }})
+      Mi Carrito ({{ cartCount() }})
     </button>
 
     <button type="button" class="h-11 rounded-2xl text-xs sm:text-sm font-black transition border

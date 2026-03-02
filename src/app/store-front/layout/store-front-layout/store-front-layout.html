@@ -1,7 +1,10 @@
-<app-header />
+<div class="h-screen flex flex-col"> <app-header class="flex-shrink-0" />
 
-<section class="max-w-6xl mx-auto">
-  <router-outlet />
-</section>
+  <main class="flex-1 min-h-0 overflow-hidden relative"> 
+    <section class="max-w-6xl mx-auto h-full px-2 overflow-y-auto">
+      <router-outlet />
+    </section>
+  </main>
 
-<app-footer />
+  <app-footer class="flex-shrink-0" />
+</div>

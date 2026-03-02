@@ -1,53 +1,67 @@
 <div class="rounded-[24px] bg-white/70 backdrop-blur border border-white shadow-md overflow-hidden">
-  <div
-    class="flex items-center gap-3 p-4 cursor-pointer
-           bg-orange-50/60 hover:bg-orange-100/60 transition-colors"
-    (click)="toggleExpand()"
-  >
+  
+  <div class="flex items-center gap-3 p-4 cursor-pointer bg-orange-50/60 hover:bg-orange-100/60 transition-colors"
+       (click)="toggleExpand()">
+    
     <div class="flex-grow grid grid-cols-[auto,1fr] gap-x-2 gap-y-1 items-center min-w-0">
+      
       <div class="flex items-center gap-3 min-w-0 flex-grow">
-        <h3 class="font-black text-[#1f1b16] whitespace-nowrap">
+        <h3 class="font-black text-[#1f1b16] whitespace-nowrap truncate min-w-0">
           Orden #{{ order.orderNumber }}
         </h3>
       </div>
 
-      <p class="text-xs text-[#3a332c]/70 flex items-center gap-1 truncate col-span-2">
-        <lucide-icon [img]="User" [size]="14"></lucide-icon>
-        <span>{{ order.clientAlias }}</span>
+      <p class="text-xs text-[#3a332c]/70 flex items-center gap-1.5 truncate col-span-2 min-w-0" 
+         [title]="order.clientAlias">
+        <lucide-icon [img]="User" [size]="14" class="shrink-0"></lucide-icon>
+        <span class="truncate">{{ order.clientAlias }}</span> 
       </p>
     </div>
 
     <div class="flex flex-col items-end ml-2 flex-shrink-0">
       <span [class]="badgeClass()">
-        <lucide-icon [img]="orderUi.icon" class="w-3.5 h-3.5"></lucide-icon>
+        <lucide-icon [img]="orderUi.icon" class="w-3.5 h-3.5 shrink-0"></lucide-icon>
         {{ orderUi.label }}
       </span>
-      <span class="font-black text-lg text-[#1f1b16] mt-1">
-        ${{ order.totalPrice | number:'1.2-2' }}
+      <span class="font-black text-lg text-[#1f1b16] mt-1 whitespace-nowrap">
+        ${{ order.totalPrice | number:'1.0-0' }}
       </span>
     </div>
 
     <div class="flex-shrink-0 ml-2">
-      <lucide-icon
-        [img]="ChevronDown"
-        class="transition-transform duration-300 w-5 h-5 text-[#3a332c]/50"
-        [class.rotate-180]="isExpanded()"
-      ></lucide-icon>
+      <lucide-icon [img]="ChevronDown" class="transition-transform duration-300 w-5 h-5 text-[#3a332c]/50"
+        [class.rotate-180]="isExpanded()"></lucide-icon>
     </div>
   </div>
 
   @if (isExpanded()) {
     <div class="px-4 sm:px-6 py-4 bg-white/50 border-t border-orange-200/60">
-      <div class="space-y-2 mb-4">
+      
+      <div class="space-y-4 mb-4">
         @for (detail of order.orderDetails; track detail.id) {
-          <div class="flex items-start justify-between text-sm py-1">
-            <p class="text-[#1f1b16]">
-              <span class="font-black">{{ detail.quantity }}x</span>
-              {{ detail.productName }}
-            </p>
-            <p class="font-semibold text-[#1f1b16]">
-              ${{ detail.subtotal | number:'1.2-2' }}
-            </p>
+          <div class="flex flex-col py-1">
+            
+            <div class="flex items-start justify-between text-sm gap-4 flex-nowrap min-w-0">
+              <p class="text-[#1f1b16] truncate flex-1 min-w-0" [title]="detail.productName">
+                <span class="font-black shrink-0 mr-1">{{ detail.quantity }}x</span>
+                <span class="truncate">{{ detail.productName }}</span>
+              </p>
+              
+              <p class="font-semibold text-[#1f1b16] shrink-0 whitespace-nowrap">
+                ${{ detail.subtotal | number:'1.0-0' }}
+              </p>
+            </div>
+            
+            @if (detail.specialInstructions) {
+              <div class="mt-1.5 ml-6 bg-orange-50/50 rounded-lg p-2.5 border border-orange-100/50">
+                <p class="text-xs text-[#3a332c]/70 italic leading-relaxed break-words text-pretty line-clamp-3" 
+                   [title]="detail.specialInstructions">
+                  <span class="font-bold not-italic text-orange-800/60 mr-1">Nota:</span>
+                  {{ detail.specialInstructions }}
+                </p>
+              </div>
+            }
+            
           </div>
         }
       </div>
@@ -57,26 +71,59 @@
           <p class="text-xs font-black text-amber-800 mb-1">
             📋 Requisitos especiales:
           </p>
-          <p class="text-sm text-amber-700">{{ order.specialRequirements }}</p>
+          <p class="text-sm text-amber-700 break-words">{{ order.specialRequirements }}</p>
         </div>
       }
 
-      @if (canCancel()) {
+      @let cancelState = getCancelState();
+
+      @if (cancelState.type === 'CAN_CANCEL') {
         <div class="mt-4 flex justify-end">
-          <button
-            type="button"
-            class="h-10 px-4 rounded-2xl border border-red-200 bg-white hover:bg-red-50 text-red-700 font-bold text-sm"
-            (click)="$event.stopPropagation(); cancel.emit(order.publicId)"
-          >
+          <button type="button" class="h-10 px-4 rounded-2xl border border-red-200 bg-white
+                 hover:bg-red-50 text-red-700 font-black text-sm
+                 active:scale-[0.98] transition" (click)="$event.stopPropagation(); cancel.emit(order.publicId)">
             Cancelar orden
           </button>
         </div>
       }
 
+      @if (cancelState.type === 'HAS_PAYMENT') {
+        <div class="mt-4 flex items-center justify-end gap-3 text-xs">
+          <span class="text-amber-700 font-semibold">
+            No se puede cancelar. Tiene un pago asociado
+          </span>
+
+          <button type="button" class="h-8 px-3 rounded-xl border border-orange-200
+                 bg-white hover:bg-orange-50
+                 text-orange-700 font-bold text-xs
+                 active:scale-[0.98] transition"
+            (click)="$event.stopPropagation(); onViewPayment(order.payment?.publicId)">
+            Ver pago
+          </button>
+        </div>
+      }
+
+      @if (cancelState.type === 'INVALID_STATUS') {
+        <div class="mt-4 flex justify-end">
+          <span class="text-xs text-gray-500 font-medium">
+            No se puede cancelar, el pedido está {{ orderUi.label | lowercase }}
+          </span>
+        </div>
+      }
+      
+      @if (cancelState.type === 'NOT_MINE') {
+        <div class="mt-4 flex justify-end">
+          <span class="text-xs text-gray-500 font-medium">
+            Solo podés cancelar tus órdenes
+          </span>
+        </div>
+      }
+
       <div class="flex justify-between items-center text-lg font-black text-[#1f1b16] py-2 border-t border-orange-200/60 mt-4">
         <span>Total</span>
-        <span>${{ order.totalPrice | number:'1.2-2' }}</span>
+        <span>${{ order.totalPrice | number:'1.0-0' }}</span>
       </div>
+      
     </div>
   }
 </div>

@@ -1,36 +1,26 @@
-<div class="space-y-4 pb-56">
-
-  <div class="px-3">
-
-    <div class="px-4 mt-2 mb-3">
-      <div class="flex border-b border-orange-200/60">
-
-        <button class="flex-1 py-2 flex items-center justify-center gap-2 text-sm font-medium
-             transition-all" [ngClass]="activeTab() === 'pending'
-  ? 'text-orange-700 border-b-2 border-orange-500'
-  : 'text-[#3a332c]/60 hover:text-[#1f1b16]'" (click)="setTab('pending')">
-          <lucide-icon [img]="Coins" class="w-4 h-4"></lucide-icon>
-          <span>Pagar</span>
-        </button>
-
-        <button class="flex-1 py-2 flex items-center justify-center gap-2 text-sm font-medium
-             transition-all" [ngClass]="activeTab() === 'history'
-  ? 'text-orange-700 border-b-2 border-orange-500'
-  : 'text-[#3a332c]/60 hover:text-[#1f1b16]'" (click)="setTab('history')">
-          <lucide-icon [img]="History" class="w-4 h-4"></lucide-icon>
-          <span>Historial</span>
-        </button>
-
-      </div>
+<div class="h-full flex flex-col min-h-0">
+  <div class="flex-shrink-0">
+    <div class="flex border-b border-orange-200/60">
+      <button class="flex-1 py-2 flex items-center justify-center gap-2 text-sm font-medium transition-all" [ngClass]="_activeTab() === 'pending'
+          ? 'text-orange-700 border-b-2 border-orange-500'
+          : 'text-[#3a332c]/60 hover:text-[#1f1b16]'" (click)="_activeTab.set('pending')">
+        <lucide-icon [img]="Coins" class="w-4 h-4"></lucide-icon>
+        <span>Pagar</span>
+      </button>
+      <button class="flex-1 py-2 flex items-center justify-center gap-2 text-sm font-medium transition-all" [ngClass]="_activeTab() === 'history'
+          ? 'text-orange-700 border-b-2 border-orange-500'
+          : 'text-[#3a332c]/60 hover:text-[#1f1b16]'" (click)="_activeTab.set('history')">
+        <lucide-icon [img]="History" class="w-4 h-4"></lucide-icon>
+        <span>Historial</span>
+      </button>
     </div>
+  </div>
 
-    <!-- Panel de pendientes -->
-    @if (activeTab() === 'pending') {
-    <app-pending-payments-panel />
-    }
-
-    <!-- Historial de pagos -->
-    @if (activeTab() === 'history') {
-    <app-payment-history-panel />
+ <div class="flex-1 min-h-0 px-3">
+    @if (_activeTab() === 'pending') {
+    <app-pending-payments-panel [resetScroll]="true" />
+    } @else {
+    <app-payment-history-panel [highlightPaymentId]="highlightPaymentId" />
     }
   </div>
+</div>

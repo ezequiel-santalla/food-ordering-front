@@ -7,6 +7,7 @@ import {
   TableSessionRequest,
   TableSessionResponse,
 } from '../../shared/models/table-session';
+import { TableAccessRequest } from './qr-processing-service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
@@ -52,14 +53,9 @@ export class AuthApiService {
     return this.http.post<any>(url, data);
   }
 
-  scanQR(tableId: string, nickname?: string): Observable<TableSessionResponse> {
-    const body: TableSessionRequest = { tableId };
+  scanQR(request: TableAccessRequest): Observable<TableSessionResponse> {
 
-    if (typeof nickname === "string" && nickname.trim().length > 0) {
-      body.nickname = nickname;
-    }
-
-    return this.http.post<TableSessionResponse>(`${this.baseUrl}/table-sessions/scan-qr`, body);
+    return this.http.post<TableSessionResponse>(`${this.baseUrl}/table-sessions/scan-qr`, request);
   }
 
   logout(refreshToken: string | null): Observable<void> {

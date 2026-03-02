@@ -22,7 +22,6 @@ export class AnalyticsPage {
   }
 
   onExport() {
-    console.log('Exportando datos para:', this.currentDateRange());
-    // Implementar exportación
+    window.print();
   }
 }
