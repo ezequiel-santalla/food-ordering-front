@@ -8,7 +8,8 @@
     <div class="flex space-x-3">
       @if (isEditing) {
       <button (click)="saveChanges()" [disabled]="venueForm.invalid || loading" type="submit"
-        class="flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md shadow-lg transition duration-150"
+        class="flex items-center px-4 py-2 bg-gradient-to-br from-orange-500 via-orange-400 to-orange-300 text-white text-sm font-medium rounded-md shadow-lg transition duration-150"
+
         [class.opacity-50]="venueForm.invalid || loading" [class.cursor-not-allowed]="venueForm.invalid || loading"
         [class.cursor-pointer]="!venueForm.invalid && !loading"
         [class.hover:bg-indigo-700]="!venueForm.invalid && !loading">
@@ -20,7 +21,11 @@
       <button (click)="toggleEdit()" type="button"
         class="cursor-pointer flex items-center text-white px-4 py-2 text-sm font-medium rounded-md shadow-lg transition duration-150"
         [class.bg-red-500]="isEditing"  [class.hover:bg-red-600]="isEditing"
-        [class.bg-indigo-600]="!isEditing"  [class.hover:bg-indigo-700]="!isEditing">
+        [class.bg-gradient-to-br]="!isEditing"
+        [class.from-orange-500]="!isEditing"
+        [class.to-orange-400]="!isEditing"
+        [class.hover:from-orange-600]="!isEditing"
+        [class.hover:to-orange-500]="!isEditing">
         @if (!isEditing) {
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
