@@ -24,6 +24,9 @@ import {
   ShieldCheck
 } from 'lucide-angular';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
+import { RootApiService } from '../../../root-front/services/root-api.service';
+import { take } from 'rxjs';
+import { NavigationService } from '../../../shared/services/navigation.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -64,7 +67,9 @@ export class AdminDashboard implements OnInit {
   constructor(
     private authService: AuthService,
     private foodVenueService: FoodVenueService,
-    private router: Router
+    private router: Router,
+    private navigator: NavigationService,
+    private rootApi: RootApiService,
   ) { }
 
   ngOnInit(): void {
@@ -129,22 +134,15 @@ export class AdminDashboard implements OnInit {
   }
 
   returnToRoot() {
-    const allEmployments = this.authService.employments();
+  this.swal.showLoading('Restaurando privilegios Root...');
 
-    const rootEmp = allEmployments?.find(
-      (e) => e.role === 'ROLE_ROOT' && e.foodVenueName === 'System',
-    );
-
-    if (rootEmp) {
-      this.swal.showLoading('Restaurando privilegios Root...');
-      
-      this.authService.selectRole(rootEmp.publicId).subscribe({
-        next: () => {
-          this.router.navigate(['/root/dashboard']);
-          this.swal.showSuccess('Modo Global', 'Has recuperado tus permisos de Root.');
-        },
-        error: () => this.swal.showError('Error', 'No se pudo recuperar el acceso Root.')
-      });
-    }
-  }
+  this.rootApi.selectContext().pipe(take(1)).subscribe({
+    next: (response) => {
+      this.authService.applyAuthData(response);
+      this.navigator.navigateToRootDashboard();
+      this.swal.showSuccess('Modo Global', 'Has recuperado tus permisos de Root.');
+    },
+    error: () => this.swal.showError('Error', 'No se pudo recuperar el acceso Root.')
+  });
+}
 }
