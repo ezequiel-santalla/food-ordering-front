@@ -46,3 +46,41 @@
 .dinno-toast--title {
   font-weight: 800;
 }
+
+@media print {
+  /* Ocultar sidebar y elementos no imprimibles */
+  app-metrics-header,
+  app-live-metrics-bar,
+  .fixed.top-0.left-0 {
+    display: none !important;
+  }
+
+  /* El contenido ocupa todo el ancho sin el margin del sidebar */
+  .ml-64,
+  .ml-20 {
+    margin-left: 0 !important;
+  }
+
+  body,
+  .bg-gray-50,
+  .min-h-screen {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .rounded-xl,
+  app-sales-trend-chart {
+    break-inside: avoid;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .shadow-sm,
+  .shadow-md {
+    box-shadow: none !important;
+  }
+}
