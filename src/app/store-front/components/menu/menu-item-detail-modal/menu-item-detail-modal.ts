@@ -114,7 +114,7 @@ export class MenuItemDetailModal {
     this.sweetAlert.showToast(
       'top-end',
       'success',
-      'Agregaste ' + `${this.product.name} a tu orden.`
+      'Agregaste ' + `${prod.name} a tu orden.`
     )
   }
 }
