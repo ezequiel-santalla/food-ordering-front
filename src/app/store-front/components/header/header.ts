@@ -8,7 +8,7 @@ import {
   Power,
   LogIn,
   UtensilsCrossed,
-  TextAlignJustify
+  TextAlignJustify,
 } from 'lucide-angular';
 import { MenuService } from '../../services/menu-service';
 import { TableSessionService } from '../../services/table-session-service';
@@ -23,7 +23,12 @@ import { NotificationDropdownComponent } from '../notifications/notification-dro
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, NotificationDropdownComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    LucideAngularModule,
+    NotificationDropdownComponent,
+  ],
   templateUrl: './header.html',
 })
 export class Header {
@@ -57,45 +62,68 @@ export class Header {
 
   venueImageUrl = computed(() => this.menuResource.value()?.foodVenueImageUrl);
   venueName = computed(
-    () => this.menuResource.value()?.foodVenueName || 'Cargando...'
+    () => this.menuResource.value()?.foodVenueName || 'Cargando...',
   );
 
   async onLogout() {
     const hasActiveSession = this.tableSessionService.hasActiveSession();
 
     if (!hasActiveSession) {
-      this.executeLogout(true);
+      const res = await this.sweetAlert.confirm(
+        '¿Cerrar sesión?',
+        'Se finalizará tu sesión actual.',
+      );
+      if (res.isConfirmed) this.executeLogout(true);
       return;
     }
 
     const choice = await this.sweetAlert.confirmLogoutWithActiveTable();
-
     if (choice === 'leave_and_logout') {
-      this.handleLeaveAndLogout();
-    } 
+      this.handleTableExit(true);
+    }
   }
 
-  private handleLeaveAndLogout() {
+  onLeaveSession(): void {
+    const count = this.tableSessionService.tableSessionInfo().participantCount;
+    const isLast = count <= 1;
+
+    this.sweetAlert
+      .showChoice(
+        isLast ? '¿Cerrar la mesa?' : '¿Abandonar la mesa?',
+        isLast
+          ? 'Sos el último participante. La mesa se cerrará.'
+          : 'La mesa seguirá abierta para el resto.',
+        isLast ? 'Sí, cerrar mesa' : 'Sí, abandonar',
+        'Cancelar',
+      )
+      .then((res) => {
+        if (res.isConfirmed) {
+          this.handleTableExit(false);
+        }
+      });
+  }
+
+  private handleTableExit(isLogoutContext: boolean) {
     const count = this.tableSessionService.tableSessionInfo().participantCount;
     const isLastPerson = count <= 1;
 
-    let actionObservable;
-    let loadingMessage = '';
+    const actionObservable = isLastPerson
+      ? this.tableSessionService.closeSession()
+      : this.tableSessionService.leaveSession();
 
-    if (isLastPerson) {
-      loadingMessage = 'Cerrando mesa y sesión...';
-      actionObservable = this.tableSessionService.closeSession();
-    } else {
-      loadingMessage = 'Abandonando mesa y sesión...';
-      actionObservable = this.tableSessionService.leaveSession();
-    }
-
-    this.sweetAlert.showLoading(loadingMessage);
+    this.sweetAlert.showLoading(
+      isLastPerson ? 'Cerrando mesa...' : 'Abandonando mesa...',
+    );
 
     actionObservable.subscribe({
       next: () => {
-        console.log('✅ Acción de mesa completada. Procediendo al logout...');
-        this.executeLogout(false);
+        if (isLogoutContext) {
+          this.executeLogout(false);
+        } else {
+          this.sweetAlert.close();
+          this.sweetAlert.showSuccess('Has salido de la mesa', '', 1500);
+          this.navigation.navigateToHome();
+        }
       },
       error: async (err: any) => {
         this.sweetAlert.close();
@@ -103,114 +131,41 @@ export class Header {
         if (err?.status === 409) {
           const res = await this.sweetAlert.showChoice(
             'No podés salir',
-            'Tenés pedidos pendientes de pago. Pagalos antes de cerrar sesión.',
+            'Tenés pedidos pendientes de pago.',
             'Pagar ahora',
             'Cancelar',
           );
           if (res.isConfirmed) {
-            this.navigation.navigateToPayments({
-              section: 'pending'
-            });
+            this.navigation.navigateToPayments({ section: 'pending' });
           }
           return;
         }
-        this.sweetAlert.showError('Error', 'No se pudo completar la acción.');
+
+        console.warn('Error técnico en mesa, forzando salida:', err);
+
+        if (isLogoutContext) {
+          this.executeLogout(false);
+        } else {
+          this.tableSessionService.clearSession();
+          this.navigation.navigateToHome();
+        }
       },
     });
   }
 
   private executeLogout(showLoading: boolean) {
-    if (showLoading) {
-      this.sweetAlert.showLoading(
-        'Cerrando sesión...',
-        'Limpiando datos seguros'
-      );
-    }
+    if (showLoading) this.sweetAlert.showLoading('Cerrando sesión...');
 
     this.authService
       .logout()
       .pipe(
         finalize(() => {
           this.sweetAlert.close();
-        })
+          this.navigation.navigateToHome();
+        }),
       )
       .subscribe({
-        next: () => {
-          this.navigation.navigateToHome();
-        },
-        error: (err) => {
-          this.navigation.navigateToHome();
-        },
+        error: () => {},
       });
-  }
-
-  onLeaveSession(): void {
-    const count = this.tableSessionService.tableSessionInfo().participantCount;
-
-    if (count <= 1) {
-      this.sweetAlert
-        .showChoice(
-          '¿Cerrar la mesa?',
-          'Sos el último participante. La mesa se cerrará para todos.',
-          'Sí, cerrar mesa',
-          'Cancelar'
-        )
-        .then((res) => {
-          if (res.isConfirmed)
-            this.performTableAction(
-              this.tableSessionService.closeSession(),
-              'Mesa cerrada'
-            );
-        });
-    } else {
-      this.sweetAlert
-        .showChoice(
-          '¿Abandonar la mesa?',
-          'Dejarás de participar, pero la mesa sigue abierta para el resto.',
-          'Sí, abandonar',
-          'Cancelar'
-        )
-        .then((res) => {
-          if (res.isConfirmed)
-            this.performTableAction(
-              this.tableSessionService.leaveSession(),
-              'Has abandonado la mesa'
-            );
-        });
-    }
-  }
-
-  private performTableAction(observableAction: any, successMessage: string) {
-    this.sweetAlert.showLoading('Procesando...');
-    observableAction.subscribe({
-      next: () => {
-        this.sweetAlert.close();
-        this.sweetAlert.showSuccess(successMessage, '', 1500);
-        this.navigation.navigateToHome();
-      },
-      error: async (err: any) => {
-        this.sweetAlert.close();
-
-        if (err?.status === 409) {
-          const res = await this.sweetAlert.showChoice(
-            'No podés abandonar la mesa',
-            'Tenés pedidos pendientes de pago. Pagalos antes de salir.',
-            'Pagar ahora',
-            'Cancelar',
-          );
-          if (res.isConfirmed) {
-            this.navigation.navigateToPayments({
-              section: 'pending'
-            });
-          }
-          return;
-        }
-
-       this.sweetAlert.showError(
-          'Error',
-          'No se pudo completar la acción.'
-        );
-      },
-    });
   }
 }

@@ -60,12 +60,12 @@
             type="text"
             [(ngModel)]="searchTerm"
             (input)="onSearchChange()"
-            placeholder=" Buscar por mesa..."
-            class="input input-bordered w-full pl-10">
+            placeholder=" Buscar por mesa o número de orden ..."
+            class="input input-bordered w-full pl-10  placeholder:text-gray-400/70 placeholder:font-light">
           <lucide-icon
             [img]="Search"
             [size]="20"
-            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 placeholder:text-gray-400/70 placeholder:font-light">
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
           </lucide-icon>
         </div>
       </div>
