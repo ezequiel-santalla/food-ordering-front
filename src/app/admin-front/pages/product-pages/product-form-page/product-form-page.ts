@@ -58,7 +58,7 @@ productForm!: FormGroup;
       name: ['', Validators.required],
       price: [0, [Validators.required, Validators.min(0)]],
       description: [''],
-      categoryId: [''],
+      categoryId: ['', Validators.required],
       stock: [0, [Validators.min(0)]],
       tags: [[]],
       available: [true]
@@ -69,10 +69,22 @@ productForm!: FormGroup;
     this.categoryService.getCategories().subscribe({
       next: (categories) => {
         this.leafCategories = this.extractLeafCategories(categories);
+
+        if (this.leafCategories.length === 0) {
+          this.sweetAlertService.showToast(
+            'top-end',
+            'warning',
+            'No se encontraron categorías. Por favor, crea una antes de continuar.',
+          );
+        }
       },
       error: (e) => {
         console.error('Error al cargar categorías:', e);
-      }
+        this.sweetAlertService.showError(
+          'Error',
+          'No se pudieron cargar las categorías.',
+        );
+      },
     });
   }
 
@@ -369,26 +381,15 @@ canCreateNewTag(): boolean {
 
     const formValues = this.productForm.value;
 
-    const categoryId = formValues.categoryId && formValues.categoryId.trim() !== ''
-      ? formValues.categoryId
-      : undefined;
-
-    const tags = Array.isArray(formValues.tags)
-      ? formValues.tags.filter((tag: any) => typeof tag === 'string' && tag.trim() !== '')
-      : [];
-
     const productData: any = {
       name: formValues.name,
       description: formValues.description || '',
       price: formValues.price,
       stock: formValues.stock || 0,
       available: formValues.available,
-      tags: tags
-    };
-
-    if (categoryId) {
-      productData.categoryId = categoryId;
-    }
+      tags: Array.isArray(formValues.tags) ? formValues.tags : [],
+      categoryId: formValues.categoryId 
+    };    
 
     formData.append('product', new Blob([JSON.stringify(productData)], {
       type: 'application/json'
@@ -422,10 +423,15 @@ canCreateNewTag(): boolean {
       errors.push('El stock debe ser mayor o igual a 0');
     }
 
-    const errorMessage = errors.length > 0
-      ? `Por favor corrija los siguientes errores:\n${errors.join('\n')}`
-      : 'Por favor completa todos los campos requeridos';
+    if (this.productForm.get('categoryId')?.hasError('required')) {
+      errors.push('Debes seleccionar una categoría.');
+    }
 
-    alert(errorMessage);
+    if (errors.length > 0) {
+      this.sweetAlertService.showError(
+        'Formulario incompleto',
+        errors.join('<br>')
+      );
+    }
   }
 }
