@@ -40,7 +40,7 @@
             type="text"
             formControlName="name"
             placeholder="Ej: Hamburguesa Clásica"
-            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 placeholder:text-gray-400/70 placeholder:font-light focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
           />
           <p class="text-xs text-gray-500 mt-1">0/100 caracteres</p>
         </div>
@@ -56,7 +56,7 @@
             formControlName="description"
             placeholder="Describe el producto, ingredientes, preparación..."
             rows="4"
-            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 placeholder:text-gray-400/70 placeholder:font-light focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
           ></textarea>
           <p class="text-xs text-gray-500 mt-1">0/255 caracteres</p>
         </div>
@@ -128,7 +128,7 @@
               (keydown)="onTagInputKeydown($event)"
               [disabled]="isCreatingTag"
               placeholder="Escribe para buscar o crear un tag..."
-              class="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              class="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 placeholder:text-gray-400/70 placeholder:font-light focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
 
             @if (isCreatingTag) {

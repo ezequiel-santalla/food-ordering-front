@@ -2,9 +2,13 @@
   <header
     class="mb-4 md:mb-6 pb-1 flex flex-col md:flex-row md:justify-between md:items-start gap-4">
     <div>
-      <h1 class="text-3xl sm:text-3xl font-semibold text-gray-900">
-        {{ isEditingMode ? 'Armado de Salón (Modo Edición)' : 'Estado del Salón' }}
-      </h1>
+      <h1 class="text-3xl font-semibold text-gray-900 flex items-center gap-2">
+  {{ isEditingMode ? 'Armado de Salón' : 'Estado del Salón' }}
+
+  @if (isEditingMode) {
+    <span class="text-orange-600 font-light text-[0.8em]">| EDITANDO</span>
+  }
+</h1>
       <p class="text-xs sm:text-sm text-gray-500">
         {{ isEditingMode ? 'Organiza las mesas en el espacio del restaurante' : 'Visualiza el estado actual de las
         mesas' }}
