@@ -166,6 +166,22 @@ export class TokenManager {
     return response?.employments || [];
   }
 
+  static setVenueContext(foodVenueId: string): void {
+  if (!foodVenueId) {
+    console.warn('⚠️ Intentando setear un foodVenueId vacío');
+    return;
+  }
+  
+  SessionUtils.setStorageValue('foodVenueId', foodVenueId);
+  
+  console.log(`🔄 Contexto cambiado al local: ${foodVenueId}`);
+}
+
+static clearVenueContext(): void {
+  SessionUtils.setStorageValue('foodVenueId', null);
+  console.log('🔙 Contexto de local limpiado. Volviendo a modo global.');
+}
+
   private static resolveRefreshToken(
     responseToken: string | undefined | null,
     fallbackToken: string | null

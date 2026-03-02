@@ -5,6 +5,7 @@ import { HasTableSessionGuard } from './auth/guards/has-table-session.guard';
 import { QrScannerComponent } from './auth/components/qr-scanner/qr-scanner';
 import { EmploymentInvitationResponseComponent } from './admin-front/components/employment-invitation-response/employment-invitation-response';
 import { HomeComponent } from './store-front/components/home/home-component';
+import { RootGuard } from './root-front/guards/root.guard';
 
 export const routes: Routes = [
   {
@@ -62,6 +63,12 @@ export const routes: Routes = [
     path: 'food-venues',
     loadChildren: () => import('./food-venues/food-venues.routes'),
     title: 'Restaurantes Disponibles',
+  },
+  
+  {
+    path: 'root-admin',
+    canActivate: [RootGuard],
+    loadChildren: () => import('./root-front/root.routes').then(m => m.ROOT_ROUTES)
   },
 
   // ADMIN LAYOUT

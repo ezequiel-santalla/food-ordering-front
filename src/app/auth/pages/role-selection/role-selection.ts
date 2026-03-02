@@ -80,7 +80,9 @@ export class RoleSelectionComponent {
         console.log(`Rol de ${employment.role} seleccionado. Redirigiendo...`);
         const role = employment.role;
 
-        if (role === 'ROLE_ADMIN') {
+        if (role === 'ROLE_ROOT') {
+        this.navigationService.navigateToRootDashboard();
+        } else if (role === 'ROLE_ADMIN') {
           this.router.navigate(['admin']);
         } else if (role === 'ROLE_MANAGER' || role === 'ROLE_STAFF') {
           this.router.navigate(['employee']);
@@ -127,8 +129,8 @@ export class RoleSelectionComponent {
         },
       });
     } else {
-      console.log('Sin sesión de mesa, navegando a food-venues');
-      this.navigationService.navigateToFoodVenues();
+      console.log('Sin sesión previa, redirigiendo al Index');
+      this.navigationService.navigateToHome();
     }
   }
 }

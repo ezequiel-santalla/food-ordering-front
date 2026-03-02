@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth-service';
 import { SessionUtils } from '../../../utils/session-utils';
@@ -20,8 +20,10 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  ShieldCheck
 } from 'lucide-angular';
+import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -29,6 +31,8 @@ import {
   templateUrl: './admin-dashboard.html'
 })
 export class AdminDashboard implements OnInit {
+
+  private swal = inject(SweetAlertService);
 
   readonly storeIcon = Store;
   readonly dashboardIcon = LayoutDashboard;
@@ -43,9 +47,12 @@ export class AdminDashboard implements OnInit {
   readonly chevronLeftIcon = ChevronLeft;
   readonly chevronRightIcon = ChevronRight;
   readonly trendingUpIcon = TrendingUp;
+  readonly shieldIcon = ShieldCheck;
 
   @Input() isCollapsed: boolean = true;
   @Output() toggleRequest = new EventEmitter<void>();
+
+  isRootUser = computed(() => this.authService.role() === 'ROLE_ROOT');
 
   adminInfo: AdminInfo = {
     email: 'Cargando...',
@@ -114,5 +121,25 @@ export class AdminDashboard implements OnInit {
 
   onToggle() {
     this.toggleRequest.emit();
+  }
+
+  returnToRoot() {
+    const allEmployments = this.authService.employments();
+
+    const rootEmp = allEmployments?.find(
+      (e) => e.role === 'ROLE_ROOT' && e.foodVenueName === 'System',
+    );
+
+    if (rootEmp) {
+      this.swal.showLoading('Restaurando privilegios Root...');
+      
+      this.authService.selectRole(rootEmp.publicId).subscribe({
+        next: () => {
+          this.router.navigate(['/root/dashboard']);
+          this.swal.showSuccess('Modo Global', 'Has recuperado tus permisos de Root.');
+        },
+        error: () => this.swal.showError('Error', 'No se pudo recuperar el acceso Root.')
+      });
+    }
   }
 }
