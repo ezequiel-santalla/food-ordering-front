@@ -4,7 +4,7 @@
 
     <!-- Salón -->
     <a routerLink="/admin"
-       routerLinkActive="text-blue-600 bg-blue-50"
+       routerLinkActive="!text-orange-500 bg-orange-50/70"
        [routerLinkActiveOptions]="{exact: true}"
        (click)="closeMenu()"
        class="flex flex-col items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
@@ -15,7 +15,7 @@
 
     <!-- Pedidos -->
     <a routerLink="/admin/orders"
-       routerLinkActive="text-blue-600 bg-blue-50"
+       routerLinkActive="!text-orange-500 bg-orange-50/70"
        (click)="closeMenu()"
        class="flex flex-col items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
       <lucide-icon [img]="clipboardIcon" [size]="22"></lucide-icon>
@@ -24,7 +24,7 @@
 
     <!-- Pagos -->
     <a routerLink="/admin/payments"
-       routerLinkActive="text-blue-600 bg-blue-50"
+       routerLinkActive="!text-orange-500 bg-orange-50/70"
        (click)="closeMenu()"
        class="flex flex-col items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
       <lucide-icon [img]="dollarIcon" [size]="22"></lucide-icon>
@@ -33,8 +33,8 @@
 
     <!-- Menú (toggle) -->
     <button (click)="toggleMenu()"
-            [class.text-blue-600]="isMenuExpanded"
-            [class.bg-blue-50]="isMenuExpanded"
+            [class.text-orange-500]="isMenuExpanded"
+            [class.bg-orange-50]="isMenuExpanded"
             class="flex flex-col items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">
       <lucide-icon
         [img]="isMenuExpanded ? closeIcon : menuIcon"
@@ -64,7 +64,7 @@
 
       <!-- Productos -->
       <a routerLink="/admin/products"
-         routerLinkActive="!text-blue-600 !bg-blue-50"
+         routerLinkActive="!text-orange-500 bg-orange-50/70"
          (click)="onLinkClick()"
          class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
         <lucide-icon [img]="packageIcon" [size]="20" class="mr-3"></lucide-icon>
@@ -73,7 +73,7 @@
 
       <!-- Categorías -->
       <a routerLink="/admin/categories"
-         routerLinkActive="!text-blue-600 !bg-blue-50"
+         routerLinkActive="!text-orange-500 bg-orange-50/70"
          (click)="onLinkClick()"
          class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
         <lucide-icon [img]="gridIcon" [size]="20" class="mr-3"></lucide-icon>
@@ -82,7 +82,7 @@
 
       <!-- Tags -->
       <a routerLink="/admin/tags"
-         routerLinkActive="!text-blue-600 !bg-blue-50"
+         routerLinkActive="!text-orange-500 bg-orange-50/70"
          (click)="onLinkClick()"
          class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
         <lucide-icon [img]="tagsIcon" [size]="20" class="mr-3"></lucide-icon>
@@ -91,7 +91,7 @@
 
       <!-- Empleados -->
       <a routerLink="/admin/employees"
-         routerLinkActive="!text-blue-600 !bg-blue-50"
+         routerLinkActive="!text-orange-500 bg-orange-50/70"
          (click)="onLinkClick()"
          class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
         <lucide-icon [img]="usersIcon" [size]="20" class="mr-3"></lucide-icon>
@@ -100,7 +100,7 @@
 
       <!-- Estadísticas -->
       <a routerLink="/admin/analytics"
-         routerLinkActive="!text-blue-600 !bg-blue-50"
+         routerLinkActive="!text-orange-500 bg-orange-50/70"
          (click)="onLinkClick()"
          class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
         <lucide-icon [img]="trendingUpIcon" [size]="20" class="mr-3"></lucide-icon>
@@ -109,7 +109,7 @@
 
        <!-- Mi Local -->
       <a routerLink="/admin/my-food-venue"
-         routerLinkActive="!text-blue-600 !bg-blue-50"
+         routerLinkActive="!text-orange-500 bg-orange-50/70"
          (click)="onLinkClick()"
          class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-1">
         <lucide-icon [img]="settingsIcon" [size]="20" class="mr-3"></lucide-icon>

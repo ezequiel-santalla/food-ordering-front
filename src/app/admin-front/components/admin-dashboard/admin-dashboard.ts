@@ -50,7 +50,8 @@ export class AdminDashboard implements OnInit {
   adminInfo: AdminInfo = {
     email: 'Cargando...',
     role: 'Cargando...',
-    foodVenueName: 'Cargando...'
+    foodVenueName: 'Cargando...',
+    venueLogo: ''
   };
 
   constructor(
@@ -90,6 +91,10 @@ export class AdminDashboard implements OnInit {
           this.adminInfo.foodVenueName = foodVenue.name;
         } else {
           this.adminInfo.foodVenueName = 'Local sin nombre definido';
+        }
+
+        if (foodVenue?.venueStyle?.logoUrl) {
+          this.adminInfo.venueLogo = foodVenue.venueStyle.logoUrl;
         }
       },
       error: (err) => {

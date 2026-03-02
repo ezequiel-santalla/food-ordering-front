@@ -6,24 +6,34 @@
     }">
 
     <!-- Header -->
-    <div class="p-4 flex items-center justify-between border-b border-gray-200 h-[64px] min-h-[64px]">
-        <div class="flex items-center space-x-3" [class.hidden]="isCollapsed">
-            <div class="w-8 h-8 flex items-center justify-center bg-black text-white rounded-lg">
-                <lucide-icon [img]="storeIcon" [size]="20"></lucide-icon>
-            </div>
 
+
+
+     <div class="p-4 flex items-center justify-between border-b border-gray-200 h-[64px] min-h-[64px]">
+        <div class="flex items-center space-x-3" [class.hidden]="isCollapsed">
+          
+             <!-- Logo o fallback -->
+        @if (adminInfo.venueLogo) {
+            <img [src]="adminInfo.venueLogo"
+                 alt="Logo del local"
+                 class="w-9 h-9 rounded-lg object-cover shrink-0 ring-2 ring-white/30" />
+        } @else {
+            <div class="w-9 h-9 flex items-center justify-center bg-white/20 rounded-lg shrink-0">
+                <lucide-icon [img]="storeIcon" [size]="20" class="text-white"></lucide-icon>
+            </div>
+        }
             <div class="flex flex-col overflow-hidden">
-                <span class="font-bold text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
+                <span class="font-bold text-base text-orange-900 whitespace-nowrap overflow-hidden text-ellipsis">
                     {{adminInfo.role}}
                 </span>
-                <span class="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis">
+                <span class="text-xs text-orange-400 whitespace-nowrap overflow-hidden text-ellipsis">
                     {{adminInfo.foodVenueName}}
                 </span>
             </div>
         </div>
 
         <button (click)="onToggle()"
-                class="p-1 rounded-full text-gray-400 hover:bg-gray-100 transition duration-150 shrink-0 cursor-pointer"
+                class="p-1 rounded-full text-orange-400 hover:bg-orange-100 transition duration-150 shrink-0 cursor-pointer"
                 [ngClass]="{'mx-auto': isCollapsed, 'ml-auto': !isCollapsed}"
                 aria-label="Alternar menú lateral">
             <lucide-icon
@@ -38,9 +48,9 @@
         <nav class="p-4 space-y-4">
             <!-- Home -->
             <a routerLink="/admin"
-                routerLinkActive="!text-blue-600 bg-blue-50/70 hover:bg-blue-50/70"
+                routerLinkActive="!text-orange-500 bg-orange-50/70 hover:bg-orange-50/70"
                 [routerLinkActiveOptions]="{exact: true}"
-                class="flex items-center p-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                class="flex items-center p-2 text-sm font-medium text-gray-600 hover:bg-orange-100 rounded-md transition-colors">
                 <lucide-icon
                     [img]="dashboardIcon"
                     [size]="20"
@@ -57,8 +67,8 @@
 
             <!-- Pedidos -->
             <a routerLink="orders"
-                routerLinkActive="!text-blue-600 bg-blue-50/70 hover:bg-blue-50/70"
-                class="flex items-center p-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                routerLinkActive="!text-orange-500 bg-orange-50/70 hover:bg-orange-50/70"
+                class="flex items-center p-2 text-sm text-gray-600 hover:bg-orange-100 rounded-md transition-colors">
                 <lucide-icon
                     [img]="clipboardIcon"
                     [size]="20"
@@ -70,8 +80,8 @@
 
             <!-- Pagos -->
             <a routerLink="payments"
-                routerLinkActive="!text-blue-600 bg-blue-50/70 hover:bg-blue-50/70"
-                class="flex items-center p-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                routerLinkActive="!text-orange-500 bg-orange-50/70 hover:bg-orange-50/70"
+                class="flex items-center p-2 text-sm text-gray-600 hover:bg-orange-100 rounded-md transition-colors">
                 <lucide-icon
                     [img]="circleDollarSignIcon"
                     [size]="20"
@@ -83,8 +93,8 @@
 
             <!-- Productos -->
             <a routerLink="products"
-                routerLinkActive="!text-blue-600 bg-blue-50/70 hover:bg-blue-50/70"
-                class="flex items-center p-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                routerLinkActive="!text-orange-500 bg-orange-50/70 hover:bg-orange-50/70"
+                class="flex items-center p-2 text-sm text-gray-600 hover:bg-orange-100 rounded-md transition-colors">
                 <lucide-icon
                     [img]="packageIcon"
                     [size]="20"
@@ -96,8 +106,8 @@
 
             <!-- Categorías -->
             <a routerLink="categories"
-                routerLinkActive="!text-blue-600 bg-blue-50/70 hover:bg-blue-50/70"
-                class="flex items-center p-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                routerLinkActive="!text-orange-500 bg-orange-50/70 hover:bg-orange-50/70"
+                class="flex items-center p-2 text-sm text-gray-600 hover:bg-orange-100 rounded-md transition-colors">
                 <lucide-icon
                     [img]="layoutGridIcon"
                     [size]="20"
@@ -109,8 +119,8 @@
 
             <!-- Tags -->
             <a routerLink="tags"
-                routerLinkActive="!text-blue-600 bg-blue-50/70 hover:bg-blue-50/70"
-                class="flex items-center p-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                routerLinkActive="!text-orange-500 bg-orange-50/70 hover:bg-orange-50/70"
+                class="flex items-center p-2 text-sm text-gray-600 hover:bg-orange-100 rounded-md transition-colors">
                 <lucide-icon
                     [img]="tagsIcon"
                     [size]="20"
@@ -122,8 +132,8 @@
 
             <!-- Empleados -->
             <a routerLink="employees"
-                routerLinkActive="!text-blue-600 bg-blue-50/70 hover:bg-blue-50/70"
-                class="flex items-center p-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                routerLinkActive="!text-orange-500 bg-orange-50/70 hover:bg-orange-50/70"
+                class="flex items-center p-2 text-sm text-gray-600 hover:bg-orange-100 rounded-md transition-colors">
                 <lucide-icon
                     [img]="usersIcon"
                     [size]="20"
@@ -135,8 +145,8 @@
 
             <!-- Estadísticas -->
             <a routerLink="analytics"
-                routerLinkActive="!text-blue-600 bg-blue-50/70 hover:bg-blue-50/70"
-                class="flex items-center p-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                routerLinkActive="!text-orange-500 bg-orange-50/70 hover:bg-orange-50/70"
+                class="flex items-center p-2 text-sm text-gray-600 hover:bg-orange-100 rounded-md transition-colors">
                 <lucide-icon
                     [img]="trendingUpIcon"
                     [size]="20"
@@ -159,8 +169,8 @@
 
             <!-- Mi Local -->
             <a routerLink="my-food-venue"
-                routerLinkActive="!text-blue-600 bg-blue-50/70 hover:bg-blue-50/70"
-                class="flex items-center p-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                routerLinkActive="!text-orange-500 bg-orange-50/70 hover:bg-orange-50/70"
+                class="flex items-center p-2 text-sm text-gray-600 hover:bg-orange-100 rounded-md transition-colors">
                 <lucide-icon
                     [img]="settingsIcon"
                     [size]="20"
