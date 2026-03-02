@@ -1,0 +1,276 @@
+<div class="space-y-6 animate-in fade-in duration-500 pb-20 xl:pb-0">
+
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-4 xl:px-0">
+    <div>
+      <h2 class="text-2xl md:text-3xl font-black text-[#1f1b16]">Usuarios</h2>
+      <p class="text-xs md:text-sm text-[#3a332c]/60 font-medium">Gestioná el directorio global de Dinno.</p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+      <div class="relative w-full sm:w-64">
+        <lucide-icon [img]="Search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-400">
+        </lucide-icon>
+
+        <input type="text" [formControl]="searchControl" placeholder="Buscar..."
+          class="w-full pl-12 pr-4 py-3 bg-white border border-orange-100 rounded-2xl text-sm outline-none shadow-sm focus:ring-2 focus:ring-orange-200 transition-all">
+      </div>
+
+      <button (click)="toggleDeleted()"
+        [class]="showDeleted() ? 'bg-red-500 text-white border-red-600' : 'bg-white text-gray-400 border-orange-100'"
+        class="flex items-center gap-2 px-4 py-3 rounded-2xl border text-xs font-black transition-all shadow-sm">
+        <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+        {{ showDeleted() ? 'VER ACTIVOS' : 'VER ELIMINADOS' }}
+      </button>
+
+      <div
+        class="bg-white/70 backdrop-blur px-4 py-2 rounded-2xl shadow-sm border border-orange-100 flex items-center gap-2">
+        <div class="text-[10px] font-black text-[#3a332c]/40 uppercase tracking-[0.2em]">
+          Mostrando {{ filteredUsers().length }} de {{ totalElements() }}
+          @if(searchTerm()) { <span class="text-orange-600">(Filtrado)</span> }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+  <div class="py-20 flex justify-center">
+    <div class="w-10 h-10 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+  </div>
+  } @else {
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 px-4 xl:hidden">
+    @for (user of filteredUsers(); track user.publicId) {
+    <div class="bg-white rounded-[32px] p-6 shadow-sm border border-orange-50 flex flex-col justify-between">
+      <div class="flex items-center gap-4 mb-4">
+        <div
+          class="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-700 font-black text-xl">
+          {{ user.name.charAt(0) || 'U' }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-black text-[#1f1b16] text-lg truncate">{{ user.name }} {{ user.lastName }}</h3>
+          <div class="flex items-center gap-1.5 text-xs text-orange-600 font-bold">
+            <lucide-icon [img]="Mail" class="w-3.5 h-3.5"></lucide-icon>
+            <span class="truncate">{{ user.email }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 flex gap-3">
+        <button (click)="openDetails(user)"
+          class="flex-[2] py-3 bg-orange-50 text-orange-700 rounded-2xl font-black text-xs cursor-pointer">
+          DETALLES
+        </button>
+
+        @if (showDeleted()) {
+        <button (click)="restoreUser(user.publicId.toString())"
+          class="flex-1 py-3 bg-green-50 text-green-600 rounded-2xl flex justify-center items-center cursor-pointer">
+          <lucide-icon [img]="UserCheck" class="w-5 h-5"></lucide-icon>
+        </button>
+        } @else {
+        <button (click)="confirmDelete(user.publicId, user.name)"
+          class="flex-1 py-3 bg-red-50 text-red-600 rounded-2xl flex justify-center items-center cursor-pointer">
+          <lucide-icon [img]="Trash2" class="w-5 h-5"></lucide-icon>
+        </button>
+        }
+      </div>
+    </div>
+    }
+  </div>
+
+  <div
+    class="hidden xl:block bg-white/70 backdrop-blur-md rounded-[32px] border border-white shadow-xl overflow-hidden mx-4 xl:mx-0">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="bg-orange-50/50 text-[11px] uppercase tracking-widest text-[#3a332c]/50 font-black">
+          <th class="px-8 py-6">Usuario</th>
+          <th class="px-6 py-6">Email</th>
+          <th class="px-6 py-6">Teléfono</th>
+          <th class="px-8 py-6 text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-orange-50">
+        @for (user of filteredUsers(); track user.publicId) {
+        <tr class="hover:bg-white/80 transition-colors group">
+          <td class="px-8 py-5">
+            <div class="flex items-center gap-4">
+              <div
+                class="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-700 font-black">
+                {{ user.name.charAt(0) }}</div>
+              <div>
+                <div class="font-black text-[#1f1b16]">{{ user.name }} {{ user.lastName }}</div>
+                <div class="text-[10px] text-[#3a332c]/40 font-bold">ID: {{ user.publicId.toString().split('-')[0] }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-5 text-sm text-[#3a332c]/70">{{ user.email }}</td>
+          <td class="px-6 py-5 text-sm text-[#3a332c]/70">{{ user.phone || '---' }}</td>
+          <td class="px-8 py-5 text-right">
+            <div class="flex justify-end gap-2">
+              <button (click)="openDetails(user)"
+                class="p-2 text-orange-400 hover:text-orange-600 transition-colors cursor-pointer">
+                <lucide-icon [img]="Search" class="w-4 h-4"></lucide-icon>
+              </button>
+
+              @if (showDeleted()) {
+              <button (click)="restoreUser(user.publicId.toString())"
+                class="p-2 text-green-500 hover:text-green-700 transition-colors cursor-pointer">
+                <lucide-icon [img]="UserCheck" class="w-4 h-4"></lucide-icon>
+              </button>
+              } @else {
+              <button (click)="confirmDelete(user.publicId, user.name)"
+                class="p-2 text-red-300 hover:text-red-600 transition-colors cursor-pointer">
+                <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+              </button>
+              }
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    class="mt-6 mx-4 xl:mx-0 flex flex-col md:flex-row items-center justify-between gap-4 bg-white/50 p-4 rounded-[32px] border border-white">
+    <div class="text-[10px] font-bold text-[#3a332c]/40 uppercase tracking-widest">
+      Página {{ currentPage() + 1 }} de {{ totalPages() }}
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button (click)="goToPage(currentPage() - 1)" [disabled]="isFirst()"
+        class="p-2.5 rounded-xl bg-white border border-orange-100 disabled:opacity-20 shadow-sm transition-all active:scale-90">
+        <lucide-icon [img]="ChevronLeft" class="w-4 h-4 text-orange-600"></lucide-icon>
+      </button>
+
+      <div class="flex items-center gap-1">
+        @for (p of getPaginationRange(); track $index) {
+        @if (p === '...') {
+        <span class="px-2 text-gray-400 font-bold">...</span>
+        } @else {
+        <button (click)="onPageClick(p)" [class]="currentPage() === (+p - 1) 
+                  ? 'bg-orange-600 text-white border-orange-600 shadow-md' 
+                  : 'bg-white text-[#3a332c] border-orange-100 hover:bg-orange-50'"
+          class="w-10 h-10 rounded-xl border text-xs font-black transition-all active:scale-95 cursor-pointer">
+          {{ p }}
+        </button>
+        }
+        }
+      </div>
+
+      <button (click)="goToPage(currentPage() + 1)" [disabled]="isLast()"
+        class="p-2.5 rounded-xl bg-white border border-orange-100 disabled:opacity-20 shadow-sm transition-all active:scale-90">
+        <lucide-icon [img]="ChevronRight" class="w-4 h-4 text-orange-600"></lucide-icon>
+      </button>
+    </div>
+  </div>
+  }
+  @if (isModalOpen() && selectedUser(); as user) {
+  <div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-[#1f1b16]/60 backdrop-blur-md animate-in fade-in duration-300"
+      (click)="closeModal()"></div>
+
+    <div
+      class="relative w-full max-w-lg bg-[#fbf6ef] rounded-[40px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-white/40">
+
+      <button (click)="closeModal()"
+        class="absolute top-6 right-6 z-20 p-2 bg-white/80 hover:bg-orange-100 rounded-full transition-all text-orange-900 shadow-sm cursor-pointer">
+        <lucide-icon [img]="X" class="w-5 h-5"></lucide-icon>
+      </button>
+
+      <div class="h-32 bg-gradient-to-r from-orange-400 to-amber-500 w-full relative">
+        <div class="absolute -bottom-12 left-8 w-24 h-24 rounded-[32px] bg-white p-1 shadow-xl">
+          <div
+            class="w-full h-full rounded-[28px] bg-orange-50 flex items-center justify-center text-orange-600 font-black text-3xl border border-orange-100">
+            {{ user.name.charAt(0) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-16 p-8 space-y-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="text-2xl font-black text-[#1f1b16] leading-tight">{{ user.name }} {{ user.lastName }}</h3>
+            <p class="text-[10px] font-bold text-orange-600 uppercase tracking-[0.2em] mt-1">Perfil Maestro de Usuario
+            </p>
+          </div>
+          @if (showDeleted()) {
+          <span
+            class="px-3 py-1 bg-red-100 text-red-600 text-[10px] font-black rounded-full uppercase border border-red-200">
+            ELIMINADO
+          </span>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 overflow-y-auto max-h-[50vh] pr-2 custom-scrollbar">
+
+          <div class="bg-white/60 rounded-3xl p-5 border border-white shadow-sm space-y-3">
+            <div class="flex items-center gap-3 text-sm font-semibold text-[#3a332c]">
+              <lucide-icon [img]="Mail" class="w-4 h-4 text-orange-500"></lucide-icon>
+              {{ user.email }}
+            </div>
+            <div class="flex items-center gap-3 text-sm font-semibold text-[#3a332c]">
+              <lucide-icon [img]="Phone" class="w-4 h-4 text-orange-500"></lucide-icon>
+              {{ user.phone || 'Teléfono no disponible' }}
+            </div>
+          </div>
+
+          <div class="bg-white/60 rounded-3xl p-5 border border-white shadow-sm">
+            <div class="flex items-start gap-3">
+              <lucide-icon [img]="MapPin" class="w-4 h-4 text-orange-500 mt-1"></lucide-icon>
+              <div class="text-sm">
+                @if (user.address) {
+                <p class="font-black text-[#1f1b16]">{{ user.address.street }} {{ user.address.number }}</p>
+                @if (user.address.additionalInfo) {
+                <p class="text-[10px] text-orange-600 font-bold uppercase italic">{{ user.address.additionalInfo }}</p>
+                }
+                <p class="text-[#3a332c]/60 font-medium">
+                  {{ user.address.city }}, {{ user.address.province }}
+                </p>
+                <p class="text-[10px] text-[#3a332c]/40 font-bold uppercase tracking-tighter">
+                  {{ user.address.country }} • CP {{ user.address.postalCode }}
+                </p>
+                } @else {
+                <p class="text-[#3a332c]/40 italic">Ubicación no declarada</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols gap-4">
+            <div class="bg-white/60 rounded-3xl p-4 border border-white shadow-sm">
+              <div class="flex items-center gap-2 mb-1">
+                <lucide-icon [img]="Calendar" class="w-3 h-3 text-orange-400"></lucide-icon>
+                <span class="text-[10px] font-black text-gray-400 uppercase">Nacimiento</span>
+              </div>
+              <p class="text-xs font-bold text-[#1f1b16]">
+                {{ user.birthDate ? (user.birthDate | date:'longDate') : '---' }}
+              </p>
+            </div>
+            <div class="bg-white/60 rounded-3xl p-4 border border-white shadow-sm overflow-hidden">
+              <div class="flex items-center gap-2 mb-1">
+                <lucide-icon [img]="Hash" class="w-3 h-3 text-orange-400"></lucide-icon>
+                <span class="text-[10px] font-black text-gray-400 uppercase">UUID</span>
+              </div>
+              <p class="text-[9px] font-bold text-[#1f1b16] truncate">{{ user.publicId }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 flex gap-3">
+          <button (click)="closeModal()"
+            class="flex-1 py-4 bg-white hover:bg-orange-50 text-[#1f1b16] font-black text-xs rounded-2xl border border-orange-100 transition-all active:scale-95 cursor-pointer">
+            VOLVER
+          </button>
+
+          @if (showDeleted()) {
+          <button (click)="restoreUser(user.publicId.toString())"
+            class="flex-[1.5] py-4 bg-green-500 hover:bg-green-600 text-white font-black text-xs rounded-2xl shadow-lg shadow-green-200 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2">
+            <lucide-icon [img]="UserCheck" class="w-4 h-4"></lucide-icon>
+            RESTAURAR ACCESO
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div>

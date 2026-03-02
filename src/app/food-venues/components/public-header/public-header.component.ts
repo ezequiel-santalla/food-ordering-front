@@ -24,6 +24,7 @@ import {
   LogIn,
 } from 'lucide-angular';
 import { NavigationService } from '../../../shared/services/navigation.service';
+import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 
 @Component({
   selector: 'app-public-header',
@@ -45,6 +46,8 @@ export class PublicHeaderComponent {
   private navigation = inject(NavigationService);
   private router = inject(Router);
   private elementRef = inject(ElementRef);
+  private alertService = inject(SweetAlertService);
+
 
   @Output() navTo = new EventEmitter<string>();
 
@@ -100,15 +103,36 @@ export class PublicHeaderComponent {
   }
 
   onLogout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.navigation.navigateToHome();
-      },
-      error: (error) => {
-        this.authState.clearState();
-        this.navigation.navigateToHome();
-      },
-    });
+    this.alertService
+      .confirm(
+        '¿Cerrar sesión?',
+        'Se finalizará tu sesión actual en el panel administrativo.',
+        'Cerrar Sesión',
+      )
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.alertService.showLoading(
+            'Saliendo...',
+            'Limpiando credenciales de acceso.',
+          );
+
+          this.authService.logout().subscribe({
+            next: () => {
+              this.handleLogoutSuccess();
+            },
+            error: (error) => {
+              console.error('Error durante logout:', error);
+              this.authState.clearState();
+              this.handleLogoutSuccess();
+            },
+          });
+        }
+      });
+  }
+
+  private handleLogoutSuccess(): void {
+    this.navigation.navigateToLogin();
+    this.alertService.showSuccess('Sesión cerrada', '¡Hasta pronto!');
   }
 
   navigateToScanner() {

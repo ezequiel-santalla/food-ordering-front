@@ -8,6 +8,8 @@ import {
   TableSessionResponse,
 } from '../../shared/models/table-session';
 import { TableAccessRequest } from './qr-processing-service';
+import { RoleSelectionComponent } from '../pages/role-selection/role-selection';
+import { Employment } from '../../shared/models/common';
 
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
@@ -70,6 +72,12 @@ export class AuthApiService {
   refreshToken(token: string): Observable<AuthResponse> {
     const url = `${this.baseUrl}/auth/refresh`;
     return this.http.post<AuthResponse>(url, { refreshToken: token });
+  }
+
+  getAvailableRoles(): Observable<Employment[]> {
+    return this.http.get<Employment[]>(
+      `${this.baseUrl}/auth/switch-roles/availables`
+    );
   }
 
   selectRole(employmentId: string): Observable<LoginResponse> {

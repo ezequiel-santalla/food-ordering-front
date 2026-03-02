@@ -99,6 +99,18 @@ export class NavigationService {
     this.router.navigate(['/role-selection'], { replaceUrl: true });
   }
 
+  navigateToRootDashboard(): void {
+    this.router.navigate(['/root-admin'], { replaceUrl: true });
+  }
+
+  navigateToAdminDashboard(): void {
+      this.router.navigate(['/admin']);
+  }
+
+  navigateToRootVenues(): void {
+     this.router.navigate(['/root-admin/venues']);
+  }
+
   navigateToScanHandler(tableId: string) {
     this.router.navigate(['/scan-qr', tableId]);
   }

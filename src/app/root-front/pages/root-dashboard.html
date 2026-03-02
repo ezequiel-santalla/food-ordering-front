@@ -1,0 +1,66 @@
+<div class="flex h-screen bg-[#fbf6ef] overflow-hidden flex-col md:flex-row">
+  
+  <header class="md:hidden bg-white border-b border-orange-100 px-6 py-4 flex justify-between items-center z-20">
+    <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772114910/dinno-banner_eqcu7r.png" 
+         alt="Dinno" class="w-24 object-contain" />
+    <button (click)="logout()" class="text-red-500 p-2">
+      <lucide-icon [img]="LogOut" class="w-5 h-5"></lucide-icon>
+    </button>
+  </header>
+
+  <aside class="hidden md:flex w-72 bg-white border-r border-orange-100 flex-col p-6 shadow-sm">
+    <div class="mb-10 px-2">
+      <img src="https://res.cloudinary.com/dgjd3ybs1/image/upload/v1772114910/dinno-banner_eqcu7r.png" 
+           alt="Dinno" class="w-32 object-contain" />
+      <p class="text-[10px] font-black text-orange-600 uppercase tracking-tighter mt-1">Global Admin Panel</p>
+    </div>
+
+    <nav class="flex-1 space-y-2">
+      <a routerLink="venues" routerLinkActive="bg-orange-500/10 text-orange-700 shadow-sm"
+         class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-[#3a332c] hover:bg-orange-50 transition-all group">
+        <lucide-icon [img]="Store" class="w-5 h-5"></lucide-icon>
+        Locales
+      </a>
+      <a routerLink="register-venue" routerLinkActive="bg-orange-500/10 text-orange-700 shadow-sm"
+         class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-[#3a332c] hover:bg-orange-50 transition-all group">
+        <lucide-icon [img]="PlusCircle" class="w-5 h-5"></lucide-icon>
+        Registrar Local
+      </a>
+      <a routerLink="users" routerLinkActive="bg-orange-500/10 text-orange-700 shadow-sm"
+         class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-[#3a332c] hover:bg-orange-50 transition-all group">
+        <lucide-icon [img]="Users" class="w-5 h-5"></lucide-icon>
+        Usuarios Globales
+      </a>
+    </nav>
+
+    <div class="pt-6 border-t border-orange-50">
+      <button (click)="logout()"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-red-500 hover:bg-red-50 transition-colors">
+        <lucide-icon [img]="LogOut" class="w-5 h-5"></lucide-icon>
+        Salir
+      </button>
+    </div>
+  </aside>
+
+  <main class="flex-1 overflow-y-auto relative pb-24 md:pb-0">
+    <div class="p-4 md:p-8 lg:p-12">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-white/80 backdrop-blur-lg border border-white/50 shadow-2xl rounded-[32px] flex justify-around items-center p-2 z-30">
+    <a routerLink="venues" routerLinkActive="text-orange-600 bg-orange-50"
+       class="flex flex-col items-center gap-1 p-3 rounded-2xl transition-all">
+      <lucide-icon [img]="Store" class="w-6 h-6"></lucide-icon>
+    </a>
+    <a routerLink="register-venue" routerLinkActive="text-orange-600 bg-orange-50"
+       class="flex flex-col items-center gap-1 p-3 rounded-2xl transition-all">
+      <lucide-icon [img]="PlusCircle" class="w-6 h-6"></lucide-icon>
+    </a>
+    <a routerLink="users" routerLinkActive="text-orange-600 bg-orange-50"
+       class="flex flex-col items-center gap-1 p-3 rounded-2xl transition-all">
+      <lucide-icon [img]="Users" class="w-6 h-6"></lucide-icon>
+    </a>
+  </nav>
+
+</div>
