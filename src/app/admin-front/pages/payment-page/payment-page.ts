@@ -107,17 +107,26 @@ export class PaymentPage {
   // Filtering & Search
   // ===================================
 
-  applyFilters(): void {
-    let filtered = [...this.payments()];
+ applyFilters(): void {
+  let filtered = [...this.payments()];
 
-    // Filter by search term
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(payment =>
-        payment.publicId.toLowerCase().includes(term) ||
-        payment.paymentMethod.toLowerCase().includes(term)
-      );
-    }
+  if (this.searchTerm.trim()) {
+    // 1. Limpiamos el término: quitamos el "0" a la izquierda si es un número (ej: "09" -> "9")
+    const rawTerm = this.searchTerm.trim();
+    const term = rawTerm.toLowerCase();
+    const numericTerm = parseInt(rawTerm, 10).toString(); // Convierte "09" en "9"
+
+    filtered = filtered.filter(payment => {
+      // 2. Buscamos coincidencia EXACTA en mesa o órdenes usando el número limpio
+      const isTableMatch = payment.tableNumber?.toString() === numericTerm;
+      const isOrderMatch = payment.orderNumbers?.some(order => order.toString() === numericTerm);
+
+      const isMethodMatch = payment.paymentMethod.toLowerCase().includes(term);
+
+
+      return isTableMatch || isOrderMatch || isMethodMatch;
+    });
+  }
 
     if (this.selectedStatus) {
       filtered = filtered.filter(payment => payment.status === this.selectedStatus);
