@@ -41,7 +41,17 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="font-medium text-gray-700">Capacidad:</span>
-          <span class="badge badge-lg badge-primary">{{getTotalCapacity()}}p</span>
+
+          @if (getTotalCapacity() !== null) {
+          <span class="badge badge-lg badge-primary">
+            {{ getTotalCapacity() }}p
+          </span>
+          } @else {
+          <span
+            class="text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-100 px-2 py-1 rounded-lg border border-gray-200">
+            Sin asignar
+          </span>
+          }
         </div>
         <div class="flex items-center gap-2">
           <span class="font-medium text-gray-700">Ocupadas:</span>
