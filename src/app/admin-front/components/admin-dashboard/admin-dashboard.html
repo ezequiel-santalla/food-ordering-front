@@ -7,12 +7,14 @@
 
     <!-- Header -->
 
-    <div class="p-4 flex items-center justify-between h-[64px] min-h-[64px] bg-gradient-to-br from-orange-300 via-orange-200 to-orange-100"
-     >
 
-    <div class="flex items-center space-x-3 min-w-0" [class.hidden]="isCollapsed">
 
-        <!-- Logo o fallback -->
+     <div class="p-4 flex items-center justify-between border-b border-gray-200 h-[64px] min-h-[64px]">
+        <div class="flex items-center space-x-3" [class.hidden]="isCollapsed">
+            <!-- <div class="w-8 h-8 flex items-center justify-center bg-black text-white rounded-lg">
+                <lucide-icon [img]="storeIcon" [size]="20"></lucide-icon>
+            </div> -->
+             <!-- Logo o fallback -->
         @if (adminInfo.venueLogo) {
             <img [src]="adminInfo.venueLogo"
                  alt="Logo del local"
@@ -22,63 +24,18 @@
                 <lucide-icon [img]="storeIcon" [size]="20" class="text-white"></lucide-icon>
             </div>
         }
-
-        <div class="flex flex-col overflow-hidden">
-            <span class="font-bold text-sm text-white whitespace-nowrap overflow-hidden text-ellipsis">
-                {{adminInfo.role}}
-            </span>
-            <span class="text-xs text-white/80 whitespace-nowrap overflow-hidden text-ellipsis">
-                {{adminInfo.foodVenueName}}
-            </span>
-        </div>
-    </div>
-
-    <!-- Logo centrado cuando está colapsado -->
-    @if (isCollapsed) {
-        @if (adminInfo.venueLogo) {
-            <img [src]="adminInfo.venueLogo"
-                 alt="Logo"
-                 class="w-9 h-9 rounded-lg object-cover mx-auto ring-2 ring-white/30" />
-        } @else {
-            <div class="w-9 h-9 flex items-center justify-center bg-white/20 rounded-lg mx-auto">
-                <lucide-icon [img]="storeIcon" [size]="20" class="text-white"></lucide-icon>
-            </div>
-        }
-    }
-
-    <button (click)="onToggle()"
-            class="p-1 rounded-full text-white/80 hover:bg-white/20 transition duration-150 shrink-0 cursor-pointer"
-            [ngClass]="{'ml-auto': !isCollapsed}"
-            [class.hidden]="isCollapsed"
-            aria-label="Alternar menú lateral">
-        <lucide-icon [img]="chevronLeftIcon" [size]="20"></lucide-icon>
-    </button>
-</div>
-
-@if (isCollapsed) {
-    <button (click)="onToggle()"
-            class="flex justify-center p-2 text-gray-400 hover:bg-gray-100 transition cursor-pointer border-b border-gray-200">
-        <lucide-icon [img]="chevronRightIcon" [size]="20"></lucide-icon>
-    </button>
-}
-    <!-- <div class="p-4 flex items-center justify-between border-b border-gray-200 h-[64px] min-h-[64px]">
-        <div class="flex items-center space-x-3" [class.hidden]="isCollapsed">
-            <div class="w-8 h-8 flex items-center justify-center bg-black text-white rounded-lg">
-                <lucide-icon [img]="storeIcon" [size]="20"></lucide-icon>
-            </div>
-
             <div class="flex flex-col overflow-hidden">
-                <span class="font-bold text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
+                <span class="font-bold text-base text-orange-900 whitespace-nowrap overflow-hidden text-ellipsis">
                     {{adminInfo.role}}
                 </span>
-                <span class="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis">
+                <span class="text-xs text-orange-400 whitespace-nowrap overflow-hidden text-ellipsis">
                     {{adminInfo.foodVenueName}}
                 </span>
             </div>
         </div>
 
         <button (click)="onToggle()"
-                class="p-1 rounded-full text-gray-400 hover:bg-gray-100 transition duration-150 shrink-0 cursor-pointer"
+                class="p-1 rounded-full text-orange-400 hover:bg-orange-100 transition duration-150 shrink-0 cursor-pointer"
                 [ngClass]="{'mx-auto': isCollapsed, 'ml-auto': !isCollapsed}"
                 aria-label="Alternar menú lateral">
             <lucide-icon
@@ -86,7 +43,7 @@
                 [size]="24">
             </lucide-icon>
         </button>
-    </div> -->
+    </div>
 
     <!-- Navigation -->
     <div class="flex flex-col flex-grow overflow-y-auto">
