@@ -2,9 +2,13 @@
   <header
     class="mb-4 md:mb-6 pb-1 flex flex-col md:flex-row md:justify-between md:items-start gap-4">
     <div>
-      <h1 class="text-3xl sm:text-3xl font-semibold text-gray-900">
-        {{ isEditingMode ? 'Armado de Salón (Modo Edición)' : 'Estado del Salón' }}
-      </h1>
+      <h1 class="text-3xl font-semibold text-gray-900 flex items-center gap-2">
+  {{ isEditingMode ? 'Armado de Salón' : 'Estado del Salón' }}
+
+  @if (isEditingMode) {
+    <span class="text-orange-600 font-light text-[0.8em]">| EDITANDO</span>
+  }
+</h1>
       <p class="text-xs sm:text-sm text-gray-500">
         {{ isEditingMode ? 'Organiza las mesas en el espacio del restaurante' : 'Visualiza el estado actual de las
         mesas' }}
@@ -82,11 +86,22 @@
 
     <div class="flex items-center text-xs sm:text-sm text-gray-600">
       <span class="whitespace-nowrap">
-        <span class="font-medium">Mesas:</span> {{tablesInCurrentSector.length}}
+        <span class="font-medium text-gray-800">Mesas:</span> {{tablesInCurrentSector.length}}
       </span>
+
       <span class="mx-3 text-gray-300 text-lg font-light">|</span>
-      <span class="whitespace-nowrap">
-        <span class="font-medium">Capacidad:</span> {{getTotalCapacity()}}p
+
+      <span class="whitespace-nowrap flex items-center gap-1">
+        <span class="font-medium text-gray-800">Capacidad:</span>
+
+        @if (getTotalCapacity() !== null) {
+        <span>{{getTotalCapacity()}}p</span>
+        } @else {
+        <span
+          class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
+          Sin asignar
+        </span>
+        }
       </span>
     </div>
   </div>

@@ -95,9 +95,17 @@ export class LoungeBuilderPage implements OnInit, OnDestroy {
     }));
   }
 
-  getTotalCapacity(): number {
+  getTotalCapacity(): number | null {
+    const hasAnyCapacity = this.tablesInCurrentSector.some(
+      (t) =>
+        t.diningTableCapacity !== null && t.diningTableCapacity !== undefined,
+    );
+
+    if (!hasAnyCapacity) return null;
+
     return this.tablesInCurrentSector.reduce(
-      (sum, table) => sum + (table.diningTableCapacity || 0), 0
+      (sum, table) => sum + (table.diningTableCapacity || 0),
+      0,
     );
   }
 

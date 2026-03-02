@@ -27,7 +27,7 @@
             Nombre
           </label>
           <input id="name" type="text" formControlName="name"
-            class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm p-3 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+            class="mt-1 block w-full border border-gray-300 rounded-lg  placeholder:text-gray-400/70 placeholder:font-light shadow-sm p-3 text-sm focus:ring-indigo-500 focus:border-indigo-500"
             placeholder="Ej: Postres" />
 
           @if (categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched) {
