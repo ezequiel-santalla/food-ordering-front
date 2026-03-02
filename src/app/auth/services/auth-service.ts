@@ -17,7 +17,7 @@ import { AuthResponse, LoginResponse } from '../models/auth';
 import { TableSessionResponse } from '../../shared/models/table-session';
 import { SessionUtils } from '../../utils/session-utils';
 import { JwtUtils } from '../../utils/jwt-utils';
-import { TokenManager } from '../../utils/token-manager';
+import { ProcessedAuthData, TokenManager } from '../../utils/token-manager';
 import { AuthStateManager } from './auth-state-manager-service';
 import { AuthApiService } from './auth-api-service';
 import { Employment } from '../../shared/models/common';
@@ -25,6 +25,7 @@ import { FoodVenueService } from '../../food-venues/services/food-venue.service'
 import { MenuService } from '../../store-front/services/menu-service';
 import { CartService } from '../../store-front/services/cart-service';
 import { TableAccessRequest } from './qr-processing-service';
+import { RoleSelectionComponent } from '../pages/role-selection/role-selection';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -56,12 +57,32 @@ export class AuthService {
   isGuest = this.authState.isGuest;
   participantId = this.authState.participantId;
   employments = this.authState.employments;
+  role = this.authState.role;
 
   authStatusText = computed(() => {
     const status = this.authState.authStatus();
     if (status === 'checking') return 'Verificando...';
     if (status === 'authenticated') return 'Autenticado';
     return 'No autenticado';
+  });
+
+  public currentUser = computed(() => {
+    const token = this.accessToken();
+    if (!token) return null;
+
+    try {
+      const name =
+        JwtUtils.getClaimValue(token, 'name') ||
+        JwtUtils.getClaimValue(token, 'sub') ||
+        'Usuario';
+
+      return {
+        name: name,
+        role: this.authState.role(),
+      };
+    } catch (e) {
+      return null;
+    }
   });
 
   login(
@@ -203,6 +224,10 @@ export class AuthService {
     );
   }
 
+  applyAuthData(data: ProcessedAuthData){
+    this.authState.applyAuthData(data);
+  }
+
   private performLocalLogout(): void {
     this.authState.clearState();
     this.cartService.clear();
@@ -219,6 +244,18 @@ export class AuthService {
     previousParticipants?: any[];
   } | null {
     return TokenManager.getSessionInfoFromResponse(response);
+  }
+
+  getAvailableRoles(): Observable<Employment[]> {
+    return this.authApi.getAvailableRoles().pipe(
+      tap((roles: Employment[]) => {
+        console.log('Roles obtenidos:', roles.length);
+      }),
+      catchError((error) => {
+        console.error('❌ Error obteniendo roles:', error);
+        return throwError(() => error);
+      }),
+    );
   }
 
   selectRole(employmentId: string): Observable<LoginResponse> {

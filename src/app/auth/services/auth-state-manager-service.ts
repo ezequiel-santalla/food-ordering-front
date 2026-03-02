@@ -188,6 +188,8 @@ export class AuthStateManager {
 
       switch (role) {
         case 'ROLE_CLIENT':
+        case 'ROLE_ROOT':
+        case 'ROLE_ADMIN':
           this._authStatus.set('authenticated');
           break;
         case 'ROLE_GUEST':
