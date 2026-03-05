@@ -87,4 +87,8 @@ export class AuthApiService {
       body
     );
   }
+
+  loginWithGoogle(idToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/google`, { idToken });
+  }
 }
