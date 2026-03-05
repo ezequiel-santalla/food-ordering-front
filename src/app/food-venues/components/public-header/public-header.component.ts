@@ -27,6 +27,7 @@ import { NavigationService } from '../../../shared/services/navigation.service';
 import { SweetAlertService } from '../../../shared/services/sweet-alert.service';
 import { finalize } from 'rxjs';
 import { TableSessionService } from '../../../store-front/services/table-session-service';
+import { ProfileService } from '../../../store-front/services/profile-service';
 
 @Component({
   selector: 'app-public-header',
@@ -50,6 +51,9 @@ export class PublicHeaderComponent {
   private elementRef = inject(ElementRef);
   private alertService = inject(SweetAlertService);
   private tableSessionService = inject(TableSessionService);
+  private profileService = inject(ProfileService);
+
+  pictureUrl = signal<string | null>(null);
 
   @Output() navTo = new EventEmitter<string>();
 
@@ -76,9 +80,14 @@ export class PublicHeaderComponent {
   }
 
   ngOnInit() {
-    this.router.events.subscribe(() => {
-      this.closeMenu();
-    });
+    this.router.events.subscribe(() => this.closeMenu());
+
+    if (this.isLoggedIn()) {
+      this.profileService.getUserProfile().subscribe({
+        next: (profile) => this.pictureUrl.set(profile.pictureUrl ?? null),
+        error: () => { }
+      });
+    }
   }
 
   toggleMenu() {

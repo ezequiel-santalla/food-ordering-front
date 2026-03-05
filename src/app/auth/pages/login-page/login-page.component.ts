@@ -148,7 +148,8 @@ export class LoginPageComponent implements OnInit {
 
           this.navigation.navigateBySessionState(1500);
         } else {
-          const { title, message } = this.errorHandler.getAuthError(error);
+          const title = error.title ?? 'Error al iniciar sesión';
+          const message = error.message ?? 'No se pudo iniciar sesión.';
           this.sweetAlertService.showError(title, message);
         }
       },
@@ -252,7 +253,8 @@ export class LoginPageComponent implements OnInit {
         this.processSuccessfulLogin(response);
       },
       error: (error) => {
-        const { title, message } = this.errorHandler.getAuthError(error);
+        const title = error.title ?? 'Error al iniciar sesión';
+        const message = error.message ?? 'No se pudo iniciar sesión.';
         this.sweetAlertService.showError(title, message);
       },
     });

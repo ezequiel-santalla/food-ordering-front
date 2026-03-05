@@ -30,8 +30,12 @@
         </button>
         } @else {
         <a routerLink="/profile"
-          class="btn btn-ghost h-10 w-10 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 p-0">
+          class="btn btn-ghost h-10 w-10 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 p-0 overflow-hidden">
+          @if (pictureUrl()) {
+          <img [src]="pictureUrl()" class="w-full h-full object-cover rounded-2xl" />
+          } @else {
           <lucide-icon [img]="User" class="w-4 h-4 text-orange-700"></lucide-icon>
+          }
         </a>
         <button class="btn h-10 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2 text-sm"
           (click)="onLogout()">
@@ -82,7 +86,11 @@
             <a routerLink="/profile"
               class="mt-2 w-full btn h-12 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2"
               (click)="closeMenu()">
+              @if (pictureUrl()) {
+              <img [src]="pictureUrl()" class="w-8 h-8 rounded-full object-cover" />
+              } @else {
               <lucide-icon [img]="User" class="w-5 h-5 text-orange-700"></lucide-icon>
+              }
               Mi perfil
             </a>
             <button class="mt-2 w-full btn h-12 rounded-2xl border border-orange-200 bg-white hover:bg-orange-50 gap-2"
