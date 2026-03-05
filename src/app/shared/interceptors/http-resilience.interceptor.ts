@@ -64,10 +64,11 @@ export const httpResilienceInterceptor: HttpInterceptorFn = (req, next) => {
       if (status === 401) {
         return new DinnoHttpError({
           kind: 'auth',
-          title: 'Sesión vencida',
-          message: 'Tu sesión venció. Volvé a iniciar sesión.',
+          title: err.error?.message ? 'Credenciales inválidas' : 'Sesión vencida',
+          message: err.error?.message ?? 'Tu sesión venció. Volvé a iniciar sesión.',
           retryable: false,
           status,
+          appCode: err.error?.appCode,
           cause: err,
         });
       }
