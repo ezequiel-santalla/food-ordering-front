@@ -101,9 +101,9 @@ export class AuthService {
       tap((response) => {
         const processed = SessionUtils.isTableSessionResponse(response)
           ? TokenManager.processTableSessionResponse(
-              response as TableSessionResponse,
-              this.authState.refreshToken(),
-            )
+            response as TableSessionResponse,
+            this.authState.refreshToken(),
+          )
           : TokenManager.processAuthResponse(response as AuthResponse);
 
         this.authState.applyAuthData(processed);
@@ -224,7 +224,7 @@ export class AuthService {
     );
   }
 
-  applyAuthData(data: ProcessedAuthData){
+  applyAuthData(data: ProcessedAuthData) {
     this.authState.applyAuthData(data);
   }
 
@@ -366,5 +366,18 @@ export class AuthService {
 
   hasPendingTableScan(): boolean {
     return this.pendingTableId !== null;
+  }
+
+  loginWithGoogle(idToken: string): Observable<LoginResponse> {
+    return this.authApi.loginWithGoogle(idToken).pipe(
+      tap((response) => {
+        const processed = TokenManager.processAuthResponse(response as AuthResponse);
+        this.authState.applyAuthData(processed);
+      }),
+      catchError((error) => {
+        console.error('❌ Error en Google login:', error);
+        return throwError(() => error);
+      }),
+    );
   }
 }
