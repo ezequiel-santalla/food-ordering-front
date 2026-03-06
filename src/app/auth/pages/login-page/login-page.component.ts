@@ -24,6 +24,7 @@ import { NavigationService } from '../../../shared/services/navigation.service';
 import { TableSessionService } from '../../../store-front/services/table-session-service';
 import { isTableSessionResponse, LoginResponse } from '../../models/auth';
 import { AuthStateManager } from '../../services/auth-state-manager-service';
+import { GoogleAuthService } from '../../services/google-auth-service';
 
 @Component({
   selector: 'app-login-page',
@@ -42,6 +43,7 @@ export class LoginPageComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private authState = inject(AuthStateManager);
+  private googleAuthService = inject(GoogleAuthService);
   private sweetAlertService = inject(SweetAlertService);
   private tableSessionService = inject(TableSessionService);
   private errorHandler = inject(ErrorHandlerService);
@@ -146,7 +148,8 @@ export class LoginPageComponent implements OnInit {
 
           this.navigation.navigateBySessionState(1500);
         } else {
-          const { title, message } = this.errorHandler.getAuthError(error);
+          const title = error.title ?? 'Error al iniciar sesión';
+          const message = error.message ?? 'No se pudo iniciar sesión.';
           this.sweetAlertService.showError(title, message);
         }
       },
@@ -234,6 +237,27 @@ export class LoginPageComponent implements OnInit {
     // 3. Si no hay roles, navega al estado de la sesión
     this.resetForm();
     this.navigation.navigateBySessionState();
+  }
+
+  onGoogleLogin(): void {
+    this.googleAuthService.initialize((idToken) => this.handleGoogleCallback(idToken));
+    this.googleAuthService.prompt();
+  }
+
+  private handleGoogleCallback(idToken: string): void {
+    this.sweetAlertService.showLoading('Iniciando sesión...', 'Verificando cuenta de Google');
+
+    this.authService.loginWithGoogle(idToken).subscribe({
+      next: (response) => {
+        this.sweetAlertService.showSuccess('¡Bienvenido!', 'Has iniciado sesión con Google.');
+        this.processSuccessfulLogin(response);
+      },
+      error: (error) => {
+        const title = error.title ?? 'Error al iniciar sesión';
+        const message = error.message ?? 'No se pudo iniciar sesión.';
+        this.sweetAlertService.showError(title, message);
+      },
+    });
   }
 
   onExit() {

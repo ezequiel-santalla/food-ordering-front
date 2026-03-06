@@ -6,6 +6,7 @@ export interface UserProfile {
   phone: string;
   birthDate: string;
   address?: AddressResponse;
+  pictureUrl?: string;
 }
 
 export interface AddressResponse {
@@ -17,7 +18,7 @@ export interface AddressResponse {
   postalCode: string;
   cityId: number;
   provinceId: number;
-  countryId: number;   
+  countryId: number;
 }
 
 export interface AddressRequest {
